@@ -1,0 +1,10 @@
+.step {}
+.circle {
+  transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+}
+.step:hover .circle {
+  border-color: #E53935;
+  background-color: rgba(229, 57, 53, 0.05);
+  color: #E53935;
+  box-shadow: 0 0 30px rgba(229, 57, 53, 0.3);
+}

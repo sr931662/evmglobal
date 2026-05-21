@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-dark text-dark antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EMV Global | Premium Travel Concierge</title>
+    
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Motion (Framer Motion for vanilla JS) & Lenis Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#E53935',
+                            hover: '#C62828',
+                            light: '#FFEBEE',
+                            muted: 'rgba(229, 57, 53, 0.1)'
+                        },
+                        dark: {
+                            DEFAULT: '#0a0a0a',
+                            surface: '#121212',
+                            elevated: '#1a1a1a'
+                        },
+                        whatsapp: '#25D366'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.05)',
+                        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.4)',
+                        'premium': '0 20px 40px -10px rgba(0,0,0,0.1)',
+                        'float': '0 30px 60px -15px rgba(0,0,0,0.15)',
+                        'glow': '0 0 30px rgba(229, 57, 53, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* -------------------------------------
+           Lenis Smooth Scroll Base 
+           ------------------------------------- */
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+        /* -------------------------------------
+           Base Architecture & Utilities 
+           ------------------------------------- */
+        body {
+            background-color: #fafafa;
+            overflow-x: hidden;
+            /* Hide native cursor for custom cursor experience on desktop */
+            cursor: none; 
+        }
+
+        /* Re-enable native cursor for touch devices and specific inputs */
+        @media (hover: none) and (pointer: coarse) { body { cursor: auto; } }
+        input, select, textarea { cursor: auto; }
+
+        /* Page View Routing */
+        .page-view {
+            display: none;
+            opacity: 0;
+        }
+        .page-view.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Hide Scrollbar completely for clean UI */
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Loading Screen (Cinematic Cover) */
+        #loader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loader-door {
+            position: absolute;
+            inset: 0;
+            background: #E53935;
+            transform-origin: top;
+            transform: scaleY(0);
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .glass-dark {
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Text Splitting Setup (For Motion reveals) */
+        .split-parent { overflow: hidden; display: inline-flex; vertical-align: top; }
+        .split-child { display: inline-block; transform: translateY(110%); }
+
+        /* Image Zoom Architecture */
+        .img-wrap { overflow: hidden; position: relative; }
+        .img-zoom {
+            transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+        .group:hover .img-zoom { transform: scale(1.1); }
+
+        /* Accordion */
+        .accordion-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .accordion-content > div { overflow: hidden; }
+        .accordion-active .accordion-content { grid-template-rows: 1fr; }
+        .accordion-active .accordion-icon { transform: rotate(180deg); }
+
+        /* Gradients */
+        .hero-vignette {
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.5) 100%),
+                        linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 30%, rgba(0,0,0,0.85) 100%);
+        }
+        .card-vignette { background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 50%, transparent 100%); }
+
+        /* Bento Box specific hovers */
+        .bento-hover {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bento-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12);
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 20px; height: 20px;
+            background: #E53935;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100000;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+            transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
+        }
+        .custom-cursor.hover {
+            width: 60px; height: 60px;
+            background: white;
+            mix-blend-mode: difference;
+        }
+
+        /* Marquee */
+        .marquee-mask { -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { animation: marquee 40s linear infinite; }
+    </style>
+</head>
+<body class="text-dark selection:bg-brand selection:text-white flex flex-col min-h-screen">
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor hidden md:block" id="cursor"></div>
+
+    <!-- Cinematic Loading Screen -->
+    <div id="loader">
+        <div class="loader-door"></div>
+        <div class="flex flex-col items-center relative z-10">
+            <div class="overflow-hidden mb-6">
+                <div class="w-16 h-16 rounded-[14px] bg-brand flex items-center justify-center text-white font-serif font-bold text-4xl shadow-glow loader-logo transform translate-y-full opacity-0">
+                    E
+                </div>
+            </div>
+            <div class="overflow-hidden">
+                <p class="text-white/60 text-xs font-bold uppercase tracking-[0.3em] loader-text transform translate-y-full">Curating Experience</p>
+            </div>
+            <div class="h-[2px] w-48 bg-white/10 rounded-full mt-6 overflow-hidden loader-bar-container opacity-0">
+                <div class="h-full bg-white w-full rounded-full origin-left loader-bar transform scale-x-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 py-6 border-b border-transparent">
+        <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <a href="#home" onclick="nav('home')" class="flex items-center gap-3 cursor-pointer hover-target" data-cursor="hover">
+                    <div class="w-12 h-12 rounded-[14px] bg-brand flex items-center justify-center text-white font-serif font-bold text-2xl shadow-glow transition-transform duration-500 nav-logo">
+                        E
+                    </div>
+                    <div class="flex flex-col nav-text-color transition-colors duration-300">
+                        <span class="font-serif font-bold text-[24px] tracking-tight leading-none">EMV</span>
+                        <span class="text-brand font-sans text-[10px] font-black uppercase tracking-[0.25em] leading-none mt-1.5">Global</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Links (Pill) -->
+                <div id="nav-pill" class="hidden md:flex items-center space-x-2 glass px-2 py-2 rounded-full transition-all duration-500">
+                    <a href="#destinations" onclick="nav('destinations')" class="px-6 py-2.5 rounded-full text-sm font-bold text-gray-700 hover:text-dark hover:bg-white/80 transition-all hover-target">Destinations</a>
+                    <a href="#packages" onclick="nav('packages')" class="px-6 py-2.5 rounded-full text-sm font-bold text-gray-700 hover:text-dark hover:bg-white/80 transition-all hover-target">Journeys</a>
+                    <a href="#about" onclick="nav('about')" class="px-6 py-2.5 rounded-full text-sm font-bold text-gray-700 hover:text-dark hover:bg-white/80 transition-all hover-target">Our Ethos</a>
+                </div>
+
+                <!-- CTA -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#admin" onclick="nav('admin')" class="text-[11px] font-bold nav-text-color hover:text-brand transition-colors duration-300 tracking-[0.15em] uppercase hover-target">Workspace</a>
+                    <button onclick="openWhatsApp('Bespoke Trip Planning')" class="bg-white text-dark px-8 py-4 rounded-full text-sm font-bold hover:bg-gray-100 transition-all shadow-float flex items-center gap-3 hover-target nav-cta group">
+                        <i class="fab fa-whatsapp text-whatsapp text-xl group-hover:scale-110 transition-transform"></i> Plan Trip
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden glass p-4 rounded-full flex items-center justify-center nav-text-color" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-white/95 backdrop-blur-3xl z-[100] hidden flex-col transition-all duration-500 opacity-0">
+        <div class="px-6 py-6 flex justify-end">
+            <button class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center text-dark hover:bg-gray-200 transition-colors" onclick="toggleMobileMenu()">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <div class="flex flex-col space-y-8 text-5xl font-serif px-8 pt-12">
+            <a href="#home" onclick="nav('home'); toggleMobileMenu()" class="text-dark hover:text-brand transition-colors">Home</a>
+            <a href="#destinations" onclick="nav('destinations'); toggleMobileMenu()" class="text-dark hover:text-brand transition-colors">Destinations</a>
+            <a href="#packages" onclick="nav('packages'); toggleMobileMenu()" class="text-dark hover:text-brand transition-colors">Journeys</a>
+            <a href="#about" onclick="nav('about'); toggleMobileMenu()" class="text-dark hover:text-brand transition-colors">Our Ethos</a>
+        </div>
+        <div class="mt-auto p-8 flex flex-col gap-6">
+            <button onclick="openWhatsApp(); toggleMobileMenu()" class="w-full bg-dark text-white px-6 py-6 rounded-full text-center font-bold shadow-float flex justify-center items-center gap-3 text-xl">
+                <i class="fab fa-whatsapp text-whatsapp text-3xl"></i> Chat on WhatsApp
+            </button>
+            <a href="#admin" onclick="nav('admin'); toggleMobileMenu()" class="text-center text-gray-500 font-bold text-sm tracking-[0.2em] uppercase">Admin Workspace</a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow">
+
+        <!-- ================= HOME PAGE ================= -->
+        <section id="page-home" class="page-view active">
+            
+            <!-- Hero Section (Strictly 100svh) -->
+            <div class="relative h-[100svh] w-full flex flex-col items-center justify-center overflow-hidden bg-dark">
+                <!-- Parallax Background -->
+                <div class="absolute inset-0 w-full h-full hero-bg-wrap">
+                    <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&q=80&w=2800" alt="Luxury Travel" class="w-full h-full object-cover hero-bg opacity-80 scale-[1.15]" />
+                </div>
+                <div class="absolute inset-0 hero-vignette"></div>
+                
+                <div class="relative z-10 w-full max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-12 flex flex-col items-center text-center mt-10">
+                    <div class="hero-badge inline-flex items-center gap-3 py-2.5 px-6 rounded-full glass-dark text-white/90 text-xs font-bold uppercase tracking-[0.25em] mb-10 opacity-0">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+                        </span>
+                        Premium Concierge
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl lg:text-[8.5rem] font-serif text-white font-bold leading-[1.0] mb-8 text-balance drop-shadow-2xl tracking-tight hero-title">
+                        Crafting Your <br class="hidden md:block"/>Perfect <span class="text-brand-light italic font-normal px-2">Escape.</span>
+                    </h1>
+                    
+                    <p class="text-lg md:text-2xl text-white/80 mb-16 font-light max-w-3xl leading-relaxed hero-subtitle opacity-0">
+                        Bespoke international holidays curated entirely around your pace and preferences. Skip the generic, embrace the extraordinary.
+                    </p>
+
+                    <!-- Elevated Search Widget -->
+                    <div class="w-full max-w-5xl glass rounded-full p-2.5 shadow-float hero-search opacity-0 flex flex-col md:flex-row gap-2 relative z-20">
+                        <div class="flex-1 bg-white/70 hover:bg-white transition-colors duration-500 rounded-full p-4 px-8 flex flex-col cursor-pointer group hover-target">
+                            <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1 group-hover:text-brand transition-colors">Destination</label>
+                            <input type="text" placeholder="Where to?" class="w-full outline-none text-dark font-bold text-lg bg-transparent placeholder-gray-400">
+                        </div>
+                        <div class="w-px bg-gray-300/50 hidden md:block my-4"></div>
+                        <div class="flex-1 bg-white/70 hover:bg-white transition-colors duration-500 rounded-full p-4 px-8 flex flex-col cursor-pointer hidden md:flex group hover-target">
+                            <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1 group-hover:text-brand transition-colors">Duration</label>
+                            <select class="w-full outline-none text-dark font-bold text-lg bg-transparent cursor-pointer appearance-none">
+                                <option value="">Any length</option>
+                                <option value="3-5">3 - 5 Days</option>
+                                <option value="6-9">6 - 9 Days</option>
+                                <option value="10+">10+ Days</option>
+                            </select>
+                        </div>
+                        <div class="w-px bg-gray-300/50 hidden md:block my-4"></div>
+                        <div class="flex-1 bg-white/70 hover:bg-white transition-colors duration-500 rounded-full p-4 px-8 flex flex-col cursor-pointer hidden md:flex group hover-target">
+                            <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1 group-hover:text-brand transition-colors">Travelers</label>
+                            <select class="w-full outline-none text-dark font-bold text-lg bg-transparent cursor-pointer appearance-none">
+                                <option value="">Who's going?</option>
+                                <option value="couple">Couple</option>
+                                <option value="family">Family</option>
+                                <option value="group">Group</option>
+                            </select>
+                        </div>
+                        
+                        <button onclick="nav('packages')" class="bg-brand text-white md:w-24 w-full rounded-full font-bold text-lg hover:bg-brand-hover transition-all duration-300 flex items-center justify-center h-20 md:h-auto group shadow-glow hover-target" data-cursor="hover">
+                            <span class="md:hidden">Explore Journeys</span>
+                            <i class="fa-solid fa-arrow-right md:block hidden group-hover:translate-x-1 transition-transform duration-300 text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scroll Down Indicator -->
+                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center text-white/50 hero-scroll opacity-0">
+                    <span class="text-[9px] font-black uppercase tracking-[0.3em] mb-4">Discover</span>
+                    <div class="w-[1px] h-12 bg-white/20 relative overflow-hidden">
+                        <div class="w-full h-full bg-white absolute top-0 -translate-y-full animate-[slideDown_2s_ease-in-out_infinite]"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Partners (Marquee) -->
+            <div class="py-16 bg-white border-b border-gray-100 overflow-hidden relative z-20">
+                <div class="max-w-[95rem] mx-auto px-6 mb-10 text-center">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Partnered with Excellence</p>
+                </div>
+                <div class="relative w-full marquee-mask">
+                    <div class="flex whitespace-nowrap animate-marquee items-center opacity-40 hover:opacity-100 transition-opacity duration-700">
+                        <div class="flex items-center gap-20 md:gap-32 px-10 text-4xl text-gray-800">
+                            <i class="fa-brands fa-cc-visa text-6xl"></i>
+                            <div class="font-serif font-bold italic tracking-wider">Emirates</div>
+                            <i class="fa-brands fa-cc-mastercard text-6xl"></i>
+                            <div class="font-sans font-black tracking-tighter">IATA</div>
+                            <div class="font-serif font-bold italic">Taj Resorts</div>
+                            <div class="font-sans font-bold tracking-tight">Marriott</div>
+                            <div class="font-serif font-bold italic">Four Seasons</div>
+                        </div>
+                        <div class="flex items-center gap-20 md:gap-32 px-10 text-4xl text-gray-800">
+                            <i class="fa-brands fa-cc-visa text-6xl"></i>
+                            <div class="font-serif font-bold italic tracking-wider">Emirates</div>
+                            <i class="fa-brands fa-cc-mastercard text-6xl"></i>
+                            <div class="font-sans font-black tracking-tighter">IATA</div>
+                            <div class="font-serif font-bold italic">Taj Resorts</div>
+                            <div class="font-sans font-bold tracking-tight">Marriott</div>
+                            <div class="font-serif font-bold italic">Four Seasons</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bento Box: Why EMV -->
+            <div class="py-32 bg-gray-50 overflow-hidden">
+                <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12">
+                    <div class="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
+                        <div class="max-w-3xl">
+                            <span class="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-6 block flex items-center gap-4 gsap-fade-up"><span class="w-12 h-[2px] bg-brand"></span> The Philosophy</span>
+                            <h2 class="text-5xl md:text-7xl font-serif font-bold text-dark leading-[1.1] tracking-tight gsap-fade-up">Artisans of <br/>global travel.</h2>
+                        </div>
+                        <p class="text-gray-500 text-xl font-light max-w-lg md:text-right leading-relaxed gsap-fade-up">We replace algorithms with experts. Every detail is immaculate, from inspiration to your safe return.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 auto-rows-[340px]">
+                        <!-- Large Feature -->
+                        <div class="md:col-span-2 md:row-span-2 bg-white rounded-[3rem] p-12 md:p-16 border border-gray-200 shadow-glass bento-hover flex flex-col justify-between overflow-hidden relative group hover-target gsap-bento">
+                            <div class="absolute right-0 top-0 w-[600px] h-[600px] bg-brand/5 rounded-full blur-[100px] -mr-40 -mt-40 transition-transform group-hover:scale-150 duration-1000"></div>
+                            <div class="relative z-10">
+                                <div class="w-20 h-20 bg-dark text-white rounded-3xl flex items-center justify-center text-3xl mb-10 shadow-premium"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <h3 class="text-4xl md:text-5xl font-serif font-bold text-dark mb-6 leading-tight">100% Bespoke<br/>Itineraries.</h3>
+                                <p class="text-gray-500 text-xl max-w-md leading-relaxed font-light">Every trip is crafted from a blank canvas. Your pace, your preferences, your style. We reject the one-size-fits-all approach to travel entirely.</p>
+                            </div>
+                            <div class="relative z-10 mt-8">
+                                <a href="#packages" onclick="nav('packages')" class="inline-flex items-center gap-3 text-brand font-bold hover:gap-5 transition-all uppercase tracking-[0.2em] text-xs">Explore Curations <i class="fa-solid fa-arrow-right text-lg"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="md:col-span-2 bg-dark rounded-[3rem] p-12 border border-gray-800 shadow-premium bento-hover flex flex-col justify-between relative overflow-hidden text-white group hover-target gsap-bento">
+                            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1555529733-0e670560f4e1?auto=format&fit=crop&q=80&w=1000')] bg-cover bg-center opacity-20 group-hover:opacity-30 group-hover:scale-105 transition-all duration-1000 mix-blend-overlay"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                            <div class="w-16 h-16 bg-white/10 text-white backdrop-blur-md rounded-[1.5rem] flex items-center justify-center text-2xl mb-6 border border-white/10 relative z-10"><i class="fa-solid fa-headset"></i></div>
+                            <div class="relative z-10">
+                                <h3 class="text-3xl font-serif font-bold mb-4">24/7 Concierge</h3>
+                                <p class="text-white/70 font-light leading-relaxed text-lg max-w-md">Real human experts available via WhatsApp during your entire trip. No automated bots, just immediate, personalized assistance.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="bg-white rounded-[3rem] p-10 border border-gray-200 shadow-glass bento-hover flex flex-col justify-between hover-target gsap-bento">
+                            <div class="w-14 h-14 bg-green-50 text-green-600 rounded-[1.5rem] flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-dark mb-3">Absolute Transparency</h3>
+                                <p class="text-gray-500 font-light leading-relaxed">No hidden fees, no surprise taxes. The bespoke quote you see is the final price you pay.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="bg-white rounded-[3rem] p-0 border border-gray-200 shadow-glass bento-hover overflow-hidden relative group hover-target gsap-bento">
+                            <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                            <div class="absolute inset-0 card-vignette"></div>
+                            <div class="relative z-10 p-10 h-full flex flex-col justify-end">
+                                <h3 class="text-2xl font-bold text-white mb-2">Seamless Logistics</h3>
+                                <p class="text-white/80 font-light">VIP airport transfers to skip-the-line passes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destinations Grid (GSAP Enhanced) -->
+            <div class="py-32 bg-white relative z-10">
+                <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 mb-20 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <div>
+                        <span class="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-4 block flex items-center gap-4 gsap-fade-up"><span class="w-12 h-[2px] bg-brand"></span> Global Canvas</span>
+                        <h2 class="text-5xl md:text-7xl font-serif font-bold text-dark tracking-tight gsap-fade-up">Iconic Escapes</h2>
+                    </div>
+                    <button onclick="nav('destinations')" class="group flex items-center gap-4 text-dark font-bold hover:text-brand transition-colors text-sm uppercase tracking-[0.2em] gsap-fade-up hover-target">
+                        View Portfolio <i class="fa-solid fa-arrow-right-long group-hover:translate-x-3 transition-transform duration-500 text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        
+                        <!-- Dest 1 -->
+                        <div class="h-[550px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest" onclick="nav('packages')">
+                            <img src="https://images.unsplash.com/photo-1516815231560-8f41ec531527?auto=format&fit=crop&q=80&w=1000" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                            <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div class="absolute top-8 right-8 z-10">
+                                <div class="w-14 h-14 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                    <i class="fa-solid fa-arrow-right text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                                <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-3 drop-shadow-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">Indian Ocean</span>
+                                <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Maldives</h3>
+                                <p class="text-white/70 font-light text-lg">Starting from ₹85k</p>
+                            </div>
+                        </div>
+
+                        <!-- Dest 2 -->
+                        <div class="h-[550px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest lg:translate-y-12" onclick="nav('packages')">
+                            <img src="https://images.unsplash.com/photo-1522307837370-cc113a36b784?auto=format&fit=crop&q=80&w=1000" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                            <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div class="absolute top-8 left-8 z-10"><span class="bg-white text-dark text-[10px] font-black px-5 py-2.5 rounded-full uppercase tracking-[0.2em] shadow-lg">Bestseller</span></div>
+                            <div class="absolute top-8 right-8 z-10">
+                                <div class="w-14 h-14 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                    <i class="fa-solid fa-arrow-right text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                                <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-3 drop-shadow-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">Europe</span>
+                                <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Switzerland</h3>
+                                <p class="text-white/70 font-light text-lg">Starting from ₹1.2L</p>
+                            </div>
+                        </div>
+
+                        <!-- Dest 3 -->
+                        <div class="h-[550px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest" onclick="nav('packages')">
+                            <img src="https://images.unsplash.com/photo-1540959733332-eab4ce28115f?auto=format&fit=crop&q=80&w=1000" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                            <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div class="absolute top-8 right-8 z-10">
+                                <div class="w-14 h-14 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                    <i class="fa-solid fa-arrow-right text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                                <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-3 drop-shadow-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">Asia</span>
+                                <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Bali</h3>
+                                <p class="text-white/70 font-light text-lg">Starting from ₹45k</p>
+                            </div>
+                        </div>
+
+                        <!-- Dest 4 -->
+                        <div class="h-[550px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest lg:translate-y-12" onclick="nav('packages')">
+                            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=1000" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                            <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div class="absolute top-8 right-8 z-10">
+                                <div class="w-14 h-14 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                    <i class="fa-solid fa-arrow-right text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                                <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-3 drop-shadow-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">Middle East</span>
+                                <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Dubai</h3>
+                                <p class="text-white/70 font-light text-lg">Starting from ₹65k</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process / Timeline (Animated SVG Path style) -->
+            <div class="py-40 bg-dark text-white relative overflow-hidden" id="process-section">
+                <!-- Abstract Glows -->
+                <div class="absolute right-[-10%] top-0 w-[1000px] h-[1000px] bg-brand/10 rounded-full blur-[150px] pointer-events-none"></div>
+                
+                <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+                    <div class="text-center mb-32">
+                        <span class="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-4 block gsap-fade-up">Methodology</span>
+                        <h2 class="text-5xl md:text-7xl font-serif font-bold mb-6 tracking-tight gsap-fade-up">The EMV Journey</h2>
+                        <p class="text-gray-400 text-xl font-light max-w-2xl mx-auto gsap-fade-up">Three steps to your perfect getaway. We handle the complexity; you enjoy the anticipation.</p>
+                    </div>
+
+                    <div class="relative">
+                        <!-- Progress Line -->
+                        <div class="hidden md:block absolute top-[60px] left-[15%] right-[15%] h-[2px] bg-gray-800">
+                            <div class="h-full bg-brand origin-left scale-x-0" id="process-line"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-20 md:gap-12 relative z-10">
+                            <div class="text-center group process-step">
+                                <div class="w-32 h-32 mx-auto rounded-full bg-dark-surface border border-gray-800 flex items-center justify-center text-4xl font-serif text-brand mb-10 transition-colors duration-500 group-hover:border-brand shadow-glass-dark relative z-10 step-circle">01</div>
+                                <h3 class="text-3xl font-bold mb-4 tracking-tight">Connect</h3>
+                                <p class="text-gray-400 font-light leading-relaxed text-lg max-w-sm mx-auto">Share your destination dreams. An expert concierge will reach out to understand your unique travel vibe.</p>
+                            </div>
+                            <div class="text-center group process-step">
+                                <div class="w-32 h-32 mx-auto rounded-full bg-dark-surface border border-gray-800 flex items-center justify-center text-4xl font-serif text-brand mb-10 transition-colors duration-500 group-hover:border-brand shadow-glass-dark relative z-10 step-circle">02</div>
+                                <h3 class="text-3xl font-bold mb-4 tracking-tight">Curate</h3>
+                                <p class="text-gray-400 font-light leading-relaxed text-lg max-w-sm mx-auto">Receive a beautifully crafted, highly detailed itinerary. We refine it meticulously until it's absolutely perfect.</p>
+                            </div>
+                            <div class="text-center group process-step">
+                                <div class="w-32 h-32 mx-auto rounded-full bg-dark-surface border border-gray-800 flex items-center justify-center text-4xl font-serif text-brand mb-10 transition-colors duration-500 group-hover:border-brand shadow-glass-dark relative z-10 step-circle">03</div>
+                                <h3 class="text-3xl font-bold mb-4 tracking-tight">Depart</h3>
+                                <p class="text-gray-400 font-light leading-relaxed text-lg max-w-sm mx-auto">Confirm securely. From luxury flights to private transfers, we orchestrate the logistics globally.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA Section -->
+            <div class="py-32 bg-gray-50 relative">
+                <div class="max-w-[85rem] mx-auto px-6 sm:px-8 lg:px-12 gsap-fade-up">
+                    <div class="bg-white rounded-[4rem] p-12 md:p-24 shadow-premium flex flex-col md:flex-row items-center justify-between gap-16 relative overflow-hidden group hover-target border border-gray-200">
+                        <div class="absolute -right-20 -top-20 opacity-5 transition-transform duration-[2s] group-hover:rotate-45 group-hover:scale-150 pointer-events-none">
+                            <i class="fa-regular fa-compass text-[500px] text-dark"></i>
+                        </div>
+                        
+                        <div class="relative z-10 max-w-3xl">
+                            <span class="inline-block py-2 px-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mb-8 border border-gray-200">Exclusive Access</span>
+                            <h2 class="text-5xl md:text-7xl font-serif font-bold mb-8 leading-[1.05] tracking-tight text-dark">Begin your <br/>next chapter.</h2>
+                            <p class="text-gray-500 text-2xl font-light leading-relaxed">Request a fully customized, no-obligation travel curation from our global experts today.</p>
+                        </div>
+                        <div class="relative z-10 w-full md:w-auto flex-shrink-0 flex flex-col items-center">
+                            <button onclick="openWhatsApp('Custom Itinerary Request')" class="w-full md:w-auto bg-dark text-white px-12 py-6 rounded-full font-bold text-xl hover:bg-black transition-all shadow-float flex items-center justify-center gap-4 tracking-wide hover-target group">
+                                <i class="fab fa-whatsapp text-whatsapp text-3xl group-hover:scale-110 transition-transform"></i> Chat with Expert
+                            </button>
+                            <p class="text-center text-gray-400 text-sm mt-6 font-medium flex items-center gap-3 uppercase tracking-[0.1em]"><span class="w-2.5 h-2.5 rounded-full bg-whatsapp animate-pulse shadow-glow"></span> Quick Response</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= DESTINATIONS PAGE ================= -->
+        <section id="page-destinations" class="page-view bg-gray-50 pt-[100px] md:pt-[120px]">
+            <!-- Header -->
+            <div class="bg-white border-b border-gray-200/60 pb-12 pt-12 relative z-10 shadow-sm">
+                <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+                    <div>
+                        <span class="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Portfolio</span>
+                        <h1 class="text-5xl md:text-7xl font-serif font-bold text-dark tracking-tight">Global Canvas</h1>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="flex flex-wrap gap-3">
+                        <button class="px-8 py-4 rounded-full bg-dark text-white text-sm font-bold shadow-md hover:bg-black transition-colors hover-target">All Regions</button>
+                        <button class="px-8 py-4 rounded-full bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand text-sm font-bold transition-colors shadow-sm hover-target">Europe</button>
+                        <button class="px-8 py-4 rounded-full bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand text-sm font-bold transition-colors shadow-sm hover-target">Asia</button>
+                        <button class="px-8 py-4 rounded-full bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand text-sm font-bold transition-colors shadow-sm hover-target">Middle East</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destinations Grid -->
+            <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 py-24">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    
+                    <!-- Dest Card 1 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5f1?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Europe</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Santorini</h3>
+                            <p class="text-white/80 font-light">Greece</p>
+                        </div>
+                    </div>
+
+                    <!-- Dest Card 2 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Asia</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Kyoto</h3>
+                            <p class="text-white/80 font-light">Japan</p>
+                        </div>
+                    </div>
+
+                    <!-- Dest Card 3 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Europe</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Amalfi</h3>
+                            <p class="text-white/80 font-light">Italy</p>
+                        </div>
+                    </div>
+
+                    <!-- Dest Card 4 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Middle East</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Dubai</h3>
+                            <p class="text-white/80 font-light">UAE</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Dest Card 5 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1516815231560-8f41ec531527?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Oceania</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Maldives</h3>
+                            <p class="text-white/80 font-light">Republic of Maldives</p>
+                        </div>
+                    </div>
+
+                    <!-- Dest Card 6 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Europe</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Swiss Alps</h3>
+                            <p class="text-white/80 font-light">Switzerland</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Dest Card 7 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Asia</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Bali</h3>
+                            <p class="text-white/80 font-light">Indonesia</p>
+                        </div>
+                    </div>
+
+                    <!-- Dest Card 8 -->
+                    <div class="h-[520px] relative rounded-[3rem] img-wrap group cursor-pointer shadow-glass bento-hover hover-target gsap-dest-card" onclick="nav('packages')">
+                        <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover img-zoom">
+                        <div class="absolute inset-0 card-vignette opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute top-8 right-8 z-10">
+                            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-white group-hover:bg-brand group-hover:border-brand transition-all duration-500 transform group-hover:-rotate-45">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-10 flex flex-col justify-end z-10">
+                            <span class="text-brand text-[10px] font-black uppercase tracking-[0.3em] mb-2 drop-shadow-md">Africa</span>
+                            <h3 class="text-4xl font-serif font-bold text-white mb-2 tracking-tight">Maasai Mara</h3>
+                            <p class="text-white/80 font-light">Kenya</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Bottom Call to action -->
+            <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 pb-32 gsap-fade-up">
+                <div class="bg-dark rounded-[4rem] p-12 md:p-20 text-white flex flex-col md:flex-row items-center justify-between gap-12 shadow-premium hover-target group border border-gray-800">
+                    <div class="max-w-2xl">
+                        <span class="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-6 block">Bespoke Requests</span>
+                        <h3 class="text-4xl md:text-5xl font-serif font-bold mb-6 tracking-tight">Can't find your destination?</h3>
+                        <p class="text-gray-400 font-light text-xl leading-relaxed">Our concierges design curations across 50+ countries globally. Let us know where your imagination takes you.</p>
+                    </div>
+                    <button onclick="openWhatsApp('New Destination Inquiry')" class="bg-white text-dark px-10 py-6 rounded-full font-bold shadow-float flex items-center gap-4 whitespace-nowrap hover:bg-gray-100 transition-colors hover-target group-hover:scale-105 duration-500">
+                        <i class="fab fa-whatsapp text-whatsapp text-2xl"></i> Connect Now
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= PACKAGES LISTING PAGE ================= -->
+        <section id="page-packages" class="page-view bg-gray-50 pt-[100px] md:pt-[120px]">
+            <!-- Header -->
+            <div class="bg-white border-b border-gray-200/60 pb-12 pt-12 relative z-10 shadow-sm">
+                <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+                    <div>
+                        <span class="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Collection</span>
+                        <h1 class="text-5xl md:text-7xl font-serif font-bold text-dark tracking-tight">Curated Journeys</h1>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="flex flex-wrap gap-4">
+                        <button class="px-8 py-4 rounded-full bg-dark text-white text-sm font-bold shadow-md hover:bg-black transition-colors hover-target">All</button>
+                        <button class="px-8 py-4 rounded-full bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand text-sm font-bold transition-colors shadow-sm hover-target"><i class="fa-solid fa-heart text-brand mr-2"></i> Honeymoon</button>
+                        <button class="px-8 py-4 rounded-full bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand text-sm font-bold transition-colors shadow-sm hover-target"><i class="fa-solid fa-users text-blue-500 mr-2"></i> Family</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 py-24">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                    
+                    <!-- Package Card 1 -->
+                    <div class="bg-white rounded-[3rem] p-4 border border-gray-200 shadow-glass bento-hover flex flex-col cursor-pointer group hover-target gsap-package-card" onclick="nav('package-details')">
+                        <div class="relative h-80 rounded-[2.5rem] overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <!-- Badges over image -->
+                            <div class="absolute top-6 left-6 bg-white/95 backdrop-blur-xl px-5 py-2.5 rounded-full text-xs font-bold text-dark shadow-sm flex items-center gap-2">
+                                <i class="fa-regular fa-moon text-brand"></i> 6 Nights
+                            </div>
+                            <div class="absolute top-6 right-6 bg-brand text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-glow">
+                                Honeymoon
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-10 flex-1 flex flex-col">
+                            <div class="flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">
+                                <i class="fa-solid fa-location-dot"></i> France & Switzerland
+                            </div>
+                            <h3 class="text-3xl font-serif font-bold text-dark mb-4 leading-tight group-hover:text-brand transition-colors tracking-tight">Romantic European Escapade</h3>
+                            <p class="text-gray-500 font-light text-lg mb-10 line-clamp-2 leading-relaxed">Experience the magic of Paris and Switzerland with private dinners, exclusive tours, and luxury stays.</p>
+                            
+                            <!-- Features -->
+                            <div class="flex flex-wrap gap-3 mb-10">
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-plane text-brand"></i> Flights</span>
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-hotel text-brand"></i> 4★ Hotels</span>
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-car text-brand"></i> Transfers</span>
+                            </div>
+
+                            <div class="mt-auto pt-8 border-t border-gray-100 flex items-end justify-between">
+                                <div>
+                                    <span class="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] block mb-2">Per Adult</span>
+                                    <span class="font-serif font-bold text-4xl text-dark tracking-tight">₹1.47L</span>
+                                </div>
+                                <div class="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center text-dark group-hover:bg-brand group-hover:text-white transition-all duration-500 transform group-hover:-rotate-45">
+                                    <i class="fa-solid fa-arrow-right text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Package Card 2 -->
+                    <div class="bg-white rounded-[3rem] p-4 border border-gray-200 shadow-glass bento-hover flex flex-col group hover-target gsap-package-card">
+                        <div class="relative h-80 rounded-[2.5rem] overflow-hidden cursor-pointer" onclick="nav('package-details')">
+                            <img src="https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute top-6 left-6 bg-white/95 backdrop-blur-xl px-5 py-2.5 rounded-full text-xs font-bold text-dark shadow-sm flex items-center gap-2">
+                                <i class="fa-regular fa-moon text-brand"></i> 5 Nights
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-10 flex-1 flex flex-col">
+                            <div class="flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">
+                                <i class="fa-solid fa-location-dot"></i> United Arab Emirates
+                            </div>
+                            <h3 class="text-3xl font-serif font-bold text-dark mb-4 leading-tight group-hover:text-brand transition-colors tracking-tight cursor-pointer" onclick="nav('package-details')">Dubai Extravagance</h3>
+                            <p class="text-gray-500 font-light text-lg mb-10 line-clamp-2 leading-relaxed">Burj Khalifa, Desert Safari with BBQ, Dhow Cruise, and premium experiences in the heart of Dubai.</p>
+                            
+                            <div class="flex flex-wrap gap-3 mb-10">
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-plane text-brand"></i> Flights</span>
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-hotel text-brand"></i> 5★ Atlantis</span>
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-ticket text-brand"></i> Activities</span>
+                            </div>
+
+                            <div class="mt-auto pt-8 border-t border-gray-100 flex items-end justify-between">
+                                <div>
+                                    <span class="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] block mb-2">Per Adult</span>
+                                    <span class="font-serif font-bold text-4xl text-dark tracking-tight">₹81.9k</span>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button onclick="openWhatsApp('Dubai Extravagance')" class="bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white w-14 h-14 rounded-full flex items-center justify-center transition-colors">
+                                        <i class="fab fa-whatsapp text-2xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Package Card 3 -->
+                    <div class="bg-white rounded-[3rem] p-4 border border-gray-200 shadow-glass bento-hover flex flex-col group hover-target gsap-package-card">
+                        <div class="relative h-80 rounded-[2.5rem] overflow-hidden cursor-pointer" onclick="nav('package-details')">
+                            <img src="https://images.unsplash.com/photo-1571536701639-6548e65e6488?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute top-6 left-6 bg-white/95 backdrop-blur-xl px-5 py-2.5 rounded-full text-xs font-bold text-dark shadow-sm flex items-center gap-2">
+                                <i class="fa-regular fa-moon text-brand"></i> 5 Nights
+                            </div>
+                             <div class="absolute top-6 right-6 bg-dark text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-md">
+                                Domestic
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-10 flex-1 flex flex-col">
+                            <div class="flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">
+                                <i class="fa-solid fa-location-dot"></i> North East India
+                            </div>
+                            <h3 class="text-3xl font-serif font-bold text-dark mb-4 leading-tight group-hover:text-brand transition-colors tracking-tight cursor-pointer" onclick="nav('package-details')">Meghalaya Abode of Clouds</h3>
+                            <p class="text-gray-500 font-light text-lg mb-10 line-clamp-2 leading-relaxed">Shillong (2N) - Cherrapunji (2N) - Guwahati (1N). Discover living root bridges and crystal rivers.</p>
+                            
+                            <div class="flex flex-wrap gap-3 mb-10">
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-hotel text-brand"></i> Premium Stays</span>
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-car text-brand"></i> Private SUV</span>
+                                <span class="bg-gray-50 text-gray-600 text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 border border-gray-100"><i class="fa-solid fa-utensils text-brand"></i> Breakfast</span>
+                            </div>
+
+                            <div class="mt-auto pt-8 border-t border-gray-100 flex items-end justify-between">
+                                <div>
+                                    <span class="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] block mb-2">Per Adult (Land)</span>
+                                    <span class="font-serif font-bold text-4xl text-dark tracking-tight">₹28.0k</span>
+                                </div>
+                                <div class="flex gap-3">
+                                     <button onclick="openWhatsApp('Meghalaya Abode of Clouds')" class="bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white w-14 h-14 rounded-full flex items-center justify-center transition-colors">
+                                        <i class="fab fa-whatsapp text-2xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PACKAGE DETAILS PAGE ================= -->
+        <section id="page-package-details" class="page-view bg-gray-50 pt-[100px] md:pt-0">
+            <!-- Hero Banner (Parallax) -->
+            <div class="relative h-[75vh] min-h-[600px] w-full overflow-hidden detail-hero">
+                <div class="absolute inset-0 w-full h-full detail-bg-wrap">
+                    <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=2800" class="w-full h-full object-cover detail-bg scale-110">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-50 via-dark/40 to-dark/50"></div>
+                
+                <div class="absolute bottom-16 w-full z-10">
+                    <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12">
+                        <button onclick="nav('packages')" class="text-white hover:text-white flex items-center gap-4 text-sm font-bold mb-12 transition-colors glass px-8 py-4 rounded-full w-fit group hover-target">
+                            <i class="fa-solid fa-arrow-left group-hover:-translate-x-2 transition-transform"></i> Back to Curations
+                        </button>
+                        
+                        <div class="flex flex-wrap gap-5 items-center mb-8 gsap-detail-up">
+                            <span class="bg-brand text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-glow">Honeymoon</span>
+                            <span class="text-white/90 text-sm font-bold flex items-center gap-3"><i class="fa-regular fa-clock"></i> 6 Nights / 7 Days</span>
+                            <span class="text-white/40 hidden sm:block">|</span>
+                            <span class="text-white/90 text-sm font-bold flex items-center gap-3"><i class="fa-solid fa-location-dot"></i> Paris, France • Zurich, Switzerland</span>
+                        </div>
+                        <h1 class="text-6xl md:text-8xl font-serif font-bold text-dark mb-4 leading-tight drop-shadow-sm max-w-5xl tracking-tight text-white gsap-detail-title">Romantic European Escapade</h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 py-20">
+                <div class="flex flex-col lg:flex-row gap-16 relative items-start">
+                    
+                    <!-- Left: Details -->
+                    <div class="w-full lg:w-[65%] xl:w-[70%]">
+                        
+                        <!-- Nav Tabs (Sticky) -->
+                        <div class="flex overflow-x-auto gap-4 no-scrollbar mb-16 sticky top-[90px] z-30 bg-gray-50/95 backdrop-blur-2xl py-6 border-b border-gray-200/50 -mx-6 px-6 sm:mx-0 sm:px-0">
+                            <button class="px-10 py-4 rounded-full bg-dark text-white text-sm font-bold shadow-md whitespace-nowrap hover-target">The Itinerary</button>
+                            <button class="px-10 py-4 rounded-full bg-white border border-gray-200 text-gray-600 hover:text-dark text-sm font-bold whitespace-nowrap transition-colors shadow-sm hover:shadow hover-target">Inclusions</button>
+                            <button class="px-10 py-4 rounded-full bg-white border border-gray-200 text-gray-600 hover:text-dark text-sm font-bold whitespace-nowrap transition-colors shadow-sm hover:shadow hover-target">Accommodations</button>
+                        </div>
+
+                        <!-- Accordion Itinerary -->
+                        <div class="space-y-8">
+                            <!-- Day 1 -->
+                            <div class="bg-white rounded-[3rem] border border-gray-200 shadow-glass overflow-hidden group accordion-active hover-target gsap-fade-up" onclick="toggleAccordion(this)">
+                                <div class="p-10 md:p-12 cursor-pointer flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                                    <div class="flex items-center gap-8">
+                                        <div class="w-20 h-20 rounded-3xl bg-brand/5 text-brand flex items-center justify-center font-bold text-3xl border border-brand/10 shadow-sm">01</div>
+                                        <div>
+                                            <h3 class="text-3xl font-serif font-bold text-dark mb-2 tracking-tight">Arrival & Seine Cruise</h3>
+                                            <p class="text-xs text-gray-500 font-black uppercase tracking-[0.3em]">15 June 2026</p>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-icon transition-transform duration-700 text-gray-400 bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center border border-gray-100 group-hover:border-gray-300">
+                                        <i class="fa-solid fa-chevron-down text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="accordion-content border-t border-gray-100 bg-gray-50/30">
+                                    <div class="p-10 md:p-14 space-y-12 relative">
+                                        <!-- Vertical timeline line -->
+                                        <div class="absolute left-[77px] md:left-[93px] top-14 bottom-14 w-[2px] bg-gray-200 rounded-full"></div>
+
+                                        <div class="flex gap-10 relative z-10">
+                                            <div class="w-16 flex flex-col items-center flex-shrink-0">
+                                                <div class="w-16 h-16 rounded-full bg-white text-blue-600 flex items-center justify-center shadow-md border border-blue-100"><i class="fa-solid fa-plane-arrival text-2xl"></i></div>
+                                            </div>
+                                            <div class="flex-1 pb-4">
+                                                <h4 class="font-bold text-dark mb-4 text-xl font-serif">Flight Arrival: Emirates EK 500</h4>
+                                                <p class="text-gray-600 text-lg leading-relaxed font-light bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">Arrive at Charles de Gaulle Airport (CDG) at 11:00 AM. Fast-track immigration and meet & greet by our luxury representative.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex gap-10 relative z-10">
+                                            <div class="w-16 flex flex-col items-center flex-shrink-0">
+                                                <div class="w-16 h-16 rounded-full bg-white text-green-600 flex items-center justify-center shadow-md border border-green-100"><i class="fa-solid fa-car text-2xl"></i></div>
+                                            </div>
+                                            <div class="flex-1 pb-4">
+                                                <h4 class="font-bold text-dark mb-4 text-xl font-serif">Private Transfer to Hotel</h4>
+                                                <p class="text-gray-600 text-lg leading-relaxed font-light bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">Mercedes S-Class or similar. Maximum waiting time 15 minutes. Drop off at Hotel Le Marais with VIP check-in.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-10 relative z-10">
+                                            <div class="w-16 flex flex-col items-center flex-shrink-0">
+                                                <div class="w-16 h-16 rounded-full bg-white text-brand flex items-center justify-center shadow-md border border-brand/20"><i class="fa-solid fa-ship text-2xl"></i></div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h4 class="font-bold text-dark mb-4 text-xl font-serif">Evening: Gastronomic Dinner Cruise</h4>
+                                                <p class="text-gray-600 text-lg leading-relaxed font-light bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">Enjoy a 3-course gastronomic dinner with panoramic views of the Eiffel Tower and Parisian monuments illuminated at night. Window seating guaranteed.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Day 2 -->
+                            <div class="bg-white rounded-[3rem] border border-gray-200 shadow-glass overflow-hidden group hover-target gsap-fade-up" onclick="toggleAccordion(this)">
+                                <div class="p-10 md:p-12 cursor-pointer flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+                                    <div class="flex items-center gap-8">
+                                        <div class="w-20 h-20 rounded-3xl bg-gray-50 text-gray-400 flex items-center justify-center font-bold text-3xl border border-gray-200">02</div>
+                                        <div>
+                                            <h3 class="text-3xl font-serif font-bold text-dark mb-2 tracking-tight">Louvre & Montmartre</h3>
+                                            <p class="text-xs text-gray-500 font-black uppercase tracking-[0.3em]">16 June 2026</p>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-icon transition-transform duration-700 text-gray-400 bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center border border-gray-100 group-hover:border-gray-300">
+                                        <i class="fa-solid fa-chevron-down text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="accordion-content border-t border-gray-100 bg-gray-50/30">
+                                    <div class="p-10 md:p-14">
+                                        <p class="text-gray-600 text-lg leading-relaxed font-light bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">Skip the lines with a private art historian guide at the Louvre. Afternoon free to explore Montmartre, ending with sunset views from Sacré-Cœur.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inclusions -->
+                        <div class="mt-20 bg-white rounded-[3rem] p-12 md:p-16 border border-gray-200 shadow-glass gsap-fade-up">
+                            <h3 class="text-4xl md:text-5xl font-serif font-bold text-dark mb-12 tracking-tight">What's Included</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+                                <div class="bg-green-50/30 rounded-[2.5rem] p-10 border border-green-100 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 w-40 h-40 bg-green-500/5 rounded-bl-[100px] pointer-events-none"></div>
+                                    <h4 class="font-bold text-green-700 mb-8 flex items-center gap-4 text-2xl"><i class="fa-solid fa-circle-check text-3xl"></i> Inclusions</h4>
+                                    <ul class="space-y-6">
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-check text-green-500 mt-1.5"></i> Return airfare (economy class)</li>
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-check text-green-500 mt-1.5"></i> 4★ Premium Hotel accommodation</li>
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-check text-green-500 mt-1.5"></i> Daily buffet breakfast</li>
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-check text-green-500 mt-1.5"></i> Private Airport transfers (Luxury)</li>
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-check text-green-500 mt-1.5"></i> High-speed train (Paris - Zurich)</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-red-50/30 rounded-[2.5rem] p-10 border border-red-100 relative overflow-hidden">
+                                     <div class="absolute top-0 right-0 w-40 h-40 bg-red-500/5 rounded-bl-[100px] pointer-events-none"></div>
+                                    <h4 class="font-bold text-brand mb-8 flex items-center gap-4 text-2xl"><i class="fa-solid fa-circle-xmark text-3xl"></i> Exclusions</h4>
+                                    <ul class="space-y-6">
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-xmark text-brand mt-1.5 text-xl"></i> Visa fees & processing</li>
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-xmark text-brand mt-1.5 text-xl"></i> City Taxes (payable at hotel)</li>
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-xmark text-brand mt-1.5 text-xl"></i> Personal expenses & shopping</li>
+                                        <li class="flex items-start gap-4 text-gray-700 font-medium text-lg"><i class="fa-solid fa-xmark text-brand mt-1.5 text-xl"></i> Tips & gratuities</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Sticky Pricing Widget -->
+                    <div class="w-full lg:w-[35%] xl:w-[30%] gsap-fade-up">
+                        <div class="sticky top-[120px] bg-white rounded-[3rem] shadow-premium border border-gray-200 p-10 md:p-12 hover-target">
+                            
+                            <div class="border-b border-gray-100 pb-10 mb-10">
+                                <span class="text-xs font-black text-gray-400 tracking-[0.3em] uppercase mb-4 block">Total Estimate</span>
+                                <div class="flex items-baseline gap-3">
+                                    <span class="text-6xl font-serif font-bold text-dark tracking-tight">₹1.47L</span>
+                                    <span class="text-gray-500 font-bold text-lg">/ person</span>
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-6 font-black bg-gray-50 p-4 rounded-xl border border-gray-100 uppercase tracking-[0.2em] leading-relaxed">Flight approx. ₹28,000 included in estimate.</p>
+                            </div>
+
+                            <div class="space-y-6 mb-12 bg-gray-50 rounded-[2rem] p-8 border border-gray-100">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500 font-bold flex items-center gap-4 text-base"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-plane text-brand text-xs"></i></div> Flights</span>
+                                    <span class="font-black text-dark text-sm uppercase tracking-widest">Included</span>
+                                </div>
+                                <div class="w-full h-[2px] bg-gray-200/60"></div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500 font-bold flex items-center gap-4 text-base"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-bed text-brand text-xs"></i></div> Hotels</span>
+                                    <span class="font-black text-dark text-sm uppercase tracking-widest">4★ Premium</span>
+                                </div>
+                                <div class="w-full h-[2px] bg-gray-200/60"></div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500 font-bold flex items-center gap-4 text-base"><div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-car text-brand text-xs"></i></div> Transfers</span>
+                                    <span class="font-black text-dark text-sm uppercase tracking-widest">Private</span>
+                                </div>
+                            </div>
+                            
+                            <button onclick="openWhatsApp('Romantic European Escapade')" class="w-full bg-dark text-white py-6 rounded-full font-bold text-xl btn-magnetic shadow-float flex justify-center items-center gap-4 mb-6">
+                                <i class="fab fa-whatsapp text-whatsapp text-3xl"></i> Request Quote
+                            </button>
+                            
+                            <div class="mt-10 pt-10 border-t border-gray-100 flex justify-center gap-12 text-[10px] text-gray-400 font-black uppercase tracking-[0.2em]">
+                                <span class="flex flex-col items-center gap-3"><i class="fa-solid fa-shield-halved text-green-500 text-3xl"></i> Secure</span>
+                                <span class="flex flex-col items-center gap-3"><i class="fa-solid fa-headset text-brand text-3xl"></i> Support</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABOUT PAGE ================= -->
+        <section id="page-about" class="page-view bg-white relative overflow-hidden pt-[100px] md:pt-[120px]">
+            <div class="absolute top-0 right-0 w-1/2 h-full bg-gray-50 -z-10 rounded-bl-[150px]"></div>
+            
+            <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12 py-32">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
+                    
+                    <div class="lg:col-span-6 gsap-fade-up">
+                        <span class="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-8 block flex items-center gap-4"><span class="w-12 h-[2px] bg-brand"></span> Our Ethos</span>
+                        <h1 class="text-5xl md:text-7xl lg:text-[5rem] font-serif font-bold text-dark mb-10 leading-[1.05] tracking-tight">Redefining the way you see the world.</h1>
+                        <p class="text-2xl text-gray-500 mb-10 leading-relaxed font-light">
+                            EaseMyVacations Global was born from a simple realization: the modern traveler is overwhelmed by choices, hidden fees, and generic algorithms.
+                        </p>
+                        <p class="text-2xl text-gray-500 mb-16 leading-relaxed font-light">
+                            We are a collective of passionate travelers, logistics experts, and local insiders. When you book with EMV, you aren't just getting an itinerary; you're getting a dedicated concierge.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-12 border-t border-gray-200 pt-12">
+                            <div class="counter-box">
+                                <div class="text-7xl font-serif font-bold text-dark mb-4 counter-number tracking-tight">10k+</div>
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Travelers Served</div>
+                            </div>
+                            <div class="counter-box">
+                                <div class="text-7xl font-serif font-bold text-dark mb-4 counter-number tracking-tight">50+</div>
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Destinations Mastered</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-6 relative gsap-fade-up delay-200">
+                        <div class="absolute inset-0 bg-brand/10 rounded-[4rem] transform rotate-3 scale-105 origin-bottom-right transition-transform duration-[2s] hover:rotate-6 pointer-events-none"></div>
+                        <div class="absolute inset-0 bg-dark/5 rounded-[4rem] transform -rotate-3 scale-105 origin-bottom-left transition-transform duration-[2s] hover:-rotate-6 pointer-events-none"></div>
+                        <div class="relative rounded-[4rem] shadow-float overflow-hidden img-wrap h-[700px] lg:h-[850px] w-full hover-target">
+                            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1600" alt="EMV Team" class="w-full h-full object-cover img-zoom" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ADMIN DASHBOARD ================= -->
+        <section id="page-admin" class="page-view bg-[#f4f5f7] min-h-screen pt-[85px]">
+            <div class="flex flex-col md:flex-row h-full">
+                <!-- SaaS Sidebar -->
+                <div class="w-full md:w-[320px] bg-white border-r border-gray-200/80 p-8 md:min-h-[calc(100vh-85px)] hidden md:flex flex-col relative z-10 shadow-sm">
+                    <div class="flex items-center gap-4 mb-16 px-2 mt-4">
+                        <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-white font-bold font-serif shadow-sm text-xl">E</div>
+                        <span class="font-bold text-sm tracking-[0.3em] uppercase text-gray-400">Workspace</span>
+                    </div>
+                    <nav class="space-y-2">
+                        <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl text-gray-600 font-bold hover:bg-gray-50 transition-colors"><i class="fa-solid fa-layer-group w-5 text-gray-400 text-lg"></i> Dashboard</a>
+                        <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl bg-brand/5 text-brand font-bold border border-brand/10 shadow-sm"><i class="fa-solid fa-inbox w-5 text-lg"></i> Inquiries <span class="bg-brand text-white text-[9px] px-2.5 py-1 rounded-full ml-auto uppercase tracking-widest shadow-sm">New</span></a>
+                        <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl text-gray-600 font-bold hover:bg-gray-50 transition-colors"><i class="fa-solid fa-box w-5 text-gray-400 text-lg"></i> Packages</a>
+                        <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl text-gray-600 font-bold hover:bg-gray-50 transition-colors"><i class="fa-solid fa-users w-5 text-gray-400 text-lg"></i> Customers</a>
+                    </nav>
+                    <div class="mt-auto mb-4">
+                        <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl text-gray-600 font-bold hover:bg-gray-50 transition-colors"><i class="fa-solid fa-gear w-5 text-gray-400 text-lg"></i> Settings</a>
+                    </div>
+                </div>
+                
+                <!-- Main Dashboard Content -->
+                <div class="flex-1 p-8 md:p-16 overflow-x-hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6 gsap-fade-up">
+                        <div>
+                            <h2 class="text-4xl font-serif font-bold text-dark tracking-tight">Lead Management</h2>
+                            <p class="text-base text-gray-500 mt-2 font-medium">Track and convert your bespoke inquiries.</p>
+                        </div>
+                        <button onclick="exportTableToCSV('EMV_Leads.csv')" class="bg-white border border-gray-200 text-dark px-8 py-3.5 rounded-full text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+                            <i class="fa-solid fa-download text-gray-400"></i> Export CSV
+                        </button>
+                    </div>
+                    
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 gsap-fade-up">
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex items-center justify-between hover:-translate-y-2 transition-transform duration-500">
+                            <div>
+                                <div class="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Total Leads</div>
+                                <div class="text-5xl font-serif font-bold text-dark">1,284</div>
+                            </div>
+                            <div class="w-16 h-16 rounded-[1.5rem] bg-blue-50 text-blue-500 flex items-center justify-center text-2xl border border-blue-100"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex items-center justify-between hover:-translate-y-2 transition-transform duration-500">
+                            <div>
+                                <div class="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Active Packages</div>
+                                <div class="text-5xl font-serif font-bold text-dark">48</div>
+                            </div>
+                            <div class="w-16 h-16 rounded-[1.5rem] bg-purple-50 text-purple-500 flex items-center justify-center text-2xl border border-purple-100"><i class="fa-solid fa-box"></i></div>
+                        </div>
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex items-center justify-between hover:-translate-y-2 transition-transform duration-500">
+                            <div>
+                                <div class="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Conversion Rate</div>
+                                <div class="text-5xl font-serif font-bold text-dark">8.4%</div>
+                            </div>
+                            <div class="w-16 h-16 rounded-[1.5rem] bg-green-50 text-green-500 flex items-center justify-center text-2xl border border-green-100"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Clean Data Table -->
+                    <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden gsap-fade-up">
+                        <div class="px-10 py-8 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center bg-white gap-6">
+                            <h3 class="font-bold text-dark text-xl">Recent Inquiries</h3>
+                            <div class="relative w-full sm:w-auto">
+                                <i class="fa-solid fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                <input type="text" placeholder="Search leads..." class="w-full sm:w-80 pl-12 pr-5 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-brand focus:bg-white transition-colors font-bold text-dark">
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table id="leadsTable" class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50/50 text-[10px] uppercase text-gray-500 font-black border-b border-gray-100 tracking-[0.2em]">
+                                    <tr>
+                                        <th class="px-10 py-6">Client Profile</th>
+                                        <th class="px-10 py-6">Requested Journey</th>
+                                        <th class="px-10 py-6">Date</th>
+                                        <th class="px-10 py-6">Status</th>
+                                        <th class="px-10 py-6 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 text-base">
+                                    <tr class="hover:bg-gray-50/50 transition-colors group">
+                                        <td class="px-10 py-6">
+                                            <div class="font-bold text-dark text-lg group-hover:text-brand transition-colors">Dr. Chandan Kumar</div>
+                                            <div class="text-xs text-gray-400 mt-2 font-bold uppercase tracking-widest">Ref: EMV-Q-001</div>
+                                        </td>
+                                        <td class="px-10 py-6">
+                                            <div class="font-bold text-dark">Meghalaya Abode of Clouds</div>
+                                            <div class="mt-2"><span class="bg-gray-100 text-gray-500 text-[10px] font-black px-3 py-1.5 rounded-md uppercase tracking-[0.2em]">5 Pax</span></div>
+                                        </td>
+                                        <td class="px-10 py-6 text-gray-500 font-medium">21 May 2026</td>
+                                        <td class="px-10 py-6"><span class="bg-brand/10 text-brand px-4 py-2 rounded-full text-[10px] font-black border border-brand/20 shadow-sm uppercase tracking-[0.2em]">Quoted</span></td>
+                                        <td class="px-10 py-6 text-right">
+                                            <div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <button class="w-12 h-12 rounded-2xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors shadow-sm flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                                <button class="w-12 h-12 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors shadow-sm flex items-center justify-center" title="WhatsApp"><i class="fab fa-whatsapp text-xl"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50/50 transition-colors group">
+                                        <td class="px-10 py-6">
+                                            <div class="font-bold text-dark text-lg group-hover:text-brand transition-colors">Test User</div>
+                                            <div class="text-xs text-gray-400 mt-2 font-bold uppercase tracking-widest">Ref: EMV-Q-002</div>
+                                        </td>
+                                        <td class="px-10 py-6">
+                                            <div class="font-bold text-dark">Dubai Extravagance</div>
+                                            <div class="mt-2"><span class="bg-gray-100 text-gray-500 text-[10px] font-black px-3 py-1.5 rounded-md uppercase tracking-[0.2em]">2 Pax</span></div>
+                                        </td>
+                                        <td class="px-10 py-6 text-gray-500 font-medium">21 May 2026</td>
+                                        <td class="px-10 py-6"><span class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-[10px] font-black border border-yellow-200 shadow-sm uppercase tracking-[0.2em]">Pending</span></td>
+                                        <td class="px-10 py-6 text-right">
+                                            <div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <button class="w-12 h-12 rounded-2xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors shadow-sm flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                                <button class="w-12 h-12 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors shadow-sm flex items-center justify-center" title="WhatsApp"><i class="fab fa-whatsapp text-xl"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50/50 transition-colors group">
+                                        <td class="px-10 py-6">
+                                            <div class="font-bold text-dark text-lg group-hover:text-brand transition-colors">Emma Thompson</div>
+                                            <div class="text-xs text-gray-400 mt-2 font-bold uppercase tracking-widest">Ref: EMV-Q-003</div>
+                                        </td>
+                                        <td class="px-10 py-6">
+                                            <div class="font-bold text-dark">Romantic European Escapade</div>
+                                            <div class="mt-2"><span class="bg-gray-100 text-gray-500 text-[10px] font-black px-3 py-1.5 rounded-md uppercase tracking-[0.2em]">2 Pax</span></div>
+                                        </td>
+                                        <td class="px-10 py-6 text-gray-500 font-medium">19 May 2026</td>
+                                        <td class="px-10 py-6"><span class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-[10px] font-black border border-green-200 shadow-sm uppercase tracking-[0.2em]">Converted</span></td>
+                                        <td class="px-10 py-6 text-right">
+                                            <div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <button class="w-12 h-12 rounded-2xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors shadow-sm flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                                <button class="w-12 h-12 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors shadow-sm flex items-center justify-center" title="WhatsApp"><i class="fab fa-whatsapp text-xl"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="main-footer" class="bg-dark text-white pt-32 pb-12 mt-auto border-t border-gray-900">
+        <div class="max-w-[95rem] mx-auto px-6 sm:px-8 lg:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-20 mb-24">
+                
+                <div class="col-span-1 md:col-span-4 lg:col-span-5">
+                    <a href="#home" onclick="nav('home')" class="flex items-center gap-4 mb-10 cursor-pointer w-fit group hover-target">
+                        <div class="w-14 h-14 rounded-2xl bg-brand flex items-center justify-center text-white font-serif font-bold text-3xl group-hover:scale-105 transition-transform duration-500 shadow-glow">E</div>
+                        <div class="flex flex-col">
+                            <span class="font-serif font-bold text-[32px] tracking-tight leading-none text-white">EMV</span>
+                            <span class="text-gray-400 font-sans text-[11px] font-black uppercase tracking-[0.3em] leading-none mt-2">Global</span>
+                        </div>
+                    </a>
+                    <p class="text-gray-400 text-xl leading-relaxed mb-12 font-light max-w-lg">
+                        Your premium travel concierge. We craft bespoke journeys and unforgettable memories, providing high-touch service from inspiration to return.
+                    </p>
+                    <div class="flex gap-5">
+                        <a href="#" class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand hover:border-brand transition-all text-lg group hover-target"><i class="fab fa-instagram group-hover:scale-125 transition-transform"></i></a>
+                        <a href="#" class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand hover:border-brand transition-all text-lg group hover-target"><i class="fab fa-facebook-f group-hover:scale-125 transition-transform"></i></a>
+                        <a href="#" class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand hover:border-brand transition-all text-lg group hover-target"><i class="fab fa-linkedin-in group-hover:scale-125 transition-transform"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-span-1 md:col-span-3 lg:col-span-2 lg:col-start-7">
+                    <h4 class="font-bold mb-10 text-[10px] uppercase tracking-[0.3em] text-white">Discover</h4>
+                    <ul class="space-y-6 text-base text-gray-400 font-medium">
+                        <li><a href="#destinations" onclick="nav('destinations')" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Destinations</a></li>
+                        <li><a href="#packages" onclick="nav('packages')" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Curated Journeys</a></li>
+                        <li><a href="#" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Honeymoon Packages</a></li>
+                        <li><a href="#" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Family Vacations</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-span-1 md:col-span-2">
+                    <h4 class="font-bold mb-10 text-[10px] uppercase tracking-[0.3em] text-white">Support</h4>
+                    <ul class="space-y-6 text-base text-gray-400 font-medium">
+                        <li><a href="#about" onclick="nav('about')" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Our Ethos</a></li>
+                        <li><a href="#" onclick="openWhatsApp('Contact Inquiry')" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-brand transition-colors inline-block hover:translate-x-2 duration-300 hover-target">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-span-1 md:col-span-3 lg:col-span-3">
+                    <h4 class="font-bold mb-10 text-[10px] uppercase tracking-[0.3em] text-white">Contact</h4>
+                    <ul class="space-y-8 text-base text-gray-400 font-medium">
+                        <li class="flex items-center gap-5 hover-target w-fit"><div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-brand border border-white/5"><i class="fa-solid fa-envelope"></i></div> hello@emvglobal.com</li>
+                        <li class="flex items-center gap-5 hover-target w-fit"><div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-whatsapp border border-white/5"><i class="fab fa-whatsapp text-lg"></i></div> +91 98765 43210</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800/80 pt-10 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-500 font-black uppercase tracking-[0.3em]">
+                <p>&copy; 2026 EaseMyVacations Global. All rights reserved.</p>
+                <p class="mt-6 md:mt-0 flex items-center gap-3">Crafted for Premium Travel</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating WhatsApp CTA -->
+    <button onclick="openWhatsApp()" class="fixed bottom-10 right-10 z-50 bg-whatsapp text-white px-6 py-5 rounded-full flex items-center gap-4 shadow-[0_20px_40px_-10px_rgba(37,211,102,0.8)] btn-magnetic group hover-target border border-white/20">
+        <i class="fab fa-whatsapp text-3xl group-hover:scale-110 transition-transform"></i>
+        <span class="font-bold text-sm hidden md:block pr-2 tracking-widest uppercase">Concierge</span>
+    </button>
+
+    <!-- Core App Logic (Motion + Lenis) -->
+    <script>
+        // --------------------------------------------------------
+        // Motion utilities & easing constants
+        // --------------------------------------------------------
+        const { animate, timeline, scroll, inView, stagger } = Motion;
+
+        const ease = {
+            power2In:   [0.55, 0, 1, 0.45],
+            power2Out:  [0, 0.55, 0.45, 1],
+            power3Out:  [0.33, 1, 0.68, 1],
+            power3InOut:[0.76, 0, 0.24, 1],
+            power4Out:  [0.22, 1, 0.36, 1],
+            power4InOut:[0.91, 0, 0.09, 1],
+            backOut:    [0.34, 1.56, 0.64, 1],
+        };
+
+        // Holds cleanup functions for scroll/inView animations (cleared on page nav)
+        let scrollCleanups = [];
+
+        // --------------------------------------------------------
+        // Smooth Scrolling (Lenis)
+        // --------------------------------------------------------
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // --------------------------------------------------------
+        // Custom Cursor Logic
+        // --------------------------------------------------------
+        const cursor = document.getElementById('cursor');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+            document.querySelectorAll('.hover-target, a, button, input, select').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+        }
+
+        // --------------------------------------------------------
+        // Text Splitting Utility (for premium reveal)
+        // --------------------------------------------------------
+        function splitText(selector) {
+            document.querySelectorAll(selector).forEach(el => {
+                const text = el.innerText;
+                el.innerHTML = text.split(' ').map(word => {
+                    if(word.trim() === '') return ' ';
+                    return `<span class="split-parent"><span class="split-child">${word}</span></span>`;
+                }).join(' ');
+            });
+        }
+
+        splitText('.hero-title');
+        splitText('.gsap-detail-title');
+
+        // --------------------------------------------------------
+        // Initial Loading Sequence (Motion timeline)
+        // --------------------------------------------------------
+        const initLoader = () => {
+            // Enter: all kick off concurrently with absolute delays
+            animate('.loader-bar',          { scaleX: 1 },            { duration: 1.5, easing: ease.power3InOut });
+            animate('.loader-bar-container',{ opacity: 1 },            { duration: 0.2, delay: 0.3 });
+            animate('.loader-text',         { y: 0, opacity: 1 },      { duration: 0.5, delay: 0.5, easing: ease.power3Out });
+            animate('.loader-logo',         { y: 0, opacity: 1 },      { duration: 0.8, delay: 1.0, easing: ease.backOut });
+
+            // Exit: run at 2.1s (after all enter animations complete ~1.8s + 0.3s pause)
+            setTimeout(() => {
+                animate('.loader-bar-container', { y: -50, opacity: 0 }, { duration: 0.5, easing: ease.power2In });
+                animate('.loader-text',          { y: -50, opacity: 0 }, { duration: 0.5, easing: ease.power2In });
+                animate('.loader-logo',          { y: -50, opacity: 0 }, { duration: 0.5, easing: ease.power2In })
+                    .finished.then(() => {
+                        animate('.loader-door', { scaleY: 1 }, { duration: 0.8, easing: ease.power4InOut })
+                            .finished.then(() => {
+                                animate('#loader', { opacity: 0 }, { duration: 0.1 })
+                                    .finished.then(() => {
+                                        document.getElementById('loader').style.display = 'none';
+                                        initPageAnimations();
+                                    });
+                            });
+                    });
+            }, 2100);
+        };
+
+        // --------------------------------------------------------
+        // Page-specific animations
+        // --------------------------------------------------------
+        function initPageAnimations() {
+            scrollCleanups.forEach(fn => fn && fn());
+            scrollCleanups = [];
+
+            if (document.getElementById('page-home').classList.contains('active')) {
+                // Hero entry timeline (absolute offsets in seconds)
+                timeline([
+                    ['.hero-bg',                 { scale: [1.3, 1.15] },                                          { duration: 2,   easing: ease.power3Out,  at: 0   }],
+                    ['.hero-badge',              { opacity: [0, 1] },                                             { duration: 0.8, easing: ease.power3Out,  at: 1   }],
+                    ['.hero-title .split-child', { transform: ['translateY(110%)', 'translateY(0%)'] },           { duration: 1,   easing: ease.power4Out,  at: 1.2, delay: stagger(0.05) }],
+                    ['.hero-subtitle',           { opacity: [0, 1] },                                             { duration: 1,   easing: ease.power3Out,  at: 1.4 }],
+                    ['.hero-search',             { opacity: [0, 1] },                                             { duration: 0.8, easing: ease.backOut,    at: 1.6 }],
+                    ['.hero-scroll',             { opacity: [0, 1] },                                             { duration: 1,                            at: 2.0 }],
+                ]);
+
+                // Parallax Hero BG on scroll
+                const heroParallax = scroll(
+                    animate('.hero-bg-wrap', { y: ['0%', '30%'] }, { easing: 'linear' }),
+                    { target: document.querySelector('#page-home'), offset: ['start start', 'end start'] }
+                );
+                scrollCleanups.push(heroParallax);
+            }
+
+            // General fade-up reveals
+            document.querySelectorAll('.gsap-fade-up').forEach(elem => {
+                const cleanup = inView(elem, () => {
+                    animate(elem, { y: [50, 0], opacity: [0, 1] }, { duration: 1, easing: ease.power3Out });
+                }, { margin: '0px 0px -15% 0px' });
+                scrollCleanups.push(cleanup);
+            });
+
+            // Bento grid stagger
+            document.querySelectorAll('.gsap-bento').forEach((elem, i) => {
+                const cleanup = inView(elem, () => {
+                    animate(elem, { y: [60, 0], opacity: [0, 1] }, { duration: 1, delay: i * 0.1, easing: ease.power3Out });
+                }, { margin: '0px 0px -15% 0px' });
+                scrollCleanups.push(cleanup);
+            });
+
+            // Destinations stagger
+            document.querySelectorAll('.gsap-dest').forEach((elem, i) => {
+                const cleanup = inView(elem, () => {
+                    animate(elem, { y: [80, 0], opacity: [0, 1] }, { duration: 1.2, delay: i * 0.15, easing: ease.power4Out });
+                }, { margin: '0px 0px -15% 0px' });
+                scrollCleanups.push(cleanup);
+            });
+
+            // Package cards stagger
+            document.querySelectorAll('.gsap-package-card').forEach((elem, i) => {
+                const cleanup = inView(elem, () => {
+                    animate(elem, { y: [60, 0], opacity: [0, 1] }, { duration: 1, delay: i * 0.1, easing: ease.power3Out });
+                }, { margin: '0px 0px -15% 0px' });
+                scrollCleanups.push(cleanup);
+            });
+
+            // Process line (Home)
+            if (document.getElementById('process-line')) {
+                const lineScroll = scroll(
+                    animate('#process-line', { scaleX: [0, 1] }, { easing: 'linear' }),
+                    { target: document.querySelector('#process-section'), offset: ['start center', 'center center'] }
+                );
+                scrollCleanups.push(lineScroll);
+
+                document.querySelectorAll('.process-step').forEach(step => {
+                    const circle = step.querySelector('.step-circle');
+                    const cleanup = inView(step, () => {
+                        animate(circle, {
+                            borderColor: '#E53935',
+                            backgroundColor: 'rgba(229, 57, 53, 0.1)',
+                            color: '#fff',
+                            boxShadow: '0 0 30px rgba(229, 57, 53, 0.4)',
+                        });
+                        return () => animate(circle, { borderColor: '', backgroundColor: '', color: '', boxShadow: '' });
+                    }, { margin: '0px 0px -50% 0px' });
+                    scrollCleanups.push(cleanup);
+                });
+            }
+
+            // Package details entry
+            if (document.getElementById('page-package-details').classList.contains('active')) {
+                timeline([
+                    ['.detail-bg',                       { scale: [1.3, 1.1] },                                       { duration: 2,   easing: ease.power3Out, at: 0   }],
+                    ['.gsap-detail-up',                  { y: [30, 0], opacity: [0, 1] },                             { duration: 0.8,                          at: 1   }],
+                    ['.gsap-detail-title .split-child',  { transform: ['translateY(110%)', 'translateY(0%)'] },       { duration: 1,   easing: ease.power4Out,  at: 1.4, delay: stagger(0.05) }],
+                ]);
+
+                const detailParallax = scroll(
+                    animate('.detail-bg-wrap', { y: ['0%', '30%'] }, { easing: 'linear' }),
+                    { target: document.querySelector('.detail-hero'), offset: ['start start', 'end start'] }
+                );
+                scrollCleanups.push(detailParallax);
+            }
+        }
+
+        // --------------------------------------------------------
+        // Initialization
+        // --------------------------------------------------------
+        window.addEventListener('load', () => {
+            initLoader();
+        });
+
+        // --------------------------------------------------------
+        // SPA Routing with Motion transitions
+        // --------------------------------------------------------
+        function nav(pageId) {
+            const currentActive = document.querySelector('.page-view.active');
+            if (currentActive && currentActive.id === `page-${pageId}`) return;
+
+            scrollCleanups.forEach(fn => fn && fn());
+            scrollCleanups = [];
+
+            const pages = document.querySelectorAll('.page-view');
+            const targetPage = document.getElementById('page-' + pageId);
+            if (!targetPage) return;
+
+            animate(Array.from(pages), { opacity: 0, y: -20 }, { duration: 0.4, easing: ease.power2In })
+                .finished.then(() => {
+                    pages.forEach(page => page.classList.remove('active'));
+
+                    targetPage.style.opacity = '0';
+                    targetPage.style.transform = 'translateY(30px)';
+                    targetPage.classList.add('active');
+
+                    window.scrollTo(0, 0);
+                    lenis.scrollTo(0, { immediate: true });
+
+                    const footer = document.getElementById('main-footer');
+                    if (pageId === 'admin') {
+                        footer.style.display = 'none';
+                        document.body.classList.replace('bg-gray-50', 'bg-[#f4f5f7]');
+                    } else {
+                        footer.style.display = 'block';
+                        document.body.classList.replace('bg-[#f4f5f7]', 'bg-gray-50');
+                    }
+
+                    history.pushState(null, null, `#${pageId}`);
+
+                    animate(targetPage, { opacity: [0, 1], y: [30, 0] }, { duration: 0.6, easing: ease.power3Out })
+                        .finished.then(() => {
+                            if (pageId === 'home') splitText('.hero-title');
+                            if (pageId === 'package-details') splitText('.gsap-detail-title');
+                            initPageAnimations();
+                            if (pageId === 'about') animateCounters();
+                        });
+                });
+        }
+
+        // --------------------------------------------------------
+        // Navbar Scroll Effect (Glassmorphism)
+        // --------------------------------------------------------
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            const navTextElements = document.querySelectorAll('.nav-text-color');
+            const isHomePage = document.getElementById('page-home').classList.contains('active');
+            const isDetailsPage = document.getElementById('page-package-details').classList.contains('active');
+            const hasDarkHero = isHomePage || isDetailsPage;
+
+            if (window.scrollY > 50) {
+                navbar.classList.add('glass-dark');
+                if (!navbar.classList.contains('glass-dark-active')) {
+                    navbar.style.padding = '16px 0';
+                    navbar.style.backgroundColor = 'rgba(10,10,10,0.8)';
+                    navbar.classList.add('glass-dark-active');
+                }
+                navTextElements.forEach(el => {
+                    el.classList.add('text-white');
+                    el.classList.remove('text-dark');
+                });
+            } else {
+                navbar.classList.remove('glass-dark');
+                if (navbar.classList.contains('glass-dark-active')) {
+                    navbar.style.padding = '24px 0';
+                    navbar.style.backgroundColor = 'transparent';
+                    navbar.classList.remove('glass-dark-active');
+                }
+                if (hasDarkHero) {
+                    navTextElements.forEach(el => {
+                        el.classList.add('text-white');
+                        el.classList.remove('text-dark');
+                    });
+                } else {
+                    navTextElements.forEach(el => {
+                        el.classList.remove('text-white');
+                        el.classList.add('text-dark');
+                    });
+                }
+            }
+        });
+
+        // --------------------------------------------------------
+        // Number Counter Animation
+        // --------------------------------------------------------
+        function animateCounters() {
+            document.querySelectorAll('.counter-number').forEach(counter => {
+                const target = +counter.innerText.replace(/[^0-9]/g, '');
+                const suffix = counter.innerHTML.includes('k') ? 'k+' : '+';
+                const duration = 2500;
+                let startTime = null;
+
+                function tick(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    const progress = Math.min((timestamp - startTime) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 2);
+                    counter.innerHTML = Math.round(eased * target) + suffix;
+                    if (progress < 1) requestAnimationFrame(tick);
+                }
+                requestAnimationFrame(tick);
+            });
+        }
+
+        // --------------------------------------------------------
+        // Mobile Menu Toggle
+        // --------------------------------------------------------
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                lenis.stop();
+                animate(menu, { opacity: [0, 1] }, { duration: 0.4, easing: ease.power2Out });
+            } else {
+                animate(menu, { opacity: [1, 0] }, { duration: 0.4, easing: ease.power2In })
+                    .finished.then(() => {
+                        menu.classList.add('hidden');
+                        menu.classList.remove('flex');
+                        lenis.start();
+                    });
+            }
+        }
+
+        // --------------------------------------------------------
+        // Accordion Logic
+        // --------------------------------------------------------
+        function toggleAccordion(element) {
+            document.querySelectorAll('.accordion-active').forEach(acc => {
+                if (acc !== element) acc.classList.remove('accordion-active');
+            });
+            element.classList.toggle('accordion-active');
+            // IntersectionObserver recalculates automatically — no manual refresh needed
+        }
+
+        // --------------------------------------------------------
+        // WhatsApp Integration
+        // --------------------------------------------------------
+        function openWhatsApp(packageName = '') {
+            const phoneNumber = '919876543210'; 
+            let message = 'Hi EMV Global, I am interested in planning a premium trip.';
+            if (packageName) message = `Hi EMV Global, I am interested in customizing the "${packageName}" package. Could you share more details?`;
+            window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // --------------------------------------------------------
+        // CSV Export Logic (Admin)
+        // --------------------------------------------------------
+        function exportTableToCSV(filename) {
+            let csv = [];
+            let rows = document.querySelectorAll("#leadsTable tr");
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+                let colCount = cols.length - 1; 
+                for (let j = 0; j < colCount; j++) {
+                    let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/"/g, '""');
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(","));
+            }
+            let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+            let downloadLink = document.createElement("a");
+            downloadLink.download = filename;
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Handle hash-based navigation on direct link load
+        if (window.location.hash) {
+            const hashPage = window.location.hash.replace('#', '');
+            if (['home', 'destinations', 'packages', 'about', 'admin', 'package-details'].includes(hashPage)) {
+                // Let loader finish first, then nav
+                setTimeout(() => nav(hashPage), 1500); 
+            }
+        }
+    </script>
+</body>
+</html>

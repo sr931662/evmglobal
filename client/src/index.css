@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Global scale — 1rem = 14px (87.5% of browser default 16px) ── */
+html { font-size: 87.5%; }
+
+/* ── Lenis ─────────────────────────────────────────── */
+html.lenis { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ── Base ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Prevent inline icon SVGs from expanding beyond their container */
+svg { display: inline-block; max-width: 100%; height: auto; }
+
+body {
+  background-color: #fafafa;
+  overflow-x: hidden;
+  cursor: none;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (hover: none) and (pointer: coarse) { body { cursor: auto; } }
+input, select, textarea { cursor: auto; }
+
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Global Utilities ───────────────────────────────── */
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+  .glass-dark {
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .hero-vignette {
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.45) 100%),
+                linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.6) 75%, rgba(0,0,0,0.88) 100%);
+  }
+  .card-vignette {
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+  }
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+  .img-zoom {
+    transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+  .group:hover .img-zoom { transform: scale(1.1); }
+  .bento-hover {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .bento-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12);
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* ── Custom Cursor ──────────────────────────────────── */
+.custom-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 20px; height: 20px;
+  background: #E53935;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100000;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+.custom-cursor.hover { width: 60px; height: 60px; }
+
+/* ── Accordion ──────────────────────────────────────── */
+.accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.accordion-content > div { overflow: hidden; }
+.accordion-active .accordion-content { grid-template-rows: 1fr; }
+.accordion-active .accordion-icon { transform: rotate(180deg); }
+
+/* ── Loader ─────────────────────────────────────────── */
+.loader-door {
+  position: absolute;
+  inset: 0;
+  background: #E53935;
+  transform-origin: top;
+  transform: scaleY(0);
+}

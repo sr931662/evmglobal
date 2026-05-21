@@ -1,0 +1,11 @@
+.splitParent {
+  overflow: hidden;
+  display: inline-flex;
+  vertical-align: top;
+}
+.splitChild {
+  display: inline-block;
+}
+.accentWrap {
+  display: inline;
+}
