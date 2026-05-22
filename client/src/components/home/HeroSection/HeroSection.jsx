@@ -73,7 +73,7 @@ export default function HeroSection() {
 
         {/* Headline */}
         <h1
-          className="text-[42px] sm:text-[56px] md:text-[72px] lg:text-[136px] font-serif text-white font-bold leading-[1.0] mb-5 md:mb-8 tracking-tight"
+          className="text-[42px] sm:text-[56px] md:text-[72px] lg:text-[136px] font-serif text-white font-bold leading-[1.25] mb-5 md:mb-8 tracking-tight"
           style={{ textShadow: '0 4px 32px rgba(0,0,0,0.5)' }}
         >
           <SplitTitle text="Crafting Your" />
