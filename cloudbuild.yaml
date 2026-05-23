@@ -16,15 +16,15 @@ steps:
     id: Push
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
-    entrypoint: bash
+    entrypoint: gcloud
     args:
-      - '-c'
-      - |
-        gcloud run services update evmglobal \
-          --platform=managed \
-          --region=europe-west1 \
-          --image=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/evmglobal/evmglobal:$COMMIT_SHA \
-          "--update-env-vars=^|^MONGODB_URI=mongodb+srv://singhlko19998_db_user:I9jQ0QFhwOwm0sWq@cis.w2wblc5.mongodb.net/evmglobal?retryWrites=true&w=majority|JWT_SECRET=18euhh8he81HEu2hy18yehuheI2EH8721e7H1E27H1HE28je98J2E1J|JWT_EXPIRY=1h|JWT_REFRESH_EXPIRY=7d|CLOUDINARY_CLOUD_NAME=evmglobal|CLOUDINARY_API_KEY=563821684647619|CLOUDINARY_API_SECRET=rsPCY_91XnpRw0n8KnzsLSEBtZo|RESEND_API_KEY=re_18euhh8he81HEu2hy18yehuheI2EH8721e7H1E27H1HE28je98J2E1J|ADMIN_EMAIL=admin@evmglobal.com|ADMIN_PASSWORD=Admin@123|FRONTEND_URL=https://evmglobal.sr931662.workers.dev,https://easemyvacationsglobal.com,http://localhost:3000"
+      - run
+      - services
+      - update
+      - evmglobal
+      - '--platform=managed'
+      - '--region=europe-west1'
+      - '--image=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/evmglobal/evmglobal:$COMMIT_SHA'
     id: Deploy
 
 images:
