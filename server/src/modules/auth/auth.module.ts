@@ -13,7 +13,7 @@ import { UsersModule } from '../users/users.module';
       useFactory: () => ({
         secret: process.env.JWT_SECRET,
         signOptions: {
-          expiresIn: process.env.JWT_EXPIRY || '1h',
+          expiresIn: (process.env.JWT_EXPIRY || '1h') as any,
           issuer: 'lead-management-api',
         },
         verifyOptions: {

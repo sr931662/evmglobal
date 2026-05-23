@@ -63,7 +63,7 @@ export class LeadsController {
     // Handle file upload
     if (file) {
       try {
-        const uploadResult = await this.uploadService.uploadFile(file);
+        const uploadResult = await this.uploadService.uploadFile(file) as any;
         leadData.fileUrl = uploadResult.secure_url;
       } catch (err) {
         this.logger.error(`File upload failed: ${err.message}`);

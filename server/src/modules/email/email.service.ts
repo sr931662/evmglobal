@@ -22,7 +22,7 @@ export class EmailService {
    * @param {string} [options.text] - Plain text fallback
    * @returns {Promise<Object>} Resend API response
    */
-  async send({ to, subject, html, from, text }) {
+  async send({ to, subject, html, from = undefined, text = undefined }: { to: string; subject: string; html: string; from?: string; text?: string }) {
     let lastError;
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {

@@ -17,7 +17,7 @@ export const LeadSchema = new Schema(
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
     toJSON: {
       virtuals: true,
-      transform: (_doc, ret) => {
+      transform: (_doc, ret: any) => {
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;

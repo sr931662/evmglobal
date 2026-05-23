@@ -1,4 +1,6 @@
-const BASE = '/api'
+// In production VITE_API_URL = full Cloud Run origin, e.g. https://api.evmglobal.com
+// In dev it is unset, so requests stay relative and are proxied by Vite to localhost:3000
+const BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api'
 
 const getToken        = () => localStorage.getItem('emv_token')
 const getRefreshToken = () => localStorage.getItem('emv_refresh_token')

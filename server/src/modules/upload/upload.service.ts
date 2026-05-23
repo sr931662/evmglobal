@@ -32,7 +32,7 @@ export class UploadService {
    * @param {Object} [options] - Additional Cloudinary options
    * @returns {Promise<Object>} - Cloudinary upload result (contains secure_url)
    */
-  async uploadFile(file, options = {}) {
+  async uploadFile(file: any, options: any = {}) {
     // Validate file existence
     if (!file || !file.buffer) {
       throw new BadRequestException('No file provided');
@@ -51,14 +51,14 @@ export class UploadService {
     }
 
     // Build upload options
-    const uploadOptions = {
+    const uploadOptions: any = {
       resource_type: 'auto',
       folder: options.folder || 'leads',
       public_id: options.publicId || this.generatePublicId(file),
       transformation: options.transformation || [
         { width: 1200, height: 1200, crop: 'limit', quality: 'auto' },
       ],
-      ...options, // allow overriding
+      ...options,
     };
 
     return new Promise((resolve, reject) => {

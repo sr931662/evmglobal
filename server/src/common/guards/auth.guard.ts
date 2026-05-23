@@ -3,6 +3,8 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  private logger: Logger;
+
   constructor() {
     super();
     this.logger = new Logger('JwtAuthGuard');

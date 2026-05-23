@@ -50,7 +50,7 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload);
     // Optional: generate a refresh token (longer-lived)
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRY || '7d',
+      expiresIn: (process.env.JWT_REFRESH_EXPIRY || '7d') as any,
     });
 
     return {
