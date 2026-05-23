@@ -1,0 +1,28 @@
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCommonModule dependencies initialized[39m[38;5;3m +40ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDatabaseModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMulterModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUploadModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mEmailModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mThrottlerModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mWhatsAppModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mExportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mLeadsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/api/auth}:[39m[38;5;3m +3ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/login, POST} route[39m[38;5;3m +3ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/refresh, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/auth/profile, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mLeadsController {/api/leads}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads/:id/status, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mExportController {/api/export}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/export/leads, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mWhatsAppController {/api/whatsapp}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22512  - [39m22/05/2026, 8:30:17 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/whatsapp/link, GET} route[39m[38;5;3m +1ms[39m

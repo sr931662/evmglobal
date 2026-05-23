@@ -3,6 +3,7 @@ import PartnersMarquee from '../../components/home/PartnersMarquee/PartnersMarqu
 import BentoSection from '../../components/home/BentoSection/BentoSection'
 import DestinationsFeatured from '../../components/home/DestinationsFeatured/DestinationsFeatured'
 import ProcessSection from '../../components/home/ProcessSection/ProcessSection'
+import InquirySection from '../../components/home/InquirySection/InquirySection'
 import HomeCTA from '../../components/home/HomeCTA/HomeCTA'
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
       <BentoSection />
       <DestinationsFeatured />
       <ProcessSection />
+      <InquirySection />
       <HomeCTA />
     </main>
   )

@@ -10,7 +10,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
 
-  const isDarkHero = ['/', '/package-details'].includes(location.pathname)
+  const isDarkHero = ['/', '/quotes'].includes(location.pathname) || location.pathname.startsWith('/package-details')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -41,7 +41,7 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center space-x-2 glass px-2 py-2 rounded-full transition-all duration-500">
-            {[['Destinations', '/destinations'], ['Journeys', '/packages'], ['Our Ethos', '/about']].map(([label, path]) => (
+            {[['Destinations', '/destinations'], ['Journeys', '/packages'], ['Quotes', '/quotes'], ['Our Ethos', '/about']].map(([label, path]) => (
               <Link key={path} to={path} className="px-6 py-2.5 rounded-full text-base font-bold text-gray-700 hover:text-dark hover:bg-white/80 transition-all">
                 {label}
               </Link>

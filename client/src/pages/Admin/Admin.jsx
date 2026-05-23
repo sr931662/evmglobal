@@ -1,13 +1,15 @@
 import { useState, Suspense, lazy } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '../../context/AuthContext'
 import AdminSidebar from '../../components/admin/AdminSidebar/AdminSidebar'
-import styles from './Admin.module.css'
 
-const AdminDashboard    = lazy(() => import('./sections/AdminDashboard'))
-const AdminAnalytics    = lazy(() => import('./sections/AdminAnalytics'))
-const AdminLeadsPage    = lazy(() => import('./sections/AdminLeadsPage'))
-const AdminPackagesPage = lazy(() => import('./sections/AdminPackagesPage'))
-const AdminSettings     = lazy(() => import('./sections/AdminSettings'))
+const AdminDashboard         = lazy(() => import('./sections/AdminDashboard'))
+const AdminAnalytics         = lazy(() => import('./sections/AdminAnalytics'))
+const AdminLeadsPage         = lazy(() => import('./sections/AdminLeadsPage'))
+const AdminPackagesPage      = lazy(() => import('./sections/AdminPackagesPage'))
+const AdminDestinationsPage  = lazy(() => import('./sections/AdminDestinationsPage'))
+const AdminQuotesPage        = lazy(() => import('./sections/AdminQuotesPage'))
+const AdminSettings          = lazy(() => import('./sections/AdminSettings'))
 
 function SectionLoader() {
   return (
@@ -18,33 +20,36 @@ function SectionLoader() {
 }
 
 const sections = {
-  dashboard: AdminDashboard,
-  analytics: AdminAnalytics,
-  leads:     AdminLeadsPage,
-  packages:  AdminPackagesPage,
-  settings:  AdminSettings,
+  dashboard:    AdminDashboard,
+  analytics:    AdminAnalytics,
+  leads:        AdminLeadsPage,
+  packages:     AdminPackagesPage,
+  destinations: AdminDestinationsPage,
+  quotes:       AdminQuotesPage,
+  settings:     AdminSettings,
 }
 
 const mobileNav = [
   { icon: '⊞', id: 'dashboard' },
   { icon: '📥', id: 'leads' },
   { icon: '📦', id: 'packages' },
+  { icon: '📋', id: 'quotes' },
   { icon: '📊', id: 'analytics' },
   { icon: '⚙',  id: 'settings' },
 ]
 
 export default function Admin() {
   const [active, setActive] = useState('dashboard')
+  const { logout, user }    = useAuth()
 
   const Section = sections[active] || AdminDashboard
 
   return (
-    <div className="bg-[#f7f8fa] min-h-screen pt-[85px] flex">
-      <AdminSidebar active={active} onNavigate={setActive} />
+    <div className="flex min-h-screen bg-[#f7f8fa]">
+      <AdminSidebar active={active} onNavigate={setActive} onLogout={logout} user={user} />
 
-      {/* Main content */}
-      <div className="flex-1 overflow-x-hidden pb-24 md:pb-0">
-        <div className="max-w-6xl mx-auto px-5 md:px-10 py-10">
+      <main className="flex-1 pb-24 md:pb-0">
+        <div className="px-6 md:px-10 py-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={active}
@@ -59,7 +64,7 @@ export default function Admin() {
             </motion.div>
           </AnimatePresence>
         </div>
-      </div>
+      </main>
 
       {/* Mobile bottom nav */}
       <div className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 flex z-40 shadow-glass">

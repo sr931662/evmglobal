@@ -8,6 +8,7 @@ const links = [
   ['Home', '/'],
   ['Destinations', '/destinations'],
   ['Journeys', '/packages'],
+  ['Quotes', '/quotes'],
   ['Our Ethos', '/about'],
 ]
 

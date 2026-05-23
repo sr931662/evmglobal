@@ -3,12 +3,15 @@ import { openWhatsApp } from '../../../utils/whatsapp'
 import styles from './PricingWidget.module.css'
 
 const breakdown = [
-  { label: 'Flights', value: 'Included', icon: '✈' },
-  { label: 'Hotels', value: '4★ Premium', icon: '🏨' },
-  { label: 'Transfers', value: 'Private', icon: '🚗' },
+  { label: 'Flights',   value: 'Included', icon: '✈' },
+  { label: 'Hotels',    value: 'Premium',  icon: '🏨' },
+  { label: 'Transfers', value: 'Private',  icon: '🚗' },
 ]
 
-export default function PricingWidget() {
+export default function PricingWidget({ pkg }) {
+  const price = pkg?.price || '—'
+  const title = pkg?.title || 'Package'
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -20,11 +23,11 @@ export default function PricingWidget() {
       <div className="border-b border-gray-100 pb-10 mb-10">
         <span className="text-sm font-black text-gray-400 tracking-[0.3em] uppercase mb-4 block">Total Estimate</span>
         <div className="flex items-baseline gap-3">
-          <span className="text-6xl font-serif font-bold text-dark tracking-tight">₹1.47L</span>
+          <span className="text-6xl font-serif font-bold text-dark tracking-tight">{price}</span>
           <span className="text-gray-500 font-bold text-lg">/ person</span>
         </div>
         <p className="text-[10px] text-gray-400 mt-6 font-black bg-gray-50 p-4 rounded-xl border border-gray-100 uppercase tracking-[0.2em] leading-relaxed">
-          Flight approx. ₹28,000 included in estimate.
+          Contact us for detailed breakdown & current availability.
         </p>
       </div>
 
@@ -44,7 +47,7 @@ export default function PricingWidget() {
       </div>
 
       <button
-        onClick={() => openWhatsApp('Romantic European Escapade')}
+        onClick={() => openWhatsApp(title)}
         className="w-full bg-dark text-white py-6 rounded-full font-bold text-xl shadow-float flex justify-center items-center gap-4 mb-6 hover:bg-black transition-colors"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-whatsapp">

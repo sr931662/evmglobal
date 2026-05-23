@@ -10,7 +10,7 @@ export default function DestinationCard({ dest, index }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 1.2, delay: (index % 4) * 0.12, ease: [0.22, 1, 0.36, 1] }}
-      onClick={() => navigate('/packages')}
+      onClick={() => navigate(`/packages?destination=${encodeURIComponent(dest.name)}`)}
       className="h-[380px] relative rounded-[1.75rem] overflow-hidden group cursor-pointer shadow-glass bento-hover"
     >
       <img src={dest.image} alt={dest.name} className="absolute inset-0 w-full h-full object-cover img-zoom" />

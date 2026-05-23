@@ -1,0 +1,29 @@
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mLeadsController {/api/leads}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/leads/:id/status, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mExportController {/api/export}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/export/leads, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mWhatsAppController {/api/whatsapp}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/whatsapp/link, GET} route[39m[38;5;3m +1ms[39m
+node : [31m[Nest] 24900  - [39m22/05/2026, 8:28:41 pm [31m  ERROR[39m [38;5;3m[DatabaseService] [39m[31mDatabase connection attempt 1 failed: [39m
+At line:1 char:59
++ ... cts\emvglobal\server"; node --import tsx/esm src/main.ts 2>&1 | Selec ...
++                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([31m[Nest] 249...1 failed: [39m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[31m[Nest] 24900  - [39m22/05/2026, 8:28:43 pm [31m  ERROR[39m [38;5;3m[DatabaseService] [39m[31mDatabase connection attempt 2 failed: [39m
+[31m[Nest] 24900  - [39m22/05/2026, 8:28:47 pm [31m  ERROR[39m [38;5;3m[DatabaseService] [39m[31mDatabase connection attempt 3 failed: [39m
+[31m[Nest] 24900  - [39m22/05/2026, 8:28:55 pm [31m  ERROR[39m [38;5;3m[DatabaseService] [39m[31mDatabase connection attempt 4 failed: [39m
+[31m[Nest] 24900  - [39m22/05/2026, 8:29:11 pm [31m  ERROR[39m [38;5;3m[DatabaseService] [39m[31mDatabase connection attempt 5 failed: [39m
+[31m[Nest] 24900  - [39m22/05/2026, 8:29:11 pm [31m  ERROR[39m [38;5;3m[DatabaseService] [39m[31mExhausted all database connection retries. Exiting...[39m
+Out-File : Could not find a part of the path 'D:\Shivam 
+folder\Mavicode\Projects\emvglobal\server\temp\claude\claude-pwd-ps-d366'.
+At line:3 char:25
++ ... ion).Path | Out-File -FilePath 'D:temp\claude\claude-pwd-ps-d366' -En ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OpenError: (:) [Out-File], DirectoryNotFoundException
+    + FullyQualifiedErrorId : FileOpenFailure,Microsoft.PowerShell.Commands.OutFileCommand
+ 
