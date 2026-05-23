@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { v4 as uuidv4 } from 'uuid'; // optional, or generate manually
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -24,7 +23,7 @@ export class LoggingInterceptor implements NestInterceptor {
     // Ensure request ID
     let requestId = request.headers['x-request-id'];
     if (!requestId) {
-      requestId = uuidv4 ? uuidv4() : `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      requestId = `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       request.headers['x-request-id'] = requestId;
     }
 
