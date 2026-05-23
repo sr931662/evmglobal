@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoggingInterceptor = void 0;
 const common_1 = require("@nestjs/common");
 const operators_1 = require("rxjs/operators");
-const uuid_1 = require("uuid"); // optional, or generate manually
 let LoggingInterceptor = class LoggingInterceptor {
     logger = new common_1.Logger('HTTP');
     constructor() { }
@@ -24,7 +23,7 @@ let LoggingInterceptor = class LoggingInterceptor {
         // Ensure request ID
         let requestId = request.headers['x-request-id'];
         if (!requestId) {
-            requestId = uuid_1.v4 ? (0, uuid_1.v4)() : `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            requestId = `gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             request.headers['x-request-id'] = requestId;
         }
         // Extract user identifier if authenticated
