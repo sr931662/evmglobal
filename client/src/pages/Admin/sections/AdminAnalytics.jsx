@@ -118,10 +118,10 @@ export default function AdminAnalytics() {
 
       {/* ── Lead KPIs ──────────────────────────────────────────────────────── */}
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 mb-4">Leads</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 mb-4">Inquiries</p>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           {[
-            { label: 'Total Leads',    value: stats.total,             sub: `${stats.thisMonth} this month` },
+            { label: 'Total Inquiries', value: stats.total,             sub: `${stats.thisMonth} this month` },
             { label: 'Converted',      value: stats.converted,         sub: `${stats.conversionRate}% rate` },
             { label: 'Pending',        value: stats.pending,           sub: 'New + Contacted' },
             { label: 'New This Month', value: stats.thisMonth,         sub: stats.monthChange != null ? `${stats.monthChange > 0 ? '+' : ''}${stats.monthChange}% vs last month` : 'First month' },
@@ -167,7 +167,7 @@ export default function AdminAnalytics() {
       )}
 
       {/* ── Monthly Leads Trend ────────────────────────────────────────────── */}
-      <SectionCard title="Monthly Leads" subtitle="Inquiries over the last 12 months" delay={0.2}>
+      <SectionCard title="Monthly Inquiries" subtitle="Inquiries over the last 12 months" delay={0.2}>
         <ResponsiveContainer width="100%" height={280}>
           <AreaChart data={stats.monthlyData}>
             <defs>
@@ -189,7 +189,7 @@ export default function AdminAnalytics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* Lead Status */}
-        <SectionCard title="Lead Pipeline" subtitle="Distribution across lead stages" delay={0.3}>
+        <SectionCard title="Inquiry Pipeline" subtitle="Distribution across inquiry stages" delay={0.3}>
           {statusPieData.length > 0 ? (
             <div className="flex items-center gap-8">
               <ResponsiveContainer width="55%" height={220}>
@@ -218,7 +218,7 @@ export default function AdminAnalytics() {
               </div>
             </div>
           ) : (
-            <p className="text-gray-400 font-bold text-sm text-center py-8">No lead data yet.</p>
+            <p className="text-gray-400 font-bold text-sm text-center py-8">No inquiry data yet.</p>
           )}
         </SectionCard>
 
@@ -308,7 +308,7 @@ export default function AdminAnalytics() {
       </div>
 
       {/* ── Recent Leads ──────────────────────────────────────────────────── */}
-      <SectionCard title="Recent Leads" subtitle="Latest 5 inquiries" delay={0.5}>
+      <SectionCard title="Recent Inquiries" subtitle="Latest 5 inquiries" delay={0.5}>
         {stats.recent?.length > 0 ? (
           <div className="space-y-4">
             {stats.recent.slice(0, 5).map(lead => {
@@ -333,7 +333,7 @@ export default function AdminAnalytics() {
             })}
           </div>
         ) : (
-          <p className="text-gray-400 font-bold text-sm text-center py-8">No leads yet.</p>
+          <p className="text-gray-400 font-bold text-sm text-center py-8">No inquiries yet.</p>
         )}
       </SectionCard>
     </div>

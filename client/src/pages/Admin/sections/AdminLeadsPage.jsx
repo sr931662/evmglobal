@@ -62,7 +62,7 @@ function LeadModal({ lead, onClose, onSave }) {
         className="bg-white rounded-[2.5rem] p-10 w-full max-w-lg shadow-premium border border-gray-100 max-h-[90vh] overflow-y-auto"
       >
         <h3 className="text-3xl font-serif font-bold text-dark mb-8">
-          {isEdit ? 'Edit Lead' : 'Add Lead'}
+          {isEdit ? 'Edit Inquiry' : 'Add Inquiry'}
         </h3>
 
         <div className="space-y-5">
@@ -119,7 +119,7 @@ function LeadModal({ lead, onClose, onSave }) {
             disabled={saving}
             className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50"
           >
-            {saving ? 'Saving…' : isEdit ? 'Update Lead' : 'Add Lead'}
+            {saving ? 'Saving…' : isEdit ? 'Update Inquiry' : 'Add Inquiry'}
           </button>
         </div>
       </motion.div>
@@ -145,7 +145,7 @@ function DeleteConfirm({ lead, onClose, onConfirm }) {
         className="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-premium border border-gray-100 text-center"
       >
         <div className="text-4xl mb-4">🗑️</div>
-        <h3 className="text-xl font-serif font-bold text-dark mb-2">Delete Lead?</h3>
+        <h3 className="text-xl font-serif font-bold text-dark mb-2">Delete Inquiry?</h3>
         <p className="text-gray-500 text-sm font-medium mb-8">
           <span className="font-bold text-dark">{lead.name}</span> will be permanently removed.
         </p>
@@ -254,7 +254,7 @@ export default function AdminLeadsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h2 className="text-4xl font-serif font-bold text-dark tracking-tight">Inquiries</h2>
-          <p className="text-gray-400 mt-1 font-medium">{total} total leads · {pending} pending action</p>
+          <p className="text-gray-400 mt-1 font-medium">{total} total · {pending} pending action</p>
         </div>
         <div className="flex gap-3">
           <button
@@ -267,7 +267,7 @@ export default function AdminLeadsPage() {
             onClick={() => setModal('create')}
             className="bg-brand text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-brand-hover transition-colors shadow-glow"
           >
-            + Add Lead
+            + Add Inquiry
           </button>
         </div>
       </div>
@@ -309,9 +309,9 @@ export default function AdminLeadsPage() {
           </div>
         ) : leads.length === 0 ? (
           <div className="px-8 py-16 text-center">
-            <p className="text-gray-400 font-bold mb-4">No leads found.</p>
+            <p className="text-gray-400 font-bold mb-4">No inquiries found.</p>
             <button onClick={() => setModal('create')} className="bg-brand text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-brand-hover transition-colors">
-              + Add First Lead
+              + Add First Inquiry
             </button>
           </div>
         ) : (
@@ -366,13 +366,13 @@ export default function AdminLeadsPage() {
                           <button
                             onClick={() => setModal(lead)}
                             className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors text-sm flex items-center justify-center shadow-sm"
-                            title="Edit lead"
+                            title="Edit inquiry"
                           >✏</button>
                           {/* Delete */}
                           <button
                             onClick={() => setDeleteTarget(lead)}
                             className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 transition-colors text-sm flex items-center justify-center shadow-sm"
-                            title="Delete lead"
+                            title="Delete inquiry"
                           >🗑</button>
                         </div>
                       </td>
@@ -387,7 +387,7 @@ export default function AdminLeadsPage() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="px-8 py-4 border-t border-gray-50 flex items-center justify-between">
-            <p className="text-sm text-gray-400 font-bold">Showing {leads.length} of {total} leads</p>
+            <p className="text-sm text-gray-400 font-bold">Showing {leads.length} of {total} inquiries</p>
             <div className="flex gap-1">
               <button
                 onClick={() => setPage(p => Math.max(p - 1, 1))}

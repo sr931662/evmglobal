@@ -131,7 +131,7 @@ export default function AdminSettings() {
       <SettingsSection title="Notifications" delay={0.15}>
         <div className="space-y-5">
           {[
-            { key: 'newLead',           label: 'New Lead Alert',            sub: 'Get notified immediately when a new inquiry is submitted' },
+            { key: 'newLead',           label: 'New Inquiry Alert',         sub: 'Get notified immediately when a new inquiry is submitted' },
             { key: 'dailyDigest',       label: 'Daily Digest',              sub: 'Receive a daily summary of all inquiries and activity' },
             { key: 'conversionAlert',   label: 'Conversion Alert',          sub: 'Alert when a lead is marked as converted' },
             { key: 'weeklyReport',      label: 'Weekly Performance Report', sub: 'Receive weekly analytics and KPI report via email' },

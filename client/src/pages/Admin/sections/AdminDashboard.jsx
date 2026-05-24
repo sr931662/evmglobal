@@ -64,7 +64,7 @@ export default function AdminDashboard() {
   }, [])
 
   const kpis = stats ? [
-    { label: 'Total Leads',    value: stats.total,     icon: '👥', color: 'blue',   sub: `${stats.thisMonth} this month` },
+    { label: 'Total Inquiries', value: stats.total,     icon: '👥', color: 'blue',   sub: `${stats.thisMonth} this month` },
     { label: 'Converted',      value: stats.converted, icon: '✅', color: 'green',  sub: `${stats.conversionRate}% rate` },
     { label: 'Pending Action', value: stats.pending,   icon: '⏳', color: 'orange', sub: 'New + Contacted' },
     { label: 'New This Month', value: stats.thisMonth, icon: '📈', color: 'purple', sub: stats.monthChange != null ? `${stats.monthChange > 0 ? '+' : ''}${stats.monthChange}% vs last month` : 'First month' },
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
               className="xl:col-span-2 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm"
             >
               <div className="mb-8">
-                <h3 className="text-xl font-serif font-bold text-dark">Monthly Leads</h3>
+                <h3 className="text-xl font-serif font-bold text-dark">Monthly Inquiries</h3>
                 <p className="text-gray-400 text-sm mt-1">Last 12 months — live data</p>
               </div>
               <ResponsiveContainer width="100%" height={260}>
@@ -153,7 +153,7 @@ export default function AdminDashboard() {
               className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm"
             >
               <h3 className="text-xl font-serif font-bold text-dark mb-1">Status Mix</h3>
-              <p className="text-gray-400 text-sm mb-6">Lead pipeline breakdown</p>
+              <p className="text-gray-400 text-sm mb-6">Inquiry pipeline breakdown</p>
               <div className="space-y-3">
                 {Object.entries(stats.byStatus).map(([s, count]) => {
                   const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
               transition={{ duration: 0.6, delay: 0.55 }}
               className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm"
             >
-              <h3 className="text-xl font-serif font-bold text-dark mb-1">Recent Leads</h3>
+              <h3 className="text-xl font-serif font-bold text-dark mb-1">Recent Inquiries</h3>
               <p className="text-gray-400 text-sm mb-6 mt-0.5">Latest inquiries</p>
               <div className="space-y-4">
                 {(stats.recent || []).slice(0, 5).map(lead => {
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
                   )
                 })}
                 {!stats.recent?.length && (
-                  <p className="text-gray-400 text-sm font-medium text-center py-4">No leads yet.</p>
+                  <p className="text-gray-400 text-sm font-medium text-center py-4">No inquiries yet.</p>
                 )}
               </div>
             </motion.div>

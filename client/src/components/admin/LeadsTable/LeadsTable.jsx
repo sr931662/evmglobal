@@ -24,7 +24,7 @@ export default function LeadsTable() {
           <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
           <input
             type="text"
-            placeholder="Search leads..."
+            placeholder="Search inquiries..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full sm:w-80 pl-12 pr-5 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-brand focus:bg-white transition-colors font-bold text-dark"
