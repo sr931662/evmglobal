@@ -1,1 +1,78 @@
-/* Uses Tailwind + global utilities */
+.card {
+  height: 380px;
+  position: relative;
+  border-radius: 1.75rem;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow-glass);
+}
+
+.img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0.8;
+  transition: opacity 0.5s;
+}
+.card:hover .vignette { opacity: 1; }
+
+.arrow {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  z-index: 10;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: background-color 0.5s, border-color 0.5s, transform 0.5s;
+}
+.card:hover .arrow {
+  background: var(--brand);
+  border-color: var(--brand);
+  transform: rotate(-45deg);
+}
+
+.info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  z-index: 10;
+}
+.region {
+  color: var(--brand);
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+.name {
+  font-family: var(--font-serif);
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.025em;
+  margin-bottom: 4px;
+}
+.country {
+  color: rgba(255,255,255,0.8);
+  font-weight: 300;
+  font-size: 0.875rem;
+}

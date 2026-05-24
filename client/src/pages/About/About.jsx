@@ -31,46 +31,54 @@ const pillars = [
   { icon: '◇', title: 'Seamless Logistics', desc: 'Flights, hotels, transfers — coordinated in a single, elegant itinerary.' },
 ]
 
+const stats = [
+  { target: 1000, suffix: '+', label: 'Trips Completed' },
+  { target: 50,   suffix: '+', label: 'Destinations' },
+  { target: 2022, suffix: '',  label: 'Est. Year' },
+]
+
+const aiItems = [
+  { icon: '🤖', title: 'AI-Powered Itineraries', desc: 'Personalized trip plans generated using intelligent travel data.' },
+  { icon: '⚡', title: 'Smarter Recommendations', desc: 'Curated options based on your preferences and travel history.' },
+  { icon: '💬', title: 'Instant Support', desc: 'AI-assisted customer support available around the clock.' },
+]
+
 export default function About() {
   return (
-    <div className="bg-white min-h-screen pt-[85px] md:pt-[100px]">
+    <div className={styles.page}>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-50 -z-10 rounded-bl-[80px] md:rounded-bl-[150px]" />
-        <div className="max-w-[95rem] mx-auto px-5 sm:px-8 lg:px-12 py-14 md:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+      <section className={styles.heroSection}>
+        <div className={styles.heroBg} />
+        <div className={styles.heroInner}>
+          <div className={styles.heroGrid}>
 
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: [0.33,1,0.68,1] }}
-              className="lg:col-span-6"
+              className={styles.heroLeft}
             >
-              <span className="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-8 flex items-center gap-4">
-                <span className="w-12 h-[2px] bg-brand" /> Founded 2022
+              <span className={styles.eyebrow}>
+                <span className={styles.eyebrowLine} /> Founded 2022
               </span>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] font-serif font-bold text-dark mb-7 leading-[1.05] tracking-tight">
+              <h1 className={styles.heroHeading}>
                 Making travel easier,<br />smarter, more memorable.
               </h1>
-              <p className="text-base md:text-lg text-gray-500 mb-5 leading-relaxed font-light">
-                Founded by <strong className="text-dark font-bold">Ved Anand</strong>, Ease My Vacations Global began with a simple vision — to make travel planning seamless, transparent, and accessible for every traveler.
+              <p className={styles.heroPara}>
+                Founded by <strong>Ved Anand</strong>, Ease My Vacations Global began with a simple vision — to make travel planning seamless, transparent, and accessible for every traveler.
               </p>
-              <p className="text-base md:text-lg text-gray-500 mb-10 leading-relaxed font-light">
-                What started as a small travel venture in <strong className="text-dark font-bold">Siliguri, West Bengal</strong> has evolved into a rapidly growing company with a strong presence in Kolkata and its corporate headquarters in <strong className="text-dark font-bold">Gurugram, Haryana</strong>.
+              <p className={styles.heroPara}>
+                What started as a small travel venture in <strong>Siliguri, West Bengal</strong> has evolved into a rapidly growing company with a strong presence in Kolkata and its corporate headquarters in <strong>Gurugram, Haryana</strong>.
               </p>
 
-              <div className="grid grid-cols-3 gap-8 border-t border-gray-200 pt-8">
-                {[
-                  { target: 1000, suffix: '+', label: 'Trips Completed' },
-                  { target: 50,   suffix: '+', label: 'Destinations' },
-                  { target: 2022, suffix: '',  label: 'Est. Year' },
-                ].map(s => (
+              <div className={styles.statsRow}>
+                {stats.map(s => (
                   <div key={s.label}>
-                    <div className="text-4xl md:text-5xl font-serif font-bold text-dark mb-2 tracking-tight">
+                    <div className={styles.statNum}>
                       <Counter target={s.target} suffix={s.suffix} />
                     </div>
-                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{s.label}</div>
+                    <div className={styles.statLabel}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -80,15 +88,15 @@ export default function About() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.2, ease: [0.33,1,0.68,1] }}
-              className="lg:col-span-6 relative"
+              className={styles.heroRight}
             >
-              <div className="absolute inset-0 bg-brand/10 rounded-[4rem] transform rotate-3 scale-105 origin-bottom-right pointer-events-none" />
-              <div className="absolute inset-0 bg-dark/5 rounded-[4rem] transform -rotate-3 scale-105 origin-bottom-left pointer-events-none" />
-              <div className="relative rounded-[2rem] md:rounded-[3rem] shadow-float overflow-hidden h-[340px] sm:h-[480px] lg:h-[620px] w-full">
+              <div className={styles.imgAccent1} />
+              <div className={styles.imgAccent2} />
+              <div className={styles.imgFrame}>
                 <img
                   src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1600"
                   alt="EMV Team"
-                  className="w-full h-full object-cover img-zoom"
+                  className={styles.heroImg}
                 />
               </div>
             </motion.div>
@@ -97,9 +105,9 @@ export default function About() {
       </section>
 
       {/* Mission & Vision */}
-      <section className="bg-gray-50 py-16 md:py-24">
-        <div className="max-w-[95rem] mx-auto px-5 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <section className={styles.missionSection}>
+        <div className={styles.sectionInner}>
+          <div className={styles.missionGrid}>
             {[
               {
                 label: 'Our Mission',
@@ -116,58 +124,55 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.7, delay: i * 0.12 }}
-                className="bg-white rounded-[2.5rem] p-10 md:p-14 border border-gray-100 shadow-sm"
+                className={styles.missionCard}
               >
-                <span className="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-5 flex items-center gap-3">
-                  <span className="w-8 h-[2px] bg-brand" /> {item.label}
+                <span className={styles.missionCardEyebrow}>
+                  <span className={styles.eyebrowLine} /> {item.label}
                 </span>
-                <p className="text-dark text-lg md:text-xl font-light leading-relaxed">{item.text}</p>
+                <p className={styles.missionText}>{item.text}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Bootstrapped milestone banner */}
-      <section className="bg-dark py-14 md:py-20">
-        <div className="max-w-[95rem] mx-auto px-5 sm:px-8 lg:px-12 text-center">
+      {/* Bootstrapped banner */}
+      <section className={styles.darkSection}>
+        <div className={styles.sectionInner}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
+            className={styles.darkInner}
           >
-            <span className="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-6 flex items-center justify-center gap-3">
-              <span className="w-8 h-[2px] bg-brand" /> Bootstrapped &amp; Proud <span className="w-8 h-[2px] bg-brand" />
+            <span className={styles.darkEyebrow}>
+              <span className={styles.eyebrowLine} /> Bootstrapped &amp; Proud <span className={styles.eyebrowLine} />
             </span>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-6 tracking-tight">
-              Built on trust. Grown by excellence.
-            </h2>
-            <p className="text-gray-400 font-light text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            <h2 className={styles.darkHeading}>Built on trust. Grown by excellence.</h2>
+            <p className={styles.darkDesc}>
               As a proudly bootstrapped company, we have built our business without external funding — relying instead on our commitment to service excellence, operational efficiency, and the trust of our customers.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Our pillars */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-[95rem] mx-auto px-5 sm:px-8 lg:px-12">
+      {/* Pillars */}
+      <section className={styles.pillarsSection}>
+        <div className={styles.sectionInner}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="mb-12 md:mb-16"
+            className={styles.sectionHead}
           >
-            <span className="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-4 flex items-center gap-3">
-              <span className="w-8 h-[2px] bg-brand" /> The Philosophy
+            <span className={styles.eyebrow}>
+              <span className={styles.eyebrowLine} /> The Philosophy
             </span>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-dark tracking-tight">
-              How we do things differently.
-            </h2>
+            <h2 className={styles.sectionHeading}>How we do things differently.</h2>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className={styles.pillarsGrid}>
             {pillars.map((p, i) => (
               <motion.div
                 key={p.title}
@@ -175,11 +180,11 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.8, delay: i * 0.08 }}
-                className="bg-gray-50 rounded-3xl p-8 border border-gray-100 hover:-translate-y-1 transition-transform duration-300"
+                className={styles.pillarCard}
               >
-                <div className="w-12 h-12 bg-dark text-white rounded-2xl flex items-center justify-center text-lg mb-5 shadow-sm">{p.icon}</div>
-                <h3 className="text-xl font-serif font-bold text-dark mb-3">{p.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed font-light">{p.desc}</p>
+                <div className={styles.pillarIcon}>{p.icon}</div>
+                <h3 className={styles.pillarTitle}>{p.title}</h3>
+                <p className={styles.pillarDesc}>{p.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -187,25 +192,26 @@ export default function About() {
       </section>
 
       {/* AI & Innovation */}
-      <section className="bg-gray-50 py-16 md:py-24">
-        <div className="max-w-[95rem] mx-auto px-5 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-24 items-center">
+      <section className={styles.aiSection}>
+        <div className={styles.sectionInner}>
+          <div className={styles.aiGrid}>
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
+              className={styles.aiLeft}
             >
-              <span className="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-6 flex items-center gap-3">
-                <span className="w-8 h-[2px] bg-brand" /> Innovation & AI
+              <span className={styles.eyebrow}>
+                <span className={styles.eyebrowLine} /> Innovation &amp; AI
               </span>
-              <h2 className="text-3xl md:text-5xl font-serif font-bold text-dark mb-7 tracking-tight leading-tight">
+              <h2 className={styles.sectionHeading} style={{ marginBottom: '1.75rem' }}>
                 Redefining travel with artificial intelligence.
               </h2>
-              <p className="text-gray-500 text-base md:text-lg leading-relaxed font-light mb-5">
+              <p className={styles.heroPara}>
                 As the travel industry evolves, Ease My Vacations is actively embracing the power of AI to redefine how travelers plan and experience their journeys.
               </p>
-              <p className="text-gray-500 text-base md:text-lg leading-relaxed font-light">
+              <p className={styles.heroPara}>
                 We are investing in AI-driven solutions that help customers discover personalized itineraries, receive intelligent travel recommendations, compare options efficiently, and access faster customer support.
               </p>
             </motion.div>
@@ -214,18 +220,14 @@ export default function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="grid grid-cols-1 gap-4"
+              className={styles.aiRight}
             >
-              {[
-                { icon: '🤖', title: 'AI-Powered Itineraries', desc: 'Personalized trip plans generated using intelligent travel data.' },
-                { icon: '⚡', title: 'Smarter Recommendations', desc: 'Curated options based on your preferences and travel history.' },
-                { icon: '💬', title: 'Instant Support', desc: 'AI-assisted customer support available around the clock.' },
-              ].map((item, i) => (
-                <div key={item.title} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex gap-5 items-start">
-                  <span className="text-2xl">{item.icon}</span>
+              {aiItems.map((item) => (
+                <div key={item.title} className={styles.aiCard}>
+                  <span className={styles.aiCardIcon}>{item.icon}</span>
                   <div>
-                    <p className="font-bold text-dark mb-1">{item.title}</p>
-                    <p className="text-gray-500 text-sm font-light leading-relaxed">{item.desc}</p>
+                    <p className={styles.aiCardTitle}>{item.title}</p>
+                    <p className={styles.aiCardDesc}>{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -234,30 +236,28 @@ export default function About() {
         </div>
       </section>
 
-      {/* The road ahead */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-[95rem] mx-auto px-5 sm:px-8 lg:px-12">
+      {/* Road ahead */}
+      <section className={styles.roadSection}>
+        <div className={styles.sectionInner}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-dark text-white rounded-[2.5rem] md:rounded-[3.5rem] p-10 sm:p-14 md:p-20 flex flex-col md:flex-row items-start md:items-center gap-10 md:gap-16"
+            className={styles.roadCard}
           >
-            <div className="flex-1">
-              <span className="text-brand font-black uppercase tracking-[0.3em] text-[10px] mb-5 flex items-center gap-3">
-                <span className="w-8 h-[2px] bg-brand" /> The Road Ahead
+            <div className={styles.roadText}>
+              <span className={styles.roadEyebrow}>
+                <span className={styles.eyebrowLine} /> The Road Ahead
               </span>
-              <h2 className="text-3xl md:text-5xl font-serif font-bold mb-6 tracking-tight leading-tight">
-                Our ambitions extend far beyond borders.
-              </h2>
-              <p className="text-gray-400 font-light text-base md:text-lg leading-relaxed max-w-xl">
+              <h2 className={styles.roadHeading}>Our ambitions extend far beyond borders.</h2>
+              <p className={styles.roadDesc}>
                 While our journey began in Siliguri and expanded through Kolkata to Gurugram, we are committed to expanding our global footprint, enhancing our technology capabilities, and continuing to deliver world-class travel experiences worldwide.
               </p>
             </div>
-            <div className="shrink-0 bg-white/5 border border-white/10 rounded-[2rem] p-8 md:p-10 text-center w-full md:w-64">
-              <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Our tagline</p>
-              <p className="text-white font-serif font-bold text-xl md:text-2xl leading-snug italic">
+            <div className={styles.taglineBox}>
+              <span className={styles.taglineLabel}>Our tagline</span>
+              <p className={styles.taglineQuote}>
                 "Making Travel Easier, Smarter, and More Memorable Since 2022."
               </p>
             </div>

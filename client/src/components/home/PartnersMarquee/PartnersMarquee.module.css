@@ -1,7 +1,45 @@
+.section {
+  padding: 4rem 0;
+  background: #fff;
+  border-bottom: 1px solid #f3f4f6;
+  overflow: hidden;
+  position: relative;
+  z-index: 20;
+}
+
+.label {
+  max-width: 95rem;
+  margin: 0 auto 2.5rem;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 900;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+.maskWrap {
+  position: relative;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
 .track {
-  animation: marquee 40s linear infinite;
+  display: flex;
+  white-space: nowrap;
+  align-items: center;
 }
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+
+.item {
+  margin: 0 2.5rem;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-style: italic;
+  color: #1f2937;
+  letter-spacing: 0.05em;
+  font-size: 1.5rem;
+  flex-shrink: 0;
 }
+@media (min-width: 768px) { .item { margin: 0 4rem; font-size: 2.25rem; } }

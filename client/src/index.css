@@ -2,96 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Global scale — 1rem = 14px (87.5% of browser default 16px) ── */
-html {
-  font-size: 87.5%;
-  overflow-x: hidden; /* prevents x-bleed when Lenis takes over html scroll */
+/* ── CSS Custom Properties ───────────────────────────────── */
+:root {
+  --brand:         #E53935;
+  --brand-hover:   #C62828;
+  --brand-light:   #FFEBEE;
+  --brand-muted:   rgba(229,57,53,0.1);
+  --dark:          #0a0a0a;
+  --dark-surface:  #121212;
+  --dark-elevated: #1a1a1a;
+  --whatsapp:      #25D366;
+
+  --shadow-glass:      0 8px 32px 0 rgba(0,0,0,0.05);
+  --shadow-glass-dark: 0 8px 32px 0 rgba(0,0,0,0.4);
+  --shadow-premium:    0 20px 40px -10px rgba(0,0,0,0.1);
+  --shadow-float:      0 30px 60px -15px rgba(0,0,0,0.15);
+  --shadow-glow:       0 0 30px rgba(229,57,53,0.4);
+
+  --font-sans:  'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in-out:    cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-/* ── Lenis ─────────────────────────────────────────── */
+/* ── Global scale — 1rem = 14px ─────────────────────────── */
+html {
+  font-size: 87.5%;
+  overflow-x: hidden;
+}
+
+/* ── Lenis ──────────────────────────────────────────────── */
 html.lenis { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }
 
-/* ── Base ───────────────────────────────────────────── */
+/* ── Base ───────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
-/* Prevent inline icon SVGs from expanding beyond their container */
 svg { display: inline-block; max-width: 100%; height: auto; }
 
 body {
   background-color: #fafafa;
   overflow-x: hidden;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::-webkit-scrollbar { display: none; }
 * { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ── Global Utilities ───────────────────────────────── */
-@layer utilities {
-  .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-  }
-  .glass-dark {
-    background: rgba(10, 10, 10, 0.4);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .hero-vignette {
-    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.45) 100%),
-                linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.6) 75%, rgba(0,0,0,0.88) 100%);
-  }
-  .card-vignette {
-    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
-  }
-  .marquee-mask {
-    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  }
-  .img-zoom {
-    transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform;
-  }
-  .group:hover .img-zoom { transform: scale(1.1); }
-  .bento-hover {
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .bento-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12);
-  }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+/* ── Global Utility Classes (used across many components) ── */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.glass-dark {
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hero-vignette {
+  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.45) 100%),
+              linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.6) 75%, rgba(0,0,0,0.88) 100%);
+}
+.card-vignette {
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
-/* ── Modal Scroll ───────────────────────────────────── */
+/* ── Modal Scroll ───────────────────────────────────────── */
 .modal-scroll { scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }
 .modal-scroll::-webkit-scrollbar { display: block; width: 4px; }
 .modal-scroll::-webkit-scrollbar-track { background: transparent; }
 .modal-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
 .modal-scroll::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
 
-/* ── Accordion ──────────────────────────────────────── */
-.accordion-content {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.accordion-content > div { overflow: hidden; }
-.accordion-active .accordion-content { grid-template-rows: 1fr; }
-.accordion-active .accordion-icon { transform: rotate(180deg); }
+/* ── No scrollbar util ──────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ── Loader ─────────────────────────────────────────── */
+/* ── Loader door ────────────────────────────────────────── */
 .loader-door {
   position: absolute;
   inset: 0;
-  background: #E53935;
+  background: var(--brand);
   transform-origin: top;
   transform: scaleY(0);
+}
+
+/* ── Keyframes ──────────────────────────────────────────── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes slideDown {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

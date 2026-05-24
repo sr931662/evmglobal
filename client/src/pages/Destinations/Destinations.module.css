@@ -1,1 +1,158 @@
-/* Page-level overrides */
+.page {
+  background: #f9fafb;
+  padding-top: 85px;
+  min-height: 100vh;
+}
+@media (min-width: 768px) { .page { padding-top: 100px; } }
+
+.pageHeader {
+  background: #fff;
+  border-bottom: 1px solid rgba(229,231,235,0.6);
+  padding: 2rem 0;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.headerInner {
+  max-width: 95rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+@media (min-width: 640px) { .headerInner { flex-direction: row; align-items: flex-end; } }
+@media (min-width: 640px)  { .headerInner { padding: 0 2rem; } }
+@media (min-width: 1024px) { .headerInner { padding: 0 3rem; } }
+
+.eyebrow {
+  color: var(--brand);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 0.6875rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.h1 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--dark);
+  letter-spacing: -0.025em;
+  font-size: clamp(1.875rem, 4vw, 3rem);
+}
+
+.filters { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.filterBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.filterActive   { background: var(--dark); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.filterInactive { background: #f3f4f6; color: #4b5563; }
+.filterInactive:hover { background: #e5e7eb; }
+
+.gridWrap {
+  max-width: 95rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+@media (min-width: 640px)  { .gridWrap { padding: 2rem 2rem; } }
+@media (min-width: 768px)  { .gridWrap { padding: 3.5rem 2rem; } }
+@media (min-width: 1024px) { .gridWrap { padding: 3.5rem 3rem; } }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+@media (min-width: 768px)  { .grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; } }
+@media (min-width: 1280px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16rem;
+}
+.spinnerCircle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid var(--brand);
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: spin 0.7s linear infinite;
+}
+.errMsg { text-align: center; padding: 5rem 0; color: #ef4444; font-weight: 700; }
+.emptyMsg { text-align: center; padding: 5rem 0; color: #9ca3af; font-weight: 700; }
+
+.ctaWrap {
+  max-width: 95rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 3rem;
+}
+@media (min-width: 640px)  { .ctaWrap { padding: 0 2rem 3rem; } }
+@media (min-width: 768px)  { .ctaWrap { padding: 0 2rem 6rem; } }
+@media (min-width: 1024px) { .ctaWrap { padding: 0 3rem 6rem; } }
+
+.ctaCard {
+  background: var(--dark);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  box-shadow: var(--shadow-premium);
+  border: 1px solid #1f2937;
+}
+@media (min-width: 640px)  { .ctaCard { padding: 2.5rem; } }
+@media (min-width: 768px)  { .ctaCard { flex-direction: row; align-items: center; padding: 4rem; border-radius: 2.5rem; } }
+
+.ctaCopyEyebrow {
+  color: var(--brand);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 0.6875rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+.ctaHeading {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+}
+.ctaDesc { color: #9ca3af; font-weight: 300; font-size: 1rem; line-height: 1.7; }
+@media (min-width: 768px) { .ctaDesc { font-size: 1.125rem; } }
+
+.ctaBtn {
+  background: #fff;
+  color: var(--dark);
+  padding: 1rem 1.75rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: var(--shadow-float);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+.ctaBtn:hover { background: #f3f4f6; }
