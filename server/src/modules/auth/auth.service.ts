@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
