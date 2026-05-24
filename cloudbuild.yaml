@@ -5,8 +5,8 @@ steps:
       - '-t'
       - 'gcr.io/$PROJECT_ID/evmglobal:$COMMIT_SHA'
       - '-f'
-      - 'Dockerfile'
-      - '.'
+      - 'server/Dockerfile'
+      - './server'
     id: Build
 
   - name: 'gcr.io/cloud-builders/docker'
@@ -21,7 +21,7 @@ steps:
       - run
       - services
       - update
-      - emvglobal
+      - evmglobal
       - '--platform=managed'
       - '--region=asia-south2'
       - '--image=gcr.io/$PROJECT_ID/evmglobal:$COMMIT_SHA'
