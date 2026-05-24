@@ -10,6 +10,8 @@ const links = [
   ['Journeys', '/packages'],
   ['Quotes', '/quotes'],
   ['Our Ethos', '/about'],
+  ['Blog', '/blog'],
+  ['Careers', '/careers'],
 ]
 
 export default function MobileMenu({ open, onClose }) {

@@ -19,13 +19,9 @@ svg { display: inline-block; max-width: 100%; height: auto; }
 body {
   background-color: #fafafa;
   overflow-x: hidden;
-  cursor: none;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-
-@media (hover: none) and (pointer: coarse) { body { cursor: auto; } }
-input, select, textarea { cursor: auto; }
 
 ::-webkit-scrollbar { display: none; }
 * { -ms-overflow-style: none; scrollbar-width: none; }
@@ -71,20 +67,12 @@ input, select, textarea { cursor: auto; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* ── Custom Cursor ──────────────────────────────────── */
-.custom-cursor {
-  position: fixed;
-  top: 0; left: 0;
-  width: 20px; height: 20px;
-  background: #E53935;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 100000;
-  transform: translate(-50%, -50%);
-  mix-blend-mode: difference;
-  transition: width 0.3s ease, height 0.3s ease;
-}
-.custom-cursor.hover { width: 60px; height: 60px; }
+/* ── Modal Scroll ───────────────────────────────────── */
+.modal-scroll { scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }
+.modal-scroll::-webkit-scrollbar { display: block; width: 4px; }
+.modal-scroll::-webkit-scrollbar-track { background: transparent; }
+.modal-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+.modal-scroll::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
 
 /* ── Accordion ──────────────────────────────────────── */
 .accordion-content {

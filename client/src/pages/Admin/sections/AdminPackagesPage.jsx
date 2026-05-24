@@ -6,6 +6,8 @@ const CATEGORIES = ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness']
 
 const ACTIVITY_ICONS = ['✈', '🚗', '🚢', '🏨', '🍽', '🎭', '🧘', '🏖', '⛵', '🏔', '🎿', '🛕', '🌅', '🤿', '📍']
 
+const FLIGHT_TYPES = ['Departure', 'Return', 'Connecting']
+
 const categoryColors = {
   Honeymoon: 'bg-pink-50 text-pink-700 border-pink-100',
   Luxury:    'bg-purple-50 text-purple-700 border-purple-100',
@@ -15,11 +17,13 @@ const categoryColors = {
 }
 
 const emptyActivity = () => ({ time: '', description: '', icon: '📍' })
-const emptyDay     = (n) => ({ day: n, title: '', activities: [emptyActivity()] })
-const emptyForm    = () => ({
+const emptyHotel    = () => ({ name: '', roomType: '', checkIn: '', checkOut: '' })
+const emptyFlight   = () => ({ type: 'Departure', airline: '', flightNumber: '', from: '', to: '', date: '', time: '' })
+const emptyDay      = (n) => ({ day: n, title: '', activities: [emptyActivity()], hotel: emptyHotel() })
+const emptyForm     = () => ({
   title: '', category: 'Honeymoon', nights: '', price: '', priceValue: '',
   description: '', destinations: '', highlights: '', image: '', status: 'Active',
-  inclusions: [''], exclusions: [''], itinerary: [],
+  inclusions: [''], exclusions: [''], itinerary: [], flights: [],
 })
 
 // ── Small reusable input ──────────────────────────────────────────────────────
@@ -75,6 +79,119 @@ function ListEditor({ label, items, onChange, placeholder, accentClass }) {
         ))}
         {items.length === 0 && (
           <p className="text-gray-400 text-xs font-bold text-center py-3">None added yet — click + Add</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Flights & Hotels builder ──────────────────────────────────────────────────
+function FlightsHotelsBuilder({ flights, itinerary, onFlightsChange, onItineraryChange }) {
+  const addFlight = () => onFlightsChange([...flights, emptyFlight()])
+  const removeFlight = (i) => onFlightsChange(flights.filter((_, idx) => idx !== i))
+  const updateFlight = (i, key, val) => onFlightsChange(flights.map((f, idx) => idx === i ? { ...f, [key]: val } : f))
+
+  const updateHotel = (di, key, val) => {
+    onItineraryChange(itinerary.map((d, i) => i === di ? { ...d, hotel: { ...d.hotel, [key]: val } } : d))
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Flights */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">✈ Flight Details</h4>
+          <button onClick={addFlight} className="text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full bg-brand/10 text-brand hover:bg-brand/20 transition-colors">+ Add Flight</button>
+        </div>
+        {flights.length === 0 ? (
+          <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">No flights added yet — click + Add Flight</p>
+        ) : (
+          <div className="space-y-4">
+            {flights.map((fl, i) => (
+              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="bg-gray-50 px-5 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">✈</span>
+                    <select value={fl.type} onChange={e => updateFlight(i, 'type', e.target.value)}
+                      className="bg-transparent text-dark font-black text-xs focus:outline-none cursor-pointer">
+                      {FLIGHT_TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <button onClick={() => removeFlight(i)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center">✕</button>
+                </div>
+                <div className="p-4 grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Airline</label>
+                    <input type="text" value={fl.airline} onChange={e => updateFlight(i, 'airline', e.target.value)} placeholder="e.g. IndiGo"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Flight No.</label>
+                    <input type="text" value={fl.flightNumber} onChange={e => updateFlight(i, 'flightNumber', e.target.value)} placeholder="e.g. 6E-204"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">From</label>
+                    <input type="text" value={fl.from} onChange={e => updateFlight(i, 'from', e.target.value)} placeholder="e.g. Delhi (DEL)"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">To</label>
+                    <input type="text" value={fl.to} onChange={e => updateFlight(i, 'to', e.target.value)} placeholder="e.g. Srinagar (SXR)"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Date</label>
+                    <input type="text" value={fl.date} onChange={e => updateFlight(i, 'date', e.target.value)} placeholder="e.g. Day 1 / 12 Jun"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Time</label>
+                    <input type="text" value={fl.time} onChange={e => updateFlight(i, 'time', e.target.value)} placeholder="e.g. 06:30 AM"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-gray-100" />
+
+      {/* Hotels per day */}
+      <div>
+        <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em] mb-4">🏨 Hotel Details (per day)</h4>
+        {itinerary.length === 0 ? (
+          <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">Add days in the Itinerary tab first</p>
+        ) : (
+          <div className="space-y-4">
+            {itinerary.map((day, di) => (
+              <div key={di} className="border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="bg-gray-50 px-5 py-3 flex items-center gap-2">
+                  <span className="w-7 h-7 bg-dark text-white rounded-lg text-[11px] font-black flex items-center justify-center shrink-0">{day.day}</span>
+                  <span className="text-dark font-bold text-sm truncate">{day.title || `Day ${day.day}`}</span>
+                </div>
+                <div className="p-4 grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Hotel Name</label>
+                    <input type="text" value={day.hotel?.name || ''} onChange={e => updateHotel(di, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Room Type</label>
+                    <input type="text" value={day.hotel?.roomType || ''} onChange={e => updateHotel(di, 'roomType', e.target.value)} placeholder="e.g. Deluxe Double"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Check-in / Check-out</label>
+                    <input type="text" value={day.hotel?.checkIn || ''} onChange={e => updateHotel(di, 'checkIn', e.target.value)} placeholder="e.g. 2:00 PM / 11:00 AM"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
@@ -183,7 +300,7 @@ function ItineraryBuilder({ itinerary, onChange }) {
 }
 
 // ── Modal tabs ────────────────────────────────────────────────────────────────
-const TABS = ['Basic Info', 'Itinerary', 'Inclusions & Exclusions']
+const TABS = ['Basic Info', 'Itinerary', 'Flights & Hotels', 'Inclusions & Exclusions']
 
 function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
   const [tab, setTab] = useState(0)
@@ -192,26 +309,26 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
   const canSave = form.title.trim() && form.price.trim() && form.nights
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-premium border border-gray-100 flex flex-col max-h-[92vh]"
+        className="bg-white rounded-[2rem] sm:rounded-[2.5rem] w-full max-w-2xl shadow-premium border border-gray-100 flex flex-col max-h-[95vh] sm:max-h-[92vh]"
       >
         {/* Modal header */}
-        <div className="flex items-center justify-between px-10 pt-10 pb-6 shrink-0">
-          <h3 className="text-3xl font-serif font-bold text-dark">{editPkg ? 'Edit Package' : 'New Package'}</h3>
-          <button onClick={onClose} className="w-9 h-9 rounded-2xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors text-lg flex items-center justify-center">✕</button>
+        <div className="flex items-center justify-between px-6 sm:px-10 pt-7 sm:pt-10 pb-5 sm:pb-6 shrink-0">
+          <h3 className="text-2xl sm:text-3xl font-serif font-bold text-dark">{editPkg ? 'Edit Package' : 'New Package'}</h3>
+          <button onClick={onClose} className="w-9 h-9 rounded-2xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors text-lg flex items-center justify-center shrink-0">✕</button>
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-1 px-10 pb-4 shrink-0">
+        <div className="flex gap-1 px-6 sm:px-10 pb-4 shrink-0 overflow-x-auto no-scrollbar">
           {TABS.map((t, i) => (
             <button
               key={t}
               onClick={() => setTab(i)}
-              className={`px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-colors ${tab === i ? 'bg-dark text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+              className={`px-4 py-2.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-[0.12em] transition-colors whitespace-nowrap ${tab === i ? 'bg-dark text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
             >
               {t}
             </button>
@@ -219,7 +336,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 overflow-y-auto px-10 pb-6">
+        <div className="flex-1 overflow-y-auto px-6 sm:px-10 pb-6 modal-scroll">
           {tab === 0 && (
             <div className="space-y-5">
               <Field label="Package Title" value={form.title} onChange={v => f('title', v)} placeholder="e.g. Romantic Bali Escape" />
@@ -269,6 +386,15 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
           )}
 
           {tab === 2 && (
+            <FlightsHotelsBuilder
+              flights={form.flights}
+              itinerary={form.itinerary}
+              onFlightsChange={v => f('flights', v)}
+              onItineraryChange={v => f('itinerary', v)}
+            />
+          )}
+
+          {tab === 3 && (
             <div className="space-y-8">
               <ListEditor
                 label="Inclusions"
@@ -290,7 +416,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         </div>
 
         {/* Footer */}
-        <div className="flex gap-4 px-10 py-6 border-t border-gray-100 shrink-0">
+        <div className="flex gap-4 px-6 sm:px-10 py-5 sm:py-6 border-t border-gray-100 shrink-0">
           <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">Cancel</button>
           <button
             onClick={onSave}
@@ -364,6 +490,11 @@ export default function AdminPackagesPage() {
         activities: Array.isArray(d.activities) ? d.activities.map(a => ({
           time: a.time || '', description: a.description || '', icon: a.icon || '📍',
         })) : [emptyActivity()],
+        hotel: d.hotel ? { name: d.hotel.name || '', roomType: d.hotel.roomType || '', checkIn: d.hotel.checkIn || '', checkOut: d.hotel.checkOut || '' } : emptyHotel(),
+      })) : [],
+      flights: Array.isArray(pkg.flights) ? pkg.flights.map(fl => ({
+        type: fl.type || 'Departure', airline: fl.airline || '', flightNumber: fl.flightNumber || '',
+        from: fl.from || '', to: fl.to || '', date: fl.date || '', time: fl.time || '',
       })) : [],
     })
     setShowModal(true)
@@ -396,7 +527,17 @@ export default function AdminPackagesPage() {
             description: a.description.trim(),
             icon:        a.icon,
           })),
+          hotel: d.hotel && (d.hotel.name || d.hotel.roomType) ? {
+            name:      d.hotel.name.trim(),
+            roomType:  d.hotel.roomType.trim(),
+            checkIn:   d.hotel.checkIn.trim(),
+            checkOut:  d.hotel.checkOut.trim(),
+          } : undefined,
         })).filter(d => d.title || d.activities.length),
+        flights: form.flights.filter(fl => fl.airline || fl.flightNumber || fl.from).map(fl => ({
+          type: fl.type, airline: fl.airline.trim(), flightNumber: fl.flightNumber.trim(),
+          from: fl.from.trim(), to: fl.to.trim(), date: fl.date.trim(), time: fl.time.trim(),
+        })),
       }
       if (editPkg) {
         await api.updatePackage(editPkg, payload)

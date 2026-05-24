@@ -5,8 +5,26 @@ const ActivitySchema = new Schema(
   { _id: false }
 );
 
+const HotelSchema = new Schema(
+  { name: { type: String, default: '' }, roomType: { type: String, default: '' }, checkIn: { type: String, default: '' }, checkOut: { type: String, default: '' } },
+  { _id: false }
+);
+
 const DaySchema = new Schema(
-  { day: { type: Number }, title: { type: String, default: '' }, activities: { type: [ActivitySchema], default: [] } },
+  { day: { type: Number }, title: { type: String, default: '' }, activities: { type: [ActivitySchema], default: [] }, hotel: { type: HotelSchema, default: null } },
+  { _id: false }
+);
+
+const FlightSchema = new Schema(
+  {
+    type:         { type: String, default: 'Departure', enum: ['Departure', 'Return', 'Connecting'] },
+    airline:      { type: String, default: '' },
+    flightNumber: { type: String, default: '' },
+    from:         { type: String, default: '' },
+    to:           { type: String, default: '' },
+    date:         { type: String, default: '' },
+    time:         { type: String, default: '' },
+  },
   { _id: false }
 );
 
@@ -23,6 +41,7 @@ export const PackageSchema = new Schema(
     inclusions:   [{ type: String }],
     exclusions:   [{ type: String }],
     itinerary:    { type: [DaySchema], default: [] },
+    flights:      { type: [FlightSchema], default: [] },
     status:       { type: String, default: 'Active', enum: ['Active', 'Draft'] },
     bookings:     { type: Number, default: 0 },
     image:        { type: String, default: '' },

@@ -64,7 +64,7 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div className="col-span-1 md:col-span-8 lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8 md:gap-12">
+          <div className="col-span-1 md:col-span-8 lg:col-span-7 grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
             <div>
               <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-5">Discover</h5>
               <ul className="space-y-3.5">
@@ -72,6 +72,21 @@ export default function Footer() {
                   ['Destinations', '/destinations'],
                   ['Journeys',     '/packages'],
                   ['About Us',     '/about'],
+                ].map(([l, p]) => (
+                  <li key={p}>
+                    <Link to={p} className="text-gray-400 hover:text-white transition-colors font-light text-sm md:text-base">{l}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-5">Company</h5>
+              <ul className="space-y-3.5">
+                {[
+                  ['Blog',     '/blog'],
+                  ['Careers',  '/careers'],
+                  ['Quotes',   '/quotes'],
                 ].map(([l, p]) => (
                   <li key={p}>
                     <Link to={p} className="text-gray-400 hover:text-white transition-colors font-light text-sm md:text-base">{l}</Link>

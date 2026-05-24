@@ -21,6 +21,8 @@ import TermsOfService from './pages/TermsOfService/TermsOfService'
 import UserAgreement from './pages/UserAgreement/UserAgreement'
 import DataProcessingAgreement from './pages/DataProcessingAgreement/DataProcessingAgreement'
 import QuotesPage from './pages/Quotes/Quotes'
+import Blog from './pages/Blog/Blog'
+import Careers from './pages/Careers/Careers'
 import Admin from './pages/Admin/Admin'
 import AdminLogin from './pages/Admin/Login/AdminLogin'
 
@@ -66,6 +68,8 @@ function AnimatedRoutes() {
           <Route path="/user-agreement"            element={<UserAgreement />} />
           <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
           <Route path="/quotes"                     element={<QuotesPage />} />
+          <Route path="/blog"                      element={<Blog />} />
+          <Route path="/careers"                   element={<Careers />} />
           <Route path="/admin/login"               element={user ? <Navigate to="/admin" replace /> : <AdminLogin onSuccess={() => {}} />} />
           <Route path="/admin"                     element={<ProtectedAdmin />} />
         </Routes>
