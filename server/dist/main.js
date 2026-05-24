@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// Test
 require("reflect-metadata");
 require("dotenv/config");
 const core_1 = require("@nestjs/core");
