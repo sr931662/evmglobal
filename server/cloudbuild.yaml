@@ -5,8 +5,8 @@ steps:
       - '-t'
       - 'gcr.io/$PROJECT_ID/evmglobal:$COMMIT_SHA'
       - '-f'
-      - 'server/Dockerfile'
-      - './server'
+      - 'Dockerfile'
+      - '.'
     id: Build
 
   - name: 'gcr.io/cloud-builders/docker'
