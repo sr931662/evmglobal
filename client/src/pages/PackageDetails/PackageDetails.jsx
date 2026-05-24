@@ -1,8 +1,9 @@
 import { useRef, useEffect, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import PricingWidget from '../../components/packageDetails/PricingWidget/PricingWidget'
 import { api } from '../../services/api'
+import { openWhatsApp } from '../../utils/whatsapp'
 import styles from './PackageDetails.module.css'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2800'
@@ -197,9 +198,36 @@ export default function PackageDetails() {
             )}
           </div>
 
-          {/* Right: Pricing Widget */}
-          <div className="w-full lg:w-[35%] xl:w-[30%]">
+          {/* Right: Pricing Widget + Inquiry CTA */}
+          <div className="w-full lg:w-[35%] xl:w-[30%] space-y-6">
             <PricingWidget pkg={pkg} />
+
+            {/* Inline inquiry CTA card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="bg-dark rounded-[2.5rem] p-8 text-white text-center"
+            >
+              <span className="text-3xl mb-4 block">✉️</span>
+              <h4 className="font-serif font-bold text-xl mb-2">Send an Inquiry</h4>
+              <p className="text-gray-400 text-sm font-light mb-6 leading-relaxed">
+                Get a personalised quote for this package within 24 hours.
+              </p>
+              <Link
+                to={`/contact?package=${encodeURIComponent(pkg.title)}`}
+                className="block w-full bg-brand text-white py-4 rounded-full font-bold text-sm hover:bg-brand-hover transition-colors shadow-glow text-center mb-3"
+              >
+                Inquire About This Package
+              </Link>
+              <button
+                onClick={() => openWhatsApp(pkg.title)}
+                className="block w-full bg-white/10 border border-white/20 text-white py-3.5 rounded-full font-bold text-sm hover:bg-white/20 transition-colors text-center"
+              >
+                Chat on WhatsApp
+              </button>
+            </motion.div>
           </div>
         </div>
       </div>

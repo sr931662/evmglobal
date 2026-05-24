@@ -23,6 +23,7 @@ import DataProcessingAgreement from './pages/DataProcessingAgreement/DataProcess
 import QuotesPage from './pages/Quotes/Quotes'
 import Blog from './pages/Blog/Blog'
 import Careers from './pages/Careers/Careers'
+import Contact from './pages/Contact/Contact'
 import Admin from './pages/Admin/Admin'
 import AdminLogin from './pages/Admin/Login/AdminLogin'
 
@@ -70,6 +71,7 @@ function AnimatedRoutes() {
           <Route path="/quotes"                     element={<QuotesPage />} />
           <Route path="/blog"                      element={<Blog />} />
           <Route path="/careers"                   element={<Careers />} />
+          <Route path="/contact"                   element={<Contact />} />
           <Route path="/admin/login"               element={user ? <Navigate to="/admin" replace /> : <AdminLogin onSuccess={() => {}} />} />
           <Route path="/admin"                     element={<ProtectedAdmin />} />
         </Routes>

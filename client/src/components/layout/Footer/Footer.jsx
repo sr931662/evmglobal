@@ -72,6 +72,7 @@ export default function Footer() {
                   ['Destinations', '/destinations'],
                   ['Journeys',     '/packages'],
                   ['About Us',     '/about'],
+                  ['Contact Us',   '/contact'],
                 ].map(([l, p]) => (
                   <li key={p}>
                     <Link to={p} className="text-gray-400 hover:text-white transition-colors font-light text-sm md:text-base">{l}</Link>

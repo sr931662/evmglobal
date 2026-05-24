@@ -10,6 +10,7 @@ const links = [
   ['Journeys', '/packages'],
   ['Quotes', '/quotes'],
   ['Our Ethos', '/about'],
+  ['Contact', '/contact'],
   ['Blog', '/blog'],
   ['Careers', '/careers'],
 ]
