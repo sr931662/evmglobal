@@ -10,8 +10,8 @@ import { MongooseModule } from '@nestjs/mongoose';
         if (!uri) throw new Error('MONGODB_URI environment variable is not set');
         return {
           uri,
-          serverSelectionTimeoutMS: 10000, // fail fast if Atlas unreachable
-          connectTimeoutMS:         10000,
+          serverSelectionTimeoutMS: 30000,
+          connectTimeoutMS:         30000,
           socketTimeoutMS:          45000,
         };
       },
