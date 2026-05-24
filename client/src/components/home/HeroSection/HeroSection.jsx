@@ -101,11 +101,29 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.4, ease: [0.33, 1, 0.68, 1] }}
-          className="text-base sm:text-lg md:text-2xl text-white mb-7 md:mb-12 font-light max-w-xs sm:max-w-lg md:max-w-3xl leading-relaxed px-2 sm:px-0"
+          className="text-base sm:text-lg md:text-2xl text-white mb-5 md:mb-8 font-light max-w-xs sm:max-w-lg md:max-w-3xl leading-relaxed px-2 sm:px-0"
           style={{ textShadow: '0 2px 20px rgba(0,0,0,0.7)' }}
         >
           Bespoke international holidays curated entirely around your pace and preferences.
         </motion.p>
+
+        {/* ── Quiz CTA ── */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.55, ease: [0.33, 1, 0.68, 1] }}
+          onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
+          className="mb-7 md:mb-10 flex items-center gap-2.5 glass-dark text-white px-6 py-3 rounded-full border border-white/20 hover:border-brand/60 transition-all duration-300 group"
+        >
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand" />
+          </span>
+          <span className="font-bold text-sm tracking-wide">Plan My Perfect Trip</span>
+          <svg className="w-4 h-4 text-brand group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </motion.button>
 
         {/* ── MOBILE search bar: compact single-row pill ── */}
         <motion.div
