@@ -67,4 +67,10 @@ export class UsersService {
       .lean()
       .exec();
   }
+
+  async updatePassword(id: string, newPlainPassword: string) {
+    const hashed = await bcrypt.hash(newPlainPassword, this.saltRounds);
+    await this.userModel.findByIdAndUpdate(id, { password: hashed }).lean().exec();
+    this.logger.log(`Password updated for user ID: ${id}`);
+  }
 }

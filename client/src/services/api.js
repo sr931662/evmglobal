@@ -1,14 +1,35 @@
-// In production VITE_API_URL = full Cloud Run origin, e.g. https://api.evmglobal.com
-// In dev it is unset, so requests stay relative and are proxied by Vite to localhost:3000
-const BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api'
+// In production VITE_API_URL = Cloud Run origin (with or without trailing /api)
+// In dev it is unset — requests stay relative and are proxied by Vite to localhost:3000
+const _rawBase = (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '').replace(/\/$/, '')
+const BASE = _rawBase ? `${_rawBase}/api` : '/api'
 
-const getToken        = () => localStorage.getItem('emv_token')
-const getRefreshToken = () => localStorage.getItem('emv_refresh_token')
-const setToken        = (t) => localStorage.setItem('emv_token', t)
-const setRefreshToken = (t) => localStorage.setItem('emv_refresh_token', t)
-const clearTokens     = () => {
-  localStorage.removeItem('emv_token')
-  localStorage.removeItem('emv_refresh_token')
+// ── Token storage — respects "remember me" preference ─────────────────────────
+// emv_persist flag (localStorage) drives where tokens live:
+//   true  → localStorage  (survives browser restart)
+//   false → sessionStorage (cleared when tab/browser closes)
+const isPersistent = () => localStorage.getItem('emv_persist') === 'true'
+const _store = () => isPersistent() ? localStorage : sessionStorage
+
+const getToken        = () => _store().getItem('emv_token') || sessionStorage.getItem('emv_token') || localStorage.getItem('emv_token')
+const getRefreshToken = () => _store().getItem('emv_refresh_token') || sessionStorage.getItem('emv_refresh_token') || localStorage.getItem('emv_refresh_token')
+
+const setToken = (t) => _store().setItem('emv_token', t)
+const setRefreshToken = (t) => _store().setItem('emv_refresh_token', t)
+
+const clearTokens = () => {
+  ['emv_token', 'emv_refresh_token'].forEach(k => {
+    localStorage.removeItem(k)
+    sessionStorage.removeItem(k)
+  })
+  localStorage.removeItem('emv_persist')
+}
+
+export const setRememberMe = (remember) => {
+  if (remember) {
+    localStorage.setItem('emv_persist', 'true')
+  } else {
+    localStorage.removeItem('emv_persist')
+  }
 }
 
 async function tryRefresh() {
@@ -63,6 +84,15 @@ export const api = {
     request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
 
   getProfile: () => request('/auth/profile', { method: 'POST' }),
+
+  forgotPassword: (email) =>
+    request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+
+  verifyOtp: (email, otp) =>
+    request('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ email, otp }) }),
+
+  resetPassword: (resetToken, newPassword, confirmPassword) =>
+    request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ resetToken, newPassword, confirmPassword }) }),
 
   // ─── Leads ─────────────────────────────────────────────────────────────────
   getLeads: (params = {}) => {

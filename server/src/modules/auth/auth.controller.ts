@@ -13,6 +13,9 @@ import { AuthService } from './auth.service';
 import { JoiValidationPipe } from '../../common/pipes/validation.pipe';
 import { loginSchema } from './dto/login.dto';
 import { refreshTokenSchema } from './dto/refresh-token.dto';
+import { forgotPasswordSchema } from './dto/forgot-password.dto';
+import { verifyOtpSchema } from './dto/verify-otp.dto';
+import { resetPasswordSchema } from './dto/reset-password.dto';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
 
 @Controller('auth')
@@ -62,5 +65,29 @@ export class AuthController {
       email: req.user.email,
       role: req.user.role,
     };
+  }
+
+  /** Step 1 — send OTP to email */
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new JoiValidationPipe(forgotPasswordSchema))
+  async forgotPassword(@Body() body) {
+    return this.authService.sendPasswordResetOtp(body.email);
+  }
+
+  /** Step 2 — verify OTP, receive reset token */
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new JoiValidationPipe(verifyOtpSchema))
+  verifyOtp(@Body() body) {
+    return this.authService.verifyOtp(body.email, body.otp);
+  }
+
+  /** Step 3 — set new password using reset token */
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new JoiValidationPipe(resetPasswordSchema))
+  async resetPassword(@Body() body) {
+    return this.authService.resetPassword(body.resetToken, body.newPassword);
   }
 }
