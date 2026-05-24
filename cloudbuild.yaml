@@ -22,8 +22,5 @@ steps:
       - '--image=asia-south2-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/evmglobal/evmglobal:$COMMIT_SHA'
     id: Deploy
 
-images:
-  - 'asia-south2-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/evmglobal/evmglobal:$COMMIT_SHA'
-
 options:
   logging: CLOUD_LOGGING_ONLY
