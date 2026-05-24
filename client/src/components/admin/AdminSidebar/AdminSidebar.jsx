@@ -1,17 +1,16 @@
 import styles from './AdminSidebar.module.css'
 
 const nav = [
-  { icon: '⊞', label: 'Dashboard',    id: 'dashboard' },
-  { icon: '📣', label: 'Leads',        id: 'leads' },
-  { icon: '📥', label: 'Inquiries',    id: 'inquiries' },
-  { icon: '📦', label: 'Packages',     id: 'packages' },
+  { icon: '⊞', label: 'Dashboard',    id: 'dashboard'    },
+  { icon: '📋', label: 'Leads',        id: 'leads'        },
+  { icon: '📦', label: 'Packages',     id: 'packages'     },
   { icon: '🌍', label: 'Destinations', id: 'destinations' },
-  { icon: '📋', label: 'Quotes',       id: 'quotes' },
-  { icon: '📝', label: 'Blog',         id: 'blogs' },
-  { icon: '💼', label: 'Careers',      id: 'careers' },
-  { icon: '👥', label: 'Team',         id: 'team' },
-  { icon: '📊', label: 'Analytics',    id: 'analytics' },
-  { icon: '⚙',  label: 'Settings',    id: 'settings' },
+  { icon: '💬', label: 'Quotes',       id: 'quotes'       },
+  { icon: '📝', label: 'Blog',         id: 'blogs'        },
+  { icon: '💼', label: 'Careers',      id: 'careers'      },
+  { icon: '👥', label: 'Team',         id: 'team'         },
+  { icon: '📊', label: 'Analytics',    id: 'analytics'    },
+  { icon: '⚙',  label: 'Settings',    id: 'settings'     },
 ]
 
 export default function AdminSidebar({ active, onNavigate, onLogout, user }) {
