@@ -18,7 +18,7 @@ export default function InquirySection() {
     setLoading(true)
     setError('')
     try {
-      await api.submitLead(form)
+      await api.submitLead({ ...form, type: 'lead' })
       setSuccess(true)
       setForm(EMPTY)
     } catch (err) {

@@ -7,6 +7,14 @@ export const LeadSchema = new Schema(
     email: { type: String, trim: true, lowercase: true, default: null },
     message: { type: String, default: null },
     file_url: { type: String, default: null },
+    type: {
+      type: String,
+      default: 'lead',
+      enum: ['lead', 'inquiry'],
+    },
+    destination: { type: String, default: null },
+    travelDate: { type: String, default: null },
+    travellers: { type: String, default: null },
     status: {
       type: String,
       default: 'new',

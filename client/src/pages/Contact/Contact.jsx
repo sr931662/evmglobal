@@ -27,7 +27,7 @@ export default function Contact() {
     setLoading(true)
     setError('')
     try {
-      await api.submitLead(form)
+      await api.submitLead({ ...form, type: 'inquiry' })
       setSuccess(true)
       setForm(EMPTY)
     } catch (err) {

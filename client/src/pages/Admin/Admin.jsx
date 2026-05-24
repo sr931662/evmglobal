@@ -6,6 +6,7 @@ import AdminSidebar from '../../components/admin/AdminSidebar/AdminSidebar'
 const AdminDashboard         = lazy(() => import('./sections/AdminDashboard'))
 const AdminAnalytics         = lazy(() => import('./sections/AdminAnalytics'))
 const AdminLeadsPage         = lazy(() => import('./sections/AdminLeadsPage'))
+const AdminInquiriesPage     = lazy(() => import('./sections/AdminInquiriesPage'))
 const AdminPackagesPage      = lazy(() => import('./sections/AdminPackagesPage'))
 const AdminDestinationsPage  = lazy(() => import('./sections/AdminDestinationsPage'))
 const AdminQuotesPage        = lazy(() => import('./sections/AdminQuotesPage'))
@@ -26,6 +27,7 @@ const sections = {
   dashboard:    AdminDashboard,
   analytics:    AdminAnalytics,
   leads:        AdminLeadsPage,
+  inquiries:    AdminInquiriesPage,
   packages:     AdminPackagesPage,
   destinations: AdminDestinationsPage,
   quotes:       AdminQuotesPage,
@@ -36,12 +38,12 @@ const sections = {
 }
 
 const mobileNav = [
-  { icon: '⊞', id: 'dashboard' },
-  { icon: '📥', id: 'leads' },
-  { icon: '📦', id: 'packages' },
-  { icon: '📋', id: 'quotes' },
-  { icon: '📊', id: 'analytics' },
-  { icon: '⚙',  id: 'settings' },
+  { icon: '⊞',  id: 'dashboard' },
+  { icon: '📣',  id: 'leads' },
+  { icon: '📥',  id: 'inquiries' },
+  { icon: '📋',  id: 'quotes' },
+  { icon: '📊',  id: 'analytics' },
+  { icon: '⚙',   id: 'settings' },
 ]
 
 export default function Admin() {

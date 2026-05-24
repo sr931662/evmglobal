@@ -2,7 +2,8 @@ import styles from './AdminSidebar.module.css'
 
 const nav = [
   { icon: '⊞', label: 'Dashboard',    id: 'dashboard' },
-  { icon: '📥', label: 'Inquiries',    id: 'leads' },
+  { icon: '📣', label: 'Leads',        id: 'leads' },
+  { icon: '📥', label: 'Inquiries',    id: 'inquiries' },
   { icon: '📦', label: 'Packages',     id: 'packages' },
   { icon: '🌍', label: 'Destinations', id: 'destinations' },
   { icon: '📋', label: 'Quotes',       id: 'quotes' },

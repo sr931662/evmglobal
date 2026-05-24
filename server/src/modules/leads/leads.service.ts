@@ -14,9 +14,10 @@ export class LeadsService {
     return lead.toJSON();
   }
 
-  async findAll({ page = 1, limit = 10, status, search }: { page?: number; limit?: number; status?: string; search?: string } = {}) {
+  async findAll({ page = 1, limit = 10, status, search, type }: { page?: number; limit?: number; status?: string; search?: string; type?: string } = {}) {
     const filter: any = {};
     if (status) filter.status = status;
+    if (type) filter.type = type;
     if (search) {
       filter.$or = [
         { name:    { $regex: search, $options: 'i' } },
@@ -50,7 +51,7 @@ export class LeadsService {
     return this.leadModel.findById(id).lean().exec();
   }
 
-  async updateLead(id: string, data: { name?: string; phone?: string; email?: string; message?: string; status?: string }) {
+  async updateLead(id: string, data: { name?: string; phone?: string; email?: string; message?: string; status?: string; destination?: string; travelDate?: string; travellers?: string }) {
     const lead = await this.leadModel
       .findByIdAndUpdate(id, data, { new: true })
       .lean()

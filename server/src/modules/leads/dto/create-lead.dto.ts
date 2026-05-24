@@ -29,5 +29,12 @@ export const createLeadSchema = Joi.object({
     .max(1000)
     .allow('', null)
     .optional(),
+  type: Joi.string()
+    .valid('lead', 'inquiry')
+    .default('lead')
+    .optional(),
+  destination: Joi.string().max(200).allow('', null).optional(),
+  travelDate: Joi.string().max(100).allow('', null).optional(),
+  travellers: Joi.string().max(100).allow('', null).optional(),
   // file is handled by multer separately
 });

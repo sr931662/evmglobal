@@ -99,7 +99,8 @@ export class LeadsController {
     const limit  = Math.min(Math.max(parseInt(query.limit, 10) || 20, 1), 100);
     const status = query.status || undefined;
     const search = query.search || undefined;
-    return this.leadsService.findAll({ page, limit, status, search });
+    const type   = query.type   || undefined;
+    return this.leadsService.findAll({ page, limit, status, search, type });
   }
 
   /**
@@ -123,7 +124,7 @@ export class LeadsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   async updateLead(@Param('id') id: string, @Body() body: any) {
-    const allowed = ['name', 'phone', 'email', 'message', 'status'];
+    const allowed = ['name', 'phone', 'email', 'message', 'status', 'destination', 'travelDate', 'travellers'];
     const data: any = {};
     allowed.forEach(k => { if (body[k] !== undefined) data[k] = body[k]; });
     const lead = await this.leadsService.updateLead(id, data);
