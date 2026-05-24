@@ -114,7 +114,7 @@ function ConfettiBurst() {
     }), [])
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-20">
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-clip z-20" style={{ overflow: 'clip' }}>
       {pieces.map(p => (
         <motion.div
           key={p.id}

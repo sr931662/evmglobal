@@ -3,7 +3,10 @@
 @tailwind utilities;
 
 /* ── Global scale — 1rem = 14px (87.5% of browser default 16px) ── */
-html { font-size: 87.5%; }
+html {
+  font-size: 87.5%;
+  overflow-x: hidden; /* prevents x-bleed when Lenis takes over html scroll */
+}
 
 /* ── Lenis ─────────────────────────────────────────── */
 html.lenis { height: auto; }
