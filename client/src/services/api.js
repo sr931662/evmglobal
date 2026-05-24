@@ -197,6 +197,59 @@ export const api = {
   deleteQuote: (id) =>
     request(`/quotes/${id}`, { method: 'DELETE' }),
 
+  // ─── Blogs ─────────────────────────────────────────────────────────────────
+  getBlogs: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+    ).toString()
+    return request(`/blogs${qs ? `?${qs}` : ''}`)
+  },
+
+  getBlog: (id) => request(`/blogs/${id}`),
+
+  createBlog: (data) =>
+    request('/blogs', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateBlog: (id, data) =>
+    request(`/blogs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteBlog: (id) =>
+    request(`/blogs/${id}`, { method: 'DELETE' }),
+
+  // ─── Careers ───────────────────────────────────────────────────────────────
+  getCareers: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+    ).toString()
+    return request(`/careers${qs ? `?${qs}` : ''}`)
+  },
+
+  createCareer: (data) =>
+    request('/careers', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateCareer: (id, data) =>
+    request(`/careers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteCareer: (id) =>
+    request(`/careers/${id}`, { method: 'DELETE' }),
+
+  // ─── Team ──────────────────────────────────────────────────────────────────
+  getTeam: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+    ).toString()
+    return request(`/team${qs ? `?${qs}` : ''}`)
+  },
+
+  createTeamMember: (data) =>
+    request('/team', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateTeamMember: (id, data) =>
+    request(`/team/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteTeamMember: (id) =>
+    request(`/team/${id}`, { method: 'DELETE' }),
+
   // ─── WhatsApp ──────────────────────────────────────────────────────────────
   getWhatsAppLink: (phone, message = '') => {
     const qs = new URLSearchParams({ phone, ...(message ? { message } : {}) }).toString()

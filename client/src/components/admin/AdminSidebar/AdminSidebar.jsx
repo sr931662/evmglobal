@@ -6,6 +6,9 @@ const nav = [
   { icon: '📦', label: 'Packages',     id: 'packages' },
   { icon: '🌍', label: 'Destinations', id: 'destinations' },
   { icon: '📋', label: 'Quotes',       id: 'quotes' },
+  { icon: '📝', label: 'Blog',         id: 'blogs' },
+  { icon: '💼', label: 'Careers',      id: 'careers' },
+  { icon: '👥', label: 'Team',         id: 'team' },
   { icon: '📊', label: 'Analytics',    id: 'analytics' },
   { icon: '⚙',  label: 'Settings',    id: 'settings' },
 ]

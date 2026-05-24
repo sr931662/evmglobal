@@ -9,6 +9,9 @@ const AdminLeadsPage         = lazy(() => import('./sections/AdminLeadsPage'))
 const AdminPackagesPage      = lazy(() => import('./sections/AdminPackagesPage'))
 const AdminDestinationsPage  = lazy(() => import('./sections/AdminDestinationsPage'))
 const AdminQuotesPage        = lazy(() => import('./sections/AdminQuotesPage'))
+const AdminBlogsPage         = lazy(() => import('./sections/AdminBlogsPage'))
+const AdminCareersPage       = lazy(() => import('./sections/AdminCareersPage'))
+const AdminTeamPage          = lazy(() => import('./sections/AdminTeamPage'))
 const AdminSettings          = lazy(() => import('./sections/AdminSettings'))
 
 function SectionLoader() {
@@ -26,6 +29,9 @@ const sections = {
   packages:     AdminPackagesPage,
   destinations: AdminDestinationsPage,
   quotes:       AdminQuotesPage,
+  blogs:        AdminBlogsPage,
+  careers:      AdminCareersPage,
+  team:         AdminTeamPage,
   settings:     AdminSettings,
 }
 

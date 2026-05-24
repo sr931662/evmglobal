@@ -12,6 +12,9 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { DestinationsModule } from './modules/destinations/destinations.module';
 import { QuotesModule } from './modules/quotes/quotes.module';
+import { BlogsModule } from './modules/blogs/blogs.module';
+import { CareersModule } from './modules/careers/careers.module';
+import { TeamModule } from './modules/team/team.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { QuotesModule } from './modules/quotes/quotes.module';
     SettingsModule,
     DestinationsModule,
     QuotesModule,
+    BlogsModule,
+    CareersModule,
+    TeamModule,
   ],
   providers: [
     {
