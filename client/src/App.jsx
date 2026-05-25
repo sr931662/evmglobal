@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -28,6 +28,14 @@ import Careers from './pages/Careers/Careers'
 import Contact from './pages/Contact/Contact'
 import Admin from './pages/Admin/Admin'
 import AdminLogin from './pages/Admin/Login/AdminLogin'
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [pathname])
+  return null
+}
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -92,6 +100,7 @@ function AppShell() {
 
   return (
     <div className="flex flex-col min-h-screen w-full overflow-x-hidden text-dark selection:bg-brand selection:text-white">
+      <ScrollToTop />
       <CustomCursor />
       {!isAdmin && <Navbar />}
       <AnimatedRoutes />
