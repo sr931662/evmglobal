@@ -5,43 +5,43 @@ import { api } from '../../../services/api'
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const DESTINATIONS = [
-  { id: 'europe',       label: 'Europe',         sub: 'Paris · Rome · Santorini',      img: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=700&q=75&auto=format&fit=crop' },
-  { id: 'maldives',     label: 'Maldives',        sub: 'Overwater villas · Lagoons',    img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=700&q=75&auto=format&fit=crop' },
-  { id: 'southeast-asia', label: 'Southeast Asia', sub: 'Bali · Thailand · Vietnam',   img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=700&q=75&auto=format&fit=crop' },
-  { id: 'middle-east',  label: 'Middle East',     sub: 'Dubai · Abu Dhabi · Jordan',   img: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=700&q=75&auto=format&fit=crop' },
-  { id: 'americas',     label: 'The Americas',    sub: 'New York · Cancún · Patagonia', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=700&q=75&auto=format&fit=crop' },
-  { id: 'africa',       label: 'Africa & Safari', sub: 'Kenya · Tanzania · Zanzibar',  img: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=700&q=75&auto=format&fit=crop' },
+  { id: 'europe',         label: 'Europe',         sub: 'Paris · Rome · Santorini',      img: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=700&q=75&auto=format&fit=crop' },
+  { id: 'maldives',       label: 'Maldives',        sub: 'Overwater villas · Lagoons',    img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=700&q=75&auto=format&fit=crop' },
+  { id: 'southeast-asia', label: 'Southeast Asia',  sub: 'Bali · Thailand · Vietnam',     img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=700&q=75&auto=format&fit=crop' },
+  { id: 'middle-east',    label: 'Middle East',     sub: 'Dubai · Abu Dhabi · Jordan',    img: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=700&q=75&auto=format&fit=crop' },
+  { id: 'americas',       label: 'The Americas',    sub: 'New York · Cancún · Patagonia', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=700&q=75&auto=format&fit=crop' },
+  { id: 'africa',         label: 'Africa & Safari', sub: 'Kenya · Tanzania · Zanzibar',   img: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=700&q=75&auto=format&fit=crop' },
 ]
 
 const SEASONS = [
-  { id: 'spring', label: 'Spring', sub: 'Mar – May · Bloom season', icon: '🌸', accent: '#f472b6' },
+  { id: 'spring', label: 'Spring', sub: 'Mar – May · Bloom season',   icon: '🌸', accent: '#f472b6' },
   { id: 'summer', label: 'Summer', sub: 'Jun – Aug · Peak adventure', icon: '☀️', accent: '#fbbf24' },
-  { id: 'autumn', label: 'Autumn', sub: 'Sep – Nov · Golden hues', icon: '🍂', accent: '#fb923c' },
-  { id: 'winter', label: 'Winter', sub: 'Dec – Feb · Snow & magic', icon: '❄️', accent: '#60a5fa' },
+  { id: 'autumn', label: 'Autumn', sub: 'Sep – Nov · Golden hues',    icon: '🍂', accent: '#fb923c' },
+  { id: 'winter', label: 'Winter', sub: 'Dec – Feb · Snow & magic',   icon: '❄️', accent: '#60a5fa' },
 ]
 
 const TRAVELLERS = [
-  { id: 'solo',   label: 'Solo Explorer',   sub: 'Me, the world & my passport', icon: '🧳', accent: '#a78bfa' },
-  { id: 'couple', label: 'Romantic Couple', sub: 'Two hearts, one adventure',   icon: '💑', accent: '#f43f5e' },
-  { id: 'family', label: 'Family Tribe',    sub: 'Making memories together',    icon: '👨‍👩‍👧‍👦', accent: '#34d399' },
+  { id: 'solo',   label: 'Solo Explorer',   sub: 'Me, the world & my passport',    icon: '🧳', accent: '#a78bfa' },
+  { id: 'couple', label: 'Romantic Couple', sub: 'Two hearts, one adventure',      icon: '💑', accent: '#f43f5e' },
+  { id: 'family', label: 'Family Tribe',    sub: 'Making memories together',       icon: '👨‍👩‍👧‍👦', accent: '#34d399' },
   { id: 'group',  label: 'Squad Goals',     sub: 'Friends unleashed on the world', icon: '🎉', accent: '#fbbf24' },
 ]
 
 const BUDGETS = [
-  { id: 'under50k', label: 'Under ₹50K', sub: 'Smart & stylish escapes',  icon: '🌿', accent: '#34d399' },
-  { id: '50k-1l',   label: '₹50K – ₹1L', sub: 'Comfort meets culture',   icon: '💎', accent: '#60a5fa' },
-  { id: '1l-2l',    label: '₹1L – ₹2L',  sub: 'Luxury & leisure vibes',  icon: '✨', accent: '#fbbf24' },
+  { id: 'under50k', label: 'Under ₹50K', sub: 'Smart & stylish escapes',   icon: '🌿', accent: '#34d399' },
+  { id: '50k-1l',   label: '₹50K – ₹1L', sub: 'Comfort meets culture',    icon: '💎', accent: '#60a5fa' },
+  { id: '1l-2l',    label: '₹1L – ₹2L',  sub: 'Luxury & leisure vibes',   icon: '✨', accent: '#fbbf24' },
   { id: 'above2l',  label: '₹2L+',        sub: 'Ultra-premium, no limits', icon: '👑', accent: '#E53935' },
 ]
 
 const BG_MAP = {
-  default:        'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1600&q=70&auto=format&fit=crop',
-  europe:         'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1600&q=70&auto=format&fit=crop',
-  maldives:       'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1600&q=70&auto=format&fit=crop',
+  default:          'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1600&q=70&auto=format&fit=crop',
+  europe:           'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1600&q=70&auto=format&fit=crop',
+  maldives:         'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1600&q=70&auto=format&fit=crop',
   'southeast-asia': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1600&q=70&auto=format&fit=crop',
-  'middle-east':  'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1600&q=70&auto=format&fit=crop',
-  americas:       'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=70&auto=format&fit=crop',
-  africa:         'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1600&q=70&auto=format&fit=crop',
+  'middle-east':    'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1600&q=70&auto=format&fit=crop',
+  americas:         'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=70&auto=format&fit=crop',
+  africa:           'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1600&q=70&auto=format&fit=crop',
 }
 
 const STEPS = ['destination', 'season', 'travellers', 'budget', 'contact']
@@ -54,7 +54,6 @@ const STEP_META = {
   contact:     { emoji: '🚀', q: 'Ready for takeoff?',               sub: 'Your dream itinerary is just moments away' },
 }
 
-// Stagger entrance direction per card index
 const DEST_ORIGINS = [
   { x: -60, y: -50 }, { x: 0, y: -70 }, { x: 60, y: -50 },
   { x: -60, y:  50 }, { x: 0, y:  70 }, { x: 60, y:  50 },
@@ -64,28 +63,50 @@ const ICON_ORIGINS = [
   { x: -70, y:  20 }, { x: 70, y:  20 },
 ]
 
-// ─── Ambient floating particles ───────────────────────────────────────────────
+// ─── Mobile detection ─────────────────────────────────────────────────────────
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    setIsMobile(mq.matches)
+    const handler = e => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return isMobile
+}
+
+// ─── Floating particles — desktop only ───────────────────────────────────────
 
 function FloatingParticles() {
   const pts = useMemo(() =>
-    Array.from({ length: 24 }, (_, i) => ({
+    Array.from({ length: 16 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      s: 1.5 + Math.random() * 3.5,
-      dur: 7 + Math.random() * 12,
-      delay: Math.random() * 8,
-      dx: (Math.random() - 0.5) * 40,
+      s: 1.5 + Math.random() * 3,
+      dur: 8 + Math.random() * 10,
+      delay: Math.random() * 6,
+      dx: (Math.random() - 0.5) * 30,
     })), [])
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       {pts.map(p => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white"
-          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.s, height: p.s }}
-          animate={{ y: [-20, 20, -20], x: [0, p.dx, 0], opacity: [0, 0.4, 0] }}
+          style={{
+            position: 'absolute',
+            borderRadius: '50%',
+            background: '#fff',
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.s,
+            height: p.s,
+            willChange: 'transform, opacity',
+          }}
+          animate={{ y: [-20, 20, -20], x: [0, p.dx, 0], opacity: [0, 0.35, 0] }}
           transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
         />
       ))}
@@ -97,64 +118,66 @@ function FloatingParticles() {
 
 function ConfettiBurst() {
   const pieces = useMemo(() =>
-    Array.from({ length: 80 }, (_, i) => {
+    Array.from({ length: 60 }, (_, i) => {
       const angle = Math.random() * Math.PI * 2
-      const v = 100 + Math.random() * 240
+      const v = 80 + Math.random() * 200
       return {
         id: i,
         dx: Math.cos(angle) * v,
         dy: -(Math.random() * 0.6 + 0.2) * v - 60,
         color: ['#E53935','#FF7043','#FFB300','#4CAF50','#2196F3','#9C27B0','#FFD700','#FF80AB','#00BCD4'][i % 9],
-        w: 5 + Math.random() * 10,
-        h: 3 + Math.random() * 6,
-        rot: Math.random() * 840 * (Math.random() > 0.5 ? 1 : -1),
-        delay: Math.random() * 0.4,
+        w: 5 + Math.random() * 8,
+        h: 3 + Math.random() * 5,
+        rot: Math.random() * 720 * (Math.random() > 0.5 ? 1 : -1),
+        delay: Math.random() * 0.3,
         circle: Math.random() > 0.55,
       }
     }), [])
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-clip z-20" style={{ overflow: 'clip' }}>
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'clip', zIndex: 20 }}>
       {pieces.map(p => (
         <motion.div
           key={p.id}
-          className="absolute"
           style={{
+            position: 'absolute',
             width:  p.circle ? p.w * 0.8 : p.w,
             height: p.circle ? p.w * 0.8 : p.h,
             backgroundColor: p.color,
             borderRadius: p.circle ? '50%' : 3,
+            willChange: 'transform, opacity',
           }}
           initial={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
-          animate={{ x: p.dx, y: [0, p.dy, p.dy + 500], opacity: [1, 1, 0], rotate: p.rot, scale: [1, 1, 0.3] }}
-          transition={{ duration: 2.2 + Math.random() * 0.8, delay: p.delay, ease: [0.215, 0.61, 0.355, 1] }}
+          animate={{ x: p.dx, y: [0, p.dy, p.dy + 400], opacity: [1, 1, 0], rotate: p.rot, scale: [1, 1, 0.3] }}
+          transition={{ duration: 2 + Math.random() * 0.6, delay: p.delay, ease: [0.215, 0.61, 0.355, 1] }}
         />
       ))}
     </div>
   )
 }
 
-// ─── Ambient light orbs ───────────────────────────────────────────────────────
+// ─── Ambient orbs — desktop only ─────────────────────────────────────────────
 
 function AmbientOrbs() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       {[
-        { x: '10%', y: '15%', size: 320, dur: 8,  delay: 0 },
-        { x: '85%', y: '75%', size: 280, dur: 10, delay: 3 },
-        { x: '60%', y: '30%', size: 180, dur: 7,  delay: 5 },
+        { x: '10%', y: '15%', size: 300, dur: 8,  delay: 0 },
+        { x: '85%', y: '75%', size: 260, dur: 10, delay: 3 },
+        { x: '60%', y: '30%', size: 160, dur: 7,  delay: 5 },
       ].map((o, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full"
           style={{
+            position: 'absolute',
             left: o.x, top: o.y,
             width: o.size, height: o.size,
             background: '#E53935',
-            filter: 'blur(70px)',
+            filter: 'blur(60px)',
             transform: 'translate(-50%,-50%)',
+            willChange: 'transform, opacity',
           }}
-          animate={{ scale: [1, 1.35, 1], opacity: [0.06, 0.14, 0.06] }}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.06, 0.12, 0.06] }}
           transition={{ duration: o.dur, delay: o.delay, repeat: Infinity, ease: 'easeInOut' }}
         />
       ))}
@@ -164,53 +187,57 @@ function AmbientOrbs() {
 
 // ─── 3-D tilting destination card ─────────────────────────────────────────────
 
-function ImageCard({ option, selected, onClick, index }) {
+function ImageCard({ option, selected, onClick, index, isMobile }) {
   const rx = useMotionValue(0)
   const ry = useMotionValue(0)
   const srx = useSpring(rx, { stiffness: 160, damping: 20 })
   const sry = useSpring(ry, { stiffness: 160, damping: 20 })
 
   const onMove = useCallback(e => {
+    if (isMobile) return
     const r = e.currentTarget.getBoundingClientRect()
-    rx.set(((e.clientY - r.top)  / r.height - 0.5) * -16)
-    ry.set(((e.clientX - r.left) / r.width  - 0.5) *  16)
-  }, [rx, ry])
+    rx.set(((e.clientY - r.top)  / r.height - 0.5) * -14)
+    ry.set(((e.clientX - r.left) / r.width  - 0.5) *  14)
+  }, [rx, ry, isMobile])
   const onLeave = useCallback(() => { rx.set(0); ry.set(0) }, [rx, ry])
 
   const origin = DEST_ORIGINS[index] || { x: 0, y: 0 }
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: origin.x, y: origin.y, scale: 0.65, rotate: (Math.random() - 0.5) * 12 }}
-      animate={{ opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 }}
-      transition={{ delay: 0.05 + index * 0.07, type: 'spring', stiffness: 200, damping: 20 }}
-      style={{ perspective: 600 }}
+      initial={{ opacity: 0, x: isMobile ? 0 : origin.x, y: isMobile ? 16 : origin.y, scale: isMobile ? 0.95 : 0.65 }}
+      animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      transition={isMobile
+        ? { delay: 0.04 + index * 0.04, duration: 0.35, ease: [0.32, 0.72, 0, 1] }
+        : { delay: 0.05 + index * 0.07, type: 'spring', stiffness: 200, damping: 20 }
+      }
+      style={{ perspective: isMobile ? 'none' : 600, willChange: 'transform' }}
     >
       <motion.button
         onClick={onClick}
         onMouseMove={onMove}
         onMouseLeave={onLeave}
-        whileTap={{ scale: 0.92 }}
-        style={{ rotateX: srx, rotateY: sry, transformStyle: 'preserve-3d' }}
-        className={`relative w-full block rounded-2xl overflow-hidden cursor-pointer text-left transition-all duration-200 ring-2 ${
+        whileTap={{ scale: 0.94 }}
+        style={isMobile
+          ? { transformStyle: 'flat' }
+          : { rotateX: srx, rotateY: sry, transformStyle: 'preserve-3d' }
+        }
+        className={`relative w-full block rounded-2xl overflow-hidden cursor-pointer text-left ring-2 ${
           selected ? 'ring-brand' : 'ring-transparent hover:ring-white/25'
         }`}
       >
-        <div style={{ aspectRatio: '4/3' }} className="relative overflow-hidden">
-          {/* Image with hover zoom */}
+        <div style={{ aspectRatio: '4/3', position: 'relative', overflow: 'hidden' }}>
           <motion.img
             src={option.img}
             alt={option.label}
             className="w-full h-full object-cover"
             loading="lazy"
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
+            whileHover={isMobile ? undefined : { scale: 1.08 }}
+            transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
           />
 
-          {/* Gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-transparent" />
 
-          {/* Selected colour wash */}
           <AnimatePresence>
             {selected && (
               <motion.div
@@ -220,24 +247,13 @@ function ImageCard({ option, selected, onClick, index }) {
             )}
           </AnimatePresence>
 
-          {/* Shimmer on hover */}
-          <motion.div
-            className="absolute inset-0 opacity-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%)',
-            }}
-            whileHover={{ opacity: 1, backgroundPosition: ['200% center', '-100% center'] }}
-            transition={{ duration: 0.6 }}
-          />
-
-          {/* Checkmark badge */}
           <AnimatePresence>
             {selected && (
               <motion.div
                 initial={{ scale: 0, rotate: -45 }}
                 animate={{ scale: 1, rotate: 0 }}
                 exit={{ scale: 0, rotate: 45 }}
-                transition={{ type: 'spring', stiffness: 450, damping: 18 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                 className="absolute top-2.5 right-2.5 w-7 h-7 bg-brand rounded-full flex items-center justify-center shadow-glow"
               >
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -247,10 +263,9 @@ function ImageCard({ option, selected, onClick, index }) {
             )}
           </AnimatePresence>
 
-          {/* Label */}
           <div className="absolute bottom-0 left-0 right-0 p-3">
             <p className="text-white font-bold text-sm leading-tight">{option.label}</p>
-            <p className="text-white/60 text-[11px] mt-0.5 font-medium">{option.sub}</p>
+            <p style={{ color: 'rgba(255,255,255,0.7)' }} className="text-[11px] mt-0.5 font-medium">{option.sub}</p>
           </div>
         </div>
       </motion.button>
@@ -260,58 +275,47 @@ function ImageCard({ option, selected, onClick, index }) {
 
 // ─── Bouncy icon card ─────────────────────────────────────────────────────────
 
-function IconCard({ option, selected, onClick, index }) {
+function IconCard({ option, selected, onClick, index, isMobile }) {
   const origin = ICON_ORIGINS[index] || { x: 0, y: 0 }
 
   return (
     <motion.button
       onClick={onClick}
-      initial={{ opacity: 0, x: origin.x, y: origin.y, scale: 0.7, rotate: (Math.random() - 0.5) * 10 }}
-      animate={{ opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 }}
-      transition={{ delay: 0.05 + index * 0.09, type: 'spring', stiffness: 220, damping: 22 }}
-      whileHover={{ y: -6, scale: 1.04 }}
-      whileTap={{ scale: 0.92 }}
-      className={`relative rounded-2xl p-5 cursor-pointer text-left transition-all duration-300 border-2 overflow-hidden ${
+      initial={{ opacity: 0, x: isMobile ? 0 : origin.x, y: isMobile ? 12 : origin.y, scale: isMobile ? 0.95 : 0.7 }}
+      animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      transition={isMobile
+        ? { delay: 0.04 + index * 0.04, duration: 0.3, ease: [0.32, 0.72, 0, 1] }
+        : { delay: 0.05 + index * 0.09, type: 'spring', stiffness: 220, damping: 22 }
+      }
+      whileHover={isMobile ? undefined : { y: -5, scale: 1.03 }}
+      whileTap={{ scale: 0.93 }}
+      style={{ willChange: 'transform' }}
+      className={`relative rounded-2xl p-5 cursor-pointer text-left border-2 overflow-hidden ${
         selected
           ? 'border-brand bg-brand/10'
-          : 'border-white/10 bg-white/5 hover:border-white/25 hover:bg-white/8'
+          : 'border-white/15 bg-white/6 hover:border-white/25'
       }`}
     >
-      {/* Glowing blob */}
       <AnimatePresence>
         {selected && (
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 4, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.55 }}
+            transition={{ duration: 0.5 }}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full pointer-events-none"
-            style={{ backgroundColor: option.accent, filter: 'blur(28px)', opacity: 0.22 }}
+            style={{ backgroundColor: option.accent, filter: 'blur(24px)', opacity: 0.2 }}
           />
         )}
       </AnimatePresence>
 
-      {/* Pulse ring on select */}
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0.7 }}
-            animate={{ scale: 2.5, opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6 }}
-            className="absolute inset-0 rounded-xl border-2 border-brand pointer-events-none"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Check */}
       <AnimatePresence>
         {selected && (
           <motion.div
             initial={{ scale: 0, rotate: -30 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0 }}
-            transition={{ type: 'spring', stiffness: 450, damping: 18 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 18 }}
             className="absolute top-3 right-3 w-6 h-6 bg-brand rounded-full flex items-center justify-center"
           >
             <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -321,58 +325,77 @@ function IconCard({ option, selected, onClick, index }) {
         )}
       </AnimatePresence>
 
-      {/* Emoji — bounces when selected */}
       <motion.div
         className="text-4xl mb-3 leading-none relative"
-        animate={selected ? { scale: [1, 1.4, 1], rotate: [0, -15, 15, 0] } : { scale: 1, rotate: 0 }}
-        transition={{ duration: 0.5, ease: 'backOut' }}
+        animate={selected ? { scale: [1, 1.3, 1], rotate: [0, -12, 12, 0] } : { scale: 1, rotate: 0 }}
+        transition={{ duration: 0.45, ease: 'backOut' }}
       >
         {option.icon}
       </motion.div>
 
       <p className="relative text-white font-bold text-sm">{option.label}</p>
-      <p className="relative text-white/45 text-[11px] mt-0.5 font-medium leading-relaxed">{option.sub}</p>
+      <p className="relative text-[11px] mt-0.5 font-medium leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>{option.sub}</p>
     </motion.button>
   )
 }
 
-// ─── Animated step question ───────────────────────────────────────────────────
+// ─── Step question ────────────────────────────────────────────────────────────
 
-function StepQuestion({ stepKey }) {
+function StepQuestion({ stepKey, isMobile }) {
   const { emoji, q, sub } = STEP_META[stepKey]
 
   return (
-    <div className="mb-5 mt-1">
+    <div style={{ marginBottom: '1.25rem', marginTop: '0.25rem' }}>
       <motion.span
         key={stepKey + 'e'}
-        initial={{ scale: 0, rotate: -25 }}
+        initial={{ scale: 0, rotate: -20 }}
         animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 18, delay: 0.05 }}
-        className="inline-block text-4xl mb-3 leading-none"
+        transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.04 }}
+        style={{ display: 'inline-block', fontSize: '2.25rem', lineHeight: 1, marginBottom: '0.75rem' }}
       >
         {emoji}
       </motion.span>
 
-      <h2 className="text-2xl md:text-[1.8rem] font-serif font-bold text-white leading-snug mb-2">
-        {q.split(' ').map((word, i) => (
-          <motion.span
-            key={stepKey + i}
-            initial={{ opacity: 0, y: 18, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ delay: 0.05 + i * 0.045, duration: 0.38, ease: [0.32, 0.72, 0, 1] }}
-            className="inline-block mr-[0.28em]"
-          >
-            {word}
-          </motion.span>
-        ))}
-      </h2>
+      {isMobile ? (
+        /* Simple fade on mobile — no per-word blur (expensive) */
+        <motion.h2
+          key={stepKey + 'q'}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+          style={{
+            fontFamily: 'var(--font-serif)',
+            fontSize: 'clamp(1.4rem, 5vw, 1.75rem)',
+            fontWeight: 700,
+            color: '#fff',
+            lineHeight: 1.2,
+            marginBottom: '0.5rem',
+          }}
+        >
+          {q}
+        </motion.h2>
+      ) : (
+        <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 1.8rem)', fontFamily: 'var(--font-serif)', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '0.5rem' }}>
+          {q.split(' ').map((word, i) => (
+            <motion.span
+              key={stepKey + i}
+              initial={{ opacity: 0, y: 16, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ delay: 0.04 + i * 0.04, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+              style={{ display: 'inline-block', marginRight: '0.28em' }}
+            >
+              {word}
+            </motion.span>
+          ))}
+        </h2>
+      )}
 
       <motion.p
         key={stepKey + 's'}
-        initial={{ opacity: 0, x: -12 }}
+        initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.22, duration: 0.4 }}
-        className="text-white/45 text-sm font-medium"
+        transition={{ delay: 0.18, duration: 0.35 }}
+        style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.875rem', fontWeight: 500 }}
       >
         {sub}
       </motion.p>
@@ -383,9 +406,11 @@ function StepQuestion({ stepKey }) {
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
 export default function TravelQuizModal() {
-  const [open, setOpen]       = useState(false)
-  const [step, setStep]       = useState(0)
-  const [dir,  setDir]        = useState(1)
+  const isMobile = useIsMobile()
+
+  const [open,    setOpen]    = useState(false)
+  const [step,    setStep]    = useState(0)
+  const [dir,     setDir]     = useState(1)
   const [answers, setAnswers] = useState({ destination: null, season: null, travellers: null, budget: null })
   const [contact, setContact] = useState({ name: '', phone: '', email: '' })
   const [loading, setLoading] = useState(false)
@@ -396,37 +421,35 @@ export default function TravelQuizModal() {
   const bgKey  = answers.destination?.id || 'default'
   const bgSrc  = BG_MAP[bgKey]
 
-  // Mouse-parallax for background
-  const mouseX = useMotionValue(0.5)
-  const mouseY = useMotionValue(0.5)
-  const rawBgX = useTransform(mouseX, [0, 1], [10, -10])
-  const rawBgY = useTransform(mouseY, [0, 1], [10, -10])
-  const bgOffX = useSpring(rawBgX, { stiffness: 22, damping: 15 })
-  const bgOffY = useSpring(rawBgY, { stiffness: 22, damping: 15 })
+  // Mouse-parallax — desktop only
+  const mouseX  = useMotionValue(0.5)
+  const mouseY  = useMotionValue(0.5)
+  const rawBgX  = useTransform(mouseX, [0, 1], [8, -8])
+  const rawBgY  = useTransform(mouseY, [0, 1], [8, -8])
+  const bgOffX  = useSpring(rawBgX, { stiffness: 22, damping: 15 })
+  const bgOffY  = useSpring(rawBgY, { stiffness: 22, damping: 15 })
 
   const overlayRef = useRef(null)
   const handleMouseMove = useCallback(e => {
+    if (isMobile) return
     const r = overlayRef.current?.getBoundingClientRect()
     if (!r) return
     mouseX.set((e.clientX - r.left) / r.width)
     mouseY.set((e.clientY - r.top)  / r.height)
-  }, [mouseX, mouseY])
+  }, [mouseX, mouseY, isMobile])
 
-  // Auto-open after 10 s — once per session
   useEffect(() => {
     if (localStorage.getItem('emv_quiz_done') || sessionStorage.getItem('emv_quiz_seen')) return
     const t = setTimeout(() => { openModal(); sessionStorage.setItem('emv_quiz_seen', '1') }, 10000)
     return () => clearTimeout(t)
   }, [])
 
-  // Hero-section event bridge
   useEffect(() => {
     const h = () => openModal()
     window.addEventListener('open-travel-quiz', h)
     return () => window.removeEventListener('open-travel-quiz', h)
   }, [])
 
-  // Scroll lock
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -477,16 +500,25 @@ export default function TravelQuizModal() {
 
   const progressPct = done ? 100 : (step / STEPS.length) * 100
 
-  // Step slide variants
   const slideV = {
-    enter: d => ({ x: d > 0 ? 80 : -80, opacity: 0, scale: 0.95 }),
-    center: { x: 0, opacity: 1, scale: 1, transition: { duration: 0.38, ease: [0.32, 0.72, 0, 1] } },
-    exit:   d => ({ x: d > 0 ? -80 : 80, opacity: 0, scale: 0.95, transition: { duration: 0.28, ease: [0.32, 0.72, 0, 1] } }),
+    enter:  d => ({ x: d > 0 ? 70 : -70, opacity: 0, scale: 0.96 }),
+    center: { x: 0, opacity: 1, scale: 1, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } },
+    exit:   d => ({ x: d > 0 ? -70 : 70, opacity: 0, scale: 0.96, transition: { duration: 0.24, ease: [0.32, 0.72, 0, 1] } }),
   }
+
+  // Panel glass styles — full blur on desktop, solid on mobile (cheaper)
+  const panelStyle = isMobile
+    ? { background: 'rgba(10,10,10,0.97)' }
+    : { background: 'rgba(10,10,10,0.84)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)' }
+
+  // Panel entrance — simpler on mobile
+  const panelAnimate = isMobile
+    ? { initial: { opacity: 0, y: 40, scale: 0.97 }, animate: { opacity: 1, y: 0, scale: 1 }, exit: { opacity: 0, y: 30, scale: 0.97 }, transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] } }
+    : { initial: { opacity: 0, scale: 0.4, y: -80, rotate: -8 }, animate: { opacity: 1, scale: 1, y: 0, rotate: 0 }, exit: { opacity: 0, scale: 0.78, y: 50, rotate: 3 }, transition: { type: 'spring', stiffness: 290, damping: 24, mass: 0.85 } }
 
   return (
     <>
-      {/* ─── Floating trigger button ──────────────────────────────────────────── */}
+      {/* ── Floating trigger button ── */}
       <AnimatePresence>
         {!open && (
           <motion.div
@@ -495,22 +527,21 @@ export default function TravelQuizModal() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ delay: 3.5, duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
-            className="fixed bottom-6 left-6 z-40"
+            style={{ position: 'fixed', bottom: '1.5rem', left: '1.5rem', zIndex: 40 }}
           >
-            {/* Pulsing rings */}
             {[0, 1, 2].map(i => (
               <motion.div
                 key={i}
                 className="absolute inset-0 rounded-full border border-brand"
-                animate={{ scale: [1, 2.8], opacity: [0.55, 0] }}
+                animate={{ scale: [1, 2.6], opacity: [0.5, 0] }}
                 transition={{ duration: 2.4, delay: i * 0.75, repeat: Infinity, ease: 'easeOut' }}
               />
             ))}
             <motion.button
               onClick={openModal}
-              whileHover={{ scale: 1.08 }}
+              whileHover={{ scale: 1.07 }}
               whileTap={{ scale: 0.93 }}
-              className="relative flex items-center gap-2.5 bg-dark/92 backdrop-blur-xl text-white pl-4 pr-5 py-3 rounded-full border border-white/15 shadow-glass-dark hover:border-brand/50 transition-colors duration-300 group"
+              className="relative flex items-center gap-2.5 bg-dark/92 backdrop-blur-xl text-white pl-4 pr-5 py-3 rounded-full border border-white/15 shadow-glass-dark hover:border-brand/50 transition-colors duration-300"
             >
               <span className="relative flex h-2.5 w-2.5 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75" />
@@ -521,7 +552,7 @@ export default function TravelQuizModal() {
                 className="w-3.5 h-3.5 text-brand"
                 fill="none" viewBox="0 0 24 24" stroke="currentColor"
                 animate={{ x: [0, 3, 0] }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </motion.svg>
@@ -530,7 +561,7 @@ export default function TravelQuizModal() {
         )}
       </AnimatePresence>
 
-      {/* ─── Modal ────────────────────────────────────────────────────────────── */}
+      {/* ── Modal ── */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -540,100 +571,88 @@ export default function TravelQuizModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.22 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
           >
-            {/* ── Cinematic background ── */}
+            {/* Cinematic background */}
             <div className="absolute inset-0 overflow-hidden">
               <AnimatePresence>
                 <motion.div
                   key={bgKey}
-                  initial={{ opacity: 0, scale: 1.18 }}
-                  animate={{ opacity: 1, scale: 1.08 }}
+                  initial={{ opacity: 0, scale: 1.12 }}
+                  animate={{ opacity: 1, scale: 1.06 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 1.5, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{ duration: 1.2, ease: [0.32, 0.72, 0, 1] }}
                   className="absolute inset-0"
+                  style={{ willChange: 'transform, opacity' }}
                 >
                   <motion.img
                     src={bgSrc}
                     alt=""
                     className="w-full h-full object-cover"
-                    style={{ x: bgOffX, y: bgOffY }}
+                    style={isMobile ? undefined : { x: bgOffX, y: bgOffY }}
                   />
                 </motion.div>
               </AnimatePresence>
 
-              {/* Radial dark reveal */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-black/62"
-              />
-
-              {/* Vignette */}
-              <div className="absolute inset-0 hero-vignette opacity-60" />
+              <div className="absolute inset-0 bg-black/65" />
+              <div className="absolute inset-0 hero-vignette opacity-50" />
             </div>
 
-            {/* Ambient orbs */}
-            <AmbientOrbs />
+            {/* Ambient orbs & particles — desktop only */}
+            {!isMobile && <AmbientOrbs />}
+            {!isMobile && <FloatingParticles />}
 
-            {/* Floating particles */}
-            <FloatingParticles />
-
-            {/* Confetti on success */}
             {done && <ConfettiBurst />}
 
-            {/* Click-outside to close */}
             <div className="absolute inset-0" onClick={closeModal} />
 
-            {/* ── Panel ── */}
+            {/* Panel */}
             <motion.div
               key="panel"
-              initial={{ opacity: 0, scale: 0.4, y: -100, rotate: -10 }}
-              animate={{ opacity: 1, scale: 1,   y: 0,    rotate: 0 }}
-              exit={{   opacity: 0, scale: 0.75,  y: 60,   rotate: 4 }}
-              transition={{ type: 'spring', stiffness: 290, damping: 24, mass: 0.85 }}
+              {...panelAnimate}
               onClick={e => e.stopPropagation()}
-              className="relative z-10 w-full max-w-2xl flex flex-col max-h-[92vh] rounded-3xl border border-white/10 shadow-[0_40px_100px_-10px_rgba(0,0,0,0.8)] overflow-hidden"
-              style={{ background: 'rgba(10,10,10,0.82)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)' }}
+              className="relative z-10 w-full max-w-2xl flex flex-col max-h-[92vh] rounded-3xl border border-white/12 shadow-[0_30px_80px_-10px_rgba(0,0,0,0.85)] overflow-hidden"
+              style={{ ...panelStyle, willChange: 'transform, opacity' }}
             >
-              {/* Corner glow accents */}
-              <div className="absolute -top-20 -left-20  w-48 h-48 bg-brand/20 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-brand/15 rounded-full blur-3xl pointer-events-none" />
+              {/* Corner glow */}
+              <div className="absolute -top-20 -left-20 w-44 h-44 bg-brand/18 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-brand/12 rounded-full blur-3xl pointer-events-none" />
 
-              {/* ── Progress bar ── */}
-              <div className="h-[3px] bg-white/8 shrink-0 relative overflow-hidden">
+              {/* Progress bar */}
+              <div className="h-[3px] shrink-0 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
                 <motion.div
                   className="absolute inset-y-0 left-0 bg-gradient-to-r from-brand via-red-400 to-brand"
                   animate={{ width: `${progressPct}%` }}
-                  transition={{ duration: 0.55, ease: 'easeOut' }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
                 />
-                {/* Shimmer on progress bar */}
-                <motion.div
-                  className="absolute inset-y-0 w-12 bg-white/40"
-                  animate={{ x: ['-100%', '2000%'] }}
-                  transition={{ duration: 2.5, repeat: Infinity, delay: 1, ease: 'linear' }}
-                  style={{ filter: 'blur(6px)' }}
-                />
+                {!isMobile && (
+                  <motion.div
+                    className="absolute inset-y-0 w-12 bg-white/40"
+                    animate={{ x: ['-100%', '2000%'] }}
+                    transition={{ duration: 2.5, repeat: Infinity, delay: 1, ease: 'linear' }}
+                    style={{ filter: 'blur(6px)' }}
+                  />
+                )}
               </div>
 
-              {/* ── Top bar ── */}
+              {/* Top bar */}
               <div className="flex items-center justify-between px-6 pt-5 pb-3 shrink-0">
                 <div className="flex items-center gap-2">
                   {!done && STEPS.map((s, i) => (
                     <motion.div
                       key={s}
-                      className={`h-[3px] rounded-full ${i < step ? 'bg-brand' : i === step ? 'bg-brand' : 'bg-white/15'}`}
-                      animate={{ width: i === step ? 28 : i < step ? 10 : 7 }}
-                      transition={{ duration: 0.45, type: 'spring', stiffness: 200 }}
+                      className={`h-[3px] rounded-full ${i <= step ? 'bg-brand' : 'bg-white/18'}`}
+                      animate={{ width: i === step ? 26 : i < step ? 10 : 7 }}
+                      transition={{ duration: 0.4, type: 'spring', stiffness: 200 }}
                     />
                   ))}
                   {!done && (
                     <motion.span
                       key={step}
-                      initial={{ opacity: 0, x: -8 }}
+                      initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="ml-2 text-white/35 text-[11px] font-black uppercase tracking-[0.3em]"
+                      style={{ marginLeft: '0.5rem', color: 'rgba(255,255,255,0.45)', fontSize: '0.6875rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.3em' }}
                     >
                       {step + 1}/{STEPS.length}
                     </motion.span>
@@ -642,10 +661,11 @@ export default function TravelQuizModal() {
 
                 <motion.button
                   onClick={closeModal}
-                  whileHover={{ scale: 1.12, rotate: 90 }}
+                  whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
-                  transition={{ duration: 0.2 }}
-                  className="w-8 h-8 rounded-full bg-white/8 hover:bg-white/18 flex items-center justify-center text-white/50 hover:text-white"
+                  transition={{ duration: 0.18 }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.55)' }}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -653,27 +673,26 @@ export default function TravelQuizModal() {
                 </motion.button>
               </div>
 
-              {/* ── Scrollable body ── */}
+              {/* Scrollable body */}
               <div className="flex-1 overflow-y-auto no-scrollbar px-6 pb-6">
                 <AnimatePresence mode="wait" custom={dir}>
 
-                  {/* ── SUCCESS ── */}
+                  {/* SUCCESS */}
                   {done ? (
                     <motion.div
                       key="success"
-                      initial={{ opacity: 0, scale: 0.88, y: 20 }}
+                      initial={{ opacity: 0, scale: 0.9, y: 16 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+                      transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
                       className="py-10 text-center relative"
                     >
-                      {/* Floating celebration emojis */}
                       {['🌍','✈️','🏖️','🗺️','🎊'].map((emoji, i) => (
                         <motion.div
                           key={i}
                           className="absolute text-2xl pointer-events-none select-none"
                           style={{ left: `${10 + i * 20}%`, top: '10%' }}
                           initial={{ y: 0, opacity: 0 }}
-                          animate={{ y: [-10, -40, -10], opacity: [0, 1, 0] }}
+                          animate={{ y: [-10, -35, -10], opacity: [0, 1, 0] }}
                           transition={{ duration: 2.5, delay: 0.3 + i * 0.2, repeat: Infinity, ease: 'easeInOut' }}
                         >
                           {emoji}
@@ -681,14 +700,13 @@ export default function TravelQuizModal() {
                       ))}
 
                       <motion.div
-                        initial={{ scale: 0, rotate: -20 }}
+                        initial={{ scale: 0, rotate: -18 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        transition={{ delay: 0.1, type: 'spring', stiffness: 240, damping: 16 }}
+                        transition={{ delay: 0.1, type: 'spring', stiffness: 220, damping: 16 }}
                         className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center text-5xl relative"
-                        style={{ background: 'linear-gradient(135deg, rgba(229,57,53,0.2), rgba(229,57,53,0.05)', border: '1px solid rgba(229,57,53,0.3)' }}
+                        style={{ background: 'linear-gradient(135deg, rgba(229,57,53,0.2), rgba(229,57,53,0.05))', border: '1px solid rgba(229,57,53,0.3)' }}
                       >
                         ✈️
-                        {/* Orbit ring */}
                         <motion.div
                           className="absolute inset-[-6px] rounded-full border-2 border-dashed border-brand/40"
                           animate={{ rotate: 360 }}
@@ -697,27 +715,25 @@ export default function TravelQuizModal() {
                       </motion.div>
 
                       <motion.div
-                        initial={{ opacity: 0, y: 16 }}
+                        initial={{ opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.28 }}
+                        transition={{ delay: 0.25 }}
                       >
-                        <h2 className="text-3xl font-serif font-bold text-white mb-3">
-                          Your Journey Awaits! 🎉
-                        </h2>
-                        <p className="text-white/55 text-sm font-medium leading-relaxed max-w-xs mx-auto">
+                        <h2 className="text-3xl font-serif font-bold text-white mb-3">Your Journey Awaits! 🎉</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.6)' }} className="text-sm font-medium leading-relaxed max-w-xs mx-auto">
                           Our travel concierge will craft your personalised itinerary and reach out within{' '}
                           <span className="text-white font-bold">24 hours</span>.
                         </p>
                       </motion.div>
 
-                      {/* Boarding-pass style summary */}
                       <motion.div
-                        initial={{ opacity: 0, y: 16 }}
+                        initial={{ opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.45 }}
-                        className="mt-6 mx-auto max-w-sm bg-white/5 border border-white/10 rounded-2xl p-4 text-left"
+                        transition={{ delay: 0.42 }}
+                        className="mt-6 mx-auto max-w-sm rounded-2xl p-4 text-left"
+                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
                       >
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-3">Your Trip Profile</p>
+                        <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.625rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '0.75rem' }}>Your Trip Profile</p>
                         <div className="grid grid-cols-2 gap-2.5">
                           {[
                             { icon: '🌍', key: 'Destination', val: answers.destination?.label },
@@ -727,14 +743,15 @@ export default function TravelQuizModal() {
                           ].filter(x => x.val).map((x, i) => (
                             <motion.div
                               key={x.key}
-                              initial={{ opacity: 0, x: i % 2 === 0 ? -12 : 12 }}
+                              initial={{ opacity: 0, x: i % 2 === 0 ? -10 : 10 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.55 + i * 0.08 }}
-                              className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2"
+                              transition={{ delay: 0.52 + i * 0.07 }}
+                              className="flex items-center gap-2 rounded-xl px-3 py-2"
+                              style={{ background: 'rgba(255,255,255,0.06)' }}
                             >
                               <span className="text-lg">{x.icon}</span>
                               <div>
-                                <p className="text-white/35 text-[9px] font-black uppercase tracking-widest">{x.key}</p>
+                                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.5625rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{x.key}</p>
                                 <p className="text-white font-bold text-xs">{x.val}</p>
                               </div>
                             </motion.div>
@@ -745,18 +762,18 @@ export default function TravelQuizModal() {
                       <motion.button
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 }}
-                        whileHover={{ scale: 1.05 }}
+                        transition={{ delay: 0.65 }}
+                        whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
                         onClick={() => { reset(); closeModal() }}
                         className="mt-7 px-8 py-3 bg-brand text-white rounded-full font-bold text-sm hover:bg-brand-hover transition-colors shadow-glow"
                       >
-                        Close & Explore Packages →
+                        Close &amp; Explore Packages →
                       </motion.button>
                     </motion.div>
 
                   ) : (
-                    /* ── QUIZ STEP ── */
+                    /* QUIZ STEP */
                     <motion.div
                       key={step}
                       custom={dir}
@@ -765,16 +782,12 @@ export default function TravelQuizModal() {
                       animate="center"
                       exit="exit"
                     >
-                      <StepQuestion stepKey={currentStepKey} />
+                      <StepQuestion stepKey={currentStepKey} isMobile={isMobile} />
 
-                      {/* ── Destination grid ── */}
                       {currentStepKey === 'destination' && (
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                           {DESTINATIONS.map((d, i) => (
-                            <ImageCard
-                              key={d.id}
-                              option={d}
-                              index={i}
+                            <ImageCard key={d.id} option={d} index={i} isMobile={isMobile}
                               selected={answers.destination?.id === d.id}
                               onClick={() => select('destination', d)}
                             />
@@ -782,14 +795,10 @@ export default function TravelQuizModal() {
                         </div>
                       )}
 
-                      {/* ── Season grid ── */}
                       {currentStepKey === 'season' && (
                         <div className="grid grid-cols-2 gap-3">
                           {SEASONS.map((s, i) => (
-                            <IconCard
-                              key={s.id}
-                              option={s}
-                              index={i}
+                            <IconCard key={s.id} option={s} index={i} isMobile={isMobile}
                               selected={answers.season?.id === s.id}
                               onClick={() => select('season', s)}
                             />
@@ -797,14 +806,10 @@ export default function TravelQuizModal() {
                         </div>
                       )}
 
-                      {/* ── Travellers grid ── */}
                       {currentStepKey === 'travellers' && (
                         <div className="grid grid-cols-2 gap-3">
                           {TRAVELLERS.map((t, i) => (
-                            <IconCard
-                              key={t.id}
-                              option={t}
-                              index={i}
+                            <IconCard key={t.id} option={t} index={i} isMobile={isMobile}
                               selected={answers.travellers?.id === t.id}
                               onClick={() => select('travellers', t)}
                             />
@@ -812,14 +817,10 @@ export default function TravelQuizModal() {
                         </div>
                       )}
 
-                      {/* ── Budget grid ── */}
                       {currentStepKey === 'budget' && (
                         <div className="grid grid-cols-2 gap-3">
                           {BUDGETS.map((b, i) => (
-                            <IconCard
-                              key={b.id}
-                              option={b}
-                              index={i}
+                            <IconCard key={b.id} option={b} index={i} isMobile={isMobile}
                               selected={answers.budget?.id === b.id}
                               onClick={() => select('budget', b)}
                             />
@@ -827,16 +828,16 @@ export default function TravelQuizModal() {
                         </div>
                       )}
 
-                      {/* ── Contact form ── */}
+                      {/* Contact form */}
                       {currentStepKey === 'contact' && (
                         <motion.div
-                          className="space-y-4"
+                          style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          transition={{ delay: 0.2 }}
+                          transition={{ delay: 0.15 }}
                         >
-                          {/* Selected recap chips */}
-                          <div className="flex flex-wrap gap-2 mb-2">
+                          {/* Recap chips */}
+                          <div className="flex flex-wrap gap-2 mb-1">
                             {[
                               answers.destination && { icon: '🌍', val: answers.destination.label },
                               answers.season      && { icon: '📅', val: answers.season.label },
@@ -845,10 +846,11 @@ export default function TravelQuizModal() {
                             ].filter(Boolean).map((x, i) => (
                               <motion.span
                                 key={x.val}
-                                initial={{ opacity: 0, scale: 0.7 }}
+                                initial={{ opacity: 0, scale: 0.75 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.07 }}
-                                className="flex items-center gap-1.5 px-3 py-1 bg-brand/12 border border-brand/25 text-brand text-[11px] font-bold rounded-full"
+                                transition={{ delay: i * 0.06 }}
+                                className="flex items-center gap-1.5 px-3 py-1 rounded-full font-bold"
+                                style={{ background: 'rgba(229,57,53,0.15)', border: '1px solid rgba(229,57,53,0.3)', color: '#ff6b6b', fontSize: '0.6875rem' }}
                               >
                                 {x.icon} {x.val}
                               </motion.span>
@@ -856,18 +858,30 @@ export default function TravelQuizModal() {
                           </div>
 
                           {[
-                            { key: 'name',  type: 'text',  label: 'Full Name',      placeholder: 'Your full name',        required: true  },
-                            { key: 'phone', type: 'tel',   label: 'Phone Number',   placeholder: '+91 98765 43210',       required: true  },
-                            { key: 'email', type: 'email', label: 'Email Address',  placeholder: 'your@email.com',        required: false },
+                            { key: 'name',  type: 'text',  label: 'Full Name',     placeholder: 'Your full name',  required: true  },
+                            { key: 'phone', type: 'tel',   label: 'Phone Number',  placeholder: '+91 98765 43210', required: true  },
+                            { key: 'email', type: 'email', label: 'Email Address', placeholder: 'your@email.com',  required: false },
                           ].map(({ key, type, label, placeholder, required }, i) => (
                             <motion.div
                               key={key}
-                              initial={{ opacity: 0, x: -16 }}
+                              initial={{ opacity: 0, x: -12 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.15 + i * 0.1 }}
+                              transition={{ delay: 0.12 + i * 0.09 }}
                             >
-                              <label className="text-[10px] font-black text-white/35 uppercase tracking-[0.25em] mb-2 block">
-                                {label}{required ? ' *' : <span className="normal-case text-white/22 font-medium ml-1">(optional)</span>}
+                              <label style={{
+                                display: 'block',
+                                fontSize: '0.625rem',
+                                fontWeight: 900,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.25em',
+                                color: 'rgba(255,255,255,0.7)',
+                                marginBottom: '0.5rem',
+                              }}>
+                                {label}
+                                {required
+                                  ? ' *'
+                                  : <span style={{ textTransform: 'none', letterSpacing: 'normal', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginLeft: '0.25rem' }}>(optional)</span>
+                                }
                               </label>
                               <input
                                 type={type}
@@ -875,8 +889,24 @@ export default function TravelQuizModal() {
                                 value={contact[key]}
                                 onChange={e => setContact(p => ({ ...p, [key]: e.target.value }))}
                                 placeholder={placeholder}
-                                className="w-full bg-white/6 border border-white/10 rounded-2xl px-4 py-3.5 text-white font-bold text-sm placeholder-white/22 focus:outline-none focus:border-brand/55 focus:bg-white/9 transition-all"
+                                style={{
+                                  width: '100%',
+                                  background: 'rgba(255,255,255,0.1)',
+                                  border: '1px solid rgba(255,255,255,0.22)',
+                                  borderRadius: '1rem',
+                                  padding: '0.875rem 1rem',
+                                  color: '#fff',
+                                  fontWeight: 600,
+                                  fontSize: '0.9375rem',
+                                  outline: 'none',
+                                  fontFamily: 'inherit',
+                                  boxSizing: 'border-box',
+                                  caretColor: '#E53935',
+                                }}
+                                onFocus={e => { e.target.style.borderColor = 'rgba(229,57,53,0.7)'; e.target.style.background = 'rgba(255,255,255,0.13)' }}
+                                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.22)'; e.target.style.background = 'rgba(255,255,255,0.1)' }}
                               />
+                              {/* Placeholder via CSS — injected once globally */}
                             </motion.div>
                           ))}
 
@@ -886,26 +916,27 @@ export default function TravelQuizModal() {
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="bg-red-500/10 border border-red-500/25 text-red-400 text-sm font-bold px-4 py-3 rounded-2xl"
+                                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5', fontSize: '0.875rem', fontWeight: 700, padding: '0.75rem 1rem', borderRadius: '1rem' }}
                               >
                                 {error}
                               </motion.div>
                             )}
                           </AnimatePresence>
 
-                          <p className="text-white/22 text-[11px] font-medium">
+                          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.6875rem', fontWeight: 500 }}>
                             No spam, ever. Your details stay private. 🔒
                           </p>
                         </motion.div>
                       )}
 
-                      {/* ── Navigation ── */}
-                      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/8">
+                      {/* Navigation */}
+                      <div className="flex items-center justify-between mt-6 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                         <motion.button
                           onClick={step > 0 ? goBack : closeModal}
-                          whileHover={{ x: -3 }}
+                          whileHover={{ x: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex items-center gap-1.5 px-4 py-2.5 text-white/38 hover:text-white font-bold text-sm transition-colors"
+                          className="flex items-center gap-1.5 px-4 py-2.5 font-bold text-sm transition-colors"
+                          style={{ color: 'rgba(255,255,255,0.5)' }}
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -916,16 +947,18 @@ export default function TravelQuizModal() {
                         <motion.button
                           onClick={currentStepKey === 'contact' ? handleSubmit : goNext}
                           disabled={!canProceed() || loading}
-                          whileHover={canProceed() && !loading ? { scale: 1.04, boxShadow: '0 0 30px rgba(229,57,53,0.55)' } : undefined}
+                          whileHover={canProceed() && !loading ? { scale: 1.04, boxShadow: '0 0 28px rgba(229,57,53,0.5)' } : undefined}
                           whileTap={canProceed() && !loading ? { scale: 0.95 } : undefined}
                           className="relative flex items-center gap-2.5 px-6 py-3 bg-brand text-white rounded-full font-bold text-sm hover:bg-brand-hover transition-all shadow-glow disabled:opacity-30 disabled:cursor-not-allowed overflow-hidden"
+                          style={{ willChange: 'transform' }}
                         >
-                          {/* Shimmer on button */}
-                          <motion.div
-                            className="absolute inset-0 bg-white/15 -skew-x-12"
-                            animate={{ x: ['-200%', '200%'] }}
-                            transition={{ duration: 2.5, repeat: Infinity, delay: 1.5, ease: 'linear' }}
-                          />
+                          {!isMobile && (
+                            <motion.div
+                              className="absolute inset-0 bg-white/15 -skew-x-12"
+                              animate={{ x: ['-200%', '200%'] }}
+                              transition={{ duration: 2.5, repeat: Infinity, delay: 1.5, ease: 'linear' }}
+                            />
+                          )}
                           <span className="relative flex items-center gap-2.5">
                             {loading ? (
                               <>
@@ -933,9 +966,7 @@ export default function TravelQuizModal() {
                                 Building your dream…
                               </>
                             ) : currentStepKey === 'contact' ? (
-                              <>
-                                🚀 Launch My Itinerary
-                              </>
+                              <>🚀 Launch My Itinerary</>
                             ) : (
                               <>
                                 Continue
@@ -955,6 +986,11 @@ export default function TravelQuizModal() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Global input placeholder colour for this modal */}
+      <style>{`
+        .quiz-input::placeholder { color: rgba(255,255,255,0.38); }
+      `}</style>
     </>
   )
 }
