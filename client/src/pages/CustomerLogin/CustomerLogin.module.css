@@ -34,32 +34,10 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 3rem;
-}
-.leftLogo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-}
-.leftLogoMark {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--brand);
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  color: #fff;
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1.25rem;
+  /* Push content below the fixed navbar (≈ 5.5 rem at desktop) */
+  padding: clamp(5.5rem, 9vh, 8rem) 3rem 3rem;
 }
-.leftLogoText { display: flex; flex-direction: column; }
-.leftWordmark { color: #fff; font-weight: 900; font-size: 0.875rem; letter-spacing: 0.2em; text-transform: uppercase; }
-.leftTagline { color: rgba(255,255,255,0.5); font-size: 0.625rem; letter-spacing: 0.2em; text-transform: uppercase; }
-
 .leftBody { }
 .leftEyebrow {
   color: var(--brand);

@@ -70,17 +70,6 @@ export default function HeroSection() {
       {/* Content */}
       <div className={styles.content}>
 
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.0 }}
-          className={`${styles.badge} glass-dark`}
-        >
-          <PingDot />
-          Premium Concierge
-        </motion.div>
-
         {/* Headline */}
         <h1 className={styles.headline} style={{ textShadow: '0 4px 32px rgba(0,0,0,0.5)' }}>
           <SplitTitle text="Crafting Your" />

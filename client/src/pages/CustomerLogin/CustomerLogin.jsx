@@ -52,14 +52,6 @@ export default function CustomerLogin() {
         <div className={styles.leftBg} />
         <div className={styles.leftOverlay} />
         <div className={styles.leftContent}>
-          <Link to="/" className={styles.leftLogo}>
-            <div className={styles.leftLogoMark}>E</div>
-            <div className={styles.leftLogoText}>
-              <span className={styles.leftWordmark}>EMV</span>
-              <span className={styles.leftTagline}>Global</span>
-            </div>
-          </Link>
-
           <div className={styles.leftBody}>
             <motion.div
               initial={{ opacity: 0, y: 30 }}

@@ -53,21 +53,6 @@
 @media (min-width: 640px)  { .content { padding: 0 2rem; } }
 @media (min-width: 1024px) { .content { padding: 0 3rem; } }
 
-/* ── Badge ── */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 1.25rem;
-  border-radius: 9999px;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.25em;
-  margin-bottom: 1.25rem;
-}
-@media (min-width: 640px) { .badge { font-size: 0.875rem; margin-bottom: 2rem; } }
 
 .pingWrap {
   position: relative;
