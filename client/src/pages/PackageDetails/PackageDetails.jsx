@@ -20,15 +20,8 @@ export default function PackageDetails() {
   const [pkg,     setPkg]     = useState(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
-  const [quizDone, setQuizDone] = useState(() => !!localStorage.getItem('emv_quiz_done'))
 
-  const itinUnlocked = !!customer || quizDone
-
-  useEffect(() => {
-    const h = () => setQuizDone(true)
-    window.addEventListener('emv-quiz-completed', h)
-    return () => window.removeEventListener('emv-quiz-completed', h)
-  }, [])
+  const itinUnlocked = !!customer
 
   useEffect(() => {
     if (!id) { navigate('/packages', { replace: true }); return }

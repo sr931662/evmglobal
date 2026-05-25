@@ -19,9 +19,8 @@ export function CustomerAuthProvider({ children }) {
       createdAt: Date.now(),
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile))
-    localStorage.setItem('emv_quiz_done', '1')
+    localStorage.setItem('emv_quiz_done', '1') // suppress quiz re-trigger only
     setCustomer(profile)
-    window.dispatchEvent(new CustomEvent('emv-quiz-completed'))
     return profile
   }
 
