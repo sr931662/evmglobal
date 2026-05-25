@@ -7,16 +7,18 @@
   z-index: 100;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .closeRow {
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   display: flex;
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 .closeBtn {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 3rem;
+  height: 3rem;
   background: #f3f4f6;
   border: none;
   border-radius: 9999px;
@@ -25,7 +27,7 @@
   justify-content: center;
   color: var(--dark);
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   transition: background-color 0.2s;
 }
 .closeBtn:hover { background: #e5e7eb; }
@@ -33,12 +35,16 @@
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 3rem 2rem 0;
+  /* Fluid gap: smaller at tablet-size viewports (high-zoom desktop),
+     larger at true mobile */
+  gap: clamp(1.25rem, 3vh, 2rem);
+  padding: clamp(1.5rem, 4vh, 3rem) 2rem 0;
 }
 .navLink {
   font-family: var(--font-serif);
-  font-size: 3rem;
+  /* Fluid font size: scales down at narrower/shorter viewports so all
+     links are visible without needing to scroll */
+  font-size: clamp(1.75rem, 5vw, 3rem);
   font-weight: 400;
   color: var(--dark);
   text-decoration: none;
@@ -49,21 +55,22 @@
 
 .footer {
   margin-top: auto;
-  padding: 2rem;
+  padding: clamp(1.25rem, 3vh, 2rem) 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: clamp(0.75rem, 2vh, 1.5rem);
+  flex-shrink: 0;
 }
 .whatsappBtn {
   width: 100%;
   background: var(--dark);
   color: #fff;
-  padding: 1.5rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   border-radius: 9999px;
   border: none;
   cursor: pointer;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
   box-shadow: var(--shadow-float);
   display: flex;
   justify-content: center;

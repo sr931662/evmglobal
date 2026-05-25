@@ -1,13 +1,30 @@
+/* ─────────────────────────────────────────────
+   NAVBAR
+   Breakpoint strategy
+   ─────────────────────────────────────────────
+   Full desktop nav (navPill + actions) requires
+   ≈ 1040 px of CSS-pixel space:
+     logo 132 + navPill 480 + actions 290
+     + inner-padding 96 + gaps 33 ≈ 1031 px
+
+   We use 1100 px as the threshold so there is a
+   comfortable 70 px margin.  Any CSS viewport
+   narrower than 1100 px — including a 1366 px
+   screen zoomed to 125 % (→ 1093 px) or a 1920 px
+   screen zoomed to 200 % (→ 960 px) — gets the
+   hamburger automatically.
+   ───────────────────────────────────────────── */
+
 .navbar {
   position: fixed;
   width: 100%;
   z-index: 50;
   transition: background-color 0.5s ease, padding 0.5s ease, border-color 0.5s ease;
   border-bottom: 1px solid transparent;
-  padding: clamp(0.75rem, 1.75vw, 1.5rem) 0;
+  padding: clamp(0.75rem, 1.5vw, 1.5rem) 0;
 }
 .navbar.scrolled {
-  padding: clamp(0.5rem, 1.1vw, 1rem) 0;
+  padding: clamp(0.5rem, 1vw, 1rem) 0;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
@@ -15,28 +32,33 @@
   border-bottom-color: rgba(229,231,235,0.7);
 }
 
+/* ── Inner container ── */
 .inner {
   max-width: 95rem;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  /* Controlled gap between logo / pill / actions so
+     space-between never compresses items together  */
+  gap: 1rem;
 }
 @media (min-width: 640px)  { .inner { padding: 0 2rem; } }
-@media (min-width: 1024px) { .inner { padding: 0 3rem; } }
+@media (min-width: 1100px) { .inner { padding: 0 3rem; gap: 1.5rem; } }
 
 /* ── Logo ── */
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.625rem;
   cursor: pointer;
   text-decoration: none;
+  flex: 0 0 auto;   /* never shrink, never grow */
 }
 .logoMark {
-  width: 3rem;
-  height: 3rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 14px;
   background: var(--brand);
   display: flex;
@@ -45,7 +67,7 @@
   color: #fff;
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   box-shadow: var(--shadow-glow);
   flex-shrink: 0;
 }
@@ -57,23 +79,26 @@
 .logoText .wordmark {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   letter-spacing: -0.025em;
   line-height: 1;
+  white-space: nowrap;
 }
 .logoText .tagline {
   color: var(--brand);
-  font-size: 0.625rem;
+  font-size: 0.5625rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.25em;
   line-height: 1;
-  margin-top: 6px;
+  margin-top: 5px;
+  white-space: nowrap;
 }
 .logoTextDark  .wordmark { color: var(--dark); }
 .logoTextLight .wordmark { color: #fff; }
 
 /* ── Desktop nav pill ── */
+/*  Hidden below 1100 px — hamburger takes over  */
 .navPill {
   display: none;
   align-items: center;
@@ -82,19 +107,24 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,0.6);
-  padding: 0.5rem;
+  padding: 0.375rem;
   border-radius: 9999px;
   transition: all 0.5s ease;
+  /* Allow the pill to be the flexible middle section */
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
 }
-@media (min-width: 768px) { .navPill { display: flex; } }
+@media (min-width: 1100px) { .navPill { display: flex; } }
 
 .navLink {
-  padding: clamp(0.45rem, 0.6vw, 0.625rem) clamp(0.875rem, 1.15vw, 1.5rem);
+  padding: 0.5rem clamp(0.75rem, 0.9vw, 1.25rem);
   border-radius: 9999px;
-  font-size: clamp(0.8125rem, 0.9vw, 1rem);
+  font-size: clamp(0.8125rem, 0.82vw, 0.9375rem);
   font-weight: 700;
   color: #374151;
   text-decoration: none;
+  white-space: nowrap;   /* prevent text from wrapping inside the pill */
   transition: color 0.2s, background-color 0.2s;
 }
 .navLink:hover {
@@ -103,19 +133,22 @@
 }
 
 /* ── Desktop actions ── */
+/*  Hidden below 1100 px — hamburger takes over  */
 .actions {
   display: none;
   align-items: center;
-  gap: clamp(1rem, 1.5vw, 2rem);
+  gap: clamp(0.75rem, 1.1vw, 1.5rem);
+  flex: 0 0 auto;   /* never shrink, never grow */
 }
-@media (min-width: 768px) { .actions { display: flex; } }
+@media (min-width: 1100px) { .actions { display: flex; } }
 
 .workspaceLink {
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 0.78vw, 0.875rem);
   font-weight: 700;
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
   transition: color 0.3s ease;
 }
 .workspaceDark  { color: var(--dark); }
@@ -125,50 +158,56 @@
 .planBtn {
   background: #fff;
   color: var(--dark);
-  padding: clamp(0.625rem, 0.85vw, 1rem) clamp(1.25rem, 1.5vw, 2rem);
+  padding: clamp(0.625rem, 0.75vw, 0.9375rem) clamp(1rem, 1.2vw, 1.75rem);
   border-radius: 9999px;
-  font-size: clamp(0.8125rem, 0.9vw, 1rem);
+  font-size: clamp(0.8125rem, 0.82vw, 0.9375rem);
   font-weight: 700;
   border: none;
   cursor: pointer;
   box-shadow: var(--shadow-float);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  transition: background-color 0.2s;
+  gap: 0.5rem;
   white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
 }
 .planBtn:hover { background: #f3f4f6; }
 .planBtnIcon {
   color: var(--whatsapp);
-  font-size: 1.25rem;
+  font-size: 1.125rem;
+  flex-shrink: 0;
   transition: transform 0.2s;
 }
 .planBtn:hover .planBtnIcon { transform: scale(1.1); }
 
-/* ── Mobile hamburger ── */
+/* ── Mobile / medium hamburger ── */
+/*  Shown below 1100 px (covers all zoom levels that
+    lack enough space for the full desktop nav)       */
 .hamburger {
   display: flex;
   background: rgba(255,255,255,0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,0.6);
-  padding: 1rem;
+  padding: 0.875rem;
   border-radius: 9999px;
   align-items: center;
   justify-content: center;
   color: var(--dark);
   cursor: pointer;
+  flex-shrink: 0;
 }
-@media (min-width: 768px) { .hamburger { display: none; } }
+@media (min-width: 1100px) { .hamburger { display: none; } }
 
 /* ── Customer account ── */
 .signInLink {
-  font-size: 0.8125rem;
+  font-size: clamp(0.75rem, 0.78vw, 0.8125rem);
   font-weight: 700;
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
   transition: color 0.2s;
   padding: 0.5rem 0;
 }
@@ -178,6 +217,7 @@
 
 .customerAvatar {
   position: relative;
+  flex-shrink: 0;
 }
 .avatarBtn {
   display: flex;
@@ -192,8 +232,8 @@
 }
 .avatarBtn:hover { background: rgba(0,0,0,0.06); }
 .avatarCircle {
-  width: 2rem;
-  height: 2rem;
+  width: 1.875rem;
+  height: 1.875rem;
   border-radius: 50%;
   background: var(--brand);
   color: #fff;
@@ -207,7 +247,7 @@
 .avatarName {
   font-size: 0.8125rem;
   font-weight: 700;
-  max-width: 80px;
+  max-width: 72px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
