@@ -71,7 +71,7 @@ export default function HeroSection() {
       <div className={styles.content}>
 
         {/* Headline */}
-        <h1 className={styles.headline} style={{ textShadow: '0 4px 32px rgba(0,0,0,0.5)' }}>
+        <h1 className={styles.headline}>
           <SplitTitle text="Crafting Your" />
           {' '}
           <SplitTitle text="Perfect" />
@@ -98,7 +98,6 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.4, ease: [0.33, 1, 0.68, 1] }}
           className={styles.subtitle}
-          style={{ textShadow: '0 2px 20px rgba(0,0,0,0.7)' }}
         >
           Bespoke international holidays curated entirely around your pace and preferences.
         </motion.p>
