@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react'
 import Lenis from '@studio-freight/lenis'
 
+let _lenis = null
+export const getLenis = () => _lenis
+
 export function useLenis(enabled = true) {
   const lenisRef = useRef(null)
 
@@ -19,6 +22,7 @@ export function useLenis(enabled = true) {
       infinite: false,
     })
     lenisRef.current = lenis
+    _lenis = lenis
 
     let rafId
     function raf(time) {
@@ -30,6 +34,7 @@ export function useLenis(enabled = true) {
     return () => {
       cancelAnimationFrame(rafId)
       lenis.destroy()
+      _lenis = null
     }
   }, [])
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
-import { useLenis } from './hooks/useLenis'
+import { useLenis, getLenis } from './hooks/useLenis'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { CustomerAuthProvider } from './context/CustomerAuthContext'
 import CustomerLogin from './pages/CustomerLogin/CustomerLogin'
@@ -32,7 +32,13 @@ import AdminLogin from './pages/Admin/Login/AdminLogin'
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    const lenis = getLenis()
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true })
+    } else {
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
   }, [pathname])
   return null
 }
