@@ -5,8 +5,6 @@ import DestinationsFeatured from '../../components/home/DestinationsFeatured/Des
 import ProcessSection from '../../components/home/ProcessSection/ProcessSection'
 import InquirySection from '../../components/home/InquirySection/InquirySection'
 import HomeCTA from '../../components/home/HomeCTA/HomeCTA'
-import TravelQuizModal from '../../components/home/TravelQuizModal/TravelQuizModal'
-
 export default function Home() {
   return (
     <main>
@@ -17,7 +15,6 @@ export default function Home() {
       <ProcessSection />
       <InquirySection />
       <HomeCTA />
-      <TravelQuizModal />
     </main>
   )
 }

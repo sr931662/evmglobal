@@ -491,6 +491,7 @@ export default function TravelQuizModal() {
       })
       localStorage.setItem('emv_quiz_done', '1')
       setDone(true)
+      window.dispatchEvent(new CustomEvent('emv-quiz-completed'))
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
@@ -527,7 +528,7 @@ export default function TravelQuizModal() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ delay: 3.5, duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
-            style={{ position: 'fixed', bottom: '1.5rem', left: '1.5rem', zIndex: 40 }}
+            style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 40 }}
           >
             {[0, 1, 2].map(i => (
               <motion.div

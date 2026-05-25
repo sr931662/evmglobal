@@ -18,6 +18,13 @@ export default function PackageDetails() {
   const [pkg,     setPkg]     = useState(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
+  const [itinUnlocked, setItinUnlocked] = useState(() => !!localStorage.getItem('emv_quiz_done'))
+
+  useEffect(() => {
+    const h = () => setItinUnlocked(true)
+    window.addEventListener('emv-quiz-completed', h)
+    return () => window.removeEventListener('emv-quiz-completed', h)
+  }, [])
 
   useEffect(() => {
     if (!id) { navigate('/packages', { replace: true }); return }
@@ -168,31 +175,65 @@ export default function PackageDetails() {
                 className={styles.card}
               >
                 <h3 className={styles.cardTitleLg}>Day-by-Day Itinerary</h3>
-                <div className={styles.itineraryList}>
-                  {itinerary.map((day) => (
-                    <details key={day.day} className={styles.dayAccordion} open={day.day === 1}>
-                      <summary className={styles.daySummary}>
-                        <span className={styles.dayNum}>{day.day}</span>
-                        <span className={styles.dayTitle}>{day.title || `Day ${day.day}`}</span>
-                        <svg className={styles.dayChevron} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </summary>
-                      {Array.isArray(day.activities) && day.activities.length > 0 && (
-                        <div className={styles.dayBody}>
-                          {day.activities.map((act, ai) => (
-                            <div key={ai} className={styles.activity}>
-                              <span className={styles.actIcon}>{act.icon || '📍'}</span>
-                              <div>
-                                {act.time && <span className={styles.actTime}>{act.time}</span>}
-                                <span className={styles.actDesc}>{act.description}</span>
+                <div style={{ position: 'relative' }}>
+                  <div
+                    className={styles.itineraryList}
+                    style={!itinUnlocked ? { filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' } : undefined}
+                  >
+                    {itinerary.map((day) => (
+                      <details key={day.day} className={styles.dayAccordion} open={day.day === 1}>
+                        <summary className={styles.daySummary}>
+                          <span className={styles.dayNum}>{day.day}</span>
+                          <span className={styles.dayTitle}>{day.title || `Day ${day.day}`}</span>
+                          <svg className={styles.dayChevron} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </summary>
+                        {Array.isArray(day.activities) && day.activities.length > 0 && (
+                          <div className={styles.dayBody}>
+                            {day.activities.map((act, ai) => (
+                              <div key={ai} className={styles.activity}>
+                                <span className={styles.actIcon}>{act.icon || '📍'}</span>
+                                <div>
+                                  {act.time && <span className={styles.actTime}>{act.time}</span>}
+                                  <span className={styles.actDesc}>{act.description}</span>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </details>
-                  ))}
+                            ))}
+                          </div>
+                        )}
+                      </details>
+                    ))}
+                  </div>
+
+                  {!itinUnlocked && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className={styles.itinLock}
+                    >
+                      <motion.div
+                        initial={{ scale: 0.9, y: 10 }}
+                        animate={{ scale: 1, y: 0 }}
+                        transition={{ delay: 0.1, type: 'spring', stiffness: 260, damping: 20 }}
+                        className={styles.itinLockCard}
+                      >
+                        <div className={styles.itinLockIcon}>🔒</div>
+                        <h4 className={styles.itinLockTitle}>Full Itinerary Locked</h4>
+                        <p className={styles.itinLockDesc}>
+                          Plan your trip for free to unlock the complete day-by-day itinerary
+                        </p>
+                        <motion.button
+                          onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
+                          whileHover={{ scale: 1.04, boxShadow: '0 0 28px rgba(229,57,53,0.45)' }}
+                          whileTap={{ scale: 0.96 }}
+                          className={styles.itinLockBtn}
+                        >
+                          🗺️ Plan My Trip — It's Free
+                        </motion.button>
+                      </motion.div>
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             )}

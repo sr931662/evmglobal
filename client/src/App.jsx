@@ -8,7 +8,7 @@ import Navbar from './components/layout/Navbar/Navbar'
 import Footer from './components/layout/Footer/Footer'
 import Loader from './components/layout/Loader/Loader'
 import CustomCursor from './components/layout/CustomCursor/CustomCursor'
-import WhatsAppButton from './components/layout/WhatsAppButton/WhatsAppButton'
+import TravelQuizModal from './components/home/TravelQuizModal/TravelQuizModal'
 
 import Home from './pages/Home/Home'
 import Destinations from './pages/Destinations/Destinations'
@@ -92,7 +92,7 @@ function AppShell() {
       <CustomCursor />
       {!isAdmin && <Navbar />}
       <AnimatedRoutes />
-      {!isAdmin && <WhatsAppButton />}
+      {!isAdmin && <TravelQuizModal />}
     </div>
   )
 }
