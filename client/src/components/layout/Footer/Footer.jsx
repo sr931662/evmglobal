@@ -68,9 +68,9 @@ export default function Footer() {
             <div>
               <h5 className={styles.colHead}>Contact</h5>
               <ul className={styles.colList}>
-                <li><span className={styles.colText}>concierge@emvglobal.in</span></li>
-                <li><span className={styles.colText}>Gurugram, Haryana</span></li>
-                <li><span className={styles.colText}>WhatsApp 24/7</span></li>
+                <li><a href="mailto:info@easemyvacationsglobal.com" className={styles.colLink}>info@easemyvacationsglobal.com</a></li>
+                <li><span className={styles.colText}>Enkay Tower, Cyber City, Gurugram – 122016</span></li>
+                <li><a href="https://wa.me/917070595907" target="_blank" rel="noopener noreferrer" className={styles.colLink}>WhatsApp: +91 70705 95907</a></li>
               </ul>
             </div>
           </div>
@@ -78,6 +78,7 @@ export default function Footer() {
 
         <div className={styles.bottom}>
           <p className={styles.copy}>© {new Date().getFullYear()} Ease My Vacations Global Private Limited. All rights reserved.</p>
+          <p className={styles.copy} style={{ opacity: 0.45, fontSize: '0.625rem', letterSpacing: '0.05em', marginTop: '0.25rem' }}>CIN: U72900WB2022PTC254985 &nbsp;·&nbsp; GST: 19AAHCE1058Q2Z2</p>
           <p className={styles.craft}>Crafted with precision. Delivered with passion.</p>
         </div>
       </div>

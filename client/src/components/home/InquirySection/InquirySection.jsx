@@ -96,7 +96,7 @@ export default function InquirySection() {
                     </div>
                     <div>
                       <label className={styles.label}>Phone *</label>
-                      <input type="tel" required value={form.phone} onChange={e => f('phone', e.target.value)} placeholder="+91 98765 43210" className={styles.input} />
+                      <input type="tel" required value={form.phone} onChange={e => f('phone', e.target.value)} placeholder="+91 70705 95907" className={styles.input} />
                     </div>
                   </div>
 

@@ -927,7 +927,7 @@ export default function TravelQuizModal() {
 
                           {[
                             { key: 'name',  type: 'text',  label: 'Full Name',     placeholder: 'Your full name',  required: true  },
-                            { key: 'phone', type: 'tel',   label: 'Phone Number',  placeholder: '+91 98765 43210', required: true  },
+                            { key: 'phone', type: 'tel',   label: 'Phone Number',  placeholder: '+91 70705 95907', required: true  },
                             { key: 'email', type: 'email', label: 'Email Address', placeholder: 'your@email.com',  required: false },
                           ].map(({ key, type, label, placeholder, required }, i) => (
                             <motion.div

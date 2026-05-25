@@ -6,7 +6,7 @@ export class EmailService {
   private resend = new Resend(process.env.RESEND_API_KEY);
   private adminEmail = process.env.ADMIN_EMAIL;
   private logger = new Logger('EmailService');
-  private defaultFrom = 'Lead Manager <noreply@yourdomain.com>';
+  private defaultFrom = 'EMV Global <noreply@easemyvacationsglobal.com>';
   private maxRetries = 3;
 
   constructor() {}

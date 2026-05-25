@@ -1,4 +1,4 @@
-const PHONE = '919876543210'
+const PHONE = '917070595907'
 
 export function openWhatsApp(packageName = '') {
   const message = packageName

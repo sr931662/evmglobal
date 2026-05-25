@@ -121,7 +121,9 @@ export default function PrivacyPolicy() {
       <Highlight>
         <Strong>Data Protection Officer</Strong><br />
         Ease My Vacations Global Private Limited<br />
-        Email: <Strong>privacy@easemyvacations.in</Strong>
+        CIN: U72900WB2022PTC254985 · GST: 19AAHCE1058Q2Z2<br />
+        Enkay Tower, Cyber City, Phase V, Udyog Vihar, Sector 19, Gurugram, Haryana – 122016<br />
+        Email: <Strong>info@easemyvacationsglobal.com</Strong>
       </Highlight>
     </LegalLayout>
   )
