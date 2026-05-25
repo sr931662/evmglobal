@@ -4,6 +4,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import PricingWidget from '../../components/packageDetails/PricingWidget/PricingWidget'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import styles from './PackageDetails.module.css'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2800'
@@ -15,13 +16,16 @@ export default function PackageDetails() {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
   const bgY        = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
 
+  const { customer } = useCustomerAuth()
   const [pkg,     setPkg]     = useState(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
-  const [itinUnlocked, setItinUnlocked] = useState(() => !!localStorage.getItem('emv_quiz_done'))
+  const [quizDone, setQuizDone] = useState(() => !!localStorage.getItem('emv_quiz_done'))
+
+  const itinUnlocked = !!customer || quizDone
 
   useEffect(() => {
-    const h = () => setItinUnlocked(true)
+    const h = () => setQuizDone(true)
     window.addEventListener('emv-quiz-completed', h)
     return () => window.removeEventListener('emv-quiz-completed', h)
   }, [])
@@ -221,16 +225,29 @@ export default function PackageDetails() {
                         <div className={styles.itinLockIcon}>🔒</div>
                         <h4 className={styles.itinLockTitle}>Full Itinerary Locked</h4>
                         <p className={styles.itinLockDesc}>
-                          Plan your trip for free to unlock the complete day-by-day itinerary
+                          Sign in free to unlock the complete day-by-day itinerary for this package
                         </p>
-                        <motion.button
-                          onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
-                          whileHover={{ scale: 1.04, boxShadow: '0 0 28px rgba(229,57,53,0.45)' }}
-                          whileTap={{ scale: 0.96 }}
-                          className={styles.itinLockBtn}
-                        >
-                          🗺️ Plan My Trip — It's Free
-                        </motion.button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+                          <Link
+                            to={`/login?next=${encodeURIComponent(window.location.hash.slice(1) || '/packages')}`}
+                            style={{ textDecoration: 'none' }}
+                          >
+                            <motion.div
+                              whileHover={{ scale: 1.04, boxShadow: '0 0 28px rgba(229,57,53,0.45)' }}
+                              whileTap={{ scale: 0.96 }}
+                              className={styles.itinLockBtn}
+                              style={{ textAlign: 'center', cursor: 'pointer' }}
+                            >
+                              🔓 Sign In Free — Unlock Itinerary
+                            </motion.div>
+                          </Link>
+                          <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '0.8125rem', fontWeight: 600 }}
+                          >
+                            Or plan my trip instead →
+                          </button>
+                        </div>
                       </motion.div>
                     </motion.div>
                   )}

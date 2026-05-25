@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { FaBars } from 'react-icons/fa6'
 import MobileMenu from '../MobileMenu/MobileMenu'
 import { openWhatsApp } from '../../../utils/whatsapp'
+import { useCustomerAuth } from '../../../context/CustomerAuthContext'
 import styles from './Navbar.module.css'
 
 const NAV_LINKS = [
@@ -14,9 +15,21 @@ const NAV_LINKS = [
 ]
 
 export default function Navbar() {
-  const [scrolled,  setScrolled]  = useState(false)
-  const [menuOpen,  setMenuOpen]  = useState(false)
+  const [scrolled,     setScrolled]     = useState(false)
+  const [menuOpen,     setMenuOpen]     = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
   const location = useLocation()
+  const { customer, logoutCustomer } = useCustomerAuth()
+
+  useEffect(() => {
+    const handler = e => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+        setDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const isDarkHero = ['/', '/quotes'].includes(location.pathname) || location.pathname.startsWith('/package-details')
 
@@ -59,6 +72,44 @@ export default function Navbar() {
           </nav>
 
           <div className={styles.actions}>
+            {/* Customer account */}
+            {customer ? (
+              <div className={styles.customerAvatar} ref={dropdownRef}>
+                <button
+                  className={styles.avatarBtn}
+                  onClick={() => setDropdownOpen(o => !o)}
+                >
+                  <div className={styles.avatarCircle}>
+                    {customer.name[0].toUpperCase()}
+                  </div>
+                  <span className={`${styles.avatarName} ${isDarkHero ? styles.avatarNameLight : styles.avatarNameDark}`}>
+                    {customer.name.split(' ')[0]}
+                  </span>
+                </button>
+                {dropdownOpen && (
+                  <div className={styles.avatarDropdown}>
+                    <div className={styles.dropdownHeader}>
+                      <p className={styles.dropdownName}>{customer.name}</p>
+                      <p className={styles.dropdownEmail}>{customer.email}</p>
+                    </div>
+                    <button
+                      className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
+                      onClick={() => { logoutCustomer(); setDropdownOpen(false) }}
+                    >
+                      → Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className={`${styles.signInLink} ${isDarkHero ? styles.signInLight : styles.signInDark}`}
+              >
+                Sign In
+              </Link>
+            )}
+
             <Link
               to="/admin"
               className={`${styles.workspaceLink} ${isDarkHero ? styles.workspaceLight : styles.workspaceDark}`}

@@ -160,3 +160,93 @@
   cursor: pointer;
 }
 @media (min-width: 768px) { .hamburger { display: none; } }
+
+/* ── Customer account ── */
+.signInLink {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transition: color 0.2s;
+  padding: 0.5rem 0;
+}
+.signInLight { color: rgba(255,255,255,0.65); }
+.signInDark  { color: #6b7280; }
+.signInLink:hover { color: var(--brand); }
+
+.customerAvatar {
+  position: relative;
+}
+.avatarBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  border-radius: 9999px;
+  transition: background 0.2s;
+}
+.avatarBtn:hover { background: rgba(0,0,0,0.06); }
+.avatarCircle {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.avatarName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.avatarNameLight { color: rgba(255,255,255,0.85); }
+.avatarNameDark  { color: var(--dark); }
+
+.avatarDropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: #fff;
+  border: 1px solid #f3f4f6;
+  border-radius: 1rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  min-width: 180px;
+  overflow: hidden;
+  z-index: 100;
+}
+.dropdownHeader {
+  padding: 0.875rem 1rem 0.625rem;
+  border-bottom: 1px solid #f9fafb;
+}
+.dropdownName { font-weight: 700; font-size: 0.875rem; color: var(--dark); }
+.dropdownEmail { font-size: 0.6875rem; color: #9ca3af; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  transition: background 0.15s;
+  text-align: left;
+}
+.dropdownItem:hover { background: #f9fafb; }
+.dropdownItemDanger { color: #ef4444; }
+.dropdownItemDanger:hover { background: #fef2f2; }

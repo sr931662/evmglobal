@@ -236,6 +236,31 @@ export default function About() {
         </div>
       </section>
 
+      {/* Legal entity strip */}
+      <section className={styles.legalStrip}>
+        <div className={styles.sectionInner}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className={styles.legalStripInner}
+          >
+            <span className={styles.legalBadge}>
+              <span className={styles.legalBadgeLabel}>CIN</span>
+              U72900WB2022PTC254985
+            </span>
+            <span className={styles.legalDivider} />
+            <span className={styles.legalBadge}>
+              <span className={styles.legalBadgeLabel}>GST</span>
+              19AAHCE1058Q2Z2
+            </span>
+            <span className={styles.legalDivider} />
+            <span className={styles.legalNote}>Ease My Vacations Global Private Limited · Registered in India</span>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Road ahead */}
       <section className={styles.roadSection}>
         <div className={styles.sectionInner}>

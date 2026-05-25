@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 
 import { useLenis } from './hooks/useLenis'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { CustomerAuthProvider } from './context/CustomerAuthContext'
+import CustomerLogin from './pages/CustomerLogin/CustomerLogin'
 import Navbar from './components/layout/Navbar/Navbar'
 import Footer from './components/layout/Footer/Footer'
 import Loader from './components/layout/Loader/Loader'
@@ -72,6 +74,7 @@ function AnimatedRoutes() {
           <Route path="/blog"                      element={<Blog />} />
           <Route path="/careers"                   element={<Careers />} />
           <Route path="/contact"                   element={<Contact />} />
+          <Route path="/login"                     element={<CustomerLogin />} />
           <Route path="/admin/login"               element={user ? <Navigate to="/admin" replace /> : <AdminLogin onSuccess={() => {}} />} />
           <Route path="/admin"                     element={<ProtectedAdmin />} />
         </Routes>
@@ -105,7 +108,9 @@ export default function App() {
   return (
     <HashRouter>
       <AuthProvider>
-        <AppShell />
+        <CustomerAuthProvider>
+          <AppShell />
+        </CustomerAuthProvider>
       </AuthProvider>
     </HashRouter>
   )

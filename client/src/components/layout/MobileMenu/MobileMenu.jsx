@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FaTimes } from 'react-icons/fa'
 import { openWhatsApp } from '../../../utils/whatsapp'
+import { useCustomerAuth } from '../../../context/CustomerAuthContext'
 import styles from './MobileMenu.module.css'
 
 const links = [
@@ -24,6 +25,8 @@ const WA_ICON = (
 )
 
 export default function MobileMenu({ open, onClose }) {
+  const { customer, logoutCustomer } = useCustomerAuth()
+
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -65,6 +68,24 @@ export default function MobileMenu({ open, onClose }) {
               <span className={styles.waIcon}>{WA_ICON}</span>
               Chat on WhatsApp
             </button>
+            {customer ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', padding: '0 0.5rem' }}>
+                  Signed in as {customer.name.split(' ')[0]}
+                </p>
+                <button
+                  onClick={() => { logoutCustomer(); onClose() }}
+                  className={styles.adminLink}
+                  style={{ cursor: 'pointer', background: 'none', border: 'none' }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" onClick={onClose} className={styles.adminLink}>
+                Sign In / Join Free
+              </Link>
+            )}
             <Link to="/admin" onClick={onClose} className={styles.adminLink}>
               Admin Workspace
             </Link>
