@@ -54,6 +54,7 @@ export default function PackageDetails() {
     ? pkg.exclusions
     : ['Visa fees & processing', 'City taxes (payable at hotel)', 'Personal expenses & shopping', 'Tips & gratuities']
   const itinerary    = Array.isArray(pkg.itinerary)    ? pkg.itinerary    : []
+  const notes        = Array.isArray(pkg.notes) && pkg.notes.length ? pkg.notes : []
   const heroImage    = pkg.image || FALLBACK_IMAGE
 
   return (
@@ -186,9 +187,9 @@ export default function PackageDetails() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                           </svg>
                         </summary>
-                        {Array.isArray(day.activities) && day.activities.length > 0 && (
+                        {(Array.isArray(day.activities) && day.activities.length > 0 || day.note || day.hotel?.name) && (
                           <div className={styles.dayBody}>
-                            {day.activities.map((act, ai) => (
+                            {Array.isArray(day.activities) && day.activities.map((act, ai) => (
                               <div key={ai} className={styles.activity}>
                                 <span className={styles.actIcon}>{act.icon || '📍'}</span>
                                 <div>
@@ -197,6 +198,25 @@ export default function PackageDetails() {
                                 </div>
                               </div>
                             ))}
+                            {day.hotel?.name && (
+                              <div className={styles.dayHotel}>
+                                <span className={styles.dayHotelIcon}>🏨</span>
+                                <div className={styles.dayHotelInfo}>
+                                  <p className={styles.dayHotelName}>{day.hotel.name}{day.hotel.roomType ? ` — ${day.hotel.roomType}` : ''}</p>
+                                  {(day.hotel.checkIn || day.hotel.checkOut) && (
+                                    <p className={styles.dayHotelMeta}>
+                                      {[day.hotel.checkIn && `Check-in: ${day.hotel.checkIn}`, day.hotel.checkOut && `Check-out: ${day.hotel.checkOut}`].filter(Boolean).join(' · ')}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                            {day.note && (
+                              <div className={styles.dayNote}>
+                                <span className={styles.dayNoteIcon}>📝</span>
+                                <p className={styles.dayNoteText}>{day.note}</p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </details>
@@ -245,6 +265,26 @@ export default function PackageDetails() {
                     </motion.div>
                   )}
                 </div>
+              </motion.div>
+            )}
+            {/* Important Notes */}
+            {notes.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.33,1,0.68,1] }}
+                className={styles.notesCard}
+              >
+                <h3 className={styles.notesTitle}>📋 Important Notes</h3>
+                <ul className={styles.notesList}>
+                  {notes.map((note, i) => (
+                    <li key={i} className={styles.notesItem}>
+                      <span className={styles.notesBullet} />
+                      {note}
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
             )}
           </div>

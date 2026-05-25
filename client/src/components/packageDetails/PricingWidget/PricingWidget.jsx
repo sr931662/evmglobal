@@ -2,15 +2,16 @@ import { motion } from 'framer-motion'
 import { openWhatsApp } from '../../../utils/whatsapp'
 import styles from './PricingWidget.module.css'
 
-const breakdown = [
-  { label: 'Flights',   value: 'Included', icon: '✈' },
-  { label: 'Hotels',    value: 'Premium',  icon: '🏨' },
-  { label: 'Transfers', value: 'Private',  icon: '🚗' },
-]
-
 export default function PricingWidget({ pkg }) {
   const price = pkg?.price || '—'
   const title = pkg?.title || 'Package'
+  const hasFlights = Array.isArray(pkg?.flights) && pkg.flights.length > 0
+
+  const breakdown = [
+    ...(hasFlights ? [{ label: 'Flights', value: 'Included', icon: '✈' }] : []),
+    { label: 'Hotels',    value: 'Premium', icon: '🏨' },
+    { label: 'Transfers', value: 'Private', icon: '🚗' },
+  ]
 
   return (
     <motion.div

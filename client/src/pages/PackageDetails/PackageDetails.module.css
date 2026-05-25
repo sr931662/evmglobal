@@ -380,3 +380,73 @@ details[open] .dayChevron { transform: rotate(180deg); }
   transition: background-color 0.2s;
 }
 .itinLockBtn:hover { background: #c62828; }
+
+/* Day note box */
+.dayNote {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 1rem;
+  padding: 0.875rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}
+.dayNoteIcon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+.dayNoteText { color: #92400e; font-size: 0.9375rem; font-weight: 500; line-height: 1.55; }
+
+/* Hotel strip inside day accordion */
+.dayHotel {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 1rem;
+  padding: 0.875rem 1.25rem;
+  margin-top: 0.5rem;
+}
+.dayHotelIcon { font-size: 1.125rem; flex-shrink: 0; }
+.dayHotelInfo { flex: 1; min-width: 0; }
+.dayHotelName { font-weight: 700; color: #0c4a6e; font-size: 0.9375rem; }
+.dayHotelMeta { color: #0369a1; font-size: 0.8125rem; font-weight: 500; margin-top: 2px; }
+
+/* Important notes section */
+.notesCard {
+  background: #fffbeb;
+  border-radius: 3rem;
+  padding: 3rem;
+  border: 1px solid #fde68a;
+  box-shadow: var(--shadow-glass);
+  margin-top: 3rem;
+}
+@media (min-width: 768px) { .notesCard { padding: 4rem; } }
+.notesTitle {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 2rem;
+  letter-spacing: -0.025em;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+.notesList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.25rem; }
+.notesItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  color: #78350f;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.notesBullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d97706;
+  flex-shrink: 0;
+  margin-top: 8px;
+}

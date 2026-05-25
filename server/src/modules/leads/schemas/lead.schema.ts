@@ -18,7 +18,7 @@ export const LeadSchema = new Schema(
     status: {
       type: String,
       default: 'new',
-      enum: ['new', 'contacted', 'qualified', 'converted', 'rejected'],
+      enum: ['new', 'contacted', 'qualified', 'converted', 'rejected', 'duplicate', 'not_interested'],
     },
   },
   {

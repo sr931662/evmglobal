@@ -11,7 +11,7 @@ const HotelSchema = new Schema(
 );
 
 const DaySchema = new Schema(
-  { day: { type: Number }, title: { type: String, default: '' }, activities: { type: [ActivitySchema], default: [] }, hotel: { type: HotelSchema, default: null } },
+  { day: { type: Number }, title: { type: String, default: '' }, note: { type: String, default: '' }, activities: { type: [ActivitySchema], default: [] }, hotel: { type: HotelSchema, default: null } },
   { _id: false }
 );
 
@@ -40,6 +40,7 @@ export const PackageSchema = new Schema(
     destinations: [{ type: String }],
     inclusions:   [{ type: String }],
     exclusions:   [{ type: String }],
+    notes:        [{ type: String }],
     itinerary:    { type: [DaySchema], default: [] },
     flights:      { type: [FlightSchema], default: [] },
     status:       { type: String, default: 'Active', enum: ['Active', 'Draft'] },

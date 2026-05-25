@@ -2,16 +2,18 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 
-const STATUS_OPTIONS  = ['All', 'new', 'contacted', 'qualified', 'converted', 'rejected']
+const STATUS_OPTIONS  = ['All', 'new', 'contacted', 'qualified', 'converted', 'rejected', 'duplicate', 'not_interested']
 const STATUS_EDITABLE = STATUS_OPTIONS.slice(1)
 const TYPE_TABS       = ['all', 'lead', 'inquiry']
 
 const statusStyles = {
-  new:       { pill: 'bg-blue-50 text-blue-700 border-blue-200',    dot: 'bg-blue-500'    },
-  contacted: { pill: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500'   },
-  qualified: { pill: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
-  converted: { pill: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-  rejected:  { pill: 'bg-red-50 text-red-500 border-red-200',       dot: 'bg-red-400'     },
+  new:           { pill: 'bg-blue-50 text-blue-700 border-blue-200',       dot: 'bg-blue-500'    },
+  contacted:     { pill: 'bg-amber-50 text-amber-700 border-amber-200',    dot: 'bg-amber-500'   },
+  qualified:     { pill: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500'  },
+  converted:     { pill: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+  rejected:      { pill: 'bg-red-50 text-red-500 border-red-200',          dot: 'bg-red-400'     },
+  duplicate:     { pill: 'bg-gray-100 text-gray-500 border-gray-200',      dot: 'bg-gray-400'    },
+  not_interested:{ pill: 'bg-orange-50 text-orange-600 border-orange-200', dot: 'bg-orange-400'  },
 }
 
 const typeConfig = {
@@ -45,6 +47,7 @@ function StatusBadge({ lead, onUpdate }) {
   }
 
   const style = statusStyles[lead.status] || { pill: 'bg-gray-50 text-gray-500 border-gray-200', dot: 'bg-gray-400' }
+  const fmtStatus = (s) => s.replace(/_/g, ' ')
 
   return (
     <div ref={ref} className="relative inline-block">
@@ -54,7 +57,7 @@ function StatusBadge({ lead, onUpdate }) {
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black border uppercase tracking-[0.15em] transition-opacity ${style.pill} ${saving ? 'opacity-50' : 'hover:opacity-75 cursor-pointer'}`}
       >
         <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-        {saving ? '…' : lead.status}
+        {saving ? '…' : fmtStatus(lead.status)}
         <span className="text-[8px] opacity-50">▾</span>
       </button>
 
@@ -76,7 +79,7 @@ function StatusBadge({ lead, onUpdate }) {
                   className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold capitalize hover:bg-gray-50 transition-colors text-left ${s === lead.status ? 'text-brand' : 'text-dark'}`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${st.dot}`} />
-                  {s}
+                  {s.replace(/_/g, ' ')}
                   {s === lead.status && <span className="ml-auto text-brand">✓</span>}
                 </button>
               )
@@ -217,7 +220,7 @@ function LeadModal({ lead, onClose, onSave }) {
               onChange={e => f('status', e.target.value)}
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors capitalize cursor-pointer"
             >
-              {STATUS_EDITABLE.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+              {STATUS_EDITABLE.map(s => <option key={s} value={s} className="capitalize">{s.replace(/_/g, ' ')}</option>)}
             </select>
           </div>
         </div>

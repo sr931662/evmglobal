@@ -18,7 +18,7 @@ export class PackagesService {
     const filter: any = {};
     if (query.category)    filter.category = query.category;
     if (query.status)      filter.status   = query.status;
-    if (query.destination) filter.destinations = { $regex: `^${query.destination}$`, $options: 'i' };
+    if (query.destination) filter.destinations = { $regex: query.destination, $options: 'i' };
     if (query.search) {
       filter.$or = [
         { title:        { $regex: query.search, $options: 'i' } },

@@ -19,11 +19,11 @@ const categoryColors = {
 const emptyActivity = () => ({ time: '', description: '', icon: '📍' })
 const emptyHotel    = () => ({ name: '', roomType: '', checkIn: '', checkOut: '' })
 const emptyFlight   = () => ({ type: 'Departure', airline: '', flightNumber: '', from: '', to: '', date: '', time: '' })
-const emptyDay      = (n) => ({ day: n, title: '', activities: [emptyActivity()], hotel: emptyHotel() })
+const emptyDay      = (n) => ({ day: n, title: '', note: '', activities: [emptyActivity()], hotel: emptyHotel() })
 const emptyForm     = () => ({
   title: '', category: 'Honeymoon', nights: '', price: '', priceValue: '',
   description: '', destinations: '', highlights: '', image: '', status: 'Active',
-  inclusions: [''], exclusions: [''], itinerary: [], flights: [],
+  inclusions: [''], exclusions: [''], notes: [''], itinerary: [], flights: [],
 })
 
 // ── Small reusable input ──────────────────────────────────────────────────────
@@ -286,6 +286,18 @@ function ItineraryBuilder({ itinerary, onChange }) {
               + Add Activity
             </button>
           </div>
+
+          {/* Day note */}
+          <div className="px-4 pb-4">
+            <label className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1 block">📝 Day Note (optional)</label>
+            <textarea
+              value={day.note || ''}
+              onChange={e => updateDay(di, 'note', e.target.value)}
+              placeholder="Special instructions or notes for this day…"
+              rows={2}
+              className="w-full bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-dark font-medium text-xs focus:outline-none focus:border-amber-400 transition-colors resize-none placeholder:text-amber-300"
+            />
+          </div>
         </div>
       ))}
 
@@ -411,6 +423,14 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
                 placeholder="e.g. Visa fees & processing"
                 accentClass="bg-red-50 text-red-600 border border-red-100 hover:bg-red-100"
               />
+              <div className="border-t border-gray-100" />
+              <ListEditor
+                label="Important Notes"
+                items={form.notes}
+                onChange={v => f('notes', v)}
+                placeholder="e.g. Carry valid photo ID at all times"
+                accentClass="bg-amber-50 text-amber-700 border border-amber-100 hover:bg-amber-100"
+              />
             </div>
           )}
         </div>
@@ -484,9 +504,11 @@ export default function AdminPackagesPage() {
       status:       pkg.status       || 'Active',
       inclusions:   Array.isArray(pkg.inclusions) && pkg.inclusions.length ? pkg.inclusions : [''],
       exclusions:   Array.isArray(pkg.exclusions) && pkg.exclusions.length ? pkg.exclusions : [''],
+      notes:        Array.isArray(pkg.notes)      && pkg.notes.length      ? pkg.notes      : [''],
       itinerary:    Array.isArray(pkg.itinerary)  ? pkg.itinerary.map(d => ({
         day:        d.day,
         title:      d.title || '',
+        note:       d.note  || '',
         activities: Array.isArray(d.activities) ? d.activities.map(a => ({
           time: a.time || '', description: a.description || '', icon: a.icon || '📍',
         })) : [emptyActivity()],
@@ -519,9 +541,11 @@ export default function AdminPackagesPage() {
         status:       form.status,
         inclusions:   form.inclusions.filter(s => s.trim()),
         exclusions:   form.exclusions.filter(s => s.trim()),
+        notes:        form.notes.filter(s => s.trim()),
         itinerary:    form.itinerary.map(d => ({
           day:        d.day,
           title:      d.title.trim(),
+          note:       (d.note || '').trim(),
           activities: d.activities.filter(a => a.description.trim()).map(a => ({
             time:        a.time.trim(),
             description: a.description.trim(),
