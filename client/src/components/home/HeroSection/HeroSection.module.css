@@ -12,8 +12,8 @@
      would push the badge into the fixed navbar. This padding reserves
      space for the navbar at the top and keeps content visually centered
      within the remaining room. */
-  padding-top: clamp(4rem, 10svh, 7rem);
-  padding-bottom: clamp(3rem, 6svh, 5rem);
+  padding-top: clamp(6rem, 14svh, 9rem);
+  padding-bottom: clamp(2rem, 5svh, 4rem);
   box-sizing: border-box;
 }
 
@@ -49,10 +49,9 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-top: 1.5rem;
 }
 @media (min-width: 640px)  { .content { padding: 0 2rem; } }
-@media (min-width: 1024px) { .content { padding: 0 3rem; margin-top: 2.5rem; } }
+@media (min-width: 1024px) { .content { padding: 0 3rem; } }
 
 /* ── Badge ── */
 .badge {
