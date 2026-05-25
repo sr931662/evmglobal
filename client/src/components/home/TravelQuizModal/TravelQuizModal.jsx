@@ -63,6 +63,31 @@ const ICON_ORIGINS = [
   { x: -70, y:  20 }, { x: 70, y:  20 },
 ]
 
+// ─── FAB background detection — swaps light/dark theme on scroll ─────────────
+
+function useFabTheme() {
+  const [dark, setDark] = useState(true)
+  useEffect(() => {
+    const check = () => {
+      // Sample the pixel behind the FAB (bottom-right corner)
+      const x = window.innerWidth  - 80
+      const y = window.innerHeight - 60
+      const el = document.elementFromPoint(x, y)
+      if (!el) return
+      const bg = window.getComputedStyle(el).backgroundColor
+      const m  = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+      if (m) {
+        const luma = 0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3]
+        setDark(luma < 160)
+      }
+    }
+    check()
+    window.addEventListener('scroll', check, { passive: true })
+    return () => window.removeEventListener('scroll', check)
+  }, [])
+  return dark
+}
+
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
 function useIsMobile() {
@@ -406,7 +431,8 @@ function StepQuestion({ stepKey, isMobile }) {
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
 export default function TravelQuizModal() {
-  const isMobile = useIsMobile()
+  const isMobile  = useIsMobile()
+  const fabIsDark = useFabTheme()
 
   const [open,    setOpen]    = useState(false)
   const [step,    setStep]    = useState(0)
@@ -530,27 +556,68 @@ export default function TravelQuizModal() {
             transition={{ delay: 3.5, duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
             style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 40 }}
           >
+            {/* Pulse rings */}
             {[0, 1, 2].map(i => (
               <motion.div
                 key={i}
-                className="absolute inset-0 rounded-full border border-brand"
+                style={{
+                  position: 'absolute', inset: 0, borderRadius: 9999,
+                  border: '1px solid #E53935',
+                  pointerEvents: 'none',
+                }}
                 animate={{ scale: [1, 2.6], opacity: [0.5, 0] }}
                 transition={{ duration: 2.4, delay: i * 0.75, repeat: Infinity, ease: 'easeOut' }}
               />
             ))}
+
             <motion.button
               onClick={openModal}
               whileHover={{ scale: 1.07 }}
               whileTap={{ scale: 0.93 }}
-              className="relative flex items-center gap-2.5 bg-dark/92 backdrop-blur-xl text-white pl-4 pr-5 py-3 rounded-full border border-white/15 shadow-glass-dark hover:border-brand/50 transition-colors duration-300"
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.625rem',
+                paddingLeft: '1rem',
+                paddingRight: '1.25rem',
+                paddingTop: '0.75rem',
+                paddingBottom: '0.75rem',
+                borderRadius: 9999,
+                border: fabIsDark
+                  ? '1px solid rgba(255,255,255,0.18)'
+                  : '1px solid rgba(0,0,0,0.12)',
+                background: fabIsDark
+                  ? 'rgba(10,10,10,0.92)'
+                  : 'rgba(255,255,255,0.96)',
+                color: fabIsDark ? '#fff' : '#0a0a0a',
+                boxShadow: fabIsDark
+                  ? '0 8px 32px rgba(0,0,0,0.45)'
+                  : '0 8px 32px rgba(0,0,0,0.18)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                cursor: 'pointer',
+                transition: 'background 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease',
+                willChange: 'transform',
+                whiteSpace: 'nowrap',
+              }}
             >
-              <span className="relative flex h-2.5 w-2.5 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand" />
+              {/* Live dot */}
+              <span style={{ position: 'relative', display: 'flex', width: 10, height: 10, flexShrink: 0 }}>
+                <span
+                  style={{
+                    position: 'absolute', inset: 0, borderRadius: '50%',
+                    background: '#E53935', opacity: 0.75,
+                    animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite',
+                  }}
+                />
+                <span style={{ position: 'relative', width: 10, height: 10, borderRadius: '50%', background: '#E53935', display: 'inline-flex' }} />
               </span>
-              <span className="font-bold text-sm tracking-wide whitespace-nowrap">Plan My Trip</span>
+
+              <span style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.02em' }}>Plan My Trip</span>
+
               <motion.svg
-                className="w-3.5 h-3.5 text-brand"
+                style={{ width: 14, height: 14, color: '#E53935', flexShrink: 0 }}
                 fill="none" viewBox="0 0 24 24" stroke="currentColor"
                 animate={{ x: [0, 3, 0] }}
                 transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
@@ -886,6 +953,7 @@ export default function TravelQuizModal() {
                               </label>
                               <input
                                 type={type}
+                                className="quiz-input"
                                 autoComplete={key}
                                 value={contact[key]}
                                 onChange={e => setContact(p => ({ ...p, [key]: e.target.value }))}
@@ -897,6 +965,7 @@ export default function TravelQuizModal() {
                                   borderRadius: '1rem',
                                   padding: '0.875rem 1rem',
                                   color: '#fff',
+                                  WebkitTextFillColor: '#fff',
                                   fontWeight: 600,
                                   fontSize: '0.9375rem',
                                   outline: 'none',
@@ -988,9 +1057,16 @@ export default function TravelQuizModal() {
         )}
       </AnimatePresence>
 
-      {/* Global input placeholder colour for this modal */}
       <style>{`
-        .quiz-input::placeholder { color: rgba(255,255,255,0.38); }
+        .quiz-input::placeholder { color: rgba(255,255,255,0.38) !important; }
+        .quiz-input:-webkit-autofill,
+        .quiz-input:-webkit-autofill:hover,
+        .quiz-input:-webkit-autofill:focus {
+          -webkit-text-fill-color: #fff !important;
+          -webkit-box-shadow: 0 0 0 1000px rgba(30,10,10,0.95) inset !important;
+          transition: background-color 9999s ease-in-out 0s;
+          caret-color: #E53935;
+        }
       `}</style>
     </>
   )
