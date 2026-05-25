@@ -8,6 +8,13 @@
   justify-content: center;
   overflow: hidden;
   background: var(--dark);
+  /* Guard: at high zoom levels the viewport shrinks and flex-center
+     would push the badge into the fixed navbar. This padding reserves
+     space for the navbar at the top and keeps content visually centered
+     within the remaining room. */
+  padding-top: clamp(4rem, 10svh, 7rem);
+  padding-bottom: clamp(3rem, 6svh, 5rem);
+  box-sizing: border-box;
 }
 
 .bgWrap {
