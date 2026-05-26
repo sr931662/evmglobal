@@ -24,14 +24,12 @@ export function CustomerAuthProvider({ children }) {
     localStorage.setItem('emv_quiz_done', '1')
     setCustomer(profile)
 
-    // Silently persist to server so admin can track signups by city
-    api.submitLead({
-      name:    profile.name,
-      email:   profile.email,
-      phone:   profile.phone || '0000000000',
-      city:    profile.city || undefined,
-      type:    'signup',
-      message: 'Customer sign-up via website',
+    // Persist to customers collection so admin can track all registered users
+    api.registerCustomer({
+      name:  profile.name,
+      email: profile.email,
+      phone: profile.phone || undefined,
+      city:  profile.city  || undefined,
     }).catch(() => {})
 
     return profile

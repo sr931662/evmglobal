@@ -154,6 +154,19 @@ export const api = {
   updateSettings: (data) =>
     request('/settings', { method: 'PUT', body: JSON.stringify(data) }),
 
+  // ─── Customers ─────────────────────────────────────────────────────────────
+  registerCustomer: (data) =>
+    request('/customers/register', { method: 'POST', body: JSON.stringify(data) }),
+
+  getCustomers: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+    ).toString()
+    return request(`/customers${qs ? `?${qs}` : ''}`)
+  },
+
+  getCustomerStats: () => request('/customers/stats'),
+
   // ─── Destinations ──────────────────────────────────────────────────────────
   getDestinations: (params = {}) => {
     const qs = new URLSearchParams(

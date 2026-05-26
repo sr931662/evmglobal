@@ -15,6 +15,7 @@ import { QuotesModule } from './modules/quotes/quotes.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
 import { CareersModule } from './modules/careers/careers.module';
 import { TeamModule } from './modules/team/team.module';
+import { CustomersModule } from './modules/customers/customers.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TeamModule } from './modules/team/team.module';
     BlogsModule,
     CareersModule,
     TeamModule,
+    CustomersModule,
   ],
   providers: [
     {
