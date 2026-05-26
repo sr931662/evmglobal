@@ -16,7 +16,7 @@ export default function CustomerLogin() {
   const [params]  = useSearchParams()
   const next      = params.get('next') || '/'
 
-  const [form,    setForm]    = useState({ name: '', email: '', phone: '' })
+  const [form,    setForm]    = useState({ name: '', email: '', phone: '', city: '' })
   const [error,   setError]   = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -157,6 +157,20 @@ export default function CustomerLogin() {
                 value={form.phone}
                 onChange={e => f('phone', e.target.value)}
                 autoComplete="tel"
+              />
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>
+                City <span className={styles.optionalTag}>(optional)</span>
+              </label>
+              <input
+                type="text"
+                className={styles.input}
+                placeholder="e.g. Mumbai, Delhi, Bangalore"
+                value={form.city}
+                onChange={e => f('city', e.target.value)}
+                autoComplete="address-level2"
               />
             </div>
 

@@ -124,7 +124,7 @@ export class LeadsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   async updateLead(@Param('id') id: string, @Body() body: any) {
-    const allowed = ['name', 'phone', 'email', 'message', 'status', 'destination', 'travelDate', 'travellers'];
+    const allowed = ['name', 'phone', 'email', 'message', 'city', 'status', 'destination', 'travelDate', 'travellers'];
     const data: any = {};
     allowed.forEach(k => { if (body[k] !== undefined) data[k] = body[k]; });
     const lead = await this.leadsService.updateLead(id, data);

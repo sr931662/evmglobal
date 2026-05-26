@@ -14,13 +14,67 @@ const NAV_LINKS = [
   ['Contact',      '/contact'],
 ]
 
+function EditProfileModal({ customer, onSave, onClose }) {
+  const [form, setForm] = useState({
+    name:  customer.name  || '',
+    email: customer.email || '',
+    phone: customer.phone || '',
+    city:  customer.city  || '',
+  })
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+  const valid = form.name.trim() && form.email.trim()
+
+  return (
+    <div
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+      onClick={onClose}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: '#fff', borderRadius: '1.5rem', padding: '2rem', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
+      >
+        <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 700, fontSize: '1.375rem', color: 'var(--dark)', marginBottom: '1.5rem' }}>Edit Profile</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {[
+            { label: 'Full Name *', key: 'name',  type: 'text',  placeholder: 'Your full name',      ac: 'name' },
+            { label: 'Email *',     key: 'email', type: 'email', placeholder: 'your@email.com',       ac: 'email' },
+            { label: 'Phone',       key: 'phone', type: 'tel',   placeholder: '+91 70705 95907',      ac: 'tel' },
+            { label: 'City',        key: 'city',  type: 'text',  placeholder: 'e.g. Mumbai, Delhi',   ac: 'address-level2' },
+          ].map(({ label, key, type, placeholder, ac }) => (
+            <div key={key}>
+              <label style={{ display: 'block', fontSize: '0.625rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#374151', marginBottom: '0.375rem' }}>{label}</label>
+              <input
+                type={type}
+                value={form[key]}
+                onChange={e => f(key, e.target.value)}
+                placeholder={placeholder}
+                autoComplete={ac}
+                style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid #e5e7eb', borderRadius: '0.75rem', fontSize: '0.9375rem', color: 'var(--dark)', fontFamily: 'inherit', fontWeight: 500, outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '0.875rem', border: '1px solid #e5e7eb', borderRadius: '9999px', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', background: 'none', color: '#6b7280' }}>
+            Cancel
+          </button>
+          <button onClick={() => { onSave(form); onClose() }} disabled={!valid} style={{ flex: 1, padding: '0.875rem', background: 'var(--brand)', border: 'none', borderRadius: '9999px', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', color: '#fff', opacity: valid ? 1 : 0.5 }}>
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Navbar() {
-  const [scrolled,     setScrolled]     = useState(false)
-  const [menuOpen,     setMenuOpen]     = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [scrolled,      setScrolled]      = useState(false)
+  const [menuOpen,      setMenuOpen]      = useState(false)
+  const [dropdownOpen,  setDropdownOpen]  = useState(false)
+  const [editProfile,   setEditProfile]   = useState(false)
   const dropdownRef = useRef(null)
   const location = useLocation()
-  const { customer, logoutCustomer } = useCustomerAuth()
+  const { customer, logoutCustomer, updateCustomer } = useCustomerAuth()
 
   /* Close avatar dropdown on outside click */
   useEffect(() => {
@@ -53,7 +107,6 @@ export default function Navbar() {
 
   const scrolledBg = isDarkHero ? 'rgba(10,10,10,0.85)' : 'rgba(255,255,255,0.97)'
 
-  /* Hamburger button gets a light colour on dark-hero pages */
   const hamburgerStyle = isDarkHero && !scrolled
     ? { color: '#fff', background: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.2)' }
     : {}
@@ -76,14 +129,14 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop nav pill — only visible ≥ 1100 px */}
+          {/* Desktop nav pill */}
           <nav className={styles.navPill} aria-label="Main navigation">
             {NAV_LINKS.map(([label, path]) => (
               <Link key={path} to={path} className={styles.navLink}>{label}</Link>
             ))}
           </nav>
 
-          {/* Desktop actions — only visible ≥ 1100 px */}
+          {/* Desktop actions */}
           <div className={styles.actions}>
             {customer ? (
               <div className={styles.customerAvatar} ref={dropdownRef}>
@@ -105,7 +158,14 @@ export default function Navbar() {
                     <div className={styles.dropdownHeader}>
                       <p className={styles.dropdownName}>{customer.name}</p>
                       <p className={styles.dropdownEmail}>{customer.email}</p>
+                      {customer.city && <p className={styles.dropdownEmail}>📍 {customer.city}</p>}
                     </div>
+                    <button
+                      className={styles.dropdownItem}
+                      onClick={() => { setDropdownOpen(false); setEditProfile(true) }}
+                    >
+                      ✏ Edit Profile
+                    </button>
                     <button
                       className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
                       onClick={() => { logoutCustomer(); setDropdownOpen(false) }}
@@ -145,8 +205,7 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Hamburger — visible below 1100 px (all zoom levels that
-              lack space for the full desktop nav)                      */}
+          {/* Hamburger */}
           <button
             className={styles.hamburger}
             style={hamburgerStyle}
@@ -160,6 +219,14 @@ export default function Navbar() {
       </nav>
 
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+
+      {editProfile && customer && (
+        <EditProfileModal
+          customer={customer}
+          onSave={updateCustomer}
+          onClose={() => setEditProfile(false)}
+        />
+      )}
     </>
   )
 }

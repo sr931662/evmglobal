@@ -4,7 +4,7 @@ import { api } from '../../../services/api'
 
 const STATUS_OPTIONS  = ['All', 'new', 'contacted', 'qualified', 'converted', 'rejected', 'duplicate', 'not_interested']
 const STATUS_EDITABLE = STATUS_OPTIONS.slice(1)
-const TYPE_TABS       = ['all', 'lead', 'inquiry']
+const TYPE_TABS       = ['all', 'lead', 'inquiry', 'signup']
 
 const statusStyles = {
   new:           { pill: 'bg-blue-50 text-blue-700 border-blue-200',       dot: 'bg-blue-500'    },
@@ -331,6 +331,12 @@ function DetailDrawer({ lead, onClose, onEdit, onDelete, onStatusUpdate, onWhats
                 <div className="flex items-center gap-3">
                   <span className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center text-sm shrink-0">✉</span>
                   <span className="font-medium text-dark text-sm">{lead.email}</span>
+                </div>
+              )}
+              {lead.city && (
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center text-sm shrink-0">📍</span>
+                  <span className="font-medium text-dark text-sm">{lead.city}</span>
                 </div>
               )}
             </div>

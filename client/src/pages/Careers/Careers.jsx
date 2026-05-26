@@ -4,6 +4,44 @@ import { openWhatsApp } from '../../utils/whatsapp'
 import { api } from '../../services/api'
 import styles from './Careers.module.css'
 
+function RichText({ text, className }) {
+  if (!text) return null
+  const lines = text.split('\n')
+  const elements = []
+  let listItems = []
+
+  const flushList = () => {
+    if (listItems.length) {
+      elements.push(
+        <ul key={`ul-${elements.length}`} className={styles.descList}>
+          {listItems.map((li, i) => <li key={i} className={styles.descListItem}>{li}</li>)}
+        </ul>
+      )
+      listItems = []
+    }
+  }
+
+  lines.forEach((line, i) => {
+    if (line.startsWith('## ')) {
+      flushList()
+      elements.push(<h4 key={i} className={styles.descHeading}>{line.slice(3)}</h4>)
+    } else if (line.startsWith('# ')) {
+      flushList()
+      elements.push(<h3 key={i} className={styles.descHeadingLg}>{line.slice(2)}</h3>)
+    } else if (line.startsWith('- ') || line.startsWith('• ')) {
+      listItems.push(line.slice(2))
+    } else if (line.trim() === '') {
+      flushList()
+    } else {
+      flushList()
+      elements.push(<p key={i} className={styles.descPara}>{line}</p>)
+    }
+  })
+  flushList()
+
+  return <div className={className}>{elements}</div>
+}
+
 const values = [
   { icon: '✦', title: 'People First', desc: 'Our team is our greatest asset. We invest in growth, wellbeing, and creating an environment where everyone thrives.' },
   { icon: '◎', title: 'Ownership Mindset', desc: 'Every team member takes full ownership of their work — we move fast, iterate, and celebrate wins together.' },
@@ -157,7 +195,7 @@ export default function Careers() {
                         <span className={styles.jobLocation}>📍 {job.location}</span>
                       </div>
                       <h3 className={styles.jobTitle}>{job.title}</h3>
-                      <p className={styles.jobDesc}>{job.description}</p>
+                      <RichText text={job.description} className={styles.jobDesc} />
                       {job.requirements?.length > 0 && (
                         <div>
                           <p className={styles.reqLabel}>Requirements</p>

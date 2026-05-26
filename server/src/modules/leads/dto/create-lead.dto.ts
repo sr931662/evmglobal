@@ -29,8 +29,9 @@ export const createLeadSchema = Joi.object({
     .max(1000)
     .allow('', null)
     .optional(),
+  city: Joi.string().max(100).allow('', null).optional(),
   type: Joi.string()
-    .valid('lead', 'inquiry')
+    .valid('lead', 'inquiry', 'signup')
     .default('lead')
     .optional(),
   destination: Joi.string().max(200).allow('', null).optional(),

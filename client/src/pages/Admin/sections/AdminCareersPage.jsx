@@ -102,10 +102,13 @@ function CareerModal({ job, onClose, onSave }) {
           </div>
 
           <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Description <span className="text-brand">*</span></label>
-            <textarea rows={4} value={form.description} onChange={e => f('description', e.target.value)}
-              placeholder="Describe the role, responsibilities and team…"
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-brand transition-colors resize-none" />
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">Description <span className="text-brand">*</span></label>
+              <span className="text-[9px] text-gray-400 font-medium">Use ## for heading, - for bullet points</span>
+            </div>
+            <textarea rows={5} value={form.description} onChange={e => f('description', e.target.value)}
+              placeholder={"Describe the role and responsibilities…\n\n## Responsibilities\n- Manage client relationships\n- Coordinate with operations team"}
+              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-brand transition-colors resize-none font-mono" />
           </div>
 
           <div>

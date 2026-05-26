@@ -6,11 +6,12 @@ export const LeadSchema = new Schema(
     phone: { type: String, required: true, trim: true },
     email: { type: String, trim: true, lowercase: true, default: null },
     message: { type: String, default: null },
+    city:    { type: String, default: null },
     file_url: { type: String, default: null },
     type: {
       type: String,
       default: 'lead',
-      enum: ['lead', 'inquiry'],
+      enum: ['lead', 'inquiry', 'signup'],
     },
     destination: { type: String, default: null },
     travelDate: { type: String, default: null },
