@@ -74,11 +74,16 @@ export class LeadsController {
     // Create lead
     const lead = await this.leadsService.createLead(leadData);
 
-    // Send email notification (do not fail request if email fails)
+    // Send notifications (do not fail the request if email fails)
     try {
       await this.emailService.sendLeadNotification(lead);
     } catch (emailError) {
-      this.logger.error(`Email notification failed for lead ${lead.id}: ${emailError.message}`);
+      this.logger.error(`Admin notification failed for lead ${lead.id}: ${emailError.message}`);
+    }
+    try {
+      await this.emailService.sendLeadConfirmation(lead);
+    } catch (emailError) {
+      this.logger.error(`Confirmation email failed for lead ${lead.id}: ${emailError.message}`);
     }
 
     return {

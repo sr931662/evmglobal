@@ -100,50 +100,157 @@ export class EmailService {
   }
 
   async sendLeadNotification(lead) {
+    const isQuizLead = lead.type === 'lead' && (lead.destination || lead.travellers || lead.travelDate);
+    const subject = isQuizLead
+      ? `✈️ New Trip Request: ${lead.name} → ${lead.destination || 'Any'}`
+      : `New Lead: ${lead.name}`;
     const html = this.buildLeadNotificationTemplate(lead);
-    await this.send({
-      to: this.adminEmail,
-      subject: `New Lead: ${lead.name}`,
-      html,
-    });
+    await this.send({ to: this.adminEmail, subject, html });
     this.logger.log(`Lead notification sent for lead ID: ${lead.id}`);
   }
 
-  /**
-   * Builds HTML email template for lead notification.
-   * You can replace this with a templating engine (Handlebars, etc.).
-   *
-   * @param {Object} lead
-   * @returns {string} HTML string
-   */
+  async sendLeadConfirmation(lead) {
+    if (!lead.email) return;
+    const html = this.buildLeadConfirmationTemplate(lead);
+    await this.send({
+      to: lead.email,
+      subject: '✈️ Your trip request has been received — EMV Global',
+      html,
+    });
+    this.logger.log(`Confirmation email sent to ${lead.email} for lead ID: ${lead.id}`);
+  }
+
   buildLeadNotificationTemplate(lead) {
+    const tripRows = [
+      lead.destination && `<tr><td><strong>🌍 Destination</strong></td><td>${this.escapeHtml(lead.destination)}</td></tr>`,
+      lead.travelDate  && `<tr><td><strong>📅 Travel Date</strong></td><td>${this.escapeHtml(lead.travelDate)}</td></tr>`,
+      lead.travellers  && `<tr><td><strong>👥 Travellers</strong></td><td>${this.escapeHtml(lead.travellers)}</td></tr>`,
+    ].filter(Boolean).join('');
+
     return `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <style>
-          body { font-family: Arial, sans-serif; color: #333; }
-          .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
-          h2 { color: #2c3e50; }
+          body { font-family: Arial, sans-serif; background: #f7f8fa; margin: 0; padding: 0; }
+          .wrap { max-width: 600px; margin: 32px auto; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
+          .header { background: #E53935; padding: 28px 32px; }
+          .header h1 { color: #fff; margin: 0; font-size: 20px; font-family: Georgia, serif; }
+          .header p { color: rgba(255,255,255,0.8); margin: 4px 0 0; font-size: 13px; }
+          .body { padding: 28px 32px; }
+          .section-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: #9ca3af; margin: 20px 0 8px; }
           table { width: 100%; border-collapse: collapse; }
-          th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
-          th { background-color: #f8f9fa; }
+          th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+          td:first-child { width: 40%; color: #6b7280; }
+          .badge { display: inline-block; background: #fef3f2; color: #E53935; border: 1px solid #fecaca; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
           .file-link { color: #3498db; text-decoration: none; }
+          .footer { padding: 16px 32px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #9ca3af; }
         </style>
       </head>
       <body>
-        <div class="container">
-          <h2>New Lead Received</h2>
-          <table>
-            <tr><th>Field</th><th>Details</th></tr>
-            <tr><td><strong>Name</strong></td><td>${this.escapeHtml(lead.name)}</td></tr>
-            <tr><td><strong>Phone</strong></td><td>${this.escapeHtml(lead.phone)}</td></tr>
-            <tr><td><strong>Email</strong></td><td>${lead.email ? this.escapeHtml(lead.email) : 'N/A'}</td></tr>
-            <tr><td><strong>Message</strong></td><td>${lead.message ? this.escapeHtml(lead.message) : 'N/A'}</td></tr>
-            ${lead.file_url ? `<tr><td><strong>Attachment</strong></td><td><a href="${lead.file_url}" class="file-link">View File</a></td></tr>` : ''}
-          </table>
-          <p style="color: #888; font-size: 12px;">This is an automated notification from your Lead Management System.</p>
+        <div class="wrap">
+          <div class="header">
+            <h1>New Lead Received</h1>
+            <p>${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'long', timeStyle: 'short' })} IST</p>
+          </div>
+          <div class="body">
+            <p class="section-label">Contact Details</p>
+            <table>
+              <tr><td><strong>Name</strong></td><td>${this.escapeHtml(lead.name)}</td></tr>
+              <tr><td><strong>Phone</strong></td><td>${this.escapeHtml(lead.phone)}</td></tr>
+              <tr><td><strong>Email</strong></td><td>${lead.email ? this.escapeHtml(lead.email) : '—'}</td></tr>
+              ${lead.city ? `<tr><td><strong>City</strong></td><td>${this.escapeHtml(lead.city)}</td></tr>` : ''}
+            </table>
+
+            ${tripRows ? `
+            <p class="section-label">Trip Preferences</p>
+            <table>${tripRows}</table>
+            ` : ''}
+
+            ${lead.message ? `
+            <p class="section-label">Message / Budget</p>
+            <p style="background:#f7f8fa;border-radius:8px;padding:12px 16px;font-size:14px;color:#374151;margin:0">${this.escapeHtml(lead.message)}</p>
+            ` : ''}
+
+            ${lead.file_url ? `
+            <p class="section-label">Attachment</p>
+            <p><a href="${lead.file_url}" class="file-link">View Uploaded File →</a></p>
+            ` : ''}
+
+            <p style="margin-top:24px">
+              <span class="badge">Source: Trip Planner Quiz</span>
+            </p>
+          </div>
+          <div class="footer">EMV Global · Lead Management System · Automated notification — do not reply.</div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  buildLeadConfirmationTemplate(lead) {
+    const tripRows = [
+      lead.destination && `<tr><td>🌍 Destination</td><td><strong>${this.escapeHtml(lead.destination)}</strong></td></tr>`,
+      lead.travelDate  && `<tr><td>📅 Travel Season</td><td><strong>${this.escapeHtml(lead.travelDate)}</strong></td></tr>`,
+      lead.travellers  && `<tr><td>👥 Travelling As</td><td><strong>${this.escapeHtml(lead.travellers)}</strong></td></tr>`,
+    ].filter(Boolean).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; background: #f7f8fa; margin: 0; padding: 0; }
+          .wrap { max-width: 560px; margin: 32px auto; background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; }
+          .header { background: linear-gradient(135deg, #E53935, #b71c1c); padding: 40px 36px; text-align: center; }
+          .header h1 { color: #fff; margin: 0 0 6px; font-size: 26px; font-family: Georgia, serif; }
+          .header p { color: rgba(255,255,255,0.75); margin: 0; font-size: 14px; }
+          .body { padding: 36px; }
+          .greeting { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 10px; }
+          .intro { color: #555; font-size: 14px; line-height: 1.7; margin-bottom: 28px; }
+          .card { background: #f7f8fa; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; border: 1px solid #e5e7eb; }
+          .card-title { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: #9ca3af; margin-bottom: 14px; }
+          table { width: 100%; border-collapse: collapse; }
+          td { padding: 8px 4px; font-size: 14px; border-bottom: 1px solid #e5e7eb; }
+          td:first-child { color: #6b7280; width: 45%; }
+          .promise { color: #374151; font-size: 14px; line-height: 1.7; }
+          .cta { display: block; margin: 28px auto 0; background: #E53935; color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 50px; font-weight: 700; font-size: 14px; text-align: center; width: fit-content; }
+          .footer { padding: 20px 36px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #9ca3af; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <div class="header">
+            <h1>Your Journey Awaits ✈️</h1>
+            <p>We've received your trip request</p>
+          </div>
+          <div class="body">
+            <p class="greeting">Hi ${this.escapeHtml(lead.name)},</p>
+            <p class="intro">
+              Thank you for planning with <strong>EMV Global</strong>. Our travel concierge has received your request and will craft a personalised itinerary tailored just for you. Expect a call or message within <strong>24 hours</strong>.
+            </p>
+
+            ${tripRows ? `
+            <div class="card">
+              <div class="card-title">Your Trip Profile</div>
+              <table>${tripRows}</table>
+            </div>
+            ` : ''}
+
+            <p class="promise">
+              In the meantime, feel free to browse our <a href="https://easemyvacationsglobal.com/packages" style="color:#E53935;font-weight:700">featured packages</a> or <a href="https://easemyvacationsglobal.com/destinations" style="color:#E53935;font-weight:700">explore destinations</a> for inspiration.
+            </p>
+
+            <a class="cta" href="https://wa.me/917070595907?text=Hi%2C%20I%20just%20submitted%20a%20trip%20request%20on%20your%20website">
+              💬 Chat with us on WhatsApp
+            </a>
+          </div>
+          <div class="footer">
+            EMV Global · Bespoke International Holidays<br>
+            <a href="https://easemyvacationsglobal.com" style="color:#E53935">easemyvacationsglobal.com</a>
+          </div>
         </div>
       </body>
       </html>
