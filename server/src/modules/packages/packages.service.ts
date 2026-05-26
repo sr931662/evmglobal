@@ -18,13 +18,18 @@ export class PackagesService {
     const filter: any = {};
     if (query.category)    filter.category = query.category;
     if (query.status)      filter.status   = query.status;
-    if (query.destination) filter.destinations = { $regex: query.destination, $options: 'i' };
+    if (query.destination) {
+      filter.$and = [...(filter.$and || []), { $or: [
+        { destinations: { $regex: query.destination, $options: 'i' } },
+        { title:        { $regex: query.destination, $options: 'i' } },
+      ]}];
+    }
     if (query.search) {
-      filter.$or = [
+      filter.$and = [...(filter.$and || []), { $or: [
         { title:        { $regex: query.search, $options: 'i' } },
         { category:     { $regex: query.search, $options: 'i' } },
         { destinations: { $regex: query.search, $options: 'i' } },
-      ];
+      ]}];
     }
     const docs = await this.packageModel.find(filter).sort({ created_at: -1 }).lean().exec();
     return docs.map(d => this.normalize(d));
