@@ -22,7 +22,7 @@ const emptyFlight   = () => ({ type: 'Departure', airline: '', flightNumber: '',
 const emptyDay      = (n) => ({ day: n, title: '', note: '', activities: [emptyActivity()], hotel: emptyHotel() })
 const emptyForm     = () => ({
   title: '', category: 'Honeymoon', nights: '', price: '', priceValue: '',
-  description: '', destinations: '', highlights: '', image: '', status: 'Active',
+  description: '', destinations: [], highlights: '', image: '', status: 'Active',
   inclusions: [''], exclusions: [''], notes: [''], itinerary: [], flights: [],
 })
 
@@ -81,6 +81,53 @@ function ListEditor({ label, items, onChange, placeholder, accentClass }) {
           <p className="text-gray-400 text-xs font-bold text-center py-3">None added yet — click + Add</p>
         )}
       </div>
+    </div>
+  )
+}
+
+// ── Destinations multi-select ─────────────────────────────────────────────────
+function DestinationsPicker({ selected, onChange }) {
+  const [available, setAvailable] = useState([])
+  useEffect(() => {
+    api.getDestinations().then(d => setAvailable(Array.isArray(d) ? d : [])).catch(() => {})
+  }, [])
+
+  const toggle = (name) => {
+    onChange(selected.includes(name) ? selected.filter(n => n !== name) : [...selected, name])
+  }
+
+  return (
+    <div>
+      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Destinations</label>
+      {available.length === 0 ? (
+        <p className="text-gray-400 text-xs font-bold text-center py-3 border-2 border-dashed border-gray-200 rounded-2xl">
+          No destinations available — add destinations first
+        </p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {available.map(dest => {
+            const name = dest.name
+            const isSelected = selected.includes(name)
+            return (
+              <button
+                key={dest.id || dest._id}
+                type="button"
+                onClick={() => toggle(name)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                  isSelected
+                    ? 'bg-dark text-white border-dark'
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-100'
+                }`}
+              >
+                {name}
+              </button>
+            )
+          })}
+        </div>
+      )}
+      {selected.length > 0 && (
+        <p className="text-[10px] text-brand font-bold mt-2 truncate">Selected: {selected.join(', ')}</p>
+      )}
     </div>
   )
 }
@@ -326,7 +373,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2rem] sm:rounded-[2.5rem] w-full max-w-2xl shadow-premium border border-gray-100 flex flex-col max-h-[95vh] sm:max-h-[92vh]"
+        className="bg-white rounded-[2rem] sm:rounded-[2.5rem] w-full max-w-2xl shadow-premium border border-gray-100 flex flex-col max-h-[95vh] sm:max-h-[92vh] overflow-hidden"
       >
         {/* Modal header */}
         <div className="flex items-center justify-between px-6 sm:px-10 pt-7 sm:pt-10 pb-5 sm:pb-6 shrink-0">
@@ -348,7 +395,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 overflow-y-auto px-6 sm:px-10 pb-6 modal-scroll">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-10 pb-6 modal-scroll">
           {tab === 0 && (
             <div className="space-y-5">
               <Field label="Package Title" value={form.title} onChange={v => f('title', v)} placeholder="e.g. Romantic Bali Escape" />
@@ -371,7 +418,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
                 </div>
               </div>
               <Field label="Description" value={form.description} onChange={v => f('description', v)} placeholder="A short description of the package…" type="textarea" />
-              <Field label="Destinations (comma-separated)" value={form.destinations} onChange={v => f('destinations', v)} placeholder="e.g. Bali, Ubud, Seminyak" />
+              <DestinationsPicker selected={form.destinations} onChange={v => f('destinations', v)} />
               <Field label="Highlights (comma-separated)" value={form.highlights} onChange={v => f('highlights', v)} placeholder="e.g. Airport transfers, Luxury hotel" />
               <Field label="Cover Image URL" value={form.image} onChange={v => f('image', v)} placeholder="https://images.unsplash.com/..." />
               {form.image && (
@@ -498,7 +545,7 @@ export default function AdminPackagesPage() {
       price:        pkg.price        || '',
       priceValue:   pkg.priceValue?.toString() || '',
       description:  pkg.description  || '',
-      destinations: Array.isArray(pkg.destinations) ? pkg.destinations.join(', ') : (pkg.destinations || ''),
+      destinations: Array.isArray(pkg.destinations) ? pkg.destinations : [],
       highlights:   Array.isArray(pkg.highlights)   ? pkg.highlights.join(', ')   : (pkg.highlights   || ''),
       image:        pkg.image        || '',
       status:       pkg.status       || 'Active',
@@ -535,7 +582,7 @@ export default function AdminPackagesPage() {
         price:        form.price.trim(),
         priceValue:   parseFloat(form.priceValue) || 0,
         description:  form.description,
-        destinations: form.destinations.split(',').map(s => s.trim()).filter(Boolean),
+        destinations: form.destinations,
         highlights:   form.highlights.split(',').map(s => s.trim()).filter(Boolean),
         image:        form.image.trim(),
         status:       form.status,
