@@ -88,6 +88,31 @@ function useFabTheme() {
   return dark
 }
 
+// ─── FAB bottom offset — lifts the FAB above the footer when it's visible ─────
+
+function useFabBottom(defaultBottom = 24) {
+  const [bottom, setBottom] = useState(defaultBottom)
+  useEffect(() => {
+    const footer = document.querySelector('footer')
+    if (!footer) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // How many px of the footer are currently visible
+          const visiblePx = entry.intersectionRect.height
+          setBottom(defaultBottom + visiblePx)
+        } else {
+          setBottom(defaultBottom)
+        }
+      },
+      { threshold: Array.from({ length: 101 }, (_, i) => i / 100) }
+    )
+    obs.observe(footer)
+    return () => obs.disconnect()
+  }, [defaultBottom])
+  return bottom
+}
+
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
 function useIsMobile() {
@@ -431,8 +456,9 @@ function StepQuestion({ stepKey, isMobile }) {
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
 export default function TravelQuizModal() {
-  const isMobile  = useIsMobile()
-  const fabIsDark = useFabTheme()
+  const isMobile   = useIsMobile()
+  const fabIsDark  = useFabTheme()
+  const fabBottom  = useFabBottom(24)
 
   const [open,    setOpen]    = useState(false)
   const [step,    setStep]    = useState(0)
@@ -554,7 +580,7 @@ export default function TravelQuizModal() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ delay: 3.5, duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
-            style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 40 }}
+            style={{ position: 'fixed', bottom: fabBottom, right: '1.5rem', zIndex: 40, transition: 'bottom 0.2s ease' }}
           >
             {/* Pulse rings */}
             {[0, 1, 2].map(i => (

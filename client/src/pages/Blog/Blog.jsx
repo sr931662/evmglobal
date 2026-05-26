@@ -48,6 +48,13 @@ function BlogPostModal({ post, onClose }) {
   const badgeStyle = categoryStyle[post.category] || { background: '#f3f4f6', color: '#374151' }
   const content = post.content || post.excerpt || ''
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -100,7 +107,7 @@ function BlogPostModal({ post, onClose }) {
         </div>
 
         {/* Scrollable body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0.25rem 2rem 2rem', scrollbarWidth: 'thin', scrollbarColor: '#e5e7eb transparent' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0.25rem 2rem 2rem', scrollbarWidth: 'thin', scrollbarColor: '#e5e7eb transparent', overscrollBehavior: 'contain' }}>
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
             {content}
           </ReactMarkdown>
