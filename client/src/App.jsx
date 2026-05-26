@@ -24,6 +24,7 @@ import UserAgreement from './pages/UserAgreement/UserAgreement'
 import DataProcessingAgreement from './pages/DataProcessingAgreement/DataProcessingAgreement'
 import QuotesPage from './pages/Quotes/Quotes'
 import Blog from './pages/Blog/Blog'
+import BlogPost from './pages/BlogPost/BlogPost'
 import Careers from './pages/Careers/Careers'
 import Contact from './pages/Contact/Contact'
 import Admin from './pages/Admin/Admin'
@@ -86,6 +87,7 @@ function AnimatedRoutes() {
           <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
           <Route path="/quotes"                     element={<QuotesPage />} />
           <Route path="/blog"                      element={<Blog />} />
+          <Route path="/blog/:id"                  element={<BlogPost />} />
           <Route path="/careers"                   element={<Careers />} />
           <Route path="/contact"                   element={<Contact />} />
           <Route path="/login"                     element={<CustomerLogin />} />

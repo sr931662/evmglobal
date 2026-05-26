@@ -60,7 +60,7 @@ export default function HeroSection() {
       <div className={styles.bgWrap}>
         <motion.img
           src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&q=80&w=2800"
-          alt="Luxury Travel"
+          alt="Premium Travel"
           className={styles.bgImg}
           style={{ y: bgY }}
         />
