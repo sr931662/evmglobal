@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { getLenis } from '../../hooks/useLenis'
 import { api } from '../../services/api'
 import styles from './Blog.module.css'
 
@@ -48,11 +49,16 @@ function BlogPostModal({ post, onClose }) {
   const badgeStyle = categoryStyle[post.category] || { background: '#f3f4f6', color: '#374151' }
   const content = post.content || post.excerpt || ''
 
-  // Lock body scroll while modal is open
+  // Pause Lenis + lock body scroll while modal is open
   useEffect(() => {
+    const lenis = getLenis()
+    lenis?.stop()
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
+    return () => {
+      document.body.style.overflow = prev
+      lenis?.start()
+    }
   }, [])
 
   return (
