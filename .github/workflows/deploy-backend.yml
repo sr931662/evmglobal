@@ -12,7 +12,7 @@ env:
   AWS_REGION:       ap-south-1
   ECR_REPOSITORY:   emvglobal-backend
   ECS_CLUSTER:      emvglobal-cluster
-  ECS_SERVICE:      emvglobal-backend-service
+  ECS_SERVICE:      emvglobal-backend-service-8h4zzpcx
   CONTAINER_NAME:   emvglobal-backend
 
 jobs:
