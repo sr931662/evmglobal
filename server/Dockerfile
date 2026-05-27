@@ -25,7 +25,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist        ./dist
 COPY package.json ./
 
-# Cloud Run injects PORT (default 8080)
+# ECS injects PORT via task definition environment (default 8080)
 EXPOSE 8080
 
 CMD ["node", "dist/main.js"]

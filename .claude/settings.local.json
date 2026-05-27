@@ -4,7 +4,9 @@
       "Bash(Get-ChildItem -Path \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\" -Directory)",
       "Bash(Select-Object Name)",
       "PowerShell(head -30)",
-      "PowerShell(ls \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\server\\\\src\\\\modules\" -Directory | ForEach-Object {$_.Name})"
+      "PowerShell(ls \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\server\\\\src\\\\modules\" -Directory | ForEach-Object {$_.Name})",
+      "PowerShell(Get-ChildItem \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\server\\\\src\" -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object Name)",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\.github\\\\workflows\")"
     ]
   }
 }
