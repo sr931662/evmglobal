@@ -4,11 +4,11 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::912997541094:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "emvglobal-backend",
-      "image": "<ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/emvglobal-backend:latest",
+      "image": "912997541094.dkr.ecr.ap-south-1.amazonaws.com/emvglobal-backend:latest",
       "essential": true,
       "portMappings": [
         {
@@ -23,47 +23,47 @@
       "secrets": [
         {
           "name": "MONGODB_URI",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:MONGODB_URI::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:MONGODB_URI::"
         },
         {
           "name": "JWT_SECRET",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:JWT_SECRET::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:JWT_SECRET::"
         },
         {
           "name": "JWT_EXPIRY",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:JWT_EXPIRY::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:JWT_EXPIRY::"
         },
         {
           "name": "JWT_REFRESH_EXPIRY",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:JWT_REFRESH_EXPIRY::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:JWT_REFRESH_EXPIRY::"
         },
         {
           "name": "CLOUDINARY_CLOUD_NAME",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:CLOUDINARY_CLOUD_NAME::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:CLOUDINARY_CLOUD_NAME::"
         },
         {
           "name": "CLOUDINARY_API_KEY",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:CLOUDINARY_API_KEY::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:CLOUDINARY_API_KEY::"
         },
         {
           "name": "CLOUDINARY_API_SECRET",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:CLOUDINARY_API_SECRET::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:CLOUDINARY_API_SECRET::"
         },
         {
           "name": "RESEND_API_KEY",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:RESEND_API_KEY::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:RESEND_API_KEY::"
         },
         {
           "name": "ADMIN_EMAIL",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:ADMIN_EMAIL::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:ADMIN_EMAIL::"
         },
         {
           "name": "ADMIN_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:ADMIN_PASSWORD::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:ADMIN_PASSWORD::"
         },
         {
           "name": "FRONTEND_URL",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:<ACCOUNT_ID>:secret:emvglobal/backend:FRONTEND_URL::"
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:FRONTEND_URL::"
         }
       ],
       "logConfiguration": {
