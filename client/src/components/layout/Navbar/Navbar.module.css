@@ -56,46 +56,23 @@
   text-decoration: none;
   flex: 0 0 auto;   /* never shrink, never grow */
 }
-.logoMark {
-  width: 2.75rem;
+.logoImg {
   height: 2.75rem;
-  border-radius: 14px;
-  background: var(--brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
+  width: auto;
+  flex-shrink: 0;
+  display: block;
+}
+.globalText {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.375rem;
-  box-shadow: var(--shadow-glow);
-  flex-shrink: 0;
-}
-.logoText {
-  display: flex;
-  flex-direction: column;
+  font-size: 1.125rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
   transition: color 0.3s ease;
 }
-.logoText .wordmark {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1.375rem;
-  letter-spacing: -0.025em;
-  line-height: 1;
-  white-space: nowrap;
-}
-.logoText .tagline {
-  color: var(--brand);
-  font-size: 0.5625rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.25em;
-  line-height: 1;
-  margin-top: 5px;
-  white-space: nowrap;
-}
-.logoTextDark  .wordmark { color: var(--dark); }
-.logoTextLight .wordmark { color: #fff; }
+.globalTextDark  { color: var(--dark); }
+.globalTextLight { color: #fff; }
 
 /* ── Desktop nav pill ── */
 /*  Hidden below 1100 px — hamburger takes over  */

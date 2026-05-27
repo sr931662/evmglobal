@@ -5,6 +5,7 @@ import MobileMenu from '../MobileMenu/MobileMenu'
 import { openWhatsApp } from '../../../utils/whatsapp'
 import { useCustomerAuth } from '../../../context/CustomerAuthContext'
 import styles from './Navbar.module.css'
+import logo from '../../../assets/logo.png'
 
 const NAV_LINKS = [
   ['Destinations', '/destinations'],
@@ -122,11 +123,10 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/" className={styles.logo}>
-            <div className={styles.logoMark}>E</div>
-            <div className={`${styles.logoText} ${isDarkHero ? styles.logoTextLight : styles.logoTextDark}`}>
-              <span className={styles.wordmark}>EMV</span>
-              <span className={styles.tagline}>Global</span>
-            </div>
+            <img src={logo} alt="EMV" className={styles.logoImg} />
+            <span className={`${styles.globalText} ${isDarkHero ? styles.globalTextLight : styles.globalTextDark}`}>
+              GLOBAL
+            </span>
           </Link>
 
           {/* Desktop nav pill */}

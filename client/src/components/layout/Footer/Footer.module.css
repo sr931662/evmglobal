@@ -38,38 +38,22 @@
   text-decoration: none;
   color: inherit;
 }
-.brandMark {
-  width: 2.75rem;
+.brandLogoImg {
   height: 2.75rem;
-  border-radius: 0.75rem;
-  background: var(--brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1.5rem;
-  box-shadow: var(--shadow-glow);
+  width: auto;
+  display: block;
+  flex-shrink: 0;
   transition: transform 0.2s;
 }
-.brandLogo:hover .brandMark { transform: scale(1.05); }
-.brandText { display: flex; flex-direction: column; }
-.brandWordmark {
+.brandLogo:hover .brandLogoImg { transform: scale(1.05); }
+.brandGlobal {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.625rem;
-  letter-spacing: -0.025em;
-  line-height: 1;
-}
-.brandTagline {
-  color: #9ca3af;
-  font-size: 0.625rem;
-  font-weight: 900;
+  font-size: 1.125rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
-  line-height: 1;
-  margin-top: 6px;
+  color: #fff;
+  white-space: nowrap;
 }
 
 .desc {
