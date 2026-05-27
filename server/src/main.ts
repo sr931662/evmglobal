@@ -12,6 +12,9 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // Health check endpoint for ECS (outside api prefix)
+  app.getHttpAdapter().get('/health', (_req, res) => res.send({ status: 'ok' }));
+
   // Support comma-separated list of allowed origins so both the Cloudflare
   // Pages URL and any custom domain work without code changes.
   // e.g. FRONTEND_URL=https://evmglobal.pages.dev,https://www.evmglobal.com
