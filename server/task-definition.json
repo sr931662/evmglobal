@@ -81,6 +81,26 @@
         "retries":     3,
         "startPeriod": 60
       }
+    },
+    {
+      "name": "cloudflared",
+      "image": "cloudflare/cloudflared:latest",
+      "essential": false,
+      "command": ["tunnel", "--no-autoupdate", "run"],
+      "secrets": [
+        {
+          "name": "TUNNEL_TOKEN",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:912997541094:secret:emvglobal/backend:CLOUDFLARE_TUNNEL_TOKEN::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group":         "/ecs/emvglobal-backend",
+          "awslogs-region":        "ap-south-1",
+          "awslogs-stream-prefix": "cloudflared"
+        }
+      }
     }
   ]
 }

@@ -8,7 +8,9 @@
       "PowerShell(Get-ChildItem \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\server\\\\src\" -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object Name)",
       "PowerShell(New-Item -ItemType Directory -Force -Path \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\.github\\\\workflows\")",
       "Bash(Copy-Item \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\\\\assets\\\\logo.png\" \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\public\\\\favicon.png\" -Force)",
-      "PowerShell(Copy-Item \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\\\\assets\\\\logo.png\" \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\public\\\\favicon.png\" -Force)"
+      "PowerShell(Copy-Item \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\\\\assets\\\\logo.png\" \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\public\\\\favicon.png\" -Force)",
+      "PowerShell(Get-NetAdapter | Where-Object {$_.Status -eq \"Up\"} | Select-Object Name, InterfaceDescription)",
+      "PowerShell(Set-DnsClientServerAddress -InterfaceAlias \"Wi-Fi\" -ServerAddresses \\(\"1.1.1.1\", \"8.8.8.8\"\\))"
     ]
   }
 }
