@@ -76,6 +76,7 @@ export default function Blog() {
             <div className={styles.grid}>
               {posts.map((post, i) => {
                 const id         = post._id || post.id
+                const slug       = post.slug || id
                 const badgeStyle = categoryStyle[post.category] || { background: '#f3f4f6', color: '#374151' }
                 return (
                   <motion.article
@@ -84,7 +85,7 @@ export default function Blog() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.07, duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
                     className={styles.card}
-                    onClick={() => navigate(`/blog/${id}`)}
+                    onClick={() => navigate(`/blog/${slug}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     {post.coverImage ? (

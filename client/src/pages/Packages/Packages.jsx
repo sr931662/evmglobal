@@ -11,6 +11,7 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4a
 function adaptPackage(pkg) {
   return {
     id:            pkg.id || pkg._id,
+    slug:          pkg.slug || pkg.id || pkg._id,
     title:         pkg.title,
     nights:        pkg.nights,
     badge:         pkg.category,

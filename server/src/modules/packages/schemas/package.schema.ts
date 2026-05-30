@@ -31,6 +31,7 @@ const FlightSchema = new Schema(
 export const PackageSchema = new Schema(
   {
     title:        { type: String, required: true, trim: true },
+    slug:         { type: String, unique: true, lowercase: true, sparse: true },
     category:     { type: String, required: true, enum: ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness'] },
     nights:       { type: Number, required: true, min: 1 },
     price:        { type: String, required: true },

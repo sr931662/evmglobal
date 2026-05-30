@@ -17,7 +17,7 @@ export default function PackageCard({ pkg, index }) {
       whileHover={{ y: -8, transition: { duration: 0.4, ease: [0.33, 1, 0.68, 1] } }}
       className={styles.card}
     >
-      <div className={styles.imgWrap} onClick={() => navigate(`/package-details/${pkg.id}`)}>
+      <div className={styles.imgWrap} onClick={() => navigate(`/package-details/${pkg.slug || pkg.id}`)}>
         <img src={pkg.image} alt={pkg.title} className={styles.img} />
         <div className={styles.imgOverlay} />
         <div className={styles.nightsBadge}>
@@ -32,7 +32,7 @@ export default function PackageCard({ pkg, index }) {
 
       <div className={styles.body}>
         <div className={styles.location}>📍 {pkg.location}</div>
-        <h3 className={styles.title} onClick={() => navigate(`/package-details/${pkg.id}`)}>
+        <h3 className={styles.title} onClick={() => navigate(`/package-details/${pkg.slug || pkg.id}`)}>
           {pkg.title}
         </h3>
         <p className={styles.desc}>{pkg.description}</p>
@@ -54,7 +54,7 @@ export default function PackageCard({ pkg, index }) {
             <button onClick={() => openWhatsApp(pkg.title)} className={styles.waBtn} title="WhatsApp">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d={WA_PATH} /></svg>
             </button>
-            <button onClick={() => navigate(`/package-details/${pkg.id}`)} className={styles.viewBtn}>
+            <button onClick={() => navigate(`/package-details/${pkg.slug || pkg.id}`)} className={styles.viewBtn}>
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={ARR_PATH} />
               </svg>

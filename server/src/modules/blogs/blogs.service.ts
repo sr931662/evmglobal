@@ -32,8 +32,11 @@ export class BlogsService {
     return { blogs, pagination: { total, page, limit, pages: Math.ceil(total / limit) } };
   }
 
-  async findOne(id: string) {
-    const blog = await this.blogModel.findById(id).lean().exec();
+  async findOne(idOrSlug: string) {
+    const isObjectId = /^[a-f\d]{24}$/i.test(idOrSlug);
+    const blog = isObjectId
+      ? await this.blogModel.findById(idOrSlug).lean().exec()
+      : await this.blogModel.findOne({ slug: idOrSlug }).lean().exec();
     if (!blog) throw new NotFoundException('Blog post not found');
     return blog;
   }

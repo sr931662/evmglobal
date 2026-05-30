@@ -2,6 +2,15 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
 @Injectable()
 export class PackagesService {
   private logger = new Logger('PackagesService');
@@ -50,15 +59,24 @@ export class PackagesService {
     };
   }
 
-  async findById(id: string) {
-    const pkg = await this.packageModel.findById(id).lean().exec();
+  async findById(idOrSlug: string) {
+    const isObjectId = /^[a-f\d]{24}$/i.test(idOrSlug);
+    const pkg = isObjectId
+      ? await this.packageModel.findById(idOrSlug).lean().exec()
+      : await this.packageModel.findOne({ slug: idOrSlug }).lean().exec();
     if (!pkg) throw new NotFoundException('Package not found');
     return this.normalize(pkg);
   }
 
   async create(data: any) {
-    const pkg = await new this.packageModel(data).save();
-    this.logger.log(`Package created: ${pkg.title}`);
+    const base = slugify(data.title || 'package');
+    let slug = base;
+    let suffix = 1;
+    while (await this.packageModel.exists({ slug })) {
+      slug = `${base}-${suffix++}`;
+    }
+    const pkg = await new this.packageModel({ ...data, slug }).save();
+    this.logger.log(`Package created: ${pkg.title} [${slug}]`);
     return this.normalize(pkg.toObject());
   }
 
