@@ -13,7 +13,10 @@
       "PowerShell(Set-DnsClientServerAddress -InterfaceAlias \"Wi-Fi\" -ServerAddresses \\(\"1.1.1.1\", \"8.8.8.8\"\\))",
       "Bash(Get-ChildItem -Path \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\" -Force)",
       "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\server\\\\src\\\\modules\\\\customer-auth\\\\strategies\")",
-      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\\\\pages\\\\CustomerProfile\")"
+      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\\\\pages\\\\CustomerProfile\")",
+      "Bash(docker --version)",
+      "Bash(aws --version)",
+      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\.github\\\\workflows\")"
     ]
   }
 }
