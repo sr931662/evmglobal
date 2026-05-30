@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class CustomersService {
@@ -8,7 +9,7 @@ export class CustomersService {
 
   private normalize(doc: any) {
     if (!doc) return doc;
-    const { _id, __v, ...rest } = doc;
+    const { _id, __v, password, ...rest } = doc;
     return { ...rest, id: _id.toString() };
   }
 
@@ -26,6 +27,48 @@ export class CustomersService {
       },
       { upsert: true, new: true }
     ).lean().exec();
+    return this.normalize(doc);
+  }
+
+  async create(data: { name: string; email: string; phone?: string; city?: string; password: string }) {
+    const hashed = await bcrypt.hash(data.password, 10);
+    const doc = await this.customerModel.create({
+      name:     data.name.trim(),
+      email:    data.email.toLowerCase().trim(),
+      phone:    data.phone?.trim() || '',
+      city:     data.city?.trim()  || '',
+      password: hashed,
+      lastSeen: new Date(),
+    });
+    return this.normalize(doc.toObject());
+  }
+
+  async findByEmail(email: string, withPassword = false) {
+    const key = email.toLowerCase().trim();
+    const query = this.customerModel.findOne({ email: key });
+    if (withPassword) query.select('+password');
+    const doc = await query.lean().exec();
+    return doc || null;
+  }
+
+  async findById(id: string, withPassword = false) {
+    const query = this.customerModel.findById(id);
+    if (withPassword) query.select('+password');
+    const doc = await query.lean().exec();
+    return doc || null;
+  }
+
+  async updatePassword(id: string, newPassword: string) {
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await this.customerModel.findByIdAndUpdate(id, { password: hashed }).exec();
+  }
+
+  async updateProfile(id: string, data: { name?: string; phone?: string; city?: string }) {
+    const update: any = { lastSeen: new Date() };
+    if (data.name  !== undefined) update.name  = data.name.trim();
+    if (data.phone !== undefined) update.phone = data.phone.trim();
+    if (data.city  !== undefined) update.city  = data.city.trim();
+    const doc = await this.customerModel.findByIdAndUpdate(id, { $set: update }, { new: true }).lean().exec();
     return this.normalize(doc);
   }
 

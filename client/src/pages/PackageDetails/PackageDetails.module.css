@@ -411,6 +411,41 @@ details[open] .dayChevron { transform: rotate(180deg); }
 .dayHotelName { font-weight: 700; color: #0c4a6e; font-size: 0.9375rem; }
 .dayHotelMeta { color: #0369a1; font-size: 0.8125rem; font-weight: 500; margin-top: 2px; }
 
+/* Flight details */
+.flightsList { display: flex; flex-direction: column; gap: 1rem; }
+.flightCard {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: #f9fafb;
+}
+.flightType {
+  font-size: 0.6875rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--brand);
+  margin-bottom: 0.875rem;
+}
+.flightRow {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.flightCity { display: flex; flex-direction: column; gap: 0.2rem; }
+.flightCityCode { font-size: 1.125rem; font-weight: 900; color: var(--dark); letter-spacing: 0.05em; }
+.flightCityLabel { font-size: 0.6875rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+.flightArrow { color: #9ca3af; flex-shrink: 0; }
+.flightMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
 /* Important notes section */
 .notesCard {
   background: #fffbeb;

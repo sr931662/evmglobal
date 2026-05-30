@@ -51,8 +51,29 @@ async function tryRefresh() {
   }
 }
 
+const getCustomerToken        = () => localStorage.getItem('emv_c_token')
+const getCustomerRefreshToken = () => localStorage.getItem('emv_c_refresh')
+
+async function tryCustomerRefresh() {
+  const rt = getCustomerRefreshToken()
+  if (!rt) return false
+  try {
+    const res = await fetch(`${BASE}/customer-auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: rt }),
+    })
+    if (!res.ok) return false
+    const data = await res.json()
+    localStorage.setItem('emv_c_token', data.access_token)
+    if (data.refresh_token) localStorage.setItem('emv_c_refresh', data.refresh_token)
+    return true
+  } catch { return false }
+}
+
 async function request(path, opts = {}, retry = true) {
-  const token = getToken()
+  const isCustomerPath = path.startsWith('/customer-auth')
+  const token = isCustomerPath ? getCustomerToken() : getToken()
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -61,12 +82,20 @@ async function request(path, opts = {}, retry = true) {
 
   const res = await fetch(`${BASE}${path}`, { ...opts, headers })
 
-  if (res.status === 401 && retry && path !== '/auth/login') {
-    const refreshed = await tryRefresh()
-    if (refreshed) return request(path, opts, false)
-    clearTokens()
-    window.location.hash = '#/admin/login'
-    throw new Error('Session expired. Please log in again.')
+  if (res.status === 401 && retry) {
+    if (isCustomerPath && path !== '/customer-auth/login') {
+      const refreshed = await tryCustomerRefresh()
+      if (refreshed) return request(path, opts, false)
+      localStorage.removeItem('emv_c_token')
+      localStorage.removeItem('emv_c_refresh')
+      throw new Error('Session expired. Please log in again.')
+    } else if (!isCustomerPath && path !== '/auth/login') {
+      const refreshed = await tryRefresh()
+      if (refreshed) return request(path, opts, false)
+      clearTokens()
+      window.location.hash = '#/admin/login'
+      throw new Error('Session expired. Please log in again.')
+    }
   }
 
   if (res.headers.get('content-type')?.includes('text/csv')) return res
@@ -153,6 +182,34 @@ export const api = {
 
   updateSettings: (data) =>
     request('/settings', { method: 'PUT', body: JSON.stringify(data) }),
+
+  // ─── Customer Auth ─────────────────────────────────────────────────────────
+  customerRegister: (data) =>
+    request('/customer-auth/register', { method: 'POST', body: JSON.stringify(data) }),
+
+  customerLogin: (email, password) =>
+    request('/customer-auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+
+  customerRefresh: (refreshToken) =>
+    request('/customer-auth/refresh', { method: 'POST', body: JSON.stringify({ refreshToken }) }),
+
+  customerGetProfile: () =>
+    request('/customer-auth/profile'),
+
+  customerUpdateProfile: (data) =>
+    request('/customer-auth/profile', { method: 'PATCH', body: JSON.stringify(data) }),
+
+  customerChangePassword: (oldPassword, newPassword) =>
+    request('/customer-auth/change-password', { method: 'PATCH', body: JSON.stringify({ oldPassword, newPassword }) }),
+
+  customerForgotPassword: (email) =>
+    request('/customer-auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+
+  customerVerifyOtp: (email, otp) =>
+    request('/customer-auth/verify-otp', { method: 'POST', body: JSON.stringify({ email, otp }) }),
+
+  customerResetPassword: (resetToken, newPassword) =>
+    request('/customer-auth/reset-password', { method: 'POST', body: JSON.stringify({ resetToken, newPassword }) }),
 
   // ─── Customers ─────────────────────────────────────────────────────────────
   registerCustomer: (data) =>

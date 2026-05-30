@@ -8,5 +8,6 @@ import { CustomersController } from './customers.controller';
   imports: [MongooseModule.forFeature([{ name: 'Customer', schema: CustomerSchema }])],
   controllers: [CustomersController],
   providers: [CustomersService],
+  exports: [CustomersService, MongooseModule],
 })
 export class CustomersModule {}

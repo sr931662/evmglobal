@@ -3,9 +3,11 @@ import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-d
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { useLenis, getLenis } from './hooks/useLenis'
+import { useGoogleAnalytics } from './hooks/useGoogleAnalytics'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import { CustomerAuthProvider } from './context/CustomerAuthContext'
+import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext'
 import CustomerLogin from './pages/CustomerLogin/CustomerLogin'
+import CustomerProfile from './pages/CustomerProfile/CustomerProfile'
 import Navbar from './components/layout/Navbar/Navbar'
 import Footer from './components/layout/Footer/Footer'
 import Loader from './components/layout/Loader/Loader'
@@ -50,6 +52,22 @@ const pageVariants = {
   exit:    { opacity: 0, y: -20, transition: { duration: 0.35, ease: [0.55, 0, 1, 0.45] } },
 }
 
+function ProtectedCustomer() {
+  const { customer, loading } = useCustomerAuth()
+  const location = useLocation()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (!customer) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />
+  return <CustomerProfile />
+}
+
 function ProtectedAdmin() {
   const { user, loading } = useAuth()
   const location = useLocation()
@@ -91,6 +109,7 @@ function AnimatedRoutes() {
           <Route path="/careers"                   element={<Careers />} />
           <Route path="/contact"                   element={<Contact />} />
           <Route path="/login"                     element={<CustomerLogin />} />
+          <Route path="/customer/profile"          element={<ProtectedCustomer />} />
           <Route path="/admin/login"               element={user ? <Navigate to="/admin" replace /> : <AdminLogin onSuccess={() => {}} />} />
           <Route path="/admin"                     element={<ProtectedAdmin />} />
         </Routes>
@@ -105,6 +124,7 @@ function AppShell() {
   const location = useLocation()
   const isAdmin  = location.pathname.startsWith('/admin')
   useLenis(!isAdmin)
+  useGoogleAnalytics()
 
   return (
     <div className="flex flex-col min-h-screen w-full overflow-x-hidden text-dark selection:bg-brand selection:text-white">

@@ -99,6 +99,41 @@ export class EmailService {
     this.logger.log(`OTP email sent to ${to}`);
   }
 
+  async sendCustomerOtpEmail(to: string, otp: string, name: string) {
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; background: #f7f8fa; margin: 0; padding: 0; }
+          .wrap { max-width: 520px; margin: 40px auto; background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; }
+          .header { background: #E53935; padding: 32px; text-align: center; }
+          .header h1 { color: #fff; margin: 0; font-size: 22px; font-family: Georgia, serif; }
+          .body { padding: 40px 36px; }
+          .otp-box { background: #f7f8fa; border: 2px dashed #e5e7eb; border-radius: 12px; text-align: center; padding: 28px; margin: 24px 0; }
+          .otp-box span { font-size: 42px; font-weight: 900; letter-spacing: 10px; color: #0a0a0a; font-family: monospace; }
+          p { color: #555; font-size: 14px; line-height: 1.6; }
+          .footer { padding: 20px 36px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #9ca3af; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <div class="header"><h1>EMV Global — Password Reset</h1></div>
+          <div class="body">
+            <p>Hi ${this.escapeHtml(name)},</p>
+            <p>You requested a password reset for your EMV Global account. Use the OTP below to proceed:</p>
+            <div class="otp-box"><span>${otp}</span></div>
+            <p><strong>This OTP is valid for 10 minutes</strong> and can only be used once.</p>
+            <p>If you did not request this, please ignore this email.</p>
+          </div>
+          <div class="footer">EMV Global · Bespoke International Holidays · Do not reply to this email.</div>
+        </div>
+      </body>
+      </html>
+    `;
+    await this.send({ to, subject: 'Your EMV Global password reset OTP', html });
+  }
+
   async sendLeadNotification(lead) {
     const isQuizLead = lead.type === 'lead' && (lead.destination || lead.travellers || lead.travelDate);
     const subject = isQuizLead

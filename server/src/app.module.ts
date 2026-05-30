@@ -16,6 +16,7 @@ import { BlogsModule } from './modules/blogs/blogs.module';
 import { CareersModule } from './modules/careers/careers.module';
 import { TeamModule } from './modules/team/team.module';
 import { CustomersModule } from './modules/customers/customers.module';
+import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CustomersModule } from './modules/customers/customers.module';
     CareersModule,
     TeamModule,
     CustomersModule,
+    CustomerAuthModule,
   ],
   providers: [
     {

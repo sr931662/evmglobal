@@ -54,6 +54,7 @@ export default function PackageDetails() {
     ? pkg.exclusions
     : ['Visa fees & processing', 'City taxes (payable at hotel)', 'Personal expenses & shopping', 'Tips & gratuities']
   const itinerary    = Array.isArray(pkg.itinerary)    ? pkg.itinerary    : []
+  const flights      = Array.isArray(pkg.flights)      ? pkg.flights.filter(f => f.airline || f.flightNumber || f.from) : []
   const notes        = Array.isArray(pkg.notes) && pkg.notes.length ? pkg.notes : []
   const heroImage    = pkg.image || FALLBACK_IMAGE
 
@@ -159,6 +160,47 @@ export default function PackageDetails() {
                       </ul>
                     </div>
                   )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Flight Details */}
+            {flights.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.33,1,0.68,1] }}
+                className={styles.card}
+              >
+                <h3 className={styles.cardTitleLg}>✈ Flight Details</h3>
+                <div className={styles.flightsList}>
+                  {flights.map((fl, i) => (
+                    <div key={i} className={styles.flightCard}>
+                      <div className={styles.flightType}>{fl.type || 'Flight'}</div>
+                      <div className={styles.flightRow}>
+                        <div className={styles.flightCity}>
+                          <span className={styles.flightCityCode}>{fl.from}</span>
+                          <span className={styles.flightCityLabel}>Origin</span>
+                        </div>
+                        <div className={styles.flightArrow}>
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </div>
+                        <div className={styles.flightCity}>
+                          <span className={styles.flightCityCode}>{fl.to}</span>
+                          <span className={styles.flightCityLabel}>Destination</span>
+                        </div>
+                      </div>
+                      <div className={styles.flightMeta}>
+                        {fl.airline     && <span>{fl.airline}</span>}
+                        {fl.flightNumber && <span>· {fl.flightNumber}</span>}
+                        {fl.date        && <span>· {fl.date}</span>}
+                        {fl.time        && <span>· {fl.time}</span>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
             )}
