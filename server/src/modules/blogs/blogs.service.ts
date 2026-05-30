@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -12,8 +12,26 @@ function slugify(text: string): string {
 }
 
 @Injectable()
-export class BlogsService {
+export class BlogsService implements OnModuleInit {
+  private logger = new Logger('BlogsService');
+
   constructor(@InjectModel('Blog') private blogModel: Model<any>) {}
+
+  async onModuleInit() {
+    const unslugged = await this.blogModel.find({ slug: { $exists: false } }).lean().exec();
+    for (const blog of unslugged) {
+      const base = slugify((blog as any).title || 'untitled');
+      let slug = base;
+      let suffix = 1;
+      while (await this.blogModel.exists({ slug, _id: { $ne: (blog as any)._id } })) {
+        slug = `${base}-${suffix++}`;
+      }
+      await this.blogModel.updateOne({ _id: (blog as any)._id }, { slug });
+    }
+    if (unslugged.length > 0) {
+      this.logger.log(`Backfilled slugs for ${unslugged.length} blogs`);
+    }
+  }
 
   async findAll(query: { status?: string; category?: string; page?: number; limit?: number } = {}) {
     const filter: any = {};

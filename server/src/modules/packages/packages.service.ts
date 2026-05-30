@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -12,10 +12,26 @@ function slugify(text: string): string {
 }
 
 @Injectable()
-export class PackagesService {
+export class PackagesService implements OnModuleInit {
   private logger = new Logger('PackagesService');
 
   constructor(@InjectModel('Package') private packageModel: Model<any>) {}
+
+  async onModuleInit() {
+    const unsluggedPackages = await this.packageModel.find({ slug: { $exists: false } }).lean().exec();
+    for (const pkg of unsluggedPackages) {
+      const base = slugify((pkg as any).title || 'package');
+      let slug = base;
+      let suffix = 1;
+      while (await this.packageModel.exists({ slug, _id: { $ne: (pkg as any)._id } })) {
+        slug = `${base}-${suffix++}`;
+      }
+      await this.packageModel.updateOne({ _id: (pkg as any)._id }, { slug });
+    }
+    if (unsluggedPackages.length > 0) {
+      this.logger.log(`Backfilled slugs for ${unsluggedPackages.length} packages`);
+    }
+  }
 
   private normalize(doc: any) {
     if (!doc) return doc;
