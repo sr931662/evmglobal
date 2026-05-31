@@ -7,27 +7,33 @@ export default function ProfileSettings() {
   const { customer, updateCustomer, changePassword } = useCustomerAuth()
 
   const [profileForm, setProfileForm] = useState({
-    name:  customer?.name  || '',
+    name: customer?.name || '',
     phone: customer?.phone || '',
-    city:  customer?.city  || '',
+    city: customer?.city || '',
   })
   const [profileLoading, setProfileLoading] = useState(false)
-  const [profileMsg,     setProfileMsg]     = useState('')
-  const [profileError,   setProfileError]   = useState('')
+  const [profileMsg, setProfileMsg] = useState('')
+  const [profileError, setProfileError] = useState('')
 
-  const [pwForm, setPwForm]   = useState({ old: '', newPw: '', confirm: '' })
+  const [pwForm, setPwForm] = useState({ old: '', newPw: '', confirm: '' })
   const [pwLoading, setPwLoading] = useState(false)
-  const [pwMsg,     setPwMsg]     = useState('')
-  const [pwError,   setPwError]   = useState('')
-  const [showPw,    setShowPw]    = useState(false)
+  const [pwMsg, setPwMsg] = useState('')
+  const [pwError, setPwError] = useState('')
+  const [showPw, setShowPw] = useState(false)
 
-  const p = (k, v) => setProfileForm(prev => ({ ...prev, [k]: v }))
-  const w = (k, v) => setPwForm(prev => ({ ...prev, [k]: v }))
+  const updateProfileField = (key, value) => setProfileForm((prev) => ({ ...prev, [key]: value }))
+  const updatePasswordField = (key, value) => setPwForm((prev) => ({ ...prev, [key]: value }))
 
   const handleProfileSave = async (e) => {
     e.preventDefault()
-    if (!profileForm.name.trim()) { setProfileError('Name is required.'); return }
-    setProfileLoading(true); setProfileError(''); setProfileMsg('')
+    if (!profileForm.name.trim()) {
+      setProfileError('Name is required.')
+      return
+    }
+
+    setProfileLoading(true)
+    setProfileError('')
+    setProfileMsg('')
     try {
       await updateCustomer(profileForm)
       setProfileMsg('Profile updated successfully.')
@@ -40,10 +46,22 @@ export default function ProfileSettings() {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault()
-    if (!pwForm.old) { setPwError('Enter your current password.'); return }
-    if (pwForm.newPw.length < 8) { setPwError('New password must be at least 8 characters.'); return }
-    if (pwForm.newPw !== pwForm.confirm) { setPwError('Passwords do not match.'); return }
-    setPwLoading(true); setPwError(''); setPwMsg('')
+    if (!pwForm.old) {
+      setPwError('Enter your current password.')
+      return
+    }
+    if (pwForm.newPw.length < 8) {
+      setPwError('New password must be at least 8 characters.')
+      return
+    }
+    if (pwForm.newPw !== pwForm.confirm) {
+      setPwError('Passwords do not match.')
+      return
+    }
+
+    setPwLoading(true)
+    setPwError('')
+    setPwMsg('')
     try {
       await changePassword(pwForm.old, pwForm.newPw)
       setPwMsg('Password changed successfully.')
@@ -57,7 +75,6 @@ export default function ProfileSettings() {
 
   return (
     <>
-      {/* Personal Information */}
       <motion.div
         className={styles.card}
         initial={{ opacity: 0, y: 20 }}
@@ -65,11 +82,12 @@ export default function ProfileSettings() {
         transition={{ duration: 0.4 }}
       >
         <h2 className={styles.cardTitle}>
-          <span className={styles.cardIcon}>👤</span> Personal Information
+          <span className={styles.cardIcon}>Profile</span>
+          Personal Information
         </h2>
         <form onSubmit={handleProfileSave} className={styles.form}>
           {profileError && <div className={styles.errorBanner}>{profileError}</div>}
-          {profileMsg   && <div className={styles.successBanner}>{profileMsg}</div>}
+          {profileMsg && <div className={styles.successBanner}>{profileMsg}</div>}
 
           <div className={styles.fieldGroup}>
             <label className={styles.label}>Full Name *</label>
@@ -77,7 +95,7 @@ export default function ProfileSettings() {
               type="text"
               className={styles.input}
               value={profileForm.name}
-              onChange={e => p('name', e.target.value)}
+              onChange={(e) => updateProfileField('name', e.target.value)}
               placeholder="Your full name"
               required
             />
@@ -101,7 +119,7 @@ export default function ProfileSettings() {
                 type="tel"
                 className={styles.input}
                 value={profileForm.phone}
-                onChange={e => p('phone', e.target.value)}
+                onChange={(e) => updateProfileField('phone', e.target.value)}
                 placeholder="+91 98765 43210"
               />
             </div>
@@ -111,7 +129,7 @@ export default function ProfileSettings() {
                 type="text"
                 className={styles.input}
                 value={profileForm.city}
-                onChange={e => p('city', e.target.value)}
+                onChange={(e) => updateProfileField('city', e.target.value)}
                 placeholder="e.g. Mumbai"
               />
             </div>
@@ -124,12 +142,11 @@ export default function ProfileSettings() {
             whileTap={!profileLoading ? { scale: 0.98 } : undefined}
             className={styles.saveBtn}
           >
-            {profileLoading ? 'Saving…' : 'Save Changes'}
+            {profileLoading ? 'Saving...' : 'Save Changes'}
           </motion.button>
         </form>
       </motion.div>
 
-      {/* Change Password */}
       <motion.div
         className={styles.card}
         initial={{ opacity: 0, y: 20 }}
@@ -137,11 +154,12 @@ export default function ProfileSettings() {
         transition={{ duration: 0.4, delay: 0.08 }}
       >
         <h2 className={styles.cardTitle}>
-          <span className={styles.cardIcon}>🔒</span> Change Password
+          <span className={styles.cardIcon}>Security</span>
+          Change Password
         </h2>
         <form onSubmit={handlePasswordChange} className={styles.form}>
           {pwError && <div className={styles.errorBanner}>{pwError}</div>}
-          {pwMsg   && <div className={styles.successBanner}>{pwMsg}</div>}
+          {pwMsg && <div className={styles.successBanner}>{pwMsg}</div>}
 
           <div className={styles.fieldGroup}>
             <label className={styles.label}>Current Password</label>
@@ -150,13 +168,13 @@ export default function ProfileSettings() {
                 type={showPw ? 'text' : 'password'}
                 className={styles.input}
                 value={pwForm.old}
-                onChange={e => w('old', e.target.value)}
+                onChange={(e) => updatePasswordField('old', e.target.value)}
                 placeholder="Your current password"
                 autoComplete="current-password"
                 required
               />
-              <button type="button" className={styles.pwToggle} onClick={() => setShowPw(v => !v)}>
-                {showPw ? '🙈' : '👁️'}
+              <button type="button" className={styles.pwToggle} onClick={() => setShowPw((value) => !value)}>
+                {showPw ? 'Hide' : 'Show'}
               </button>
             </div>
           </div>
@@ -167,7 +185,7 @@ export default function ProfileSettings() {
               type={showPw ? 'text' : 'password'}
               className={styles.input}
               value={pwForm.newPw}
-              onChange={e => w('newPw', e.target.value)}
+              onChange={(e) => updatePasswordField('newPw', e.target.value)}
               placeholder="Min 8 characters"
               autoComplete="new-password"
               required
@@ -180,7 +198,7 @@ export default function ProfileSettings() {
               type={showPw ? 'text' : 'password'}
               className={styles.input}
               value={pwForm.confirm}
-              onChange={e => w('confirm', e.target.value)}
+              onChange={(e) => updatePasswordField('confirm', e.target.value)}
               placeholder="Repeat new password"
               required
             />
@@ -193,12 +211,11 @@ export default function ProfileSettings() {
             whileTap={!pwLoading ? { scale: 0.98 } : undefined}
             className={styles.saveBtn}
           >
-            {pwLoading ? 'Changing…' : 'Change Password'}
+            {pwLoading ? 'Changing...' : 'Change Password'}
           </motion.button>
         </form>
       </motion.div>
 
-      {/* Account info strip */}
       <motion.div
         className={styles.infoStrip}
         initial={{ opacity: 0 }}
@@ -210,7 +227,7 @@ export default function ProfileSettings() {
           <span className={styles.infoValue}>
             {customer?.created_at
               ? new Date(customer.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-              : '—'}
+              : '--'}
           </span>
         </div>
         <div className={styles.infoItem}>

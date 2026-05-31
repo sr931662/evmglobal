@@ -8,7 +8,7 @@ export default function CustomerProfile() {
   const navigate = useNavigate()
 
   const initials = customer?.name
-    ? customer.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    ? customer.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U'
 
   const handleLogout = () => {
@@ -19,7 +19,6 @@ export default function CustomerProfile() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-
         <motion.div
           className={styles.topBar}
           initial={{ opacity: 0, y: -12 }}
@@ -36,8 +35,6 @@ export default function CustomerProfile() {
         </motion.div>
 
         <div className={styles.layout}>
-
-          {/* Sidebar */}
           <motion.aside
             className={styles.sidebar}
             initial={{ opacity: 0, x: -16 }}
@@ -55,24 +52,21 @@ export default function CustomerProfile() {
               <NavLink
                 to="/customer/profile"
                 end
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-                }
+                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
               >
-                <span className={styles.navIcon}>👤</span> My Profile
+                <span className={styles.navIcon}>Profile</span>
+                My Profile
               </NavLink>
               <NavLink
                 to="/customer/profile/trips"
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-                }
+                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
               >
-                <span className={styles.navIcon}>✈️</span> My Trips
+                <span className={styles.navIcon}>Trips</span>
+                My Trips
               </NavLink>
             </nav>
           </motion.aside>
 
-          {/* Page content */}
           <motion.div
             className={styles.content}
             initial={{ opacity: 0, y: 16 }}
@@ -81,7 +75,6 @@ export default function CustomerProfile() {
           >
             <Outlet />
           </motion.div>
-
         </div>
       </div>
     </div>
