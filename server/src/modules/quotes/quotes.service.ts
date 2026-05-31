@@ -32,7 +32,7 @@ export class QuotesService {
     return { ...rest, id: _id.toString() };
   }
 
-  async findAll(query: { search?: string; status?: string } = {}) {
+  async findAll(query: { search?: string; status?: string; page?: number; limit?: number } = {}) {
     const filter: any = {};
     if (query.status) filter.status = query.status;
     if (query.search) {
@@ -43,8 +43,20 @@ export class QuotesService {
         { destinations: { $regex: query.search, $options: 'i' } },
       ];
     }
-    const docs = await this.quoteModel.find(filter).sort({ created_at: -1 }).lean().exec();
-    return docs.map(d => this.normalize(d));
+
+    const page  = Math.max(Number(query.page)  || 1,  1);
+    const limit = Math.min(Number(query.limit) || 20, 100);
+    const skip  = (page - 1) * limit;
+
+    const [docs, total] = await Promise.all([
+      this.quoteModel.find(filter).sort({ created_at: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.quoteModel.countDocuments(filter),
+    ]);
+
+    return {
+      quotes: docs.map(d => this.normalize(d)),
+      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async findById(id: string) {

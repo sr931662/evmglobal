@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
+import Pagination from '../../../components/admin/Pagination'
 
 const DEPARTMENTS = ['Sales', 'Operations', 'Marketing', 'Technology', 'Management', 'Customer Support']
 const JOB_TYPES   = ['Full-time', 'Part-time', 'Remote', 'Hybrid']
@@ -162,27 +163,34 @@ function DeleteConfirm({ label, onClose, onConfirm }) {
 
 export default function AdminCareersPage() {
   const [jobs,         setJobs]         = useState([])
+  const [total,        setTotal]        = useState(0)
+  const [page,         setPage]         = useState(1)
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState('')
   const [status,       setStatus]       = useState('All')
   const [modal,        setModal]        = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
 
+  const limit = 10
+
   const fetchJobs = useCallback(async () => {
     setLoading(true); setError('')
     try {
-      const params = {}
+      const params = { page, limit }
       if (status !== 'All') params.status = status
       const data = await api.getCareers(params)
-      setJobs(Array.isArray(data) ? data : [])
+      setJobs(data.careers || [])
+      setTotal(data.pagination?.total || 0)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [status])
+  }, [status, page])
 
   useEffect(() => { fetchJobs() }, [fetchJobs])
+
+  useEffect(() => { setPage(1) }, [status])
 
   const handleSave = async (form) => {
     if (modal === 'create') {
@@ -199,6 +207,7 @@ export default function AdminCareersPage() {
     fetchJobs()
   }
 
+  const totalPages = Math.ceil(total / limit)
   const open   = jobs.filter(j => j.status === 'open').length
   const closed = jobs.filter(j => j.status === 'closed').length
 
@@ -282,6 +291,15 @@ export default function AdminCareersPage() {
           })}
         </div>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        showing={jobs.length}
+        onPage={setPage}
+        label="postings"
+      />
 
       <AnimatePresence>
         {modal && (

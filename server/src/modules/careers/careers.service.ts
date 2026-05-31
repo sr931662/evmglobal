@@ -6,11 +6,21 @@ import { Model } from 'mongoose';
 export class CareersService {
   constructor(@InjectModel('Career') private careerModel: Model<any>) {}
 
-  async findAll(query: { status?: string; department?: string } = {}) {
+  async findAll(query: { status?: string; department?: string; page?: number; limit?: number } = {}) {
     const filter: any = {};
     if (query.status)     filter.status     = query.status;
     if (query.department) filter.department = query.department;
-    return this.careerModel.find(filter).sort({ created_at: -1 }).lean().exec();
+
+    const page  = Math.max(Number(query.page)  || 1,  1);
+    const limit = Math.min(Number(query.limit) || 20, 100);
+    const skip  = (page - 1) * limit;
+
+    const [careers, total] = await Promise.all([
+      this.careerModel.find(filter).sort({ created_at: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.careerModel.countDocuments(filter),
+    ]);
+
+    return { careers, pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
 
   async findOne(id: string) {

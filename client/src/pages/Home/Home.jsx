@@ -5,7 +5,13 @@ import DestinationsFeatured from '../../components/home/DestinationsFeatured/Des
 import ProcessSection from '../../components/home/ProcessSection/ProcessSection'
 import InquirySection from '../../components/home/InquirySection/InquirySection'
 import HomeCTA from '../../components/home/HomeCTA/HomeCTA'
+import { usePageMeta } from '../../hooks/usePageMeta'
+
 export default function Home() {
+  usePageMeta(
+    'Ease My Vacations (EMV) | Best Holiday Packages & Travel Company in India',
+    'Book affordable domestic and international holiday packages with Ease My Vacations (EMV). Explore customized vacations, honeymoon tours, family holidays, group trips, adventure travel, and exclusive travel deals across India and worldwide.'
+  )
   return (
     <main>
       <HeroSection />

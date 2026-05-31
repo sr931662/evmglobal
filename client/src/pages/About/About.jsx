@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import styles from './About.module.css'
+import { usePageMeta } from '../../hooks/usePageMeta'
 
 function Counter({ target, suffix }) {
   const [count, setCount] = useState(0)
@@ -44,6 +45,10 @@ const aiItems = [
 ]
 
 export default function About() {
+  usePageMeta(
+    'About Ease My Vacations | Trusted Travel Company for Holiday Packages',
+    'Learn about Ease My Vacations, a leading travel company offering customized holiday packages, family vacations, honeymoon tours, group departures, and memorable travel experiences across India and international destinations.'
+  )
   return (
     <div className={styles.page}>
 

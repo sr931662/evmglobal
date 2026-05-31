@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
+import Pagination from '../../../components/admin/Pagination'
 
 function fmt(dateStr) {
   if (!dateStr) return '—'
@@ -43,28 +44,35 @@ function Avatar({ name }) {
 
 export default function AdminUsersPage() {
   const [users,   setUsers]   = useState([])
+  const [total,   setTotal]   = useState(0)
+  const [page,    setPage]    = useState(1)
   const [stats,   setStats]   = useState(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
   const [search,  setSearch]  = useState('')
 
+  const limit = 20
+
   const fetchAll = useCallback(async () => {
     setLoading(true); setError('')
     try {
       const [usersData, statsData] = await Promise.all([
-        api.getCustomers({ search: search.trim() || undefined }),
+        api.getCustomers({ search: search.trim() || undefined, page, limit }),
         api.getCustomerStats(),
       ])
-      setUsers(Array.isArray(usersData) ? usersData : [])
+      setUsers(usersData.customers || [])
+      setTotal(usersData.pagination?.total || 0)
       setStats(statsData)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [search])
+  }, [search, page])
 
   useEffect(() => { fetchAll() }, [fetchAll])
+
+  useEffect(() => { setPage(1) }, [search])
 
   return (
     <div className="space-y-8">
@@ -167,11 +175,14 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-        {!loading && !error && users.length > 0 && (
-          <div className="px-6 py-4 border-t border-gray-100">
-            <p className="text-xs text-gray-400 font-bold">{users.length} user{users.length !== 1 ? 's' : ''} total</p>
-          </div>
-        )}
+        <Pagination
+          page={page}
+          totalPages={Math.ceil(total / limit)}
+          total={total}
+          showing={users.length}
+          onPage={setPage}
+          label="users"
+        />
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
 import styles from './Contact.module.css'
+import { usePageMeta } from '../../hooks/usePageMeta'
 
 const EMPTY = { name: '', phone: '', email: '', destination: '', travelDate: '', travellers: '', message: '' }
 
@@ -15,6 +16,10 @@ const features = [
 ]
 
 export default function Contact() {
+  usePageMeta(
+    'Contact Ease My Vacations | Travel Experts for Holiday Planning',
+    'Get in touch with Ease My Vacations for personalized travel planning, holiday packages, group tours, honeymoon vacations, corporate travel, and exclusive travel deals.'
+  )
   const location = useLocation()
   const [form,    setForm]    = useState(EMPTY)
   const [loading, setLoading] = useState(false)

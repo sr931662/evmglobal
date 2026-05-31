@@ -213,3 +213,69 @@
   transition: background-color 0.2s;
 }
 .newsletterBtn:hover { background: var(--brand-hover); }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 3.5rem;
+  flex-wrap: wrap;
+}
+
+.pageBtn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+.pageBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pageNumbers { display: flex; gap: 0.25rem; }
+
+.pageNum {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pageNum:hover { border-color: var(--brand); color: var(--brand); }
+.pageNumActive {
+  background: var(--dark);
+  border-color: var(--dark);
+  color: #fff;
+}
+.pageNumActive:hover { border-color: var(--dark); color: #fff; }
+
+.pageCount {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

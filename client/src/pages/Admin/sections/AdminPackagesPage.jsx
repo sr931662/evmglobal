@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
+import Pagination from '../../../components/admin/Pagination'
 
 const CATEGORIES = ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness']
 
@@ -501,6 +502,8 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function AdminPackagesPage() {
   const [packages,   setPackages]   = useState([])
+  const [total,      setTotal]      = useState(0)
+  const [page,       setPage]       = useState(1)
   const [stats,      setStats]      = useState(null)
   const [loading,    setLoading]    = useState(true)
   const [error,      setError]      = useState('')
@@ -511,24 +514,29 @@ export default function AdminPackagesPage() {
   const [saving,     setSaving]     = useState(false)
   const [deletingId, setDeletingId] = useState(null)
 
+  const limit = 20
+
   const fetchAll = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
       const [pkgsData, statsData] = await Promise.all([
-        api.getPackages({ search: search.trim() || undefined }),
+        api.getPackages({ search: search.trim() || undefined, page, limit }),
         api.getPackageStats(),
       ])
-      setPackages(pkgsData.packages || pkgsData || [])
+      setPackages(pkgsData.packages || [])
+      setTotal(pkgsData.pagination?.total || 0)
       setStats(statsData)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [search])
+  }, [search, page])
 
   useEffect(() => { fetchAll() }, [fetchAll])
+
+  useEffect(() => { setPage(1) }, [search])
 
   const openCreate = () => {
     setEditPkg(null)
@@ -648,6 +656,8 @@ export default function AdminPackagesPage() {
       alert(`Failed to update: ${err.message}`)
     }
   }
+
+  const totalPages = Math.ceil(total / limit)
 
   return (
     <div className="space-y-8">
@@ -781,6 +791,15 @@ export default function AdminPackagesPage() {
             </table>
           </div>
         )}
+
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          showing={packages.length}
+          onPage={setPage}
+          label="packages"
+        />
       </motion.div>
 
       {showModal && (

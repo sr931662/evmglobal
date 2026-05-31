@@ -39,7 +39,7 @@ export class PackagesService implements OnModuleInit {
     return { ...rest, id: _id.toString() };
   }
 
-  async findAll(query: { search?: string; category?: string; status?: string; destination?: string } = {}) {
+  async findAll(query: { search?: string; category?: string; status?: string; destination?: string; page?: number; limit?: number } = {}) {
     const filter: any = {};
     if (query.category)    filter.category = query.category;
     if (query.status)      filter.status   = query.status;
@@ -56,8 +56,20 @@ export class PackagesService implements OnModuleInit {
         { destinations: { $regex: query.search, $options: 'i' } },
       ]}];
     }
-    const docs = await this.packageModel.find(filter).sort({ created_at: -1 }).lean().exec();
-    return docs.map(d => this.normalize(d));
+
+    const page  = Math.max(Number(query.page)  || 1,  1);
+    const limit = Math.min(Number(query.limit) || 20, 100);
+    const skip  = (page - 1) * limit;
+
+    const [docs, total] = await Promise.all([
+      this.packageModel.find(filter).sort({ created_at: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.packageModel.countDocuments(filter),
+    ]);
+
+    return {
+      packages: docs.map(d => this.normalize(d)),
+      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async getStats() {

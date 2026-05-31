@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../services/api'
+import { usePageMeta } from '../../hooks/usePageMeta'
 import styles from './Blog.module.css'
 
 const categoryStyle = {
@@ -21,17 +22,36 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-export default function Blog() {
-  const navigate             = useNavigate()
-  const [posts,   setPosts]  = useState([])
-  const [loading, setLoading] = useState(true)
+const LIMIT = 12
 
-  useEffect(() => {
-    api.getBlogs({ status: 'published', limit: 20 })
-      .then(data => setPosts(data.blogs || []))
+export default function Blog() {
+  usePageMeta(
+    'Travel Blog | Tips, Guides & Destination Inspiration | Ease My Vacations',
+    'Read travel tips, destination guides, honeymoon ideas, and insider travel advice from the Ease My Vacations team. Get inspired for your next holiday.'
+  )
+
+  const navigate              = useNavigate()
+  const [posts,    setPosts]  = useState([])
+  const [total,    setTotal]  = useState(0)
+  const [page,     setPage]   = useState(1)
+  const [loading,  setLoading] = useState(true)
+
+  const totalPages = Math.ceil(total / LIMIT)
+
+  const fetchPosts = useCallback(() => {
+    setLoading(true)
+    api.getBlogs({ status: 'published', page, limit: LIMIT })
+      .then(data => {
+        setPosts(data.blogs || [])
+        setTotal(data.pagination?.total || 0)
+      })
       .catch(() => setPosts([]))
       .finally(() => setLoading(false))
-  }, [])
+  }, [page])
+
+  useEffect(() => { fetchPosts() }, [fetchPosts])
+
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }, [page])
 
   return (
     <div className={styles.page}>
@@ -73,44 +93,91 @@ export default function Blog() {
               </div>
             </div>
           ) : (
-            <div className={styles.grid}>
-              {posts.map((post, i) => {
-                const id         = post._id || post.id
-                const slug       = post.slug || id
-                const badgeStyle = categoryStyle[post.category] || { background: '#f3f4f6', color: '#374151' }
-                return (
-                  <motion.article
-                    key={id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + i * 0.07, duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
-                    className={styles.card}
-                    onClick={() => navigate(`/blog/${slug}`)}
-                    style={{ cursor: 'pointer' }}
+            <>
+              <div className={styles.grid}>
+                {posts.map((post, i) => {
+                  const id         = post._id || post.id
+                  const slug       = post.slug || id
+                  const badgeStyle = categoryStyle[post.category] || { background: '#f3f4f6', color: '#374151' }
+                  return (
+                    <motion.article
+                      key={id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.05 + i * 0.05, duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+                      className={styles.card}
+                      onClick={() => navigate(`/blog/${slug}`)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {post.coverImage ? (
+                        <div className={styles.cardImg}>
+                          <img src={post.coverImage} alt={post.title} />
+                        </div>
+                      ) : (
+                        <div className={styles.cardImgPlaceholder}>✈</div>
+                      )}
+                      <div className={styles.cardBody}>
+                        <div className={styles.cardMeta}>
+                          <span className={styles.cardBadge} style={badgeStyle}>{post.category}</span>
+                          <span className={styles.cardAuthor}>{post.author}</span>
+                        </div>
+                        <h2 className={styles.cardTitle}>{post.title}</h2>
+                        <p className={styles.cardExcerpt}>{post.excerpt}</p>
+                        <div className={styles.cardFooter}>
+                          <span className={styles.cardDate}>{formatDate(post.publishedAt)}</span>
+                          <span className={styles.cardReadMore}>Read More →</span>
+                        </div>
+                      </div>
+                    </motion.article>
+                  )
+                })}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    onClick={() => setPage(p => Math.max(p - 1, 1))}
+                    disabled={page === 1}
+                    className={styles.pageBtn}
+                    aria-label="Previous page"
                   >
-                    {post.coverImage ? (
-                      <div className={styles.cardImg}>
-                        <img src={post.coverImage} alt={post.title} />
-                      </div>
-                    ) : (
-                      <div className={styles.cardImgPlaceholder}>✈</div>
-                    )}
-                    <div className={styles.cardBody}>
-                      <div className={styles.cardMeta}>
-                        <span className={styles.cardBadge} style={badgeStyle}>{post.category}</span>
-                        <span className={styles.cardAuthor}>{post.author}</span>
-                      </div>
-                      <h2 className={styles.cardTitle}>{post.title}</h2>
-                      <p className={styles.cardExcerpt}>{post.excerpt}</p>
-                      <div className={styles.cardFooter}>
-                        <span className={styles.cardDate}>{formatDate(post.publishedAt)}</span>
-                        <span className={styles.cardReadMore}>Read More →</span>
-                      </div>
-                    </div>
-                  </motion.article>
-                )
-              })}
-            </div>
+                    ← Prev
+                  </button>
+
+                  <div className={styles.pageNumbers}>
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i
+                      return (
+                        <button
+                          key={p}
+                          onClick={() => setPage(p)}
+                          className={`${styles.pageNum} ${p === page ? styles.pageNumActive : ''}`}
+                          aria-label={`Page ${p}`}
+                          aria-current={p === page ? 'page' : undefined}
+                        >
+                          {p}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+                    disabled={page === totalPages}
+                    className={styles.pageBtn}
+                    aria-label="Next page"
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+
+              <p className={styles.pageCount}>
+                Showing {posts.length} of {total} articles
+                {totalPages > 1 && ` · Page ${page} of ${totalPages}`}
+              </p>
+            </>
           )}
         </div>
       </section>

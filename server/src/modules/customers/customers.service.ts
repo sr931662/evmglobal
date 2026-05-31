@@ -72,7 +72,7 @@ export class CustomersService {
     return this.normalize(doc);
   }
 
-  async findAll(query: { search?: string } = {}) {
+  async findAll(query: { search?: string; page?: number; limit?: number } = {}) {
     const filter: any = {};
     if (query.search) {
       filter.$or = [
@@ -82,8 +82,20 @@ export class CustomersService {
         { phone: { $regex: query.search, $options: 'i' } },
       ];
     }
-    const docs = await this.customerModel.find(filter).sort({ created_at: -1 }).lean().exec();
-    return docs.map(d => this.normalize(d));
+
+    const page  = Math.max(Number(query.page)  || 1,  1);
+    const limit = Math.min(Number(query.limit) || 20, 100);
+    const skip  = (page - 1) * limit;
+
+    const [docs, total] = await Promise.all([
+      this.customerModel.find(filter).sort({ created_at: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.customerModel.countDocuments(filter),
+    ]);
+
+    return {
+      customers: docs.map(d => this.normalize(d)),
+      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async getStats() {

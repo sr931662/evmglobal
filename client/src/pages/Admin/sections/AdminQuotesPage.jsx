@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../../../services/api'
+import Pagination from '../../../components/admin/Pagination'
 
 // ─── Default data factories ───────────────────────────────────────────────────
 const emptyFlight = () => ({
@@ -723,6 +724,8 @@ const statusColors = {
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function AdminQuotesPage() {
   const [quotes, setQuotes]   = useState([])
+  const [total,  setTotal]    = useState(0)
+  const [page,   setPage]     = useState(1)
   const [stats, setStats]     = useState({ total: 0, sent: 0, accepted: 0 })
   const [loading, setLoading] = useState(true)
   const [search, setSearch]   = useState('')
@@ -732,20 +735,30 @@ export default function AdminQuotesPage() {
   const [printQuote, setPrintQuote] = useState(null)
   const printRef = useRef(null)
 
+  const limit = 20
+
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [q, s] = await Promise.all([api.getQuotes({ search, status: filter }), api.getQuoteStats()])
-      setQuotes(q)
+      const [q, s] = await Promise.all([
+        api.getQuotes({ search, status: filter, page, limit }),
+        api.getQuoteStats(),
+      ])
+      setQuotes(q.quotes || [])
+      setTotal(q.pagination?.total || 0)
       setStats(s)
     } catch (e) {
       console.error(e)
     } finally {
       setLoading(false)
     }
-  }, [search, filter])
+  }, [search, filter, page])
 
   useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    setPage(1)
+  }, [search, filter])
 
   async function handleSave(data) {
     const editId = modal && modal !== 'new' ? (modal.id || modal._id?.toString()) : null
@@ -780,6 +793,8 @@ export default function AdminQuotesPage() {
       setPrintQuote(null)
     }, 150)
   }
+
+  const totalPages = Math.ceil(total / limit)
 
   const statCards = [
     { label: 'Total Quotes', value: stats.total, color: 'bg-dark text-white' },
@@ -895,6 +910,15 @@ export default function AdminQuotesPage() {
             </table>
           </div>
         )}
+
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          showing={quotes.length}
+          onPage={setPage}
+          label="quotes"
+        />
       </div>
 
       {/* Quote Builder Modal */}
