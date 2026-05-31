@@ -93,7 +93,7 @@ async function request(path, opts = {}, retry = true) {
       const refreshed = await tryRefresh()
       if (refreshed) return request(path, opts, false)
       clearTokens()
-      window.location.hash = '#/admin/login'
+      window.location.href = '/admin/login'
       throw new Error('Session expired. Please log in again.')
     }
   }
@@ -210,6 +210,9 @@ export const api = {
 
   customerResetPassword: (resetToken, newPassword) =>
     request('/customer-auth/reset-password', { method: 'POST', body: JSON.stringify({ resetToken, newPassword }) }),
+
+  customerGetMyTrips: () =>
+    request('/customer-auth/my-trips'),
 
   // ─── Customers ─────────────────────────────────────────────────────────────
   registerCustomer: (data) =>

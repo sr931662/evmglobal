@@ -16,7 +16,9 @@
       "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\\\\pages\\\\CustomerProfile\")",
       "Bash(docker --version)",
       "Bash(aws --version)",
-      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\.github\\\\workflows\")"
+      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\.github\\\\workflows\")",
+      "Bash(dir \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\\\\pages\" /B /S)",
+      "Bash(dir \"d:\\\\Shivam folder\\\\Mavicode\\\\Projects\\\\emvglobal\\\\client\\\\src\")"
     ]
   }
 }

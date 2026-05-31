@@ -1,10 +1,14 @@
 import { Controller, Post, Get, Patch, Body, UseGuards, Request, HttpCode } from '@nestjs/common';
 import { CustomerAuthService } from './customer-auth.service';
 import { CustomerJwtAuthGuard } from './customer-auth.guard';
+import { QuotesService } from '../quotes/quotes.service';
 
 @Controller('customer-auth')
 export class CustomerAuthController {
-  constructor(private customerAuthService: CustomerAuthService) {}
+  constructor(
+    private customerAuthService: CustomerAuthService,
+    private quotesService: QuotesService,
+  ) {}
 
   @Post('register')
   register(@Body() body: { name: string; email: string; password: string; phone?: string; city?: string }) {
@@ -40,6 +44,12 @@ export class CustomerAuthController {
   @HttpCode(200)
   changePassword(@Request() req: any, @Body() body: { oldPassword: string; newPassword: string }) {
     return this.customerAuthService.changePassword(req.user.id, body.oldPassword, body.newPassword);
+  }
+
+  @Get('my-trips')
+  @UseGuards(CustomerJwtAuthGuard)
+  getMyTrips(@Request() req: any) {
+    return this.quotesService.findByEmail(req.user.email);
   }
 
   @Post('forgot-password')

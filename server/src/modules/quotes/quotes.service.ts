@@ -101,6 +101,23 @@ export class QuotesService {
     return this.normalize(quote);
   }
 
+  async findByEmail(email: string) {
+    const docs = await this.quoteModel
+      .find({
+        clientEmail: { $regex: `^${email}$`, $options: 'i' },
+        status: { $in: ['Sent', 'Accepted', 'Rejected'] },
+      })
+      .sort({ created_at: -1 })
+      .lean()
+      .exec();
+
+    return docs.map((d) => {
+      const norm = this.normalize(d) as any;
+      const { agentName, costItems, taxPercent, notes, clientName, clientEmail, clientPhone, ...safe } = norm;
+      return safe;
+    });
+  }
+
   async getStats() {
     const [total, sent, accepted] = await Promise.all([
       this.quoteModel.countDocuments(),

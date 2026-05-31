@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { useLenis, getLenis } from './hooks/useLenis'
@@ -8,6 +8,8 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext'
 import CustomerLogin from './pages/CustomerLogin/CustomerLogin'
 import CustomerProfile from './pages/CustomerProfile/CustomerProfile'
+import ProfileSettings from './pages/CustomerProfile/ProfileSettings'
+import TripHistory from './pages/CustomerProfile/TripHistory'
 import Navbar from './components/layout/Navbar/Navbar'
 import Footer from './components/layout/Footer/Footer'
 import Loader from './components/layout/Loader/Loader'
@@ -68,6 +70,7 @@ function ProtectedCustomer() {
   return <CustomerProfile />
 }
 
+
 function ProtectedAdmin() {
   const { user, loading } = useAuth()
   const location = useLocation()
@@ -109,7 +112,10 @@ function AnimatedRoutes() {
           <Route path="/careers"                   element={<Careers />} />
           <Route path="/contact"                   element={<Contact />} />
           <Route path="/login"                     element={<CustomerLogin />} />
-          <Route path="/customer/profile"          element={<ProtectedCustomer />} />
+          <Route path="/customer/profile"          element={<ProtectedCustomer />}>
+            <Route index                           element={<ProfileSettings />} />
+            <Route path="trips"                    element={<TripHistory />} />
+          </Route>
           <Route path="/admin/login"               element={user ? <Navigate to="/admin" replace /> : <AdminLogin onSuccess={() => {}} />} />
           <Route path="/admin"                     element={<ProtectedAdmin />} />
         </Routes>
@@ -143,12 +149,12 @@ export default function App() {
   if (!loaded) return <Loader onComplete={() => setLoaded(true)} />
 
   return (
-    <HashRouter>
+    <BrowserRouter>
       <AuthProvider>
         <CustomerAuthProvider>
           <AppShell />
         </CustomerAuthProvider>
       </AuthProvider>
-    </HashRouter>
+    </BrowserRouter>
   )
 }

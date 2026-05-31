@@ -6,6 +6,7 @@ import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy';
 import { CustomersModule } from '../customers/customers.module';
 import { AuthModule } from '../auth/auth.module';
 import { EmailModule } from '../email/email.module';
+import { QuotesModule } from '../quotes/quotes.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EmailModule } from '../email/email.module';
     AuthModule,
     CustomersModule,
     EmailModule,
+    QuotesModule,
   ],
   controllers: [CustomerAuthController],
   providers: [CustomerAuthService, CustomerJwtStrategy],
