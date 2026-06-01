@@ -79,11 +79,18 @@ body {
 }
 
 /* ── Modal Scroll ───────────────────────────────────────── */
-.modal-scroll { scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }
-.modal-scroll::-webkit-scrollbar { display: block; width: 4px; }
+.modal-scroll { scrollbar-width: thin !important; scrollbar-color: #e5e7eb transparent !important; }
+.modal-scroll::-webkit-scrollbar { display: block !important; width: 4px; }
 .modal-scroll::-webkit-scrollbar-track { background: transparent; }
 .modal-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
 .modal-scroll::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+
+/* ── Textarea scroll (overrides global hide-scrollbar rule) ── */
+textarea { overflow-y: auto !important; scrollbar-width: thin !important; scrollbar-color: #e5e7eb transparent !important; }
+textarea::-webkit-scrollbar { display: block !important; width: 4px; }
+textarea::-webkit-scrollbar-track { background: transparent; }
+textarea::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+textarea::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
 
 /* ── No scrollbar util ──────────────────────────────────── */
 .no-scrollbar::-webkit-scrollbar { display: none; }

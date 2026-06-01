@@ -235,6 +235,8 @@ function BlogModal({ blog, onClose, onSave }) {
                       outline: 'none',
                       boxSizing: 'border-box',
                       minHeight: '220px',
+                      maxHeight: '480px',
+                      overflowY: 'auto',
                     }}
                   />
                 </div>
