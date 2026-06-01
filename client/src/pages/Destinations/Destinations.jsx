@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import DestinationCard from '../../components/destinations/DestinationCard/DestinationCard'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
+import { usePageMeta } from '../../hooks/usePageMeta'
 import styles from './Destinations.module.css'
 
 const REGIONS = ['All Regions', 'Europe', 'Asia', 'Middle East', 'Africa', 'Oceania']
@@ -12,6 +13,17 @@ export default function Destinations() {
   const [destinations,  setDestinations]  = useState([])
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState('')
+
+  // Set meta tags for social sharing
+  usePageMeta(
+    'Global Destinations | EMV Global',
+    'Explore premium travel destinations handpicked by our concierge team. Discover unique experiences across Europe, Asia, Middle East, Africa, and Oceania.',
+    {
+      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=2800',
+      url: typeof window !== 'undefined' ? `${window.location.origin}/destinations` : '',
+      type: 'website'
+    }
+  )
 
   useEffect(() => {
     setLoading(true); setError('')

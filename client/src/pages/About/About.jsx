@@ -47,7 +47,12 @@ const aiItems = [
 export default function About() {
   usePageMeta(
     'About Ease My Vacations | Trusted Travel Company for Holiday Packages',
-    'Learn about Ease My Vacations, a leading travel company offering customized holiday packages, family vacations, honeymoon tours, group departures, and memorable travel experiences across India and international destinations.'
+    'Learn about Ease My Vacations, a leading travel company offering customized holiday packages, family vacations, honeymoon tours, group departures, and memorable travel experiences across India and international destinations.',
+    {
+      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=2800',
+      url: typeof window !== 'undefined' ? `${window.location.origin}/about` : '',
+      type: 'website'
+    }
   )
   return (
     <div className={styles.page}>

@@ -34,14 +34,17 @@ const PAGE_META = {
   Honeymoon: {
     title: 'Honeymoon Packages | Romantic Holiday Tours by Ease My Vacations',
     desc:  'Plan your dream honeymoon with customized romantic holiday packages to Maldives, Bali, Kashmir, Andaman, Kerala, Thailand, and other top honeymoon destinations.',
+    image: 'https://images.unsplash.com/photo-1531195a37764-dc8aaf3c3d48?auto=format&fit=crop&q=80&w=2800',
   },
   Domestic: {
     title: 'Domestic Tour Packages India | Affordable Holidays by Ease My Vacations',
     desc:  'Discover the best domestic tour packages across Kashmir, Goa, Kerala, Andaman, Sikkim, Northeast India, Rajasthan, Ladakh, and more with Ease My Vacations.',
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=2800',
   },
   All: {
     title: 'International Holiday Packages | Best Overseas Tours by EMV',
     desc:  'Explore international holiday packages to Bali, Dubai, Thailand, Maldives, Europe, Vietnam, Singapore, and more. Book affordable overseas vacations with Ease My Vacations.',
+    image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2800',
   },
 }
 
@@ -55,7 +58,11 @@ export default function Packages() {
   const [error,    setError]    = useState('')
 
   const meta = PAGE_META[active] || PAGE_META.All
-  usePageMeta(meta.title, meta.desc)
+  usePageMeta(meta.title, meta.desc, {
+    image: meta.image,
+    url: typeof window !== 'undefined' ? `${window.location.origin}/packages` : '',
+    type: 'website'
+  })
 
   const handleCategoryChange = (cat) => {
     setActive(cat)

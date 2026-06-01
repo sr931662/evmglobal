@@ -5,6 +5,7 @@ import PricingWidget from '../../components/packageDetails/PricingWidget/Pricing
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
+import { usePageMeta } from '../../hooks/usePageMeta'
 import styles from './PackageDetails.module.css'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2800'
@@ -31,6 +32,17 @@ export default function PackageDetails() {
       .catch(() => setError('Package not found.'))
       .finally(() => setLoading(false))
   }, [id])
+
+  // Set meta tags for social sharing when package loads
+  usePageMeta(
+    pkg ? `${pkg.title} | EMV Global Travel Packages` : 'EMV Global Travel Packages',
+    pkg ? `${pkg.title} - ${pkg.nights} nights${pkg.destinations && pkg.destinations.length ? ` in ${pkg.destinations.join(', ')}` : ''}` : 'Discover premium travel packages',
+    {
+      image: pkg?.image || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2800',
+      url: typeof window !== 'undefined' ? `${window.location.origin}/packages/${id}` : '',
+      type: 'website'
+    }
+  )
 
   if (loading) return (
     <div className={styles.loadingPage}>
