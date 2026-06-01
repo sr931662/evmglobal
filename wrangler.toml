@@ -1,26 +1,7 @@
 name = "evmglobal"
-main = "functions/index.js"
 compatibility_date = "2024-11-07"
 
 [env.production]
 routes = [
   { pattern = "easemyvacationsglobal.com/*", zone_name = "easemyvacationsglobal.com" }
 ]
-
-[build]
-command = "cd client && npm run build"
-cwd = "."
-watch_paths = ["client/src/**/*.jsx", "client/functions/**/*.js"]
-
-[build.upload]
-format = "service-worker"
-
-[[build.upload.rules]]
-type = "CompiledContentType"
-globs = ["**/*.wasm"]
-fallthrough = true
-
-[[build.upload.rules]]
-type = "Text"
-globs = ["**/*.txt", "**/*.html"]
-fallthrough = true
