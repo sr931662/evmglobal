@@ -7,12 +7,12 @@
   ],
   "exclude": [
     "/assets/*",
-    "*.js",
-    "*.css",
-    "*.png",
-    "*.gif",
-    "*.jpg",
-    "*.jpeg",
-    "*.svg"
+    "/*.js",
+    "/*.css",
+    "/*.png",
+    "/*.gif",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.svg"
   ]
 }
