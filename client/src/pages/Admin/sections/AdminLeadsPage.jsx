@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 
 const STATUS_OPTIONS  = ['All', 'new', 'contacted', 'qualified', 'converted', 'rejected', 'duplicate', 'not_interested']
 const STATUS_EDITABLE = STATUS_OPTIONS.slice(1)
@@ -93,6 +94,7 @@ function StatusBadge({ lead, onUpdate }) {
 
 // ── Add / Edit modal (type-aware) ───────────────────────────────────────────────
 function LeadModal({ lead, onClose, onSave }) {
+  useScrollLock()
   const isEdit = !!lead?._id || !!lead?.id
   const [type, setType] = useState(lead?.type || 'lead')
   const [form, setForm] = useState(
@@ -281,6 +283,7 @@ function DeleteConfirm({ lead, onClose, onConfirm }) {
 
 // ── Detail side-drawer ──────────────────────────────────────────────────────────
 function DetailDrawer({ lead, onClose, onEdit, onDelete, onStatusUpdate, onWhatsApp }) {
+  useScrollLock()
   const typeConf  = typeConfig[lead.type] || typeConfig.lead
 
   return (

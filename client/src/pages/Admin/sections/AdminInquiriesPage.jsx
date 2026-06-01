@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 
 const STATUS_OPTIONS = ['All', 'new', 'contacted', 'qualified', 'converted', 'rejected']
 const STATUS_EDITABLE = STATUS_OPTIONS.slice(1)
@@ -23,6 +24,7 @@ function formatDate(iso) {
 }
 
 function InquiryModal({ inquiry, onClose, onSave }) {
+  useScrollLock()
   const isEdit = !!inquiry?._id || !!inquiry?.id
   const [form, setForm] = useState(isEdit ? {
     name:        inquiry.name        || '',

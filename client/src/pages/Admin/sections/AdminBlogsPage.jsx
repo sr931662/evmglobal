@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { api } from '../../../services/api'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 
 const CATEGORIES = ['Travel Tips', 'Destinations', 'Behind the Scenes', 'News', 'Culture']
 const STATUS_OPTIONS = ['All', 'draft', 'published']
@@ -52,6 +53,7 @@ const MD_SHORTCUTS = [
 ]
 
 function BlogModal({ blog, onClose, onSave }) {
+  useScrollLock()
   const isEdit = !!blog?._id || !!blog?.id
   const [form,      setForm]      = useState(isEdit ? {
     title:      blog.title      || '',

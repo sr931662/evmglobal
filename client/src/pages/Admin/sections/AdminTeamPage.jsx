@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 
 const DEPARTMENTS   = ['Sales', 'Operations', 'Marketing', 'Technology', 'Management', 'Customer Support']
 const STATUS_OPTIONS = ['All', 'active', 'inactive']
@@ -11,6 +12,7 @@ const emptyForm = {
 }
 
 function TeamModal({ member, onClose, onSave }) {
+  useScrollLock()
   const isEdit = !!member?._id || !!member?.id
   const [form,   setForm]   = useState(isEdit ? {
     name:       member.name       || '',

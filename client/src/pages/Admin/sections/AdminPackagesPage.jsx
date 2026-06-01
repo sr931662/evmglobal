@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 
 const CATEGORIES = ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness']
 
@@ -363,6 +364,7 @@ function ItineraryBuilder({ itinerary, onChange }) {
 const TABS = ['Basic Info', 'Itinerary', 'Flights & Hotels', 'Inclusions & Exclusions']
 
 function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
+  useScrollLock()
   const [tab, setTab] = useState(0)
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
 

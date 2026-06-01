@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 
 // ─── Default data factories ───────────────────────────────────────────────────
 const emptyFlight = () => ({
@@ -320,6 +321,7 @@ function QuotePrint({ quote }) {
 const TABS = ['Client & Trip', 'Costs & Flights', 'Hotels & Itinerary', 'Inclusions & Notes']
 
 function QuoteModal({ quote, onSave, onClose }) {
+  useScrollLock()
   const [form, setForm]     = useState(() => quote ? { ...emptyForm(), ...quote } : emptyForm())
   const [tab, setTab]       = useState(0)
   const [saving, setSaving] = useState(false)

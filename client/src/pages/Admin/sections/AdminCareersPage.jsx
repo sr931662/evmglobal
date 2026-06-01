@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 
 const DEPARTMENTS = ['Sales', 'Operations', 'Marketing', 'Technology', 'Management', 'Customer Support']
 const JOB_TYPES   = ['Full-time', 'Part-time', 'Remote', 'Hybrid']
@@ -13,6 +14,7 @@ const emptyForm = {
 }
 
 function CareerModal({ job, onClose, onSave }) {
+  useScrollLock()
   const isEdit = !!job?._id || !!job?.id
   const [form,   setForm]   = useState(isEdit ? {
     title:        job.title        || '',
