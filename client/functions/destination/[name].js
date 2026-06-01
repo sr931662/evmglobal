@@ -1,4 +1,4 @@
-import { buildHtmlResponse, isCrawler, normalizeApiBase, renderPreviewHtml } from '../_preview.js'
+import { buildHtmlResponse, isCrawler, normalizeApiBase, renderPreviewHtml, resolvePreviewImage } from '../_preview.js'
 
 function normalizeName(value = '') {
   return decodeURIComponent(String(value)).trim().toLowerCase()
@@ -42,7 +42,7 @@ export async function onRequestGet(context) {
       title: `${destination.name} | EMV Global Destinations`,
       description,
       url: pageUrl.toString(),
-      image: destination.image || `${pageUrl.origin}/favicon.png`,
+      image: resolvePreviewImage(destination.image, pageUrl.origin),
       type: 'website',
       redirectUrl,
     })

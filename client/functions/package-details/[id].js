@@ -1,4 +1,4 @@
-import { buildHtmlResponse, isCrawler, normalizeApiBase, renderPreviewHtml } from '../_preview.js'
+import { buildHtmlResponse, isCrawler, normalizeApiBase, renderPreviewHtml, resolvePreviewImage } from '../_preview.js'
 
 export async function onRequestGet(context) {
   const userAgent = context.request.headers.get('user-agent') || ''
@@ -30,7 +30,7 @@ export async function onRequestGet(context) {
       title: `${pkg.title} | EMV Global`,
       description,
       url: pageUrl.toString(),
-      image: pkg.image || `${pageUrl.origin}/favicon.png`,
+      image: resolvePreviewImage(pkg.image, pageUrl.origin),
       type: 'website',
     })
 

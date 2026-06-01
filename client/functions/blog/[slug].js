@@ -1,4 +1,4 @@
-import { buildHtmlResponse, isCrawler, normalizeApiBase, renderPreviewHtml } from '../_preview.js'
+import { buildHtmlResponse, isCrawler, normalizeApiBase, renderPreviewHtml, resolvePreviewImage } from '../_preview.js'
 
 export async function onRequestGet(context) {
   const userAgent = context.request.headers.get('user-agent') || ''
@@ -28,7 +28,7 @@ export async function onRequestGet(context) {
       title: `${post.title} | EMV Global Blog`,
       description: post.excerpt || 'Read the latest travel story from EMV Global.',
       url: articleUrl.toString(),
-      image: post.coverImage || `${articleUrl.origin}/favicon.png`,
+      image: resolvePreviewImage(post.coverImage, articleUrl.origin),
       type: 'article',
     })
 
