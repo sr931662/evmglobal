@@ -119,8 +119,31 @@
 .card:hover .cardTitle { color: var(--brand); }
 .cardExcerpt { color: #6b7280; font-size: 0.875rem; line-height: 1.6; font-weight: 300; margin-bottom: 1.25rem; }
 
-.cardFooter { display: flex; align-items: center; justify-content: space-between; }
+.cardFooter { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
 .cardDate { font-size: 0.625rem; font-weight: 900; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.15em; }
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.cardShareBtn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  border-radius: 9999px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+.cardShareBtn:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: rgba(229,57,53,0.05);
+}
 .cardReadMore {
   font-size: 0.625rem;
   font-weight: 900;

@@ -7,19 +7,24 @@ import styles from './Blog.module.css'
 
 const categoryStyle = {
   'Travel Tips':       { background: '#eff6ff', color: '#1d4ed8' },
-  'Honeymoon':         { background: '#fdf2f8', color: '#9d174d' },
+  Honeymoon:           { background: '#fdf2f8', color: '#9d174d' },
   'Luxury Travel':     { background: '#faf5ff', color: '#7e22ce' },
-  'Destinations':      { background: '#fff7ed', color: '#c2410c' },
+  Destinations:        { background: '#fff7ed', color: '#c2410c' },
   'Family Travel':     { background: '#f0fdf4', color: '#15803d' },
-  'Wellness':          { background: '#f0fdfa', color: '#0f766e' },
+  Wellness:            { background: '#f0fdfa', color: '#0f766e' },
   'Behind the Scenes': { background: '#fefce8', color: '#a16207' },
-  'News':              { background: '#f3f4f6', color: '#374151' },
-  'Culture':           { background: '#fff1f2', color: '#be123c' },
+  News:                { background: '#f3f4f6', color: '#374151' },
+  Culture:             { background: '#fff1f2', color: '#be123c' },
 }
 
 function formatDate(iso) {
   if (!iso) return ''
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function buildShareUrl(slug) {
+  if (typeof window === 'undefined') return ''
+  return `${window.location.origin}/blog/${slug}`
 }
 
 const LIMIT = 12
@@ -30,11 +35,11 @@ export default function Blog() {
     'Read travel tips, destination guides, honeymoon ideas, and insider travel advice from the Ease My Vacations team. Get inspired for your next holiday.'
   )
 
-  const navigate              = useNavigate()
-  const [posts,    setPosts]  = useState([])
-  const [total,    setTotal]  = useState(0)
-  const [page,     setPage]   = useState(1)
-  const [loading,  setLoading] = useState(true)
+  const navigate = useNavigate()
+  const [posts, setPosts] = useState([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
 
   const totalPages = Math.ceil(total / LIMIT)
 
@@ -49,14 +54,47 @@ export default function Blog() {
       .finally(() => setLoading(false))
   }, [page])
 
-  useEffect(() => { fetchPosts() }, [fetchPosts])
+  useEffect(() => {
+    fetchPosts()
+  }, [fetchPosts])
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }, [page])
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [page])
+
+  async function handleShare(event, post) {
+    event.stopPropagation()
+
+    const slug = post.slug || post._id || post.id
+    const shareUrl = buildShareUrl(slug)
+    const shareText = post.excerpt || `Read "${post.title}" on EMV Global`
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: post.title, text: shareText, url: shareUrl })
+        return
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl)
+        window.alert('Blog link copied. You can share it now.')
+        return
+      }
+    } catch {}
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`,
+      '_blank',
+      'noopener,noreferrer'
+    )
+  }
 
   return (
     <div className={styles.page}>
-
-      {/* Hero */}
       <section className={styles.heroSection}>
         <div className={styles.inner}>
           <motion.div
@@ -71,13 +109,12 @@ export default function Blog() {
               Stories, guides &amp;<br />travel inspiration.
             </h1>
             <p className={styles.heroDesc}>
-              Expert advice, destination guides, and insider tips from the EMV Global concierge team — to help you travel smarter.
+              Expert advice, destination guides, and insider tips from the EMV Global concierge team to help you travel smarter.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Posts */}
       <section className={styles.postsSection}>
         <div className={styles.inner}>
           {loading ? (
@@ -86,7 +123,7 @@ export default function Blog() {
             </div>
           ) : posts.length === 0 ? (
             <div className={styles.comingSoon}>
-              <span className={styles.comingSoonIcon}>✍️</span>
+              <span className={styles.comingSoonIcon}>Writing</span>
               <div>
                 <p className={styles.comingSoonTitle}>Blog launching soon</p>
                 <p className={styles.comingSoonDesc}>Our travel writers are crafting in-depth guides. Check back shortly or follow us on Instagram for updates.</p>
@@ -96,9 +133,10 @@ export default function Blog() {
             <>
               <div className={styles.grid}>
                 {posts.map((post, i) => {
-                  const id         = post._id || post.id
-                  const slug       = post.slug || id
+                  const id = post._id || post.id
+                  const slug = post.slug || id
                   const badgeStyle = categoryStyle[post.category] || { background: '#f3f4f6', color: '#374151' }
+
                   return (
                     <motion.article
                       key={id}
@@ -114,7 +152,7 @@ export default function Blog() {
                           <img src={post.coverImage} alt={post.title} />
                         </div>
                       ) : (
-                        <div className={styles.cardImgPlaceholder}>✈</div>
+                        <div className={styles.cardImgPlaceholder}>Trip</div>
                       )}
                       <div className={styles.cardBody}>
                         <div className={styles.cardMeta}>
@@ -125,7 +163,17 @@ export default function Blog() {
                         <p className={styles.cardExcerpt}>{post.excerpt}</p>
                         <div className={styles.cardFooter}>
                           <span className={styles.cardDate}>{formatDate(post.publishedAt)}</span>
-                          <span className={styles.cardReadMore}>Read More →</span>
+                          <div className={styles.cardActions}>
+                            <button
+                              type="button"
+                              className={styles.cardShareBtn}
+                              onClick={(event) => handleShare(event, post)}
+                              aria-label={`Share ${post.title}`}
+                            >
+                              Share
+                            </button>
+                            <span className={styles.cardReadMore}>Read More</span>
+                          </div>
                         </div>
                       </div>
                     </motion.article>
@@ -133,7 +181,6 @@ export default function Blog() {
                 })}
               </div>
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className={styles.pagination}>
                   <button
@@ -142,7 +189,7 @@ export default function Blog() {
                     className={styles.pageBtn}
                     aria-label="Previous page"
                   >
-                    ← Prev
+                    Prev
                   </button>
 
                   <div className={styles.pageNumbers}>
@@ -168,21 +215,20 @@ export default function Blog() {
                     className={styles.pageBtn}
                     aria-label="Next page"
                   >
-                    Next →
+                    Next
                   </button>
                 </div>
               )}
 
               <p className={styles.pageCount}>
                 Showing {posts.length} of {total} articles
-                {totalPages > 1 && ` · Page ${page} of ${totalPages}`}
+                {totalPages > 1 && ` | Page ${page} of ${totalPages}`}
               </p>
             </>
           )}
         </div>
       </section>
 
-      {/* Newsletter CTA */}
       <section className={styles.newsletterSection}>
         <div className={styles.inner}>
           <motion.div
@@ -193,7 +239,7 @@ export default function Blog() {
             className={styles.newsletterInner}
           >
             <h2 className={styles.newsletterHeading}>Get travel inspiration in your inbox</h2>
-            <p className={styles.newsletterDesc}>Destination guides, exclusive deals, and curated itineraries — delivered once a month.</p>
+            <p className={styles.newsletterDesc}>Destination guides, exclusive deals, and curated itineraries delivered once a month.</p>
             <div className={styles.newsletterForm}>
               <input type="email" placeholder="Your email address" className={styles.newsletterInput} />
               <button className={styles.newsletterBtn}>Subscribe</button>
@@ -201,7 +247,6 @@ export default function Blog() {
           </motion.div>
         </div>
       </section>
-
     </div>
   )
 }

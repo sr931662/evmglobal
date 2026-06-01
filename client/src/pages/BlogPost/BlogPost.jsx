@@ -8,14 +8,14 @@ import styles from './BlogPost.module.css'
 
 const categoryStyle = {
   'Travel Tips':       { background: '#eff6ff', color: '#1d4ed8' },
-  'Honeymoon':         { background: '#fdf2f8', color: '#9d174d' },
+  Honeymoon:           { background: '#fdf2f8', color: '#9d174d' },
   'Luxury Travel':     { background: '#faf5ff', color: '#7e22ce' },
-  'Destinations':      { background: '#fff7ed', color: '#c2410c' },
+  Destinations:        { background: '#fff7ed', color: '#c2410c' },
   'Family Travel':     { background: '#f0fdf4', color: '#15803d' },
-  'Wellness':          { background: '#f0fdfa', color: '#0f766e' },
+  Wellness:            { background: '#f0fdfa', color: '#0f766e' },
   'Behind the Scenes': { background: '#fefce8', color: '#a16207' },
-  'News':              { background: '#f3f4f6', color: '#374151' },
-  'Culture':           { background: '#fff1f2', color: '#be123c' },
+  News:                { background: '#f3f4f6', color: '#374151' },
+  Culture:             { background: '#fff1f2', color: '#be123c' },
 }
 
 function formatDate(iso) {
@@ -23,16 +23,33 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+function upsertMeta(selector, attributes) {
+  let tag = document.head.querySelector(selector)
+  if (!tag) {
+    tag = document.createElement('meta')
+    document.head.appendChild(tag)
+  }
+
+  Object.entries(attributes).forEach(([key, value]) => {
+    tag.setAttribute(key, value)
+  })
+}
+
+function buildShareUrl(slug) {
+  if (typeof window === 'undefined') return ''
+  return `${window.location.origin}/blog/${slug}`
+}
+
 const mdComponents = {
   h1: ({ children }) => <h2 className={styles.mdH1}>{children}</h2>,
   h2: ({ children }) => <h3 className={styles.mdH2}>{children}</h3>,
   h3: ({ children }) => <h4 className={styles.mdH3}>{children}</h4>,
-  p:  ({ children }) => <p  className={styles.mdP}>{children}</p>,
+  p: ({ children }) => <p className={styles.mdP}>{children}</p>,
   ul: ({ children }) => <ul className={styles.mdUl}>{children}</ul>,
   ol: ({ children }) => <ol className={styles.mdOl}>{children}</ol>,
   li: ({ children }) => <li className={styles.mdLi}>{children}</li>,
   strong: ({ children }) => <strong className={styles.mdStrong}>{children}</strong>,
-  em:     ({ children }) => <em className={styles.mdEm}>{children}</em>,
+  em: ({ children }) => <em className={styles.mdEm}>{children}</em>,
   blockquote: ({ children }) => <blockquote className={styles.mdBlockquote}>{children}</blockquote>,
   code: ({ inline, children }) => inline
     ? <code className={styles.mdInlineCode}>{children}</code>
@@ -46,11 +63,11 @@ const mdComponents = {
 }
 
 export default function BlogPost() {
-  const { id }       = useParams()
-  const navigate     = useNavigate()
-  const [post,    setPost]    = useState(null)
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState('')
+  const [error, setError] = useState('')
 
   useEffect(() => {
     api.getBlog(id)
@@ -58,6 +75,62 @@ export default function BlogPost() {
       .catch(err => setError(err.message || 'Post not found'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    if (!post || typeof window === 'undefined') return
+
+    const title = `${post.title} | EMV Global Blog`
+    const description = post.excerpt || 'Read the latest travel story from EMV Global.'
+    const url = buildShareUrl(post.slug || post.id || id)
+    const image = post.coverImage || `${window.location.origin}/favicon.png`
+    const previousTitle = document.title
+
+    document.title = title
+    upsertMeta('meta[name="description"]', { name: 'description', content: description })
+    upsertMeta('meta[property="og:title"]', { property: 'og:title', content: title })
+    upsertMeta('meta[property="og:description"]', { property: 'og:description', content: description })
+    upsertMeta('meta[property="og:type"]', { property: 'og:type', content: 'article' })
+    upsertMeta('meta[property="og:url"]', { property: 'og:url', content: url })
+    upsertMeta('meta[property="og:image"]', { property: 'og:image', content: image })
+    upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' })
+    upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: title })
+    upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description })
+    upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image', content: image })
+
+    return () => {
+      document.title = previousTitle
+    }
+  }, [id, post])
+
+  async function handleShare() {
+    if (!post || typeof window === 'undefined') return
+
+    const shareUrl = buildShareUrl(post.slug || post.id || id)
+    const shareText = post.excerpt || `Read "${post.title}" on EMV Global`
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: post.title, text: shareText, url: shareUrl })
+        return
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl)
+        window.alert('Blog link copied. You can share it now.')
+        return
+      }
+    } catch {}
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`,
+      '_blank',
+      'noopener,noreferrer'
+    )
+  }
 
   if (loading) {
     return (
@@ -76,7 +149,7 @@ export default function BlogPost() {
           <div className={styles.errorWrap}>
             <p className={styles.errorTitle}>Post not found</p>
             <p className={styles.errorDesc}>{error || 'This article may have been moved or deleted.'}</p>
-            <button onClick={() => navigate('/blog')} className={styles.backBtn}>← Back to Blog</button>
+            <button onClick={() => navigate('/blog')} className={styles.backBtn}>Back to Blog</button>
           </div>
         </div>
       </div>
@@ -84,11 +157,10 @@ export default function BlogPost() {
   }
 
   const badgeStyle = categoryStyle[post.category] || { background: '#f3f4f6', color: '#374151' }
-  const content    = post.content || post.excerpt || ''
+  const content = post.content || post.excerpt || ''
 
   return (
     <div className={styles.page}>
-      {/* Cover image */}
       {post.coverImage && (
         <div className={styles.cover}>
           <img src={post.coverImage} alt={post.title} className={styles.coverImg} />
@@ -97,7 +169,6 @@ export default function BlogPost() {
       )}
 
       <div className={styles.inner}>
-        {/* Back button */}
         <motion.button
           onClick={() => navigate('/blog')}
           className={styles.backBtn}
@@ -106,10 +177,9 @@ export default function BlogPost() {
           transition={{ duration: 0.4 }}
           whileHover={{ x: -3 }}
         >
-          ← Back to Blog
+          Back to Blog
         </motion.button>
 
-        {/* Article header */}
         <motion.div
           className={styles.header}
           initial={{ opacity: 0, y: 24 }}
@@ -118,9 +188,9 @@ export default function BlogPost() {
         >
           <div className={styles.meta}>
             <span className={styles.badge} style={badgeStyle}>{post.category}</span>
-            <span className={styles.metaDot}>·</span>
+            <span className={styles.metaDot}>|</span>
             <span className={styles.metaText}>{post.author}</span>
-            <span className={styles.metaDot}>·</span>
+            <span className={styles.metaDot}>|</span>
             <span className={styles.metaText}>{formatDate(post.publishedAt || post.created_at)}</span>
           </div>
 
@@ -129,9 +199,12 @@ export default function BlogPost() {
           {post.excerpt && (
             <p className={styles.excerpt}>{post.excerpt}</p>
           )}
+
+          <button type="button" onClick={handleShare} className={styles.shareBtn}>
+            Share article
+          </button>
         </motion.div>
 
-        {/* Article body */}
         <motion.article
           className={styles.body}
           initial={{ opacity: 0, y: 20 }}
@@ -143,7 +216,6 @@ export default function BlogPost() {
           </ReactMarkdown>
         </motion.article>
 
-        {/* Tags */}
         {post.tags?.length > 0 && (
           <motion.div
             className={styles.tags}
@@ -157,7 +229,6 @@ export default function BlogPost() {
           </motion.div>
         )}
 
-        {/* Bottom back link */}
         <motion.div
           className={styles.bottomBack}
           initial={{ opacity: 0 }}
@@ -165,7 +236,7 @@ export default function BlogPost() {
           transition={{ delay: 0.4 }}
         >
           <button onClick={() => navigate('/blog')} className={styles.backBtnBottom}>
-            ← Back to all articles
+            Back to all articles
           </button>
         </motion.div>
       </div>
