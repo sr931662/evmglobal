@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "include": [
+    "/package-details/*",
+    "/blog/*",
+    "/destination/*"
+  ],
+  "exclude": [
+    "/assets/*",
+    "*.js",
+    "*.css",
+    "*.png",
+    "*.gif",
+    "*.jpg",
+    "*.jpeg",
+    "*.svg"
+  ]
+}
