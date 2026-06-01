@@ -43,6 +43,31 @@
   transform: rotate(-45deg);
 }
 
+.shareBtn {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 10;
+  border: 1px solid rgba(255,255,255,0.24);
+  background: rgba(15,23,42,0.26);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.65rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.25s, transform 0.25s, border-color 0.25s;
+}
+
+.shareBtn:hover {
+  background: rgba(229,57,53,0.92);
+  border-color: rgba(229,57,53,0.92);
+  transform: translateY(-2px);
+}
+
 .info {
   position: absolute;
   bottom: 0;

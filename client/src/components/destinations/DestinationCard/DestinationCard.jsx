@@ -8,8 +8,44 @@ const ARROW = (
   </svg>
 )
 
+function buildShareUrl(name) {
+  if (typeof window === 'undefined') return ''
+  return `${window.location.origin}/destination/${encodeURIComponent(name)}`
+}
+
 export default function DestinationCard({ dest, index }) {
   const navigate = useNavigate()
+
+  async function handleShare(event) {
+    event.stopPropagation()
+
+    const shareUrl = buildShareUrl(dest.name)
+    const shareText = `Explore ${dest.name}, ${dest.country} with EMV Global`
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: dest.name, text: shareText, url: shareUrl })
+        return
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl)
+        window.alert('Destination link copied. You can share it now.')
+        return
+      }
+    } catch {}
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`,
+      '_blank',
+      'noopener,noreferrer'
+    )
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 80 }}
@@ -29,6 +65,14 @@ export default function DestinationCard({ dest, index }) {
       />
       <div className={`${styles.vignette} card-vignette`} />
       <div className={`${styles.arrow} glass`}>{ARROW}</div>
+      <button
+        type="button"
+        className={styles.shareBtn}
+        onClick={handleShare}
+        aria-label={`Share ${dest.name}`}
+      >
+        Share
+      </button>
       <div className={styles.info}>
         <span className={styles.region}>{dest.region}</span>
         <h3 className={styles.name}>{dest.name}</h3>
