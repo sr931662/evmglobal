@@ -24,14 +24,14 @@ async function migrateImages() {
 
     const packageModel = mongoose.model('Package', PackageSchema)
 
-    // Find all packages without images or with empty images
+    // Find all packages without images or with empty images and return plain objects
     const packages = await packageModel.find({
       $or: [
         { image: { $exists: false } },
         { image: '' },
         { image: null },
       ],
-    })
+    }).lean().exec()
 
     console.log(`Found ${packages.length} packages without images`)
 
@@ -43,12 +43,13 @@ async function migrateImages() {
 
     // Update each package with a default image based on category
     for (const pkg of packages) {
-      const image = imageMap[pkg.category] || imageMap['Domestic']
+      const category = (pkg as any).category || 'Domestic'
+      const image = imageMap[category] || imageMap['Domestic']
       await packageModel.updateOne(
-        { _id: pkg._id },
+        { _id: (pkg as any)._id },
         { image }
       )
-      console.log(`Updated: ${pkg.title} (${pkg.category}) with image`)
+      console.log(`Updated: ${ (pkg as any).title } (${category}) with image`)
     }
 
     console.log(`✓ Successfully updated ${packages.length} packages with images`)
