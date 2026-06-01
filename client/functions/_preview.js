@@ -57,11 +57,14 @@ export function buildHtmlResponse(html) {
 }
 
 export function resolvePreviewImage(image, origin) {
-  if (!image) return `${origin}/favicon.png`
+  // Default hero image for travel packages if none provided
+  const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200&h=630'
+  
+  if (!image || image.trim() === '') return DEFAULT_IMAGE
 
   try {
     return new URL(image, origin).toString()
   } catch {
-    return `${origin}/favicon.png`
+    return DEFAULT_IMAGE
   }
 }
