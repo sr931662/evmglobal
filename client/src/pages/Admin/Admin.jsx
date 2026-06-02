@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react'
+import { useState, Suspense, lazy, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
 import AdminSidebar from '../../components/admin/AdminSidebar/AdminSidebar'
@@ -44,6 +44,11 @@ export default function Admin() {
   const { logout, user } = useAuth()
 
   const Section = sections[active] || AdminDashboard
+
+  // Scroll to top whenever the active section changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [active])
 
   const navigate = (id) => { setActive(id); setMobileOpen(false) }
 

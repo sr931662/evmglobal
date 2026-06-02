@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { api } from '../../../services/api'
 import { openWhatsApp } from '../../../utils/whatsapp'
+import { getLenis } from '../../../hooks/useLenis'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -504,8 +505,17 @@ export default function TravelQuizModal() {
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    if (open) {
+      document.body.style.overflow = 'hidden'
+      getLenis()?.stop()
+    } else {
+      document.body.style.overflow = ''
+      getLenis()?.start()
+    }
+    return () => {
+      document.body.style.overflow = ''
+      getLenis()?.start()
+    }
   }, [open])
 
   const openModal  = () => { setOpen(true); sessionStorage.setItem('emv_quiz_seen', '1') }

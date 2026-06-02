@@ -8,7 +8,18 @@ export function useLenis(enabled = true) {
   const lenisRef = useRef(null)
 
   useEffect(() => {
-    if (!enabled) return
+    // Tear down any existing instance when switching modes
+    if (!enabled) {
+      if (lenisRef.current) {
+        lenisRef.current.destroy()
+        lenisRef.current = null
+        _lenis = null
+      }
+      return
+    }
+
+    // Already running — nothing to do
+    if (lenisRef.current) return
 
     const lenis = new Lenis({
       duration: 1.2,
@@ -34,9 +45,10 @@ export function useLenis(enabled = true) {
     return () => {
       cancelAnimationFrame(rafId)
       lenis.destroy()
+      lenisRef.current = null
       _lenis = null
     }
-  }, [])
+  }, [enabled])
 
   return lenisRef
 }

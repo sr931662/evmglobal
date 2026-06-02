@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { FaTimes } from 'react-icons/fa'
 import { openWhatsApp } from '../../../utils/whatsapp'
 import { useCustomerAuth } from '../../../context/CustomerAuthContext'
+import { getLenis } from '../../../hooks/useLenis'
 import styles from './MobileMenu.module.css'
 
 const links = [
@@ -28,8 +29,17 @@ export default function MobileMenu({ open, onClose }) {
   const { customer, logoutCustomer } = useCustomerAuth()
 
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    if (open) {
+      document.body.style.overflow = 'hidden'
+      getLenis()?.stop()
+    } else {
+      document.body.style.overflow = ''
+      getLenis()?.start()
+    }
+    return () => {
+      document.body.style.overflow = ''
+      getLenis()?.start()
+    }
   }, [open])
 
   return (
