@@ -50,8 +50,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar { display: none; }
-* { -ms-overflow-style: none; scrollbar-width: none; }
+/* Do not hide scrollbars globally — use the `.no-scrollbar` util where needed */
 
 /* ── Global Utility Classes (used across many components) ── */
 .glass {
@@ -79,10 +78,16 @@ body {
 }
 
 /* ── Modal Scroll ───────────────────────────────────────── */
-.modal-scroll { scrollbar-width: thin !important; scrollbar-color: #e5e7eb transparent !important; }
-.modal-scroll::-webkit-scrollbar { display: block !important; width: 4px; }
+.modal-scroll {
+  overflow-y: auto;
+  max-height: 80vh;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin !important;
+  scrollbar-color: #e5e7eb transparent !important;
+}
+.modal-scroll::-webkit-scrollbar { display: block !important; width: 8px; }
 .modal-scroll::-webkit-scrollbar-track { background: transparent; }
-.modal-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+.modal-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 8px; }
 .modal-scroll::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
 
 /* ── Textarea scroll (overrides global hide-scrollbar rule) ── */
