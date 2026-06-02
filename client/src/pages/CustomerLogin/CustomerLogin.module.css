@@ -252,6 +252,9 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
+@media (max-width: 520px) {
+  .fieldRow { grid-template-columns: 1fr; }
+}
 
 /* ── Password field ── */
 .pwWrap { position: relative; }

@@ -64,6 +64,13 @@ export default function CustomerProfile() {
                 <span className={styles.navIcon}>Trips</span>
                 My Trips
               </NavLink>
+              <NavLink
+                to="/cancellation"
+                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+              >
+                <span className={styles.navIcon}>✕</span>
+                Cancel a Booking
+              </NavLink>
             </nav>
           </motion.aside>
 

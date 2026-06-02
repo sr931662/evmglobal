@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../services/api'
 import styles from './CustomerProfile.module.css'
@@ -9,9 +10,6 @@ const STATUS_CLASS = {
   Rejected: styles.statusRejected,
 }
 
-function Stars({ count }) {
-  return <span className={styles.hotelStars}>{'*'.repeat(Math.min(count || 0, 5))}</span>
-}
 
 function TripCard({ trip }) {
   const [open, setOpen] = useState(false)
@@ -137,24 +135,23 @@ function TripCard({ trip }) {
             {hasHotels && (
               <div className={styles.detailSection}>
                 <p className={styles.detailSectionTitle}>Accommodation</p>
-                <div className={styles.hotelList}>
+                <div className={styles.hotelCardList}>
                   {trip.hotels.map((hotel, index) => (
-                    <div key={index} className={styles.hotelRow}>
-                      <span className={styles.hotelIcon}>HT</span>
-                      <div className={styles.hotelInfo}>
-                        <p className={styles.hotelName}>
-                          {hotel.name}
-                          {hotel.stars > 0 && <> &nbsp;<Stars count={hotel.stars} /></>}
-                        </p>
-                        <p className={styles.hotelMeta}>
-                          {[
-                            hotel.location,
-                            hotel.nights ? `${hotel.nights} night${hotel.nights !== 1 ? 's' : ''}` : null,
-                            hotel.roomCategory,
-                            hotel.mealPlan,
-                          ].filter(Boolean).join(' | ')}
-                        </p>
+                    <div key={index} className={styles.hotelCard}>
+                      <div className={styles.hotelCardTop}>
+                        <div className={styles.hotelCardLeft}>
+                          <p className={styles.hotelCardName}>{hotel.name}</p>
+                          {hotel.stars > 0 && (
+                            <p className={styles.hotelCardStars}>{'★'.repeat(Math.min(hotel.stars, 5))}</p>
+                          )}
+                        </div>
+                        {hotel.roomCategory && (
+                          <span className={styles.hotelCardRoom}>{hotel.roomCategory}</span>
+                        )}
                       </div>
+                      {hotel.address && (
+                        <p className={styles.hotelCardAddress}>📍 {hotel.address}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -221,6 +218,15 @@ function TripCard({ trip }) {
                 </div>
               </div>
             )}
+
+            <div className={styles.cancelRow}>
+              <Link
+                to={`/cancellation?ref=${trip.refNumber}`}
+                className={styles.cancelBtn}
+              >
+                Request Cancellation
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

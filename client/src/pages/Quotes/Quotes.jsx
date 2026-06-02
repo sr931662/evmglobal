@@ -162,15 +162,15 @@ function QuoteView({ quote }) {
                   <div className={styles.hotelBoxHeader}>
                     <div>
                       <p className={styles.hotelName}>{h.name}</p>
-                      <p className={styles.hotelStars}>{'★'.repeat(h.stars || 3)}</p>
+                      {h.stars > 0 && <p className={styles.hotelStars}>{'★'.repeat(Math.min(h.stars, 5))}</p>}
                     </div>
-                    <span className={styles.hotelMealPlan}>{h.mealPlan}</span>
+                    {h.roomCategory && <span className={styles.hotelMealPlan}>{h.roomCategory}</span>}
                   </div>
-                  <div className={styles.hotelMeta}>
-                    {h.location && <span>📍 {h.location}</span>}
-                    {h.nights && <span>🌙 {h.nights} night{h.nights > 1 ? 's' : ''}</span>}
-                    {h.roomCategory && <span>🛏 {h.roomCategory}</span>}
-                  </div>
+                  {h.address && (
+                    <div className={styles.hotelMeta}>
+                      <span>📍 {h.address}</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -362,10 +362,15 @@ function QuotePrintTemplate({ quote, subtotal, tax, total, outbound, ret }) {
           <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>ACCOMMODATION</div>
           {quote.hotels.filter(h => h.name).map((h, i) => (
             <div key={i} style={{ borderLeft: '3px solid #c9a96e', paddingLeft: 12, marginBottom: 10 }}>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontWeight: 700, fontSize: 13 }}>{h.name} {'★'.repeat(h.stars || 3)}</div>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 2 }}>
-                {[h.location, `${h.nights}N`, h.roomCategory, h.mealPlan].filter(Boolean).join(' · ')}
+              <div style={{ fontFamily: 'Arial, sans-serif', fontWeight: 700, fontSize: 13 }}>
+                {h.name}{h.stars > 0 ? ` ${'★'.repeat(Math.min(h.stars, 5))}` : ''}
+                {h.roomCategory ? <span style={{ fontWeight: 400, color: '#777', marginLeft: 8 }}>{h.roomCategory}</span> : null}
               </div>
+              {h.address && (
+                <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 2 }}>
+                  📍 {h.address}
+                </div>
+              )}
             </div>
           ))}
         </div>
