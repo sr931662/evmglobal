@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { api } from '../../../services/api'
+import { openWhatsApp } from '../../../utils/whatsapp'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -864,6 +865,47 @@ export default function TravelQuizModal() {
                       >
                         Close &amp; Explore Packages →
                       </motion.button>
+
+                      <div className="mt-4 flex gap-3 justify-center">
+                        <button
+                          onClick={() => {
+                            const parts = [
+                              `Name: ${contact.name || 'N/A'}`,
+                              `Phone: ${contact.phone || 'N/A'}`,
+                              contact.email ? `Email: ${contact.email}` : null,
+                              answers.destination ? `Destination: ${answers.destination.label}` : null,
+                              answers.season ? `Travel time: ${answers.season.label}` : null,
+                              answers.travellers ? `Travellers: ${answers.travellers.label}` : null,
+                              answers.budget ? `Budget: ${answers.budget.label}` : null,
+                            ].filter(Boolean).join(' · ')
+
+                            const msg = `New lead from Trip Planner Quiz:\n${parts}\n\nPlease create a draft quote and follow up.`
+                            openWhatsApp(msg)
+                          }}
+                          className="px-6 py-2 rounded-full bg-white text-dark font-bold text-sm hover:bg-gray-100 transition-colors"
+                        >
+                          Request Quote on WhatsApp
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            const details = [
+                              `Name: ${contact.name || 'N/A'}`,
+                              `Phone: ${contact.phone || 'N/A'}`,
+                              contact.email ? `Email: ${contact.email}` : null,
+                              answers.destination ? `Destination: ${answers.destination.label}` : null,
+                              answers.season ? `Travel time: ${answers.season.label}` : null,
+                              answers.travellers ? `Travellers: ${answers.travellers.label}` : null,
+                              answers.budget ? `Budget: ${answers.budget.label}` : null,
+                            ].filter(Boolean).join('\n')
+                            navigator.clipboard?.writeText(details)
+                            alert('Lead details copied to clipboard — paste into your CRM or WhatsApp.')
+                          }}
+                          className="px-4 py-2 rounded-full bg-transparent text-white font-bold text-sm border border-white/10 hover:bg-white/5 transition-colors"
+                        >
+                          Copy Details
+                        </button>
+                      </div>
                     </motion.div>
 
                   ) : (
