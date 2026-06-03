@@ -15,6 +15,7 @@ import Footer from './components/layout/Footer/Footer'
 import Loader from './components/layout/Loader/Loader'
 import CustomCursor from './components/layout/CustomCursor/CustomCursor'
 import TravelQuizModal from './components/home/TravelQuizModal/TravelQuizModal'
+import CookieConsent from './components/layout/CookieConsent/CookieConsent'
 
 import Home from './pages/Home/Home'
 import Destinations from './pages/Destinations/Destinations'
@@ -143,6 +144,7 @@ function AppShell() {
       {!isAdmin && <Navbar />}
       <AnimatedRoutes />
       {!isAdmin && <TravelQuizModal />}
+      {!isAdmin && <CookieConsent />}
     </div>
   )
 }

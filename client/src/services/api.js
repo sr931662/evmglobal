@@ -73,6 +73,10 @@ async function request(path, opts = {}, retry = true) {
   return data
 }
 
+// ── Cross-session logout helpers (best-effort, used when switching session types)
+const _silentPost = (path) =>
+  fetch(`${BASE}${path}`, { method: 'POST', credentials: 'include' }).catch(() => {})
+
 export const api = {
   // ─── Admin Auth ────────────────────────────────────────────────────────────
   login: (email, password, rememberMe = false) =>
@@ -80,6 +84,9 @@ export const api = {
 
   logout: () =>
     request('/auth/logout', { method: 'POST' }),
+
+  logoutAdminSession:    () => _silentPost('/auth/logout'),
+  logoutCustomerSession: () => _silentPost('/customer-auth/logout'),
 
   getProfile: () => request('/auth/profile', { method: 'POST' }),
 

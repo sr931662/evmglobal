@@ -3,12 +3,12 @@ import { api, setCustomerToken, clearCustomerToken, clearAdminToken } from '../s
 
 const CustomerAuthContext = createContext(null)
 
-const PROFILE_KEY   = 'emv_c_profile'
-const ADMIN_KEYS    = ['emv_token', 'emv_refresh_token', 'emv_persist']
-// Legacy keys from old versions of the app — cleared on login/register
-const LEGACY_KEYS   = ['emv_c_token', 'emv_c_refresh', 'emv_customer']
+const SESSION_KEY  = 'emv_active_session'
+const PROFILE_KEY  = 'emv_c_profile'
+const ADMIN_KEYS   = ['emv_token', 'emv_refresh_token', 'emv_persist']
+const LEGACY_KEYS  = ['emv_c_token', 'emv_c_refresh', 'emv_customer']
 
-const saveProfile = (c) => localStorage.setItem(PROFILE_KEY, JSON.stringify(c))
+const saveProfile  = (c) => localStorage.setItem(PROFILE_KEY, JSON.stringify(c))
 const clearProfile = () => {
   localStorage.removeItem(PROFILE_KEY)
   localStorage.removeItem('emv_quiz_done')
@@ -24,21 +24,21 @@ export function CustomerAuthProvider({ children }) {
   })
   const [loading, setLoading] = useState(true)
 
-  const saveCustomer = (c) => {
-    saveProfile(c)
-    setCustomer(c)
-  }
+  const saveCustomer = (c) => { saveProfile(c); setCustomer(c) }
 
   useEffect(() => {
-    // Silently restore customer session via httpOnly refresh cookie
+    // If the last login was an admin session, don't restore customer
+    if (localStorage.getItem(SESSION_KEY) === 'admin') {
+      clearProfile()
+      setCustomer(null)
+      setLoading(false)
+      return
+    }
+
     api.restoreCustomerSession()
       .then(token => {
-        if (!token) {
-          // No valid session — clear any stale profile data
-          clearProfile()
-          setCustomer(null)
-          return
-        }
+        if (!token) { clearProfile(); setCustomer(null); return }
+        localStorage.setItem(SESSION_KEY, 'customer')
         return api.customerGetProfile()
           .then(profile => saveCustomer(profile))
           .catch(() => { clearProfile(); setCustomer(null) })
@@ -48,11 +48,12 @@ export function CustomerAuthProvider({ children }) {
   }, [])
 
   const register = useCallback(async ({ name, email, password, phone = '', city = '' }) => {
-    // Clear any existing admin session
+    // Actively kill the admin session (clears emv_rt httpOnly cookie on server)
+    await api.logoutAdminSession()
     ADMIN_KEYS.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k) })
-    clearAdminToken()
-    // Clear legacy keys
     LEGACY_KEYS.forEach(k => localStorage.removeItem(k))
+    clearAdminToken()
+    localStorage.setItem(SESSION_KEY, 'customer')
 
     const data = await api.customerRegister({ name, email, password, phone: phone || undefined, city: city || undefined })
     setCustomerToken(data.access_token)
@@ -62,11 +63,12 @@ export function CustomerAuthProvider({ children }) {
   }, [])
 
   const loginCustomer = useCallback(async (email, password) => {
-    // Clear any existing admin session
+    // Actively kill the admin session (clears emv_rt httpOnly cookie on server)
+    await api.logoutAdminSession()
     ADMIN_KEYS.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k) })
-    clearAdminToken()
-    // Clear legacy keys
     LEGACY_KEYS.forEach(k => localStorage.removeItem(k))
+    clearAdminToken()
+    localStorage.setItem(SESSION_KEY, 'customer')
 
     const data = await api.customerLogin(email, password)
     setCustomerToken(data.access_token)
@@ -79,6 +81,7 @@ export function CustomerAuthProvider({ children }) {
     try { await api.customerLogout() } catch {}
     clearCustomerToken()
     clearProfile()
+    localStorage.removeItem(SESSION_KEY)
     setCustomer(null)
   }, [])
 
@@ -97,16 +100,8 @@ export function CustomerAuthProvider({ children }) {
 
   return (
     <CustomerAuthContext.Provider value={{
-      customer,
-      loading,
-      register,
-      loginCustomer,
-      logoutCustomer,
-      updateCustomer,
-      changePassword,
-      forgotPassword,
-      verifyOtp,
-      resetPassword,
+      customer, loading, register, loginCustomer, logoutCustomer,
+      updateCustomer, changePassword, forgotPassword, verifyOtp, resetPassword,
     }}>
       {children}
     </CustomerAuthContext.Provider>

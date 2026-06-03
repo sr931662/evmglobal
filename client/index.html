@@ -15,40 +15,28 @@
     <meta name="twitter:title" content="Ease My Vacations (EMV) | Best Holiday Packages &amp; Travel Company in India" />
     <meta name="twitter:description" content="Book affordable domestic and international holiday packages with Ease My Vacations (EMV). Explore customized vacations, honeymoon tours, family holidays, group trips, adventure travel, and exclusive travel deals across India and worldwide." />
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200&h=630" />
-    <!-- Meta Pixel Code -->
-    <script>
-      try {
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '2533390780452728');
-        fbq('track', 'PageView');
-      } catch(e) {}
-    </script>
-    <!-- End Meta Pixel Code -->
-    <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) — consent denied by default until user accepts -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        analytics_storage:  'denied',
+        ad_storage:         'denied',
+        ad_user_data:       'denied',
+        ad_personalization: 'denied',
+        wait_for_update:    1000,
+      });
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-B8MFTRL5SM"
-      onload="gtag('js',new Date());gtag('config','G-B8MFTRL5SM');"
+      onload="gtag('js',new Date());gtag('config','G-B8MFTRL5SM',{send_page_view:false});"
       onerror="window.gtag=function(){};">
     </script>
+    <!-- Meta Pixel is initialised by React only after cookie consent is granted -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet" />
   </head>
   <body class="selection:bg-brand selection:text-white">
-    <!-- Meta Pixel noscript fallback -->
-    <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=2533390780452728&ev=PageView&noscript=1"
-    /></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -1,0 +1,124 @@
+.backdrop {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 680px;
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.14), 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  z-index: 9999;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+/* Brand colour top-bar */
+.accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--brand, #e07b39);
+  border-radius: 3px 3px 0 0;
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #fff7f0;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon { font-size: 1.25rem; line-height: 1; }
+
+.title {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--dark, #111);
+  margin-bottom: 0.25rem;
+}
+.desc {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.55;
+}
+.policyLink {
+  color: var(--brand, #e07b39);
+  text-decoration: underline;
+  font-weight: 600;
+}
+.policyLink:hover { opacity: 0.8; }
+
+/* ── Buttons ── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.rejectBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #9ca3af;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.rejectBtn:hover { color: #4b5563; }
+
+.necessaryBtn {
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #374151;
+  padding: 0.5rem 1.125rem;
+  border-radius: 9999px;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.necessaryBtn:hover { background: #f3f4f6; border-color: #d1d5db; }
+
+.acceptBtn {
+  background: var(--brand, #e07b39);
+  border: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #fff;
+  padding: 0.5rem 1.375rem;
+  border-radius: 9999px;
+  transition: opacity 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+.acceptBtn:hover { opacity: 0.9; transform: translateY(-1px); }
+.acceptBtn:active { transform: translateY(0); }
+
+@media (max-width: 480px) {
+  .backdrop { padding: 1rem 1rem 1.25rem; bottom: 1rem; }
+  .actions { justify-content: stretch; }
+  .rejectBtn, .necessaryBtn, .acceptBtn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}

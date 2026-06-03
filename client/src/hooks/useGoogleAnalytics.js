@@ -5,6 +5,7 @@ export function useGoogleAnalytics() {
   const location = useLocation()
 
   useEffect(() => {
+    if (localStorage.getItem('emv_cookie_consent') !== 'all') return
     if (typeof window.gtag !== 'function') return
     window.gtag('event', 'page_view', {
       page_path:     location.pathname + location.search,
