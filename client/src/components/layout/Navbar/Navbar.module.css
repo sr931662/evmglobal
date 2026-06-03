@@ -268,3 +268,18 @@
 .dropdownItem:hover { background: #f9fafb; }
 .dropdownItemDanger { color: #ef4444; }
 .dropdownItemDanger:hover { background: #fef2f2; }
+
+/* ── Admin workspace menu ── */
+.adminMenu {
+  position: relative;
+  flex-shrink: 0;
+}
+.adminBtn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.adminBtn:hover { color: var(--brand); }

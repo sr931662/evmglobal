@@ -1,98 +1,65 @@
-// In production VITE_API_URL = Cloud Run origin (with or without trailing /api)
-// In dev it is unset — requests stay relative and are proxied by Vite to localhost:3000
 const _rawBase = (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '').replace(/\/$/, '')
 const BASE = _rawBase ? `${_rawBase}/api` : '/api'
 
-// ── Token storage — respects "remember me" preference ─────────────────────────
-// emv_persist flag (localStorage) drives where tokens live:
-//   true  → localStorage  (survives browser restart)
-//   false → sessionStorage (cleared when tab/browser closes)
-const isPersistent = () => localStorage.getItem('emv_persist') === 'true'
-const _store = () => isPersistent() ? localStorage : sessionStorage
+// ── In-memory token storage — never touches localStorage/sessionStorage ───────
+let _adminToken    = null
+let _customerToken = null
 
-const getToken        = () => _store().getItem('emv_token') || sessionStorage.getItem('emv_token') || localStorage.getItem('emv_token')
-const getRefreshToken = () => _store().getItem('emv_refresh_token') || sessionStorage.getItem('emv_refresh_token') || localStorage.getItem('emv_refresh_token')
+export const setAdminToken     = (t) => { _adminToken = t }
+export const clearAdminToken   = () => { _adminToken = null }
+export const setCustomerToken  = (t) => { _customerToken = t }
+export const clearCustomerToken = () => { _customerToken = null }
 
-const setToken = (t) => _store().setItem('emv_token', t)
-const setRefreshToken = (t) => _store().setItem('emv_refresh_token', t)
-
-const clearTokens = () => {
-  ['emv_token', 'emv_refresh_token'].forEach(k => {
-    localStorage.removeItem(k)
-    sessionStorage.removeItem(k)
-  })
-  localStorage.removeItem('emv_persist')
-}
-
-export const setRememberMe = (remember) => {
-  if (remember) {
-    localStorage.setItem('emv_persist', 'true')
-  } else {
-    localStorage.removeItem('emv_persist')
-  }
-}
-
+// ── Silent refresh via httpOnly cookies (no body needed — cookie auto-sent) ───
 async function tryRefresh() {
-  const rt = getRefreshToken()
-  if (!rt) return false
   try {
     const res = await fetch(`${BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: rt }),
+      credentials: 'include',
     })
     if (!res.ok) return false
     const data = await res.json()
-    setToken(data.access_token)
-    if (data.refresh_token) setRefreshToken(data.refresh_token)
+    setAdminToken(data.access_token)
     return true
-  } catch {
-    return false
-  }
+  } catch { return false }
 }
 
-const getCustomerToken        = () => localStorage.getItem('emv_c_token')
-const getCustomerRefreshToken = () => localStorage.getItem('emv_c_refresh')
-
 async function tryCustomerRefresh() {
-  const rt = getCustomerRefreshToken()
-  if (!rt) return false
   try {
     const res = await fetch(`${BASE}/customer-auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: rt }),
+      credentials: 'include',
     })
     if (!res.ok) return false
     const data = await res.json()
-    localStorage.setItem('emv_c_token', data.access_token)
-    if (data.refresh_token) localStorage.setItem('emv_c_refresh', data.refresh_token)
+    setCustomerToken(data.access_token)
     return true
   } catch { return false }
 }
 
 async function request(path, opts = {}, retry = true) {
   const isCustomerPath = path.startsWith('/customer-auth')
-  const token = isCustomerPath ? getCustomerToken() : getToken()
+  const token = isCustomerPath ? _customerToken : _adminToken
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(opts.headers || {}),
   }
 
-  const res = await fetch(`${BASE}${path}`, { ...opts, headers })
+  const res = await fetch(`${BASE}${path}`, { ...opts, headers, credentials: 'include' })
 
   if (res.status === 401 && retry) {
     if (isCustomerPath && path !== '/customer-auth/login') {
       const refreshed = await tryCustomerRefresh()
       if (refreshed) return request(path, opts, false)
-      localStorage.removeItem('emv_c_token')
-      localStorage.removeItem('emv_c_refresh')
+      clearCustomerToken()
       throw new Error('Session expired. Please log in again.')
     } else if (!isCustomerPath && path !== '/auth/login') {
       const refreshed = await tryRefresh()
       if (refreshed) return request(path, opts, false)
-      clearTokens()
+      clearAdminToken()
       window.location.href = '/admin/login'
       throw new Error('Session expired. Please log in again.')
     }
@@ -102,17 +69,24 @@ async function request(path, opts = {}, retry = true) {
 
   const text = await res.text()
   const data = text ? JSON.parse(text) : {}
-
   if (!res.ok) throw new Error(data.message || `Request failed (${res.status})`)
   return data
 }
 
 export const api = {
-  // ─── Auth ──────────────────────────────────────────────────────────────────
-  login: (email, password) =>
-    request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  // ─── Admin Auth ────────────────────────────────────────────────────────────
+  login: (email, password, rememberMe = false) =>
+    request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password, rememberMe }) }),
+
+  logout: () =>
+    request('/auth/logout', { method: 'POST' }),
 
   getProfile: () => request('/auth/profile', { method: 'POST' }),
+
+  restoreAdminSession: async () => {
+    const ok = await tryRefresh()
+    return ok ? _adminToken : null
+  },
 
   forgotPassword: (email) =>
     request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
@@ -148,7 +122,8 @@ export const api = {
       Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
     ).toString()
     return fetch(`${BASE}/export/leads${qs ? `?${qs}` : ''}`, {
-      headers: { Authorization: `Bearer ${getToken()}` },
+      headers: { Authorization: _adminToken ? `Bearer ${_adminToken}` : '' },
+      credentials: 'include',
     })
   },
 
@@ -174,8 +149,8 @@ export const api = {
     request(`/packages/${id}`, { method: 'DELETE' }),
 
   // ─── Analytics ─────────────────────────────────────────────────────────────
-  getAnalytics:       () => request('/analytics/summary'),
-  getWeeklyActivity:  () => request('/analytics/weekly-activity'),
+  getAnalytics:      () => request('/analytics/summary'),
+  getWeeklyActivity: () => request('/analytics/weekly-activity'),
 
   // ─── Settings ──────────────────────────────────────────────────────────────
   getSettings: () => request('/settings'),
@@ -190,8 +165,13 @@ export const api = {
   customerLogin: (email, password) =>
     request('/customer-auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
 
-  customerRefresh: (refreshToken) =>
-    request('/customer-auth/refresh', { method: 'POST', body: JSON.stringify({ refreshToken }) }),
+  customerLogout: () =>
+    request('/customer-auth/logout', { method: 'POST' }),
+
+  restoreCustomerSession: async () => {
+    const ok = await tryCustomerRefresh()
+    return ok ? _customerToken : null
+  },
 
   customerGetProfile: () =>
     request('/customer-auth/profile'),

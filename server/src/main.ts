@@ -5,10 +5,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(new RequestIdMiddleware().use);
+  app.use(cookieParser());
 
   app.setGlobalPrefix('api');
 

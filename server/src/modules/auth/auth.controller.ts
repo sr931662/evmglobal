@@ -4,19 +4,31 @@ import {
   Body,
   UseGuards,
   Req,
+  Res,
   HttpCode,
   HttpStatus,
   UsePipes,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { JoiValidationPipe } from '../../common/pipes/validation.pipe';
 import { loginSchema } from './dto/login.dto';
-import { refreshTokenSchema } from './dto/refresh-token.dto';
 import { forgotPasswordSchema } from './dto/forgot-password.dto';
 import { verifyOtpSchema } from './dto/verify-otp.dto';
 import { resetPasswordSchema } from './dto/reset-password.dto';
 import { JwtAuthGuard } from '../../common/guards/auth.guard';
+
+const isProd = () => process.env.NODE_ENV === 'production';
+
+const rtCookieOpts = (rememberMe = true) => ({
+  httpOnly: true,
+  secure: isProd(),
+  sameSite: (isProd() ? 'none' : 'lax') as 'none' | 'lax',
+  path: '/',
+  ...(rememberMe ? { maxAge: 7 * 24 * 60 * 60 * 1000 } : {}),
+});
 
 @Controller('auth')
 export class AuthController {
@@ -24,50 +36,48 @@ export class AuthController {
 
   constructor(private authService: AuthService) {}
 
-  /**
-   * Authenticate user with email and password.
-   * Returns access token.
-   */
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new JoiValidationPipe(loginSchema))
-  async login(@Body() body) {
-    const { email, password } = body;
-    const user = await this.authService.validateUser(email, password);
+  async login(
+    @Body() body,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = await this.authService.validateUser(body.email, body.password);
     const tokens = await this.authService.login(user);
-    this.logger.log(`User ${user.email} logged in successfully`);
-    return tokens;
+    res.cookie('emv_rt', tokens.refresh_token, rtCookieOpts(body.rememberMe !== false));
+    this.logger.log(`User ${user.email} logged in`);
+    return { access_token: tokens.access_token, token_type: tokens.token_type, expires_in: tokens.expires_in };
   }
 
-  /**
-   * Refresh an expired access token using a valid refresh token.
-   * (Optional – can be added later if you implement refresh token logic)
-   */
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new JoiValidationPipe(refreshTokenSchema))
-  async refreshToken(@Body() body) {
-    const { refreshToken } = body;
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = (req as any).cookies?.emv_rt;
+    if (!refreshToken) throw new UnauthorizedException('No refresh token');
     const tokens = await this.authService.refreshAccessToken(refreshToken);
-    this.logger.log('Token refreshed successfully');
-    return tokens;
+    res.cookie('emv_rt', tokens.refresh_token, rtCookieOpts());
+    this.logger.log('Token refreshed');
+    return { access_token: tokens.access_token, token_type: tokens.token_type, expires_in: tokens.expires_in };
   }
 
-  /**
-   * Get current logged-in user profile.
-   */
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('emv_rt', { path: '/' });
+    return { message: 'Logged out' };
+  }
+
   @Post('profile')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   getProfile(@Req() req) {
-    return {
-      id: req.user.id,
-      email: req.user.email,
-      role: req.user.role,
-    };
+    return { id: req.user.id, email: req.user.email, role: req.user.role };
   }
 
-  /** Step 1 — send OTP to email */
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new JoiValidationPipe(forgotPasswordSchema))
@@ -75,7 +85,6 @@ export class AuthController {
     return this.authService.sendPasswordResetOtp(body.email);
   }
 
-  /** Step 2 — verify OTP, receive reset token */
   @Post('verify-otp')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new JoiValidationPipe(verifyOtpSchema))
@@ -83,7 +92,6 @@ export class AuthController {
     return this.authService.verifyOtp(body.email, body.otp);
   }
 
-  /** Step 3 — set new password using reset token */
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new JoiValidationPipe(resetPasswordSchema))

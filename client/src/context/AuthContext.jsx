@@ -1,47 +1,40 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { api, setRememberMe } from '../services/api'
+import { api, setAdminToken, clearAdminToken, clearCustomerToken } from '../services/api'
 
 const AuthContext = createContext(null)
+
+const CUSTOMER_KEYS = ['emv_c_token', 'emv_c_refresh', 'emv_c_profile', 'emv_quiz_done', 'emv_customer']
 
 export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check both storages — token may live in either depending on rememberMe preference
-    const token = localStorage.getItem('emv_token') || sessionStorage.getItem('emv_token')
-    if (!token) { setLoading(false); return }
-
-    api.getProfile()
-      .then(data => setUser(data))
-      .catch(() => {
-        ['emv_token', 'emv_refresh_token'].forEach(k => {
-          localStorage.removeItem(k)
-          sessionStorage.removeItem(k)
-        })
+    // Silently restore admin session via httpOnly refresh cookie
+    api.restoreAdminSession()
+      .then(token => {
+        if (!token) return
+        return api.getProfile().then(data => setUser(data))
       })
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
   const login = async (email, password, rememberMe = false) => {
-    ['emv_c_token', 'emv_c_refresh', 'emv_c_profile', 'emv_quiz_done'].forEach(k => localStorage.removeItem(k))
-    setRememberMe(rememberMe)
-    const data = await api.login(email, password)
-    // setToken / setRefreshToken in api.js now write to the correct store
-    const store = rememberMe ? localStorage : sessionStorage
-    store.setItem('emv_token',         data.access_token)
-    store.setItem('emv_refresh_token', data.refresh_token)
+    // Clear any existing customer session
+    CUSTOMER_KEYS.forEach(k => localStorage.removeItem(k))
+    clearCustomerToken()
+
+    const data = await api.login(email, password, rememberMe)
+    setAdminToken(data.access_token)
     const profile = await api.getProfile()
     setUser(profile)
     return profile
   }
 
-  const logout = () => {
-    ['emv_token', 'emv_refresh_token'].forEach(k => {
-      localStorage.removeItem(k)
-      sessionStorage.removeItem(k)
-    })
-    localStorage.removeItem('emv_persist')
+  const logout = async () => {
+    try { await api.logout() } catch {}
+    clearAdminToken()
     setUser(null)
   }
 

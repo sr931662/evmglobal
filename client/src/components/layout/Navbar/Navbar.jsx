@@ -4,6 +4,7 @@ import { FaBars } from 'react-icons/fa6'
 import MobileMenu from '../MobileMenu/MobileMenu'
 import { openWhatsApp } from '../../../utils/whatsapp'
 import { useCustomerAuth } from '../../../context/CustomerAuthContext'
+import { useAuth } from '../../../context/AuthContext'
 import styles from './Navbar.module.css'
 import logo from '../../../assets/logo.png'
 
@@ -19,15 +20,17 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [adminDropdownOpen, setAdminDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const adminDropdownRef = useRef(null)
   const location = useLocation()
   const { customer, logoutCustomer } = useCustomerAuth()
+  const { user: adminUser, logout: adminLogout } = useAuth()
 
   useEffect(() => {
     const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false)
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false)
+      if (adminDropdownRef.current && !adminDropdownRef.current.contains(e.target)) setAdminDropdownOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -137,12 +140,48 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link
-              to="/admin"
-              className={`${styles.workspaceLink} ${isDarkHero ? styles.workspaceLight : styles.workspaceDark}`}
-            >
-              Workspace
-            </Link>
+            {adminUser ? (
+              <div className={styles.adminMenu} ref={adminDropdownRef}>
+                <button
+                  className={`${styles.workspaceLink} ${styles.adminBtn} ${isDarkHero ? styles.workspaceLight : styles.workspaceDark}`}
+                  onClick={() => setAdminDropdownOpen(o => !o)}
+                  aria-expanded={adminDropdownOpen}
+                >
+                  Admin
+                  <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: '0.75rem', height: '0.75rem', marginLeft: '0.25rem' }}>
+                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.42a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                {adminDropdownOpen && (
+                  <div className={styles.avatarDropdown}>
+                    <div className={styles.dropdownHeader}>
+                      <p className={styles.dropdownName}>Admin</p>
+                      <p className={styles.dropdownEmail}>{adminUser.email}</p>
+                    </div>
+                    <Link
+                      to="/admin"
+                      className={styles.dropdownItem}
+                      onClick={() => setAdminDropdownOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
+                      onClick={() => { adminLogout(); setAdminDropdownOpen(false) }}
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/admin"
+                className={`${styles.workspaceLink} ${isDarkHero ? styles.workspaceLight : styles.workspaceDark}`}
+              >
+                Workspace
+              </Link>
+            )}
 
             <button
               onClick={() => openWhatsApp('Bespoke Trip Planning')}

@@ -9,4 +9,5 @@ export const loginSchema = Joi.object({
     'string.min': 'Password must be at least 6 characters',
     'any.required': 'Password is required',
   }),
+  rememberMe: Joi.boolean().optional(),
 });

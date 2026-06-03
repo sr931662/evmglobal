@@ -1,7 +1,18 @@
-import { Controller, Post, Get, Patch, Body, UseGuards, Request, HttpCode } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, UseGuards, Request, Req, Res, HttpCode, UnauthorizedException } from '@nestjs/common';
+import type { Request as ExpressRequest, Response } from 'express';
 import { CustomerAuthService } from './customer-auth.service';
 import { CustomerJwtAuthGuard } from './customer-auth.guard';
 import { QuotesService } from '../quotes/quotes.service';
+
+const isProd = () => process.env.NODE_ENV === 'production';
+
+const rtCookieOpts = () => ({
+  httpOnly: true,
+  secure: isProd(),
+  sameSite: (isProd() ? 'none' : 'lax') as 'none' | 'lax',
+  path: '/',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
 @Controller('customer-auth')
 export class CustomerAuthController {
@@ -11,20 +22,44 @@ export class CustomerAuthController {
   ) {}
 
   @Post('register')
-  register(@Body() body: { name: string; email: string; password: string; phone?: string; city?: string }) {
-    return this.customerAuthService.register(body);
+  async register(
+    @Body() body: { name: string; email: string; password: string; phone?: string; city?: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const data = await this.customerAuthService.register(body);
+    res.cookie('emv_c_rt', data.refresh_token, rtCookieOpts());
+    return { customer: data.customer, access_token: data.access_token, token_type: data.token_type, expires_in: data.expires_in };
   }
 
   @Post('login')
   @HttpCode(200)
-  login(@Body() body: { email: string; password: string }) {
-    return this.customerAuthService.login(body.email, body.password);
+  async login(
+    @Body() body: { email: string; password: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const data = await this.customerAuthService.login(body.email, body.password);
+    res.cookie('emv_c_rt', data.refresh_token, rtCookieOpts());
+    return { customer: data.customer, access_token: data.access_token, token_type: data.token_type, expires_in: data.expires_in };
   }
 
   @Post('refresh')
   @HttpCode(200)
-  refresh(@Body() body: { refreshToken: string }) {
-    return this.customerAuthService.refreshAccessToken(body.refreshToken);
+  async refresh(
+    @Req() req: ExpressRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = (req as any).cookies?.emv_c_rt;
+    if (!refreshToken) throw new UnauthorizedException('No refresh token');
+    const data = await this.customerAuthService.refreshAccessToken(refreshToken);
+    res.cookie('emv_c_rt', data.refresh_token, rtCookieOpts());
+    return { access_token: data.access_token, token_type: data.token_type, expires_in: data.expires_in };
+  }
+
+  @Post('logout')
+  @HttpCode(200)
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('emv_c_rt', { path: '/' });
+    return { message: 'Logged out' };
   }
 
   @Get('profile')

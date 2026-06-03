@@ -1,95 +1,84 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { api } from '../services/api'
+import { api, setCustomerToken, clearCustomerToken, clearAdminToken } from '../services/api'
 
 const CustomerAuthContext = createContext(null)
 
-const TOKEN_KEY         = 'emv_c_token'
-const REFRESH_TOKEN_KEY = 'emv_c_refresh'
-const CUSTOMER_KEY      = 'emv_c_profile'
+const PROFILE_KEY   = 'emv_c_profile'
+const ADMIN_KEYS    = ['emv_token', 'emv_refresh_token', 'emv_persist']
+// Legacy keys from old versions of the app — cleared on login/register
+const LEGACY_KEYS   = ['emv_c_token', 'emv_c_refresh', 'emv_customer']
 
-const getToken        = () => localStorage.getItem(TOKEN_KEY)
-const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY)
-
-const saveTokens = (access, refresh) => {
-  localStorage.setItem(TOKEN_KEY, access)
-  if (refresh) localStorage.setItem(REFRESH_TOKEN_KEY, refresh)
-}
-
-const clearTokens = () => {
-  localStorage.removeItem(TOKEN_KEY)
-  localStorage.removeItem(REFRESH_TOKEN_KEY)
-  localStorage.removeItem(CUSTOMER_KEY)
+const saveProfile = (c) => localStorage.setItem(PROFILE_KEY, JSON.stringify(c))
+const clearProfile = () => {
+  localStorage.removeItem(PROFILE_KEY)
   localStorage.removeItem('emv_quiz_done')
+  LEGACY_KEYS.forEach(k => localStorage.removeItem(k))
 }
-
-// Inject customer token into api requests when needed
-export const getCustomerToken = getToken
-export const getCustomerRefreshToken = getRefreshToken
 
 export function CustomerAuthProvider({ children }) {
   const [customer, setCustomer] = useState(() => {
     try {
-      const s = localStorage.getItem(CUSTOMER_KEY)
+      const s = localStorage.getItem(PROFILE_KEY)
       return s ? JSON.parse(s) : null
     } catch { return null }
   })
-  const [loading, setLoading] = useState(!!getToken())
+  const [loading, setLoading] = useState(true)
 
   const saveCustomer = (c) => {
-    localStorage.setItem(CUSTOMER_KEY, JSON.stringify(c))
+    saveProfile(c)
     setCustomer(c)
   }
 
-  // On mount, if token exists validate it
   useEffect(() => {
-    const token = getToken()
-    if (!token) { setLoading(false); return }
-
-    api.customerGetProfile()
-      .then(profile => { saveCustomer(profile); setLoading(false) })
-      .catch(async () => {
-        const rt = getRefreshToken()
-        if (!rt) { clearTokens(); setCustomer(null); setLoading(false); return }
-        try {
-          const data = await api.customerRefresh(rt)
-          saveTokens(data.access_token, data.refresh_token)
-          const profile = await api.customerGetProfile()
-          saveCustomer(profile)
-        } catch {
-          clearTokens()
+    // Silently restore customer session via httpOnly refresh cookie
+    api.restoreCustomerSession()
+      .then(token => {
+        if (!token) {
+          // No valid session — clear any stale profile data
+          clearProfile()
           setCustomer(null)
-        } finally {
-          setLoading(false)
+          return
         }
+        return api.customerGetProfile()
+          .then(profile => saveCustomer(profile))
+          .catch(() => { clearProfile(); setCustomer(null) })
       })
+      .catch(() => { clearProfile(); setCustomer(null) })
+      .finally(() => setLoading(false))
   }, [])
 
   const register = useCallback(async ({ name, email, password, phone = '', city = '' }) => {
-    ;['emv_token', 'emv_refresh_token', 'emv_persist'].forEach(k => {
-      localStorage.removeItem(k)
-      sessionStorage.removeItem(k)
-    })
+    // Clear any existing admin session
+    ADMIN_KEYS.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k) })
+    clearAdminToken()
+    // Clear legacy keys
+    LEGACY_KEYS.forEach(k => localStorage.removeItem(k))
+
     const data = await api.customerRegister({ name, email, password, phone: phone || undefined, city: city || undefined })
-    saveTokens(data.access_token, data.refresh_token)
+    setCustomerToken(data.access_token)
     saveCustomer(data.customer)
     localStorage.setItem('emv_quiz_done', '1')
     return data.customer
   }, [])
 
   const loginCustomer = useCallback(async (email, password) => {
-    ;['emv_token', 'emv_refresh_token', 'emv_persist'].forEach(k => {
-      localStorage.removeItem(k)
-      sessionStorage.removeItem(k)
-    })
+    // Clear any existing admin session
+    ADMIN_KEYS.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k) })
+    clearAdminToken()
+    // Clear legacy keys
+    LEGACY_KEYS.forEach(k => localStorage.removeItem(k))
+
     const data = await api.customerLogin(email, password)
-    saveTokens(data.access_token, data.refresh_token)
+    setCustomerToken(data.access_token)
     saveCustomer(data.customer)
     localStorage.setItem('emv_quiz_done', '1')
     return data.customer
   }, [])
 
-  const logoutCustomer = useCallback(() => {
-    clearTokens()
+  const logoutCustomer = useCallback(async () => {
+    try { await api.customerLogout() } catch {}
+    clearCustomerToken()
+    clearProfile()
     setCustomer(null)
   }, [])
 
@@ -99,9 +88,8 @@ export function CustomerAuthProvider({ children }) {
     return profile
   }, [])
 
-  const changePassword = useCallback((oldPassword, newPassword) => {
-    return api.customerChangePassword(oldPassword, newPassword)
-  }, [])
+  const changePassword = useCallback((oldPassword, newPassword) =>
+    api.customerChangePassword(oldPassword, newPassword), [])
 
   const forgotPassword = useCallback((email) => api.customerForgotPassword(email), [])
   const verifyOtp      = useCallback((email, otp) => api.customerVerifyOtp(email, otp), [])

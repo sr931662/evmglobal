@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { FaTimes } from 'react-icons/fa'
 import { openWhatsApp } from '../../../utils/whatsapp'
 import { useCustomerAuth } from '../../../context/CustomerAuthContext'
+import { useAuth } from '../../../context/AuthContext'
 import { getLenis } from '../../../hooks/useLenis'
 import styles from './MobileMenu.module.css'
 
@@ -27,6 +28,7 @@ const WA_ICON = (
 
 export default function MobileMenu({ open, onClose }) {
   const { customer, logoutCustomer } = useCustomerAuth()
+  const { user: adminUser, logout: adminLogout } = useAuth()
 
   useEffect(() => {
     if (open) {
@@ -96,9 +98,27 @@ export default function MobileMenu({ open, onClose }) {
                 Sign In / Join Free
               </Link>
             )}
-            <Link to="/admin" onClick={onClose} className={styles.adminLink}>
-              Admin Workspace
-            </Link>
+            {adminUser ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', padding: '0 0.5rem' }}>
+                  Admin: {adminUser.email}
+                </p>
+                <Link to="/admin" onClick={onClose} className={styles.adminLink}>
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => { adminLogout(); onClose() }}
+                  className={styles.adminLink}
+                  style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#f87171' }}
+                >
+                  Sign Out Admin
+                </button>
+              </div>
+            ) : (
+              <Link to="/admin" onClick={onClose} className={styles.adminLink}>
+                Admin Workspace
+              </Link>
+            )}
           </div>
         </motion.div>
       )}
