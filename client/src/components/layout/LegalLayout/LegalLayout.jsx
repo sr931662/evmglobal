@@ -3,11 +3,12 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import styles from './LegalLayout.module.css'
 
 const LEGAL_LINKS = [
-  { label: 'Privacy Policy',            to: '/privacy-policy' },
-  { label: 'Cookie Policy',             to: '/cookie-policy' },
-  { label: 'Terms of Service',          to: '/terms-of-service' },
-  { label: 'User Agreement',            to: '/user-agreement' },
-  { label: 'Data Processing Agreement', to: '/data-processing-agreement' },
+  { label: 'Privacy Policy',              to: '/privacy-policy' },
+  { label: 'Cookie Policy',               to: '/cookie-policy' },
+  { label: 'Terms of Service',            to: '/terms-of-service' },
+  { label: 'User Agreement',              to: '/user-agreement' },
+  { label: 'Data Processing Agreement',   to: '/data-processing-agreement' },
+  { label: 'Cancellation & Refund Policy', to: '/cancellation-policy' },
 ]
 
 export default function LegalLayout({ title, subtitle, children }) {

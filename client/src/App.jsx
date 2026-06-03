@@ -26,6 +26,7 @@ import CookiePolicy from './pages/CookiePolicy/CookiePolicy'
 import TermsOfService from './pages/TermsOfService/TermsOfService'
 import UserAgreement from './pages/UserAgreement/UserAgreement'
 import DataProcessingAgreement from './pages/DataProcessingAgreement/DataProcessingAgreement'
+import CancellationPolicy from './pages/CancellationPolicy/CancellationPolicy'
 import QuotesPage from './pages/Quotes/Quotes'
 import CancellationPage from './pages/Cancellation/CancellationPage'
 import Blog from './pages/Blog/Blog'
@@ -107,6 +108,7 @@ function AnimatedRoutes() {
           <Route path="/terms-of-service"          element={<TermsOfService />} />
           <Route path="/user-agreement"            element={<UserAgreement />} />
           <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
+          <Route path="/cancellation-policy"       element={<CancellationPolicy />} />
           <Route path="/quotes"                     element={<QuotesPage />} />
           <Route path="/cancellation"              element={<CancellationPage />} />
           <Route path="/blog"                      element={<Blog />} />
