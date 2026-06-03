@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
 import styles from './Quotes.module.css'
@@ -548,6 +549,16 @@ export default function QuotesPage() {
           </section>
         )}
       </AnimatePresence>
+
+      {/* Cancellation link */}
+      {!quote && (
+        <div style={{ textAlign: 'center', marginTop: '-1rem', marginBottom: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+          Need to cancel a booking?{' '}
+          <Link to="/cancellation" style={{ color: '#E53935', fontWeight: 700, textDecoration: 'none' }}>
+            Submit a cancellation request →
+          </Link>
+        </div>
+      )}
 
       {/* No quote CTA */}
       {!quote && (

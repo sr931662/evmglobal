@@ -127,7 +127,7 @@ function BlogModal({ blog, onClose, onSave }) {
         </div>
 
         {/* Scrollable form body */}
-        <div className="flex-1 overflow-y-auto px-10 pb-2 modal-scroll">
+        <div className="flex-1 overflow-y-auto px-10 pb-2 modal-scroll" onWheel={e => e.stopPropagation()}>
           <div className="space-y-5">
             <div>
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Title <span className="text-brand">*</span></label>

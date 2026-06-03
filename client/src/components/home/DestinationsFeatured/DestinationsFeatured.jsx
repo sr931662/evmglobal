@@ -17,23 +17,49 @@ const ARROW = (
   </svg>
 )
 
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 export default function DestinationsFeatured() {
   const navigate = useNavigate()
   const [featured, setFeatured] = useState(FALLBACK)
 
   useEffect(() => {
-    api.getDestinations()
-      .then(data => {
-        const list = Array.isArray(data) ? data : []
-        if (list.length > 0) {
-          setFeatured(list.slice(0, 4).map(d => ({
-            id:            d.id || d._id,
-            name:          d.name,
-            region:        d.region,
-            image:         d.image,
-            startingPrice: d.startingPrice || null,
-          })))
+    Promise.all([api.getDestinations(), api.getPackages({ limit: 200 })])
+      .then(([destData, pkgData]) => {
+        const dests = Array.isArray(destData) ? destData : []
+        if (dests.length === 0) return
+        const pkgs = Array.isArray(pkgData?.packages) ? pkgData.packages : (Array.isArray(pkgData) ? pkgData : [])
+        // Build a map: destName → lowest priceValue
+        const priceMap = {}
+        pkgs.forEach(p => {
+          const price = p.priceValue || 0
+          if (!price) return
+          const targets = Array.isArray(p.destinations) ? p.destinations : []
+          targets.forEach(name => {
+            if (!priceMap[name] || price < priceMap[name]) priceMap[name] = price
+          })
+        })
+        const formatPrice = (v) => {
+          if (v >= 100000) return `₹${(v / 100000).toFixed(v % 100000 === 0 ? 0 : 1)}L`
+          if (v >= 1000)   return `₹${Math.round(v / 1000)}k`
+          return `₹${v}`
         }
+        const shuffled = shuffle(dests)
+        setFeatured(shuffled.slice(0, 4).map(d => ({
+          id:            d.id || d._id,
+          name:          d.name,
+          region:        d.region,
+          image:         d.image,
+          // Admin-set price takes priority; fall back to lowest package price
+          startingPrice: d.startingPrice || (priceMap[d.name] ? formatPrice(priceMap[d.name]) : null),
+        })))
       })
       .catch(() => {})
   }, [])

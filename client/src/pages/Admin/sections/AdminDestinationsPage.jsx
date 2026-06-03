@@ -15,7 +15,7 @@ const regionColors = {
 
 const FALLBACK = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=400'
 
-const empty = { name: '', country: '', region: 'Europe', image: '' }
+const empty = { name: '', country: '', region: 'Europe', image: '', startingPrice: '' }
 
 export default function AdminDestinationsPage() {
   const [destinations, setDestinations] = useState([])
@@ -59,10 +59,11 @@ export default function AdminDestinationsPage() {
   const openEdit = (dest) => {
     setEditId(dest.id || dest._id)
     setForm({
-      name:    dest.name    || '',
-      country: dest.country || '',
-      region:  dest.region  || 'Europe',
-      image:   dest.image   || '',
+      name:          dest.name          || '',
+      country:       dest.country       || '',
+      region:        dest.region        || 'Europe',
+      image:         dest.image         || '',
+      startingPrice: dest.startingPrice || '',
     })
     setShowModal(true)
   }
@@ -189,6 +190,7 @@ export default function AdminDestinationsPage() {
                 <div className="p-5">
                   <p className="font-serif font-bold text-dark text-lg leading-tight">{dest.name}</p>
                   <p className="text-gray-400 text-sm font-bold mt-0.5">{dest.country}</p>
+                  {dest.startingPrice && <p className="text-brand text-xs font-black mt-1">From {dest.startingPrice}</p>}
 
                   <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
@@ -232,9 +234,10 @@ export default function AdminDestinationsPage() {
 
             <div className="space-y-5">
               {[
-                { label: 'Destination Name', key: 'name',    placeholder: 'e.g. Santorini' },
-                { label: 'Country',          key: 'country', placeholder: 'e.g. Greece' },
-                { label: 'Image URL',        key: 'image',   placeholder: 'https://images.unsplash.com/...' },
+                { label: 'Destination Name', key: 'name',          placeholder: 'e.g. Santorini' },
+                { label: 'Country',          key: 'country',        placeholder: 'e.g. Greece' },
+                { label: 'Starting Price',   key: 'startingPrice',  placeholder: 'e.g. ₹85k or ₹1.2L (shown on home)' },
+                { label: 'Image URL',        key: 'image',          placeholder: 'https://images.unsplash.com/...' },
               ].map(field => (
                 <div key={field.key}>
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">{field.label}</label>

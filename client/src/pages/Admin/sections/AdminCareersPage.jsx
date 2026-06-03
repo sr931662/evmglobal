@@ -57,6 +57,7 @@ function CareerModal({ job, onClose, onSave }) {
         exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
         className="bg-white rounded-[2.5rem] p-10 w-full max-w-2xl shadow-premium border border-gray-100 max-h-[90vh] overflow-y-auto modal-scroll"
+        onWheel={e => e.stopPropagation()}
       >
         <h3 className="text-3xl font-serif font-bold text-dark mb-8">
           {isEdit ? 'Edit Job Posting' : 'New Job Posting'}

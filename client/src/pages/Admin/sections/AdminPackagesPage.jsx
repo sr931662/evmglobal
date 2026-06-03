@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
@@ -9,6 +9,7 @@ const CATEGORIES = ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness']
 const ACTIVITY_ICONS = ['✈', '🚗', '🚢', '🏨', '🍽', '🎭', '🧘', '🏖', '⛵', '🏔', '🎿', '🛕', '🌅', '🤿', '📍']
 
 const FLIGHT_TYPES = ['Departure', 'Return', 'Connecting']
+const CABIN_CLASSES = ['Economy', 'Premium Economy', 'Business', 'First Class']
 
 const categoryColors = {
   Honeymoon: 'bg-pink-50 text-pink-700 border-pink-100',
@@ -19,13 +20,13 @@ const categoryColors = {
 }
 
 const emptyActivity = () => ({ time: '', description: '', icon: '📍' })
-const emptyHotel    = () => ({ name: '', roomType: '', checkIn: '', checkOut: '' })
-const emptyFlight   = () => ({ type: 'Departure', airline: '', flightNumber: '', from: '', to: '', date: '', time: '' })
-const emptyDay      = (n) => ({ day: n, title: '', note: '', activities: [emptyActivity()], hotel: emptyHotel() })
+const emptyHotel    = () => ({ name: '', roomType: '', stars: '4', address: '' })
+const emptyFlight   = () => ({ type: 'Departure', airline: '', flightNumber: '', from: '', to: '', date: '', time: '', cabinClass: 'Economy' })
+const emptyDay      = (n) => ({ day: n, title: '', note: '', activities: [emptyActivity()] })
 const emptyForm     = () => ({
   title: '', category: 'Honeymoon', nights: '', price: '', priceValue: '',
   description: '', destinations: [], highlights: '', image: '', status: 'Active',
-  inclusions: [''], exclusions: [''], notes: [''], itinerary: [], flights: [],
+  inclusions: '', exclusions: '', notes: '', itinerary: [], flights: [], hotels: [],
 })
 
 // ── Small reusable input ──────────────────────────────────────────────────────
@@ -50,39 +51,6 @@ function Field({ label, value, onChange, placeholder, type = 'text' }) {
           className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
         />
       )}
-    </div>
-  )
-}
-
-// ── List editor (inclusions / exclusions) ─────────────────────────────────────
-function ListEditor({ label, items, onChange, placeholder, accentClass }) {
-  const add    = () => onChange([...items, ''])
-  const remove = (i) => onChange(items.filter((_, idx) => idx !== i))
-  const update = (i, v) => onChange(items.map((item, idx) => idx === i ? v : item))
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">{label}</label>
-        <button onClick={add} className={`text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full ${accentClass} transition-colors`}>+ Add</button>
-      </div>
-      <div className="space-y-2">
-        {items.map((item, i) => (
-          <div key={i} className="flex gap-2 items-center">
-            <input
-              type="text"
-              value={item}
-              onChange={e => update(i, e.target.value)}
-              placeholder={placeholder}
-              className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
-            />
-            <button onClick={() => remove(i)} className="w-8 h-8 rounded-xl bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors text-sm flex items-center justify-center shrink-0">✕</button>
-          </div>
-        ))}
-        {items.length === 0 && (
-          <p className="text-gray-400 text-xs font-bold text-center py-3">None added yet — click + Add</p>
-        )}
-      </div>
     </div>
   )
 }
@@ -135,14 +103,14 @@ function DestinationsPicker({ selected, onChange }) {
 }
 
 // ── Flights & Hotels builder ──────────────────────────────────────────────────
-function FlightsHotelsBuilder({ flights, itinerary, onFlightsChange, onItineraryChange }) {
+function FlightsHotelsBuilder({ flights, hotels, onFlightsChange, onHotelsChange }) {
   const addFlight = () => onFlightsChange([...flights, emptyFlight()])
   const removeFlight = (i) => onFlightsChange(flights.filter((_, idx) => idx !== i))
   const updateFlight = (i, key, val) => onFlightsChange(flights.map((f, idx) => idx === i ? { ...f, [key]: val } : f))
 
-  const updateHotel = (di, key, val) => {
-    onItineraryChange(itinerary.map((d, i) => i === di ? { ...d, hotel: { ...d.hotel, [key]: val } } : d))
-  }
+  const addHotel = () => onHotelsChange([...hotels, emptyHotel()])
+  const removeHotel = (i) => onHotelsChange(hotels.filter((_, idx) => idx !== i))
+  const updateHotel = (i, key, val) => onHotelsChange(hotels.map((h, idx) => idx === i ? { ...h, [key]: val } : h))
 
   return (
     <div className="space-y-8">
@@ -199,6 +167,13 @@ function FlightsHotelsBuilder({ flights, itinerary, onFlightsChange, onItinerary
                     <input type="text" value={fl.time} onChange={e => updateFlight(i, 'time', e.target.value)} placeholder="e.g. 06:30 AM"
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
                   </div>
+                  <div className="col-span-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Cabin Class</label>
+                    <select value={fl.cabinClass || 'Economy'} onChange={e => updateFlight(i, 'cabinClass', e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                      {CABIN_CLASSES.map(c => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
                 </div>
               </div>
             ))}
@@ -208,33 +183,43 @@ function FlightsHotelsBuilder({ flights, itinerary, onFlightsChange, onItinerary
 
       <div className="border-t border-gray-100" />
 
-      {/* Hotels per day */}
+      {/* Hotels (package-level) */}
       <div>
-        <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em] mb-4">🏨 Hotel Details (per day)</h4>
-        {itinerary.length === 0 ? (
-          <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">Add days in the Itinerary tab first</p>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">🏨 Hotel Details</h4>
+          <button onClick={addHotel} className="text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-100">+ Add Hotel</button>
+        </div>
+        {hotels.length === 0 ? (
+          <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">No hotels added yet — click + Add Hotel</p>
         ) : (
           <div className="space-y-4">
-            {itinerary.map((day, di) => (
-              <div key={di} className="border border-gray-200 rounded-2xl overflow-hidden">
-                <div className="bg-gray-50 px-5 py-3 flex items-center gap-2">
-                  <span className="w-7 h-7 bg-dark text-white rounded-lg text-[11px] font-black flex items-center justify-center shrink-0">{day.day}</span>
-                  <span className="text-dark font-bold text-sm truncate">{day.title || `Day ${day.day}`}</span>
+            {hotels.map((h, i) => (
+              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="bg-blue-50 px-5 py-3 flex items-center justify-between">
+                  <span className="text-dark font-black text-xs uppercase tracking-[0.15em]">🏨 Hotel {i + 1}</span>
+                  <button onClick={() => removeHotel(i)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center">✕</button>
                 </div>
                 <div className="p-4 grid grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Hotel Name</label>
-                    <input type="text" value={day.hotel?.name || ''} onChange={e => updateHotel(di, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace"
+                    <input type="text" value={h.name || ''} onChange={e => updateHotel(i, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace"
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
                   </div>
                   <div>
                     <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Room Type</label>
-                    <input type="text" value={day.hotel?.roomType || ''} onChange={e => updateHotel(di, 'roomType', e.target.value)} placeholder="e.g. Deluxe Double"
+                    <input type="text" value={h.roomType || ''} onChange={e => updateHotel(i, 'roomType', e.target.value)} placeholder="e.g. Deluxe Double"
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Check-in / Check-out</label>
-                    <input type="text" value={day.hotel?.checkIn || ''} onChange={e => updateHotel(di, 'checkIn', e.target.value)} placeholder="e.g. 2:00 PM / 11:00 AM"
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Stars</label>
+                    <select value={h.stars || '4'} onChange={e => updateHotel(i, 'stars', e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                      {['1','2','3','4','5'].map(s => <option key={s} value={s}>{s} ★</option>)}
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Address</label>
+                    <input type="text" value={h.address || ''} onChange={e => updateHotel(i, 'address', e.target.value)} placeholder="e.g. Srinagar, Jammu & Kashmir"
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
                   </div>
                 </div>
@@ -368,6 +353,23 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
   const [tab, setTab] = useState(0)
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
+  // Auto-sync itinerary days when nights changes (skip initial mount)
+  const nightsMounted = useRef(false)
+  useEffect(() => {
+    if (!nightsMounted.current) { nightsMounted.current = true; return }
+    const n = parseInt(form.nights) || 0
+    if (n <= 0) return
+    setForm(p => {
+      const cur = Array.isArray(p.itinerary) ? p.itinerary : []
+      if (cur.length === n) return p
+      if (n > cur.length) {
+        const added = Array.from({ length: n - cur.length }, (_, i) => emptyDay(cur.length + i + 1))
+        return { ...p, itinerary: [...cur, ...added] }
+      }
+      return { ...p, itinerary: cur.slice(0, n).map((d, i) => ({ ...d, day: i + 1 })) }
+    })
+  }, [form.nights]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const canSave = form.title.trim() && form.price.trim() && form.nights
 
   return (
@@ -398,7 +400,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-10 pb-6 modal-scroll">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-10 pb-6 modal-scroll" onWheel={e => e.stopPropagation()}>
           {tab === 0 && (
             <div className="space-y-5">
               <Field label="Package Title" value={form.title} onChange={v => f('title', v)} placeholder="e.g. Romantic Bali Escape" />
@@ -450,37 +452,55 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
           {tab === 2 && (
             <FlightsHotelsBuilder
               flights={form.flights}
-              itinerary={form.itinerary}
+              hotels={form.hotels || []}
               onFlightsChange={v => f('flights', v)}
-              onItineraryChange={v => f('itinerary', v)}
+              onHotelsChange={v => f('hotels', v)}
             />
           )}
 
           {tab === 3 && (
             <div className="space-y-8">
-              <ListEditor
-                label="Inclusions"
-                items={form.inclusions}
-                onChange={v => f('inclusions', v)}
-                placeholder="e.g. Airport transfers"
-                accentClass="bg-green-50 text-green-700 border border-green-100 hover:bg-green-100"
-              />
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">✅ Inclusions</label>
+                  <span className="text-[9px] text-gray-400 font-medium">One item per line</span>
+                </div>
+                <textarea
+                  rows={8}
+                  value={form.inclusions}
+                  onChange={e => f('inclusions', e.target.value)}
+                  placeholder={"Airport transfers\nLuxury hotel stay\nBreakfast daily\nSightseeing as per itinerary"}
+                  className="w-full bg-green-50 border border-green-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-green-400 transition-colors resize-none"
+                />
+              </div>
               <div className="border-t border-gray-100" />
-              <ListEditor
-                label="Exclusions"
-                items={form.exclusions}
-                onChange={v => f('exclusions', v)}
-                placeholder="e.g. Visa fees & processing"
-                accentClass="bg-red-50 text-red-600 border border-red-100 hover:bg-red-100"
-              />
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">❌ Exclusions</label>
+                  <span className="text-[9px] text-gray-400 font-medium">One item per line</span>
+                </div>
+                <textarea
+                  rows={6}
+                  value={form.exclusions}
+                  onChange={e => f('exclusions', e.target.value)}
+                  placeholder={"Visa fees & processing\nCity taxes (payable at hotel)\nPersonal expenses & shopping\nTips & gratuities"}
+                  className="w-full bg-red-50 border border-red-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-red-400 transition-colors resize-none"
+                />
+              </div>
               <div className="border-t border-gray-100" />
-              <ListEditor
-                label="Important Notes"
-                items={form.notes}
-                onChange={v => f('notes', v)}
-                placeholder="e.g. Carry valid photo ID at all times"
-                accentClass="bg-amber-50 text-amber-700 border border-amber-100 hover:bg-amber-100"
-              />
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">📋 Important Notes</label>
+                  <span className="text-[9px] text-gray-400 font-medium">One item per line</span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={form.notes}
+                  onChange={e => f('notes', e.target.value)}
+                  placeholder={"Carry valid photo ID at all times\nCheck visa requirements before travel"}
+                  className="w-full bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-amber-400 transition-colors resize-none"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -559,9 +579,9 @@ export default function AdminPackagesPage() {
       highlights:   Array.isArray(pkg.highlights)   ? pkg.highlights.join(', ')   : (pkg.highlights   || ''),
       image:        pkg.image        || '',
       status:       pkg.status       || 'Active',
-      inclusions:   Array.isArray(pkg.inclusions) && pkg.inclusions.length ? pkg.inclusions : [''],
-      exclusions:   Array.isArray(pkg.exclusions) && pkg.exclusions.length ? pkg.exclusions : [''],
-      notes:        Array.isArray(pkg.notes)      && pkg.notes.length      ? pkg.notes      : [''],
+      inclusions:   Array.isArray(pkg.inclusions) && pkg.inclusions.length ? pkg.inclusions.join('\n') : '',
+      exclusions:   Array.isArray(pkg.exclusions) && pkg.exclusions.length ? pkg.exclusions.join('\n') : '',
+      notes:        Array.isArray(pkg.notes)      && pkg.notes.length      ? pkg.notes.join('\n')      : '',
       itinerary:    Array.isArray(pkg.itinerary)  ? pkg.itinerary.map(d => ({
         day:        d.day,
         title:      d.title || '',
@@ -569,11 +589,14 @@ export default function AdminPackagesPage() {
         activities: Array.isArray(d.activities) ? d.activities.map(a => ({
           time: a.time || '', description: a.description || '', icon: a.icon || '📍',
         })) : [emptyActivity()],
-        hotel: d.hotel ? { name: d.hotel.name || '', roomType: d.hotel.roomType || '', checkIn: d.hotel.checkIn || '', checkOut: d.hotel.checkOut || '' } : emptyHotel(),
       })) : [],
       flights: Array.isArray(pkg.flights) ? pkg.flights.map(fl => ({
         type: fl.type || 'Departure', airline: fl.airline || '', flightNumber: fl.flightNumber || '',
         from: fl.from || '', to: fl.to || '', date: fl.date || '', time: fl.time || '',
+        cabinClass: fl.cabinClass || 'Economy',
+      })) : [],
+      hotels: Array.isArray(pkg.hotels) ? pkg.hotels.map(h => ({
+        name: h.name || '', roomType: h.roomType || '', stars: h.stars?.toString() || '4', address: h.address || '',
       })) : [],
     })
     setShowModal(true)
@@ -596,9 +619,9 @@ export default function AdminPackagesPage() {
         highlights:   form.highlights.split(',').map(s => s.trim()).filter(Boolean),
         image:        form.image.trim(),
         status:       form.status,
-        inclusions:   form.inclusions.filter(s => s.trim()),
-        exclusions:   form.exclusions.filter(s => s.trim()),
-        notes:        form.notes.filter(s => s.trim()),
+        inclusions:   (typeof form.inclusions === 'string' ? form.inclusions : form.inclusions.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
+        exclusions:   (typeof form.exclusions === 'string' ? form.exclusions : form.exclusions.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
+        notes:        (typeof form.notes      === 'string' ? form.notes      : form.notes.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
         itinerary:    form.itinerary.map(d => ({
           day:        d.day,
           title:      d.title.trim(),
@@ -608,16 +631,17 @@ export default function AdminPackagesPage() {
             description: a.description.trim(),
             icon:        a.icon,
           })),
-          hotel: d.hotel && (d.hotel.name || d.hotel.roomType) ? {
-            name:      d.hotel.name.trim(),
-            roomType:  d.hotel.roomType.trim(),
-            checkIn:   d.hotel.checkIn.trim(),
-            checkOut:  d.hotel.checkOut.trim(),
-          } : undefined,
         })).filter(d => d.title || d.activities.length),
+        hotels: (form.hotels || []).filter(h => h.name).map(h => ({
+          name:     h.name.trim(),
+          roomType: h.roomType.trim(),
+          stars:    parseInt(h.stars) || 4,
+          address:  h.address.trim(),
+        })),
         flights: form.flights.filter(fl => fl.airline || fl.flightNumber || fl.from).map(fl => ({
           type: fl.type, airline: fl.airline.trim(), flightNumber: fl.flightNumber.trim(),
           from: fl.from.trim(), to: fl.to.trim(), date: fl.date.trim(), time: fl.time.trim(),
+          cabinClass: fl.cabinClass || 'Economy',
         })),
       }
       if (editPkg) {

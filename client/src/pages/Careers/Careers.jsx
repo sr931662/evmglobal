@@ -71,7 +71,7 @@ export default function Careers() {
 
   useEffect(() => {
     api.getCareers({ status: 'open' })
-      .then(data => setOpenings(Array.isArray(data) ? data : []))
+      .then(data => setOpenings(Array.isArray(data) ? data : (Array.isArray(data?.careers) ? data.careers : [])))
       .catch(() => setOpenings([]))
       .finally(() => setLoading(false))
   }, [])

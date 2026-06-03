@@ -3,7 +3,13 @@ import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
 import styles from './InquirySection.module.css'
 
-const EMPTY = { name: '', phone: '', email: '', message: '' }
+const EMPTY = {
+  name: '', phone: '', email: '', destination: '', travelMonth: '',
+  travelers: '2', budget: '', tripType: '', message: '',
+}
+
+const BUDGETS = ['Under ₹50,000', '₹50k–₹1L', '₹1L–₹2L', '₹2L–₹5L', '₹5L+']
+const TRIP_TYPES = ['Honeymoon', 'Family Holiday', 'Solo Travel', 'Group Tour', 'Luxury Escape', 'Adventure', 'Business + Leisure']
 
 const PERKS = [
   { icon: '✈', text: 'Personalised itinerary within 24 hours' },
@@ -24,7 +30,15 @@ export default function InquirySection() {
     if (!form.name.trim() || !form.phone.trim()) return
     setLoading(true); setError('')
     try {
-      await api.submitLead({ ...form, type: 'lead' })
+      const message = [
+        form.destination && `Destination: ${form.destination}`,
+        form.travelMonth && `Travel Month: ${form.travelMonth}`,
+        form.travelers   && `Travelers: ${form.travelers}`,
+        form.budget      && `Budget: ${form.budget}`,
+        form.tripType    && `Trip Type: ${form.tripType}`,
+        form.message     && `Details: ${form.message}`,
+      ].filter(Boolean).join('\n')
+      await api.submitLead({ ...form, message, type: 'lead' })
       setSuccess(true); setForm(EMPTY)
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -106,8 +120,41 @@ export default function InquirySection() {
                   </div>
 
                   <div>
-                    <label className={styles.label}>Tell Us About Your Trip</label>
-                    <textarea value={form.message} onChange={e => f('message', e.target.value)} placeholder="Destination, travel dates, number of travellers, special requests…" rows={4} className={styles.textarea} />
+                    <label className={styles.label}>Where do you want to go? *</label>
+                    <input type="text" required value={form.destination} onChange={e => f('destination', e.target.value)} placeholder="e.g. Maldives, Bali, Switzerland…" className={styles.input} />
+                  </div>
+
+                  <div className={styles.row}>
+                    <div>
+                      <label className={styles.label}>Travel Month</label>
+                      <input type="text" value={form.travelMonth} onChange={e => f('travelMonth', e.target.value)} placeholder="e.g. Dec 2025" className={styles.input} />
+                    </div>
+                    <div>
+                      <label className={styles.label}>No. of Travellers</label>
+                      <input type="number" min="1" value={form.travelers} onChange={e => f('travelers', e.target.value)} placeholder="2" className={styles.input} />
+                    </div>
+                  </div>
+
+                  <div className={styles.row}>
+                    <div>
+                      <label className={styles.label}>Budget (per person)</label>
+                      <select value={form.budget} onChange={e => f('budget', e.target.value)} className={styles.input}>
+                        <option value="">Select budget…</option>
+                        {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={styles.label}>Trip Type</label>
+                      <select value={form.tripType} onChange={e => f('tripType', e.target.value)} className={styles.input}>
+                        <option value="">Select type…</option>
+                        {TRIP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className={styles.label}>Anything else we should know?</label>
+                    <textarea value={form.message} onChange={e => f('message', e.target.value)} placeholder="Special requests, dietary needs, anniversary, preferred hotel, etc." rows={3} className={styles.textarea} />
                   </div>
 
                   <button type="submit" disabled={loading} className={styles.submitBtn}>

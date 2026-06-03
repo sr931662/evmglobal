@@ -67,6 +67,7 @@ export default function PackageDetails() {
     : ['Visa fees & processing', 'City taxes (payable at hotel)', 'Personal expenses & shopping', 'Tips & gratuities']
   const itinerary    = Array.isArray(pkg.itinerary)    ? pkg.itinerary    : []
   const flights      = Array.isArray(pkg.flights)      ? pkg.flights.filter(f => f.airline || f.flightNumber || f.from) : []
+  const hotels       = Array.isArray(pkg.hotels)       ? pkg.hotels.filter(h => h.name)   : []
   const notes        = Array.isArray(pkg.notes) && pkg.notes.length ? pkg.notes : []
   const heroImage    = pkg.image || FALLBACK_IMAGE
 
@@ -210,7 +211,37 @@ export default function PackageDetails() {
                         {fl.flightNumber && <span>· {fl.flightNumber}</span>}
                         {fl.date        && <span>· {fl.date}</span>}
                         {fl.time        && <span>· {fl.time}</span>}
+                        {fl.cabinClass  && <span className={styles.flightClass}>· {fl.cabinClass}</span>}
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Hotel Section */}
+            {hotels.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.33,1,0.68,1] }}
+                className={styles.card}
+              >
+                <h3 className={styles.cardTitleLg}>🏨 Accommodation</h3>
+                <div className={styles.hotelsList}>
+                  {hotels.map((h, i) => (
+                    <div key={i} className={styles.hotelCard}>
+                      <div className={styles.hotelHeader}>
+                        <div>
+                          <p className={styles.hotelName}>{h.name}</p>
+                          <p className={styles.hotelStars}>{'★'.repeat(parseInt(h.stars) || 4)}{'☆'.repeat(5 - (parseInt(h.stars) || 4))}</p>
+                        </div>
+                        {h.roomType && <span className={styles.hotelRoomBadge}>{h.roomType}</span>}
+                      </div>
+                      {h.address && (
+                        <p className={styles.hotelAddress}>📍 {h.address}</p>
+                      )}
                     </div>
                   ))}
                 </div>
