@@ -328,7 +328,7 @@ function MemberCard({ member, onEdit, onDelete }) {
         )}
       </div>
 
-      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex gap-2">
         <button onClick={onEdit}
           className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-xs font-bold hover:border-blue-200 hover:text-blue-600 transition-colors">
           Edit

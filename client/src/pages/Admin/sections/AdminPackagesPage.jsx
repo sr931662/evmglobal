@@ -27,6 +27,52 @@ const categoryColors = {
   Wellness:  'bg-green-50 text-green-700 border-green-100',
 }
 
+// ── Inclusions / Exclusions / Notes unified markdown helpers ──────────────────
+const CONTENT_MD_TEMPLATE = `## ✅ Inclusions
+- Airport transfers (both ways)
+- Luxury hotel stay on twin-sharing basis
+- Daily breakfast included
+- Sightseeing as per itinerary
+- Dedicated tour manager
+
+## ❌ Exclusions
+- Visa fees & processing charges
+- City taxes (payable directly at hotel)
+- Personal expenses & shopping
+- Tips & gratuities
+- Any activity not mentioned above
+
+## 📋 Important Notes
+- Carry valid government photo ID at all times
+- Check visa requirements well in advance of travel`
+
+function buildContentMarkdown(inclusions, exclusions, notes) {
+  const parts = []
+  if (inclusions.length)
+    parts.push('## ✅ Inclusions\n' + inclusions.map(s => `- ${s}`).join('\n'))
+  if (exclusions.length)
+    parts.push('## ❌ Exclusions\n' + exclusions.map(s => `- ${s}`).join('\n'))
+  if (notes.length)
+    parts.push('## 📋 Important Notes\n' + notes.map(s => `- ${s}`).join('\n'))
+  return parts.length ? parts.join('\n\n') : ''
+}
+
+function parseContentMarkdown(md) {
+  const result = { inclusions: [], exclusions: [], notes: [] }
+  if (!md?.trim()) return result
+  let current = 'inclusions'
+  for (const raw of md.split('\n')) {
+    const line = raw.trim()
+    if (/^##.*inclusion/i.test(line) || /^##.*✅/i.test(line))  { current = 'inclusions'; continue }
+    if (/^##.*exclusion/i.test(line) || /^##.*❌/i.test(line))  { current = 'exclusions'; continue }
+    if (/^##.*note/i.test(line)      || /^##.*📋/i.test(line))  { current = 'notes';      continue }
+    if (/^#{1,6}\s/.test(line)) continue
+    const bullet = line.replace(/^[-*+]\s+/, '').trim()
+    if (bullet) result[current].push(bullet)
+  }
+  return result
+}
+
 const emptyActivity = () => ({ time: '', description: '', icon: '📍' })
 const emptyHotel    = () => ({
   name: '', location: '', stars: '4', roomType: '', mealPlan: 'CP',
@@ -41,7 +87,8 @@ const emptyDay = (n) => ({ day: n, title: '', note: '', activities: [emptyActivi
 const emptyForm = () => ({
   title: '', category: 'Honeymoon', nights: '', price: '', priceValue: '',
   description: '', destinations: [], highlights: '', image: '', status: 'Active',
-  inclusions: '', exclusions: '', notes: '', itinerary: [], flights: [], hotels: [],
+  contentMarkdown: CONTENT_MD_TEMPLATE,
+  itinerary: [], flights: [], hotels: [],
 })
 
 // ── Small reusable input ──────────────────────────────────────────────────────
@@ -70,44 +117,223 @@ function Field({ label, value, onChange, placeholder, type = 'text' }) {
   )
 }
 
-// ── Markdown Editor with live preview ─────────────────────────────────────────
-function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, borderClass, focusClass, rows = 8 }) {
-  const [preview, setPreview] = useState(false)
+// ── Markdown toolbar groups ───────────────────────────────────────────────────
+const MD_TOOLBAR_GROUPS = [
+  { label: 'Headings', items: [
+    { icon: 'H1', title: 'Heading 1',         type: 'prefix', value: '# '    },
+    { icon: 'H2', title: 'Heading 2',         type: 'prefix', value: '## '   },
+    { icon: 'H3', title: 'Heading 3 / Sub',   type: 'prefix', value: '### '  },
+  ]},
+  { label: 'Format', items: [
+    { icon: 'B',   title: 'Bold  (Ctrl+B)',   type: 'wrap',   value: '**', ph: 'bold text',   btnStyle: { fontWeight: 800 } },
+    { icon: 'I',   title: 'Italic (Ctrl+I)',  type: 'wrap',   value: '*',  ph: 'italic text', btnStyle: { fontStyle: 'italic' } },
+    { icon: 'S̶',   title: 'Strikethrough',    type: 'wrap',   value: '~~', ph: 'text',        btnStyle: { textDecoration: 'line-through' } },
+    { icon: '`',   title: 'Inline Code',      type: 'wrap',   value: '`',  ph: 'code',        btnStyle: { fontFamily: 'monospace', fontSize: '11px' } },
+    { icon: '🔗',  title: 'Link  (Ctrl+K)',   type: 'tpl',    value: '[link text](https://)' },
+  ]},
+  { label: 'Lists', items: [
+    { icon: '•',  title: 'Bullet List',       type: 'prefix', value: '- '      },
+    { icon: '1.', title: 'Numbered List',     type: 'prefix', value: '1. '     },
+    { icon: '☑',  title: 'Task / Checklist', type: 'prefix', value: '- [ ] '  },
+  ]},
+  { label: 'Blocks', items: [
+    { icon: '❝',   title: 'Blockquote',       type: 'prefix', value: '> '       },
+    { icon: '⊞',   title: 'Table',            type: 'block',  value: '\n| Column 1 | Column 2 | Column 3 |\n| --- | --- | --- |\n| Value | Value | Value |\n' },
+    { icon: '——',  title: 'Divider / HR',     type: 'block',  value: '\n---\n'  },
+    { icon: '{ }', title: 'Code Block',       type: 'block',  value: '\n```\n\n```\n', btnStyle: { fontFamily: 'monospace', fontSize: '10px' } },
+  ]},
+]
+
+function applyMdAction(value, ta, btn) {
+  const start = ta.selectionStart
+  const end   = ta.selectionEnd
+  const sel   = value.slice(start, end)
+  let nv, cs, ce
+
+  if (btn.type === 'wrap') {
+    const w = btn.value
+    if (sel) {
+      nv = value.slice(0, start) + w + sel + w + value.slice(end)
+      cs = start + w.length; ce = end + w.length
+    } else {
+      const ph = btn.ph || 'text'
+      nv = value.slice(0, start) + w + ph + w + value.slice(end)
+      cs = start + w.length; ce = cs + ph.length
+    }
+  } else if (btn.type === 'prefix') {
+    const ls = value.lastIndexOf('\n', start - 1) + 1
+    const p  = btn.value
+    if (value.slice(ls).startsWith(p)) {
+      nv = value.slice(0, ls) + value.slice(ls + p.length)
+      cs = Math.max(ls, start - p.length)
+      ce = Math.max(ls, end - p.length)
+    } else {
+      nv = value.slice(0, ls) + p + value.slice(ls)
+      cs = start + p.length; ce = end + p.length
+    }
+  } else if (btn.type === 'block') {
+    nv = value.slice(0, start) + btn.value + value.slice(end)
+    cs = ce = start + btn.value.length
+  } else {
+    nv = value.slice(0, start) + btn.value + value.slice(end)
+    cs = start; ce = start + btn.value.length
+  }
+  return { nv, cs, ce }
+}
+
+// ── Markdown Editor — toolbar, split view, keyboard shortcuts ─────────────────
+function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, borderClass, rows = 8 }) {
+  const [mode, setMode] = useState('edit') // 'edit' | 'split' | 'preview'
+  const taRef = useRef(null)
+
+  const apply = (btn) => {
+    const ta = taRef.current
+    if (!ta) return
+    const { nv, cs, ce } = applyMdAction(value, ta, btn)
+    onChange(nv)
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(cs, ce) }, 0)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      const kmap = {
+        b: { type: 'wrap', value: '**', ph: 'bold text' },
+        i: { type: 'wrap', value: '*',  ph: 'italic text' },
+        k: { type: 'tpl',  value: '[link text](https://)' },
+      }
+      const btn = kmap[e.key.toLowerCase()]
+      if (btn) {
+        e.preventDefault()
+        const ta = taRef.current
+        if (!ta) return
+        const { nv, cs, ce } = applyMdAction(value, ta, btn)
+        onChange(nv)
+        setTimeout(() => { ta.focus(); ta.setSelectionRange(cs, ce) }, 0)
+      }
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      const ta = taRef.current
+      if (!ta) return
+      const s = ta.selectionStart
+      const nv = value.slice(0, s) + '  ' + value.slice(s)
+      onChange(nv)
+      setTimeout(() => { ta.focus(); ta.setSelectionRange(s + 2, s + 2) }, 0)
+    }
+  }
+
+  const words = value.trim() ? value.trim().split(/\s+/).length : 0
+
+  function Toolbar() {
+    return (
+      <div className="flex items-center gap-0.5 px-3 py-2 bg-gray-50 border-b border-gray-200 flex-wrap">
+        {MD_TOOLBAR_GROUPS.map((grp, gi) => (
+          <div key={grp.label} className="flex items-center gap-0.5">
+            {gi > 0 && <span className="inline-block w-px h-4 bg-gray-200 mx-1.5 shrink-0" />}
+            {grp.items.map(btn => (
+              <button
+                key={btn.icon}
+                type="button"
+                title={btn.title}
+                onClick={() => apply(btn)}
+                style={btn.btnStyle}
+                className="px-2 py-1 rounded-lg text-[11px] text-gray-500 border border-transparent hover:bg-white hover:border-gray-200 hover:text-dark transition-all"
+              >
+                {btn.icon}
+              </button>
+            ))}
+          </div>
+        ))}
+        {/* Group labels on right */}
+        <div className="ml-auto flex gap-1 items-center">
+          {MD_TOOLBAR_GROUPS.map(g => (
+            <span key={g.label} className="text-[8px] text-gray-300 uppercase tracking-widest font-bold hidden xl:block">{g.label}</span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const minH = `${rows * 22}px`
+  const editorCls = 'w-full border-0 px-4 py-3 text-dark font-mono text-xs leading-relaxed focus:outline-none resize-none bg-transparent'
+
+  const PreviewPane = () => (
+    <div className={`${bgClass} px-5 py-4 overflow-y-auto prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-dark prose-headings:tracking-tight prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-dark prose-code:text-brand prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded`}
+      style={{ minHeight: minH }}>
+      {value.trim()
+        ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+        : <p className="text-gray-400 text-xs italic">Preview renders here…</p>
+      }
+    </div>
+  )
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
         <div>
           <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">{label}</label>
           {hint && <span className="text-[9px] text-gray-400 font-medium ml-3">{hint}</span>}
         </div>
+        {/* Mode toggle */}
         <div className="flex bg-gray-100 rounded-full p-0.5 gap-0.5">
-          <button type="button" onClick={() => setPreview(false)}
-            className={`px-3 py-1 rounded-full text-[10px] font-black transition-colors ${!preview ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-          >✏ Edit</button>
-          <button type="button" onClick={() => setPreview(true)}
-            className={`px-3 py-1 rounded-full text-[10px] font-black transition-colors ${preview ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-          >👁 Preview</button>
+          {[
+            { id: 'edit',    icon: '✏',  name: 'Edit'    },
+            { id: 'split',   icon: '⧉',  name: 'Split'   },
+            { id: 'preview', icon: '👁',  name: 'Preview' },
+          ].map(m => (
+            <button key={m.id} type="button" onClick={() => setMode(m.id)} title={m.name}
+              className={`px-3 py-1 rounded-full text-[10px] font-black transition-colors ${mode === m.id ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
+              {m.icon} {m.name}
+            </button>
+          ))}
         </div>
       </div>
-      {!preview ? (
-        <textarea
-          rows={rows}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          placeholder={placeholder}
-          className={`w-full border rounded-2xl px-5 py-3.5 text-dark font-mono text-xs focus:outline-none transition-colors resize-none ${bgClass} ${borderClass} ${focusClass}`}
-        />
-      ) : (
-        <div className={`border rounded-2xl px-5 py-4 overflow-y-auto ${bgClass} ${borderClass}`} style={{ minHeight: `${rows * 22}px` }}>
-          {value.trim() ? (
-            <div className="prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-dark prose-p:text-dark prose-li:text-dark prose-strong:text-dark">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
-            </div>
-          ) : (
-            <p className="text-gray-400 text-xs italic">Nothing to preview yet…</p>
-          )}
+
+      {/* Container */}
+      <div className={`border ${borderClass} rounded-2xl overflow-hidden`}>
+        {/* Toolbar — hidden in pure preview mode */}
+        {mode !== 'preview' && <Toolbar />}
+
+        {/* Editor area */}
+        {mode === 'edit' && (
+          <textarea
+            ref={taRef}
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            className={`${editorCls} ${bgClass}`}
+            style={{ minHeight: minH }}
+          />
+        )}
+
+        {mode === 'preview' && <PreviewPane />}
+
+        {mode === 'split' && (
+          <div className="grid grid-cols-2 divide-x divide-gray-200" style={{ minHeight: minH }}>
+            <textarea
+              ref={taRef}
+              value={value}
+              onChange={e => onChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              className={`${editorCls} ${bgClass}`}
+            />
+            <PreviewPane />
+          </div>
+        )}
+
+        {/* Footer: stats + shortcut hints */}
+        <div className="flex items-center justify-between px-4 py-1.5 bg-gray-50 border-t border-gray-100">
+          <span className="text-[9px] text-gray-400 font-bold">
+            {words} word{words !== 1 ? 's' : ''} · {value.length} chars
+          </span>
+          <span className="text-[8px] text-gray-300 font-mono hidden sm:block">
+            Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Tab Indent
+          </span>
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -662,47 +888,32 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
             />
           )}
 
-          {/* ── Tab 3: Inclusions & Exclusions (Markdown) ── */}
+          {/* ── Tab 3: Unified Inclusions / Exclusions / Notes Markdown ── */}
           {tab === 3 && (
-            <div className="space-y-8">
-              <MarkdownEditor
-                label="✅ Inclusions"
-                hint="Supports **bold**, *italic*, - lists"
-                value={form.inclusions}
-                onChange={v => f('inclusions', v)}
-                placeholder={"- Airport transfers (both ways)\n- **Luxury hotel** stay on twin-sharing basis\n- Daily breakfast\n- Sightseeing as per itinerary\n- Dedicated tour manager"}
-                bgClass="bg-green-50"
-                borderClass="border-green-200"
-                focusClass="focus:border-green-400"
-                rows={9}
-              />
-
-              <div className="border-t border-gray-100" />
-
-              <MarkdownEditor
-                label="❌ Exclusions"
-                hint="Supports **bold**, *italic*, - lists"
-                value={form.exclusions}
-                onChange={v => f('exclusions', v)}
-                placeholder={"- Visa fees & processing charges\n- City taxes (payable at hotel)\n- Personal expenses & shopping\n- Tips & gratuities\n- Any activity not mentioned in inclusions"}
-                bgClass="bg-red-50"
-                borderClass="border-red-200"
-                focusClass="focus:border-red-400"
-                rows={7}
-              />
-
-              <div className="border-t border-gray-100" />
+            <div className="space-y-4">
+              {/* Guide strip */}
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 space-y-2">
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.25em]">How to use</p>
+                <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                  Write everything in <strong className="text-dark">one document</strong>. Use <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">## ✅ Inclusions</code>, <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">## ❌ Exclusions</code>, and <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">## 📋 Important Notes</code> as section headers.
+                  Lines starting with <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">- </code> become bullet points. Supports <strong>**bold**</strong>, <em>*italic*</em>, and all standard Markdown.
+                </p>
+                <div className="flex gap-2 flex-wrap pt-1">
+                  {['- bullet item', '**bold text**', '*italic*', '> blockquote'].map(s => (
+                    <code key={s} className="text-[10px] bg-white border border-gray-200 px-2 py-0.5 rounded font-mono text-gray-600">{s}</code>
+                  ))}
+                </div>
+              </div>
 
               <MarkdownEditor
-                label="📋 Important Notes"
-                hint="Supports **bold**, *italic*, - lists"
-                value={form.notes}
-                onChange={v => f('notes', v)}
-                placeholder={"- Carry valid photo ID at all times\n- Check visa requirements before travel\n- **COVID policy**: Valid vaccination certificate required"}
-                bgClass="bg-amber-50"
-                borderClass="border-amber-200"
-                focusClass="focus:border-amber-400"
-                rows={5}
+                label="📄 Package Content (Inclusions · Exclusions · Notes)"
+                hint="All in one — auto-formats on preview"
+                value={form.contentMarkdown}
+                onChange={v => f('contentMarkdown', v)}
+                placeholder={CONTENT_MD_TEMPLATE}
+                bgClass="bg-gray-50"
+                borderClass="border-gray-200"
+                rows={22}
               />
             </div>
           )}
@@ -781,9 +992,12 @@ export default function AdminPackagesPage() {
       highlights:   Array.isArray(pkg.highlights)   ? pkg.highlights.join(', ')   : (pkg.highlights   || ''),
       image:        pkg.image        || '',
       status:       pkg.status       || 'Active',
-      inclusions:   Array.isArray(pkg.inclusions) && pkg.inclusions.length ? pkg.inclusions.join('\n') : '',
-      exclusions:   Array.isArray(pkg.exclusions) && pkg.exclusions.length ? pkg.exclusions.join('\n') : '',
-      notes:        Array.isArray(pkg.notes)      && pkg.notes.length      ? pkg.notes.join('\n')      : '',
+      contentMarkdown: pkg.contentMarkdown ||
+        buildContentMarkdown(
+          Array.isArray(pkg.inclusions) ? pkg.inclusions : [],
+          Array.isArray(pkg.exclusions) ? pkg.exclusions : [],
+          Array.isArray(pkg.notes)      ? pkg.notes      : [],
+        ) || CONTENT_MD_TEMPLATE,
       itinerary:    Array.isArray(pkg.itinerary) ? pkg.itinerary.map(d => ({
         day:           d.day,
         title:         d.title || '',
@@ -845,9 +1059,15 @@ export default function AdminPackagesPage() {
         highlights:   form.highlights.split(',').map(s => s.trim()).filter(Boolean),
         image:        form.image.trim(),
         status:       form.status,
-        inclusions:   (typeof form.inclusions === 'string' ? form.inclusions : form.inclusions.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
-        exclusions:   (typeof form.exclusions === 'string' ? form.exclusions : form.exclusions.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
-        notes:        (typeof form.notes      === 'string' ? form.notes      : form.notes.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
+        contentMarkdown: form.contentMarkdown || '',
+        ...(() => {
+          const parsed = parseContentMarkdown(form.contentMarkdown)
+          return {
+            inclusions: parsed.inclusions,
+            exclusions: parsed.exclusions,
+            notes:      parsed.notes,
+          }
+        })(),
         itinerary:    form.itinerary.map(d => ({
           day:           d.day,
           title:         d.title.trim(),
@@ -1044,7 +1264,7 @@ export default function AdminPackagesPage() {
                         </button>
                       </td>
                       <td className="px-8 py-5 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex justify-end gap-2">
                           <button onClick={() => openEdit(pkg)}
                             className="w-8 h-8 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors text-xs flex items-center justify-center shadow-sm" title="Edit">
                             ✏

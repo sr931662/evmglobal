@@ -281,7 +281,7 @@ export default function AdminCareersPage() {
                     <p className="text-gray-400 text-sm mt-1.5 line-clamp-2">{job.description}</p>
                   )}
                 </div>
-                <div className="flex gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity sm:opacity-100">
+                <div className="flex gap-2 shrink-0">
                   <button onClick={() => setModal(job)}
                     className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors text-sm flex items-center justify-center shadow-sm"
                     title="Edit posting">✏</button>

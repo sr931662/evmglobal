@@ -39,18 +39,69 @@ const mdPreviewComponents = {
   td: ({ children }) => <td style={{ padding: '0.5rem 0.75rem', color: '#6b7280', borderBottom: '1px solid #f3f4f6' }}>{children}</td>,
 }
 
-const MD_SHORTCUTS = [
-  { label: 'H1',   insert: '# ',     title: 'Heading 1' },
-  { label: 'H2',   insert: '## ',    title: 'Heading 2' },
-  { label: 'H3',   insert: '### ',   title: 'Heading 3' },
-  { label: 'B',    insert: '**bold**',  title: 'Bold', wrap: true },
-  { label: 'I',    insert: '*italic*',  title: 'Italic', wrap: true },
-  { label: '—',    insert: '\n---\n',   title: 'Divider' },
-  { label: '• ',   insert: '- ',     title: 'Bullet list' },
-  { label: '1.',   insert: '1. ',    title: 'Numbered list' },
-  { label: '"',    insert: '> ',     title: 'Blockquote' },
-  { label: '`',    insert: '`code`', title: 'Inline code', wrap: true },
+const MD_GROUPS = [
+  { label: 'Headings', items: [
+    { icon: 'H1',  title: 'Heading 1',        type: 'prefix', value: '# '    },
+    { icon: 'H2',  title: 'Heading 2',        type: 'prefix', value: '## '   },
+    { icon: 'H3',  title: 'Heading 3',        type: 'prefix', value: '### '  },
+  ]},
+  { label: 'Format', items: [
+    { icon: 'B',   title: 'Bold  (Ctrl+B)',   type: 'wrap',   value: '**', ph: 'bold text',   btnStyle: { fontWeight: 800 } },
+    { icon: 'I',   title: 'Italic (Ctrl+I)',  type: 'wrap',   value: '*',  ph: 'italic text', btnStyle: { fontStyle: 'italic' } },
+    { icon: 'S̶',   title: 'Strikethrough',    type: 'wrap',   value: '~~', ph: 'text',        btnStyle: { textDecoration: 'line-through' } },
+    { icon: '`',   title: 'Inline Code',      type: 'wrap',   value: '`',  ph: 'code',        btnStyle: { fontFamily: 'monospace' } },
+    { icon: '🔗',  title: 'Link  (Ctrl+K)',   type: 'tpl',    value: '[link text](https://)' },
+    { icon: '🖼',  title: 'Image',            type: 'tpl',    value: '![alt text](https://)' },
+  ]},
+  { label: 'Lists', items: [
+    { icon: '•',   title: 'Bullet List',      type: 'prefix', value: '- '      },
+    { icon: '1.',  title: 'Numbered List',    type: 'prefix', value: '1. '     },
+    { icon: '☑',   title: 'Task / Checklist', type: 'prefix', value: '- [ ] '  },
+  ]},
+  { label: 'Blocks', items: [
+    { icon: '❝',   title: 'Blockquote',       type: 'prefix', value: '> '       },
+    { icon: '⊞',   title: 'Table',            type: 'block',  value: '\n| Header 1 | Header 2 | Header 3 |\n| --- | --- | --- |\n| Cell | Cell | Cell |\n' },
+    { icon: '—',   title: 'Divider / HR',     type: 'block',  value: '\n---\n'  },
+    { icon: '{ }', title: 'Code Block',       type: 'block',  value: '\n```\n\n```\n', btnStyle: { fontFamily: 'monospace', fontSize: '10px' } },
+  ]},
 ]
+
+function applyBlogAction(content, ta, btn) {
+  const start = ta.selectionStart
+  const end   = ta.selectionEnd
+  const sel   = content.slice(start, end)
+  let nv, cs, ce
+
+  if (btn.type === 'wrap') {
+    const w = btn.value
+    if (sel) {
+      nv = content.slice(0, start) + w + sel + w + content.slice(end)
+      cs = start + w.length; ce = end + w.length
+    } else {
+      const ph = btn.ph || 'text'
+      nv = content.slice(0, start) + w + ph + w + content.slice(end)
+      cs = start + w.length; ce = cs + ph.length
+    }
+  } else if (btn.type === 'prefix') {
+    const ls = content.lastIndexOf('\n', start - 1) + 1
+    const p  = btn.value
+    if (content.slice(ls).startsWith(p)) {
+      nv = content.slice(0, ls) + content.slice(ls + p.length)
+      cs = Math.max(ls, start - p.length)
+      ce = Math.max(ls, end - p.length)
+    } else {
+      nv = content.slice(0, ls) + p + content.slice(ls)
+      cs = start + p.length; ce = end + p.length
+    }
+  } else if (btn.type === 'block') {
+    nv = content.slice(0, start) + btn.value + content.slice(end)
+    cs = ce = start + btn.value.length
+  } else {
+    nv = content.slice(0, start) + btn.value + content.slice(end)
+    cs = start; ce = start + btn.value.length
+  }
+  return { nv, cs, ce }
+}
 
 function BlogModal({ blog, onClose, onSave }) {
   useScrollLock()
@@ -71,26 +122,40 @@ function BlogModal({ blog, onClose, onSave }) {
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
-  const insertMarkdown = (shortcut) => {
+  const insertMarkdown = (btn) => {
     const ta = document.getElementById('blog-content-editor')
     if (!ta) return
-    const start = ta.selectionStart
-    const end   = ta.selectionEnd
-    const selected = form.content.slice(start, end)
-    let insertion
-    if (shortcut.wrap && selected) {
-      const tag = shortcut.insert.split('text')[0] || shortcut.insert.split('code')[0] || shortcut.insert.match(/^[^a-z]*/)[0]
-      insertion = tag + selected + tag
-    } else {
-      insertion = shortcut.insert
+    const { nv, cs, ce } = applyBlogAction(form.content, ta, btn)
+    f('content', nv)
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(cs, ce) }, 0)
+  }
+
+  const handleEditorKeyDown = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      const kmap = {
+        b: { type: 'wrap', value: '**', ph: 'bold text' },
+        i: { type: 'wrap', value: '*',  ph: 'italic text' },
+        k: { type: 'tpl',  value: '[link text](https://)' },
+      }
+      const btn = kmap[e.key.toLowerCase()]
+      if (btn) {
+        e.preventDefault()
+        const ta = document.getElementById('blog-content-editor')
+        if (!ta) return
+        const { nv, cs, ce } = applyBlogAction(form.content, ta, btn)
+        f('content', nv)
+        setTimeout(() => { ta.focus(); ta.setSelectionRange(cs, ce) }, 0)
+      }
     }
-    const next = form.content.slice(0, start) + insertion + form.content.slice(end)
-    f('content', next)
-    setTimeout(() => {
-      ta.focus()
-      const cursor = start + insertion.length
-      ta.setSelectionRange(cursor, cursor)
-    }, 0)
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      const ta = document.getElementById('blog-content-editor')
+      if (!ta) return
+      const s  = ta.selectionStart
+      const nv = form.content.slice(0, s) + '  ' + form.content.slice(s)
+      f('content', nv)
+      setTimeout(() => { ta.focus(); ta.setSelectionRange(s + 2, s + 2) }, 0)
+    }
   }
 
   const handleSubmit = async () => {
@@ -166,11 +231,15 @@ function BlogModal({ blog, onClose, onSave }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">Content (Markdown)</label>
                 <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: '0.625rem', padding: '0.1875rem', gap: '0.125rem' }}>
-                  {['write', 'preview'].map(tab => (
+                  {[
+                    { id: 'write',   label: '✏ Write'   },
+                    { id: 'split',   label: '⧉ Split'   },
+                    { id: 'preview', label: '👁 Preview' },
+                  ].map(tab => (
                     <button
-                      key={tab}
+                      key={tab.id}
                       type="button"
-                      onClick={() => setContentTab(tab)}
+                      onClick={() => setContentTab(tab.id)}
                       style={{
                         padding: '0.25rem 0.75rem',
                         borderRadius: '0.4375rem',
@@ -178,14 +247,14 @@ function BlogModal({ blog, onClose, onSave }) {
                         fontWeight: 700,
                         border: 'none',
                         cursor: 'pointer',
-                        textTransform: 'capitalize',
-                        background: contentTab === tab ? '#fff' : 'transparent',
-                        color: contentTab === tab ? '#111' : '#9ca3af',
-                        boxShadow: contentTab === tab ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                        whiteSpace: 'nowrap',
+                        background: contentTab === tab.id ? '#fff' : 'transparent',
+                        color: contentTab === tab.id ? '#111' : '#9ca3af',
+                        boxShadow: contentTab === tab.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                         transition: 'all 0.15s',
                       }}
                     >
-                      {tab}
+                      {tab.label}
                     </button>
                   ))}
                 </div>
@@ -193,29 +262,47 @@ function BlogModal({ blog, onClose, onSave }) {
 
               {contentTab === 'write' ? (
                 <div style={{ border: '1px solid #e5e7eb', borderRadius: '1rem', overflow: 'hidden' }}>
-                  {/* Markdown toolbar */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', padding: '0.5rem 0.75rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                    {MD_SHORTCUTS.map(s => (
-                      <button
-                        key={s.label}
-                        type="button"
-                        title={s.title}
-                        onClick={() => insertMarkdown(s)}
-                        style={{
-                          padding: '0.2rem 0.5rem',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          fontFamily: 'monospace',
-                          border: '1px solid #e5e7eb',
-                          background: '#fff',
-                          color: '#374151',
-                          cursor: 'pointer',
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {s.label}
-                      </button>
+                  {/* Enhanced grouped toolbar */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '2px', padding: '0.5rem 0.75rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                    {MD_GROUPS.map((group, gi) => (
+                      <div key={group.label} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        {gi > 0 && (
+                          <span style={{ display: 'inline-block', width: '1px', height: '16px', background: '#d1d5db', margin: '0 6px', flexShrink: 0 }} />
+                        )}
+                        {group.items.map(btn => (
+                          <button
+                            key={btn.icon}
+                            type="button"
+                            title={btn.title}
+                            onClick={() => insertMarkdown(btn)}
+                            style={{
+                              padding: '0.2rem 0.45rem',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              border: '1px solid transparent',
+                              background: 'transparent',
+                              color: '#6b7280',
+                              cursor: 'pointer',
+                              lineHeight: 1.5,
+                              transition: 'all 0.12s',
+                              ...(btn.btnStyle || {}),
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = '#fff'
+                              e.currentTarget.style.borderColor = '#e5e7eb'
+                              e.currentTarget.style.color = '#111827'
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'transparent'
+                              e.currentTarget.style.borderColor = 'transparent'
+                              e.currentTarget.style.color = '#6b7280'
+                            }}
+                          >
+                            {btn.icon}
+                          </button>
+                        ))}
+                      </div>
                     ))}
                   </div>
                   <textarea
@@ -223,7 +310,8 @@ function BlogModal({ blog, onClose, onSave }) {
                     rows={12}
                     value={form.content}
                     onChange={e => f('content', e.target.value)}
-                    placeholder={'# My Article Title\n\nWrite your content here. Use **bold**, *italic*, ## headings, - bullet lists, and more.\n\n## Section Heading\n\nYour paragraph text goes here...'}
+                    onKeyDown={handleEditorKeyDown}
+                    placeholder={'# My Article Title\n\nWrite your content here using Markdown.\n\n## Section Heading\n\nUse **bold**, *italic*, ~~strikethrough~~, `code`, - bullets, 1. numbered lists, > blockquotes, and tables.\n\n- [ ] Task item\n- [x] Completed item'}
                     style={{
                       width: '100%',
                       background: '#fff',
@@ -237,10 +325,58 @@ function BlogModal({ blog, onClose, onSave }) {
                       outline: 'none',
                       boxSizing: 'border-box',
                       minHeight: '220px',
-                      maxHeight: '480px',
+                      maxHeight: '500px',
                       overflowY: 'auto',
                     }}
                   />
+                  {/* Footer: word count + shortcuts */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.375rem 0.875rem', background: '#f9fafb', borderTop: '1px solid #e5e7eb', fontSize: '0.6875rem', color: '#9ca3af', fontWeight: 600 }}>
+                    <span>
+                      {form.content.trim() ? form.content.trim().split(/\s+/).length : 0} words · {form.content.length} chars
+                    </span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', letterSpacing: '0.05em', color: '#d1d5db' }}>
+                      Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Tab Indent
+                    </span>
+                  </div>
+                </div>
+              ) : contentTab === 'split' ? (
+                <div style={{ border: '1px solid #e5e7eb', borderRadius: '1rem', overflow: 'hidden' }}>
+                  {/* Toolbar in split mode */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '2px', padding: '0.5rem 0.75rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                    {MD_GROUPS.map((group, gi) => (
+                      <div key={group.label} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        {gi > 0 && <span style={{ display: 'inline-block', width: '1px', height: '16px', background: '#d1d5db', margin: '0 6px' }} />}
+                        {group.items.map(btn => (
+                          <button key={btn.icon} type="button" title={btn.title} onClick={() => insertMarkdown(btn)}
+                            style={{ padding: '0.2rem 0.45rem', borderRadius: '0.375rem', fontSize: '0.7rem', fontWeight: 700, border: '1px solid transparent', background: 'transparent', color: '#6b7280', cursor: 'pointer', lineHeight: 1.5, ...(btn.btnStyle || {}) }}
+                            onMouseEnter={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.borderColor='#e5e7eb'; e.currentTarget.style.color='#111' }}
+                            onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.borderColor='transparent'; e.currentTarget.style.color='#6b7280' }}
+                          >{btn.icon}</button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                  {/* Split layout */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '280px' }}>
+                    <textarea
+                      id="blog-content-editor"
+                      value={form.content}
+                      onChange={e => f('content', e.target.value)}
+                      onKeyDown={handleEditorKeyDown}
+                      placeholder="Write Markdown here…"
+                      style={{ width: '100%', background: '#fff', border: 'none', borderRight: '1px solid #e5e7eb', padding: '0.875rem 1rem', fontFamily: 'ui-monospace, monospace', fontSize: '0.8125rem', color: '#1e293b', lineHeight: 1.7, resize: 'none', outline: 'none', minHeight: '280px' }}
+                    />
+                    <div style={{ padding: '0.875rem 1.25rem', background: '#fafafa', overflowY: 'auto', minHeight: '280px' }}>
+                      {form.content.trim()
+                        ? <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdPreviewComponents}>{form.content}</ReactMarkdown>
+                        : <p style={{ color: '#9ca3af', fontSize: '0.875rem', fontStyle: 'italic' }}>Start typing to see preview…</p>
+                      }
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.375rem 0.875rem', background: '#f9fafb', borderTop: '1px solid #e5e7eb', fontSize: '0.6875rem', color: '#9ca3af' }}>
+                    <span>{form.content.trim() ? form.content.trim().split(/\s+/).length : 0} words · {form.content.length} chars</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: '#d1d5db' }}>Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Tab Indent</span>
+                  </div>
                 </div>
               ) : (
                 <div style={{
@@ -248,7 +384,7 @@ function BlogModal({ blog, onClose, onSave }) {
                   borderRadius: '1rem',
                   padding: '1rem 1.25rem',
                   minHeight: '220px',
-                  maxHeight: '360px',
+                  maxHeight: '440px',
                   overflowY: 'auto',
                   background: '#fafafa',
                   scrollbarWidth: 'thin',
@@ -456,7 +592,7 @@ export default function AdminBlogsPage() {
                         </span>
                       </td>
                       <td className="px-8 py-5 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex justify-end gap-2">
                           <button onClick={() => setModal(blog)}
                             className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors text-sm flex items-center justify-center shadow-sm"
                             title="Edit post">✏</button>

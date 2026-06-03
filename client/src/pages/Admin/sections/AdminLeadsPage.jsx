@@ -877,7 +877,7 @@ export default function AdminLeadsPage() {
 
                       {/* Actions (stop row-click) */}
                       <td className="px-6 py-5 text-right" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleWhatsApp(lead)}
                             className="w-9 h-9 rounded-xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors flex items-center justify-center shadow-sm"

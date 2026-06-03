@@ -192,7 +192,7 @@ export default function AdminDestinationsPage() {
                   <p className="text-gray-400 text-sm font-bold mt-0.5">{dest.country}</p>
                   {dest.startingPrice && <p className="text-brand text-xs font-black mt-1">From {dest.startingPrice}</p>}
 
-                  <div className="flex gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => openEdit(dest)}
                       className="flex-1 text-[11px] font-black uppercase tracking-[0.15em] py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-colors"
