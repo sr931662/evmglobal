@@ -121,24 +121,21 @@ export default function Navbar() {
                     </Link>
                     <button
                       className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
-                      onClick={() => {
-                        logoutCustomer()
-                        setDropdownOpen(false)
-                      }}
+                      onClick={() => { logoutCustomer(); setDropdownOpen(false) }}
                     >
                       Sign Out
                     </button>
                   </div>
                 )}
               </div>
-            ) : (
+            ) : !adminUser ? (
               <Link
                 to="/login"
                 className={`${styles.signInLink} ${isDarkHero ? styles.signInLight : styles.signInDark}`}
               >
                 Sign In
               </Link>
-            )}
+            ) : null}
 
             {adminUser ? (
               <div className={styles.adminMenu} ref={adminDropdownRef}>

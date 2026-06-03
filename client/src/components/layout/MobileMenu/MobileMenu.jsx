@@ -93,11 +93,11 @@ export default function MobileMenu({ open, onClose }) {
                   Sign Out
                 </button>
               </div>
-            ) : (
+            ) : !adminUser ? (
               <Link to="/login" onClick={onClose} className={styles.adminLink}>
                 Sign In / Join Free
               </Link>
-            )}
+            ) : null}
             {adminUser ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', padding: '0 0.5rem' }}>
