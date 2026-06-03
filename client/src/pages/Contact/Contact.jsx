@@ -1,19 +1,34 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
 import styles from './Contact.module.css'
 import { usePageMeta } from '../../hooks/usePageMeta'
 
-const EMPTY = { name: '', phone: '', email: '', destination: '', travelDate: '', travellers: '', message: '' }
+const BUDGETS       = ['Under ₹50,000', '₹50k–₹1L', '₹1L–₹2L', '₹2L–₹5L', '₹5L+', 'Flexible / TBD']
+const TRIP_TYPES    = ['Honeymoon', 'Family Holiday', 'Solo Travel', 'Group Tour', 'Luxury Escape', 'Adventure', 'Business + Leisure', 'Pilgrimage / Religious', 'Anniversary Celebration', 'Corporate Retreat']
+const ACCOMMODATION = ['3-Star', '4-Star', '5-Star', 'Boutique / Heritage', 'Budget / Hostel', 'Luxury Resort', 'Villa / Apartment', 'No Preference']
+const HOW_HEARD     = ['Google Search', 'Instagram', 'Facebook', 'WhatsApp', 'Friend / Family', 'Travel Expo', 'LinkedIn', 'YouTube', 'OTA / Booking Site', 'Walk-in', 'Other']
+const MONTHS        = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
+const EMPTY = {
+  name: '', phone: '', email: '',
+  destination: '', departureCity: '', travelDate: '', travelMonth: '', tripDuration: '',
+  numAdults: '', numChildren: '', numInfants: '',
+  budget: '', tripType: '', accommodation: '', occasion: '',
+  howHeard: '', preferredContact: '',
+  specialRequirements: '', message: '',
+}
 
 const features = [
   { icon: '✈', label: 'Personalised itinerary', desc: 'Custom plan crafted within 24 hours' },
-  { icon: '💰', label: 'Best price guarantee', desc: 'No hidden charges, full transparency' },
-  { icon: '🎧', label: 'Dedicated concierge', desc: '24/7 support from inquiry to return' },
-  { icon: '🗺', label: 'All destinations', desc: 'India, international & group tours' },
+  { icon: '💰', label: 'Best price guarantee',   desc: 'No hidden charges, full transparency' },
+  { icon: '🎧', label: 'Dedicated concierge',    desc: '24/7 support from inquiry to return'  },
+  { icon: '🗺', label: 'All destinations',        desc: 'India, international & group tours'  },
 ]
+
+const STEPS = ['Contact Info', 'Trip Details', 'Preferences']
 
 export default function Contact() {
   usePageMeta(
@@ -22,6 +37,7 @@ export default function Contact() {
   )
   const location = useLocation()
   const [form,    setForm]    = useState(EMPTY)
+  const [step,    setStep]    = useState(0)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error,   setError]   = useState('')
@@ -34,21 +50,35 @@ export default function Contact() {
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
+  const handleNext = (e) => {
+    e.preventDefault()
+    if (step === 0 && (!form.name.trim() || !form.phone.trim())) {
+      setError('Name and phone number are required.')
+      return
+    }
+    setError('')
+    setStep(s => s + 1)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name.trim() || !form.phone.trim()) return
+    if (!form.name.trim() || !form.phone.trim()) { setError('Name and phone are required.'); return }
     setLoading(true)
     setError('')
     try {
       await api.submitLead({ ...form, type: 'inquiry' })
       setSuccess(true)
       setForm(EMPTY)
+      setStep(0)
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
   }
+
+  const inpClass = styles.input
+  const selClass = styles.input
 
   return (
     <div className={styles.page}>
@@ -140,65 +170,181 @@ export default function Contact() {
                 <>
                   <h3 className={styles.formTitle}>Send an Inquiry</h3>
                   <p className={styles.formSubtitle}>We'll respond within 24 hours.</p>
-                  <form onSubmit={handleSubmit} className={styles.form}>
-                    {error && <div className={styles.errorBanner}>{error}</div>}
 
-                    <div className={styles.row2}>
-                      <div className={styles.fieldGroup}>
-                        <label className={styles.label}>Full Name *</label>
-                        <input type="text" required value={form.name} onChange={e => f('name', e.target.value)}
-                          placeholder="Your full name" className={styles.input} />
+                  {/* Step progress */}
+                  <div className="flex gap-2 mb-6">
+                    {STEPS.map((s, i) => (
+                      <div key={s} className="flex-1">
+                        <div className={`h-1 rounded-full transition-colors ${i <= step ? 'bg-brand' : 'bg-gray-200'}`} />
+                        <p className={`text-[9px] font-black uppercase tracking-[0.15em] mt-1 ${i <= step ? 'text-brand' : 'text-gray-400'}`}>{s}</p>
                       </div>
-                      <div className={styles.fieldGroup}>
-                        <label className={styles.label}>Phone *</label>
-                        <input type="tel" required value={form.phone} onChange={e => f('phone', e.target.value)}
-                          placeholder="+91 70705 95907" className={styles.input} />
-                      </div>
-                    </div>
+                    ))}
+                  </div>
 
-                    <div className={styles.fieldGroup}>
-                      <label className={styles.label}>Email Address</label>
-                      <input type="email" value={form.email} onChange={e => f('email', e.target.value)}
-                        placeholder="your@email.com" className={styles.input} />
-                    </div>
+                  {error && <div className={styles.errorBanner}>{error}</div>}
 
-                    <div className={styles.row2}>
-                      <div className={styles.fieldGroup}>
-                        <label className={styles.label}>Destination</label>
-                        <input type="text" value={form.destination} onChange={e => f('destination', e.target.value)}
-                          placeholder="e.g. Kashmir, Bali, Europe" className={styles.input} />
-                      </div>
-                      <div className={styles.fieldGroup}>
-                        <label className={styles.label}>Approximate Travel Date</label>
-                        <input type="text" value={form.travelDate} onChange={e => f('travelDate', e.target.value)}
-                          placeholder="e.g. July 2025" className={styles.input} />
-                      </div>
-                    </div>
+                  <AnimatePresence mode="wait">
 
-                    <div className={styles.fieldGroup}>
-                      <label className={styles.label}>Number of Travellers</label>
-                      <input type="text" value={form.travellers} onChange={e => f('travellers', e.target.value)}
-                        placeholder="e.g. 2 adults, 1 child" className={styles.input} />
-                    </div>
+                    {/* Step 0: Contact Info */}
+                    {step === 0 && (
+                      <motion.form key="step0" onSubmit={handleNext}
+                        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                        className={styles.form}
+                      >
+                        <div className={styles.row2}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Full Name *</label>
+                            <input type="text" required value={form.name} onChange={e => f('name', e.target.value)} placeholder="Your full name" className={inpClass} />
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Phone / WhatsApp *</label>
+                            <input type="tel" required value={form.phone} onChange={e => f('phone', e.target.value)} placeholder="+91 70705 95907" className={inpClass} />
+                          </div>
+                        </div>
+                        <div className={styles.fieldGroup}>
+                          <label className={styles.label}>Email Address</label>
+                          <input type="email" value={form.email} onChange={e => f('email', e.target.value)} placeholder="your@email.com" className={inpClass} />
+                        </div>
+                        <div className={styles.row2}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Your City</label>
+                            <input type="text" value={form.departureCity} onChange={e => f('departureCity', e.target.value)} placeholder="e.g. Mumbai" className={inpClass} />
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Preferred Contact</label>
+                            <select value={form.preferredContact} onChange={e => f('preferredContact', e.target.value)} className={selClass}>
+                              <option value="">Select…</option>
+                              <option>WhatsApp</option>
+                              <option>Phone Call</option>
+                              <option>Email</option>
+                              <option>Any</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className={styles.fieldGroup}>
+                          <label className={styles.label}>How did you hear about us?</label>
+                          <select value={form.howHeard} onChange={e => f('howHeard', e.target.value)} className={selClass}>
+                            <option value="">Select source…</option>
+                            {HOW_HEARD.map(h => <option key={h} value={h}>{h}</option>)}
+                          </select>
+                        </div>
+                        <button type="submit" className={styles.submitBtn}>Next: Trip Details →</button>
+                        <p className={styles.privacyNote}>No spam, ever. Your details stay private.</p>
+                      </motion.form>
+                    )}
 
-                    <div className={styles.fieldGroup}>
-                      <label className={styles.label}>Special Requests / Notes</label>
-                      <textarea value={form.message} onChange={e => f('message', e.target.value)}
-                        placeholder="Any specific hotels, activities, dietary needs, budget range…"
-                        rows={4} className={styles.textarea} />
-                    </div>
+                    {/* Step 1: Trip Details */}
+                    {step === 1 && (
+                      <motion.form key="step1" onSubmit={handleNext}
+                        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                        className={styles.form}
+                      >
+                        <div className={styles.row2}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Destination(s)</label>
+                            <input type="text" value={form.destination} onChange={e => f('destination', e.target.value)} placeholder="e.g. Kashmir, Bali, Europe" className={inpClass} />
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Departure City</label>
+                            <input type="text" value={form.departureCity} onChange={e => f('departureCity', e.target.value)} placeholder="e.g. Delhi" className={inpClass} />
+                          </div>
+                        </div>
+                        <div className={styles.row2}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Approx. Travel Date</label>
+                            <input type="text" value={form.travelDate} onChange={e => f('travelDate', e.target.value)} placeholder="e.g. 15 Dec 2025" className={inpClass} />
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Travel Month</label>
+                            <select value={form.travelMonth} onChange={e => f('travelMonth', e.target.value)} className={selClass}>
+                              <option value="">Select month…</option>
+                              {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        <div className={styles.fieldGroup}>
+                          <label className={styles.label}>Trip Duration</label>
+                          <input type="text" value={form.tripDuration} onChange={e => f('tripDuration', e.target.value)} placeholder="e.g. 7 nights / 8 days" className={inpClass} />
+                        </div>
+                        <div>
+                          <label className={styles.label}>Number of Travellers</label>
+                          <div className={styles.row2}>
+                            <div className={styles.fieldGroup}>
+                              <label className={styles.labelSub}>Adults</label>
+                              <input type="number" min="1" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} placeholder="2" className={inpClass} />
+                            </div>
+                            <div className={styles.fieldGroup}>
+                              <label className={styles.labelSub}>Children (2–12)</label>
+                              <input type="number" min="0" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} placeholder="0" className={inpClass} />
+                            </div>
+                            <div className={styles.fieldGroup}>
+                              <label className={styles.labelSub}>Infants (&lt;2)</label>
+                              <input type="number" min="0" value={form.numInfants} onChange={e => f('numInfants', e.target.value)} placeholder="0" className={inpClass} />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <button type="button" onClick={() => setStep(0)} className={styles.backBtn}>← Back</button>
+                          <button type="submit" className={styles.submitBtn} style={{ flex: 2 }}>Next: Preferences →</button>
+                        </div>
+                      </motion.form>
+                    )}
 
-                    <button type="submit" disabled={loading} className={styles.submitBtn}>
-                      {loading ? (
-                        <span className={styles.submitSpinner}>
-                          <span className={styles.spinnerCircle} />
-                          Sending…
-                        </span>
-                      ) : 'Send My Inquiry →'}
-                    </button>
-
-                    <p className={styles.privacyNote}>No spam, ever. Your details stay private.</p>
-                  </form>
+                    {/* Step 2: Preferences + Submit */}
+                    {step === 2 && (
+                      <motion.form key="step2" onSubmit={handleSubmit}
+                        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                        className={styles.form}
+                      >
+                        <div className={styles.row2}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Budget (per person)</label>
+                            <select value={form.budget} onChange={e => f('budget', e.target.value)} className={selClass}>
+                              <option value="">Select budget…</option>
+                              {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
+                            </select>
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Trip Type</label>
+                            <select value={form.tripType} onChange={e => f('tripType', e.target.value)} className={selClass}>
+                              <option value="">Select type…</option>
+                              {TRIP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        <div className={styles.row2}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Accommodation Preference</label>
+                            <select value={form.accommodation} onChange={e => f('accommodation', e.target.value)} className={selClass}>
+                              <option value="">Select preference…</option>
+                              {ACCOMMODATION.map(a => <option key={a} value={a}>{a}</option>)}
+                            </select>
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.label}>Occasion / Purpose</label>
+                            <input type="text" value={form.occasion} onChange={e => f('occasion', e.target.value)} placeholder="e.g. Honeymoon, Anniversary" className={inpClass} />
+                          </div>
+                        </div>
+                        <div className={styles.fieldGroup}>
+                          <label className={styles.label}>Special Requirements / Notes</label>
+                          <textarea value={form.specialRequirements} onChange={e => f('specialRequirements', e.target.value)}
+                            placeholder="Dietary needs, accessibility requirements, preferred activities, anniversary surprise, visa assistance, specific hotels…"
+                            rows={4} className={styles.textarea} />
+                        </div>
+                        <div className="flex gap-3">
+                          <button type="button" onClick={() => setStep(1)} className={styles.backBtn}>← Back</button>
+                          <button type="submit" disabled={loading} className={styles.submitBtn} style={{ flex: 2 }}>
+                            {loading ? (
+                              <span className={styles.submitSpinner}>
+                                <span className={styles.spinnerCircle} />Sending…
+                              </span>
+                            ) : 'Send My Inquiry →'}
+                          </button>
+                        </div>
+                        <p className={styles.privacyNote}>No spam, ever. Your details stay private.</p>
+                      </motion.form>
+                    )}
+                  </AnimatePresence>
                 </>
               )}
             </div>

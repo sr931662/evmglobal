@@ -1,15 +1,23 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
 
 const CATEGORIES = ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness']
 
-const ACTIVITY_ICONS = ['✈', '🚗', '🚢', '🏨', '🍽', '🎭', '🧘', '🏖', '⛵', '🏔', '🎿', '🛕', '🌅', '🤿', '📍']
+const ACTIVITY_ICONS = ['✈', '🚗', '🚢', '🏨', '🍽', '🎭', '🧘', '🏖', '⛵', '🏔', '🎿', '🛕', '🌅', '🤿', '📍', '🚌', '🚂', '🛳', '🎪', '🏛', '🌊', '🦁', '🌋', '🏰', '🎑']
 
-const FLIGHT_TYPES = ['Departure', 'Return', 'Connecting']
-const CABIN_CLASSES = ['Economy', 'Premium Economy', 'Business', 'First Class']
+const FLIGHT_TYPES   = ['Departure', 'Return', 'Connecting']
+const CABIN_CLASSES  = ['Economy', 'Premium Economy', 'Business', 'First Class']
+const STOPS_OPTIONS  = ['0 (Non-Stop)', '1 Stop', '2 Stops', '3+ Stops']
+const MEAL_OPTIONS   = ['', 'Meal Included', 'Snack', 'Vegetarian', 'Non-Vegetarian', 'No Meal']
+const MEAL_PLAN_OPTIONS = ['EP', 'CP', 'MAP', 'AP', 'AI', 'UAI']
+const MEAL_PLAN_LABELS  = { EP: 'EP – Room Only', CP: 'CP – Breakfast', MAP: 'MAP – Breakfast + Dinner', AP: 'AP – All Meals', AI: 'AI – All Inclusive', UAI: 'UAI – Ultra All Inclusive' }
+const TRANSPORT_OPTIONS = ['', 'Private Car / SUV', 'Shared Transfer', 'Flight', 'Train', 'Bus', 'Boat / Ferry', 'Cruise Ship', 'Walk / Self', 'Overnight Train', 'Overnight Bus', 'Helicopter']
+const DAY_MEAL_OPTS = ['Breakfast', 'Lunch', 'Dinner']
 
 const categoryColors = {
   Honeymoon: 'bg-pink-50 text-pink-700 border-pink-100',
@@ -20,10 +28,17 @@ const categoryColors = {
 }
 
 const emptyActivity = () => ({ time: '', description: '', icon: '📍' })
-const emptyHotel    = () => ({ name: '', roomType: '', stars: '4', address: '' })
-const emptyFlight   = () => ({ type: 'Departure', airline: '', flightNumber: '', from: '', to: '', date: '', time: '', cabinClass: 'Economy' })
-const emptyDay      = (n) => ({ day: n, title: '', note: '', activities: [emptyActivity()] })
-const emptyForm     = () => ({
+const emptyHotel    = () => ({
+  name: '', location: '', stars: '4', roomType: '', mealPlan: 'CP',
+  nights: '', checkIn: '', checkOut: '', amenities: '', address: '', contact: '',
+})
+const emptyFlight   = () => ({
+  type: 'Departure', airline: '', flightNumber: '', from: '', to: '',
+  date: '', time: '', arrivalTime: '', duration: '', stops: '0',
+  cabinClass: 'Economy', baggage: '', meal: '', pnr: '', terminal: '',
+})
+const emptyDay = (n) => ({ day: n, title: '', note: '', activities: [emptyActivity()], transport: '', mealsIncluded: [] })
+const emptyForm = () => ({
   title: '', category: 'Honeymoon', nights: '', price: '', priceValue: '',
   description: '', destinations: [], highlights: '', image: '', status: 'Active',
   inclusions: '', exclusions: '', notes: '', itinerary: [], flights: [], hotels: [],
@@ -50,6 +65,48 @@ function Field({ label, value, onChange, placeholder, type = 'text' }) {
           onChange={e => onChange(e.target.value)}
           className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
         />
+      )}
+    </div>
+  )
+}
+
+// ── Markdown Editor with live preview ─────────────────────────────────────────
+function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, borderClass, focusClass, rows = 8 }) {
+  const [preview, setPreview] = useState(false)
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">{label}</label>
+          {hint && <span className="text-[9px] text-gray-400 font-medium ml-3">{hint}</span>}
+        </div>
+        <div className="flex bg-gray-100 rounded-full p-0.5 gap-0.5">
+          <button type="button" onClick={() => setPreview(false)}
+            className={`px-3 py-1 rounded-full text-[10px] font-black transition-colors ${!preview ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+          >✏ Edit</button>
+          <button type="button" onClick={() => setPreview(true)}
+            className={`px-3 py-1 rounded-full text-[10px] font-black transition-colors ${preview ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+          >👁 Preview</button>
+        </div>
+      </div>
+      {!preview ? (
+        <textarea
+          rows={rows}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={`w-full border rounded-2xl px-5 py-3.5 text-dark font-mono text-xs focus:outline-none transition-colors resize-none ${bgClass} ${borderClass} ${focusClass}`}
+        />
+      ) : (
+        <div className={`border rounded-2xl px-5 py-4 overflow-y-auto ${bgClass} ${borderClass}`} style={{ minHeight: `${rows * 22}px` }}>
+          {value.trim() ? (
+            <div className="prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-dark prose-p:text-dark prose-li:text-dark prose-strong:text-dark">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-xs italic">Nothing to preview yet…</p>
+          )}
+        </div>
       )}
     </div>
   )
@@ -112,67 +169,118 @@ function FlightsHotelsBuilder({ flights, hotels, onFlightsChange, onHotelsChange
   const removeHotel = (i) => onHotelsChange(hotels.filter((_, idx) => idx !== i))
   const updateHotel = (i, key, val) => onHotelsChange(hotels.map((h, idx) => idx === i ? { ...h, [key]: val } : h))
 
+  const inp = 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors'
+  const lbl = 'text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block'
+
   return (
     <div className="space-y-8">
-      {/* Flights */}
+      {/* ── Flights ── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">✈ Flight Details</h4>
+          <div>
+            <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">✈ Flight Details</h4>
+            <p className="text-[9px] text-gray-400 font-medium mt-0.5">Add all flights in the itinerary</p>
+          </div>
           <button onClick={addFlight} className="text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full bg-brand/10 text-brand hover:bg-brand/20 transition-colors">+ Add Flight</button>
         </div>
         {flights.length === 0 ? (
           <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">No flights added yet — click + Add Flight</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {flights.map((fl, i) => (
-              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden">
-                <div className="bg-gray-50 px-5 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                {/* Flight header */}
+                <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-5 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
                     <span className="text-base">✈</span>
                     <select value={fl.type} onChange={e => updateFlight(i, 'type', e.target.value)}
                       className="bg-transparent text-dark font-black text-xs focus:outline-none cursor-pointer">
                       {FLIGHT_TYPES.map(t => <option key={t}>{t}</option>)}
                     </select>
+                    {fl.from && fl.to && (
+                      <span className="text-[10px] font-bold text-gray-500">{fl.from} → {fl.to}</span>
+                    )}
                   </div>
                   <button onClick={() => removeFlight(i)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-4 grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Airline</label>
-                    <input type="text" value={fl.airline} onChange={e => updateFlight(i, 'airline', e.target.value)} placeholder="e.g. IndiGo"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+
+                <div className="p-4 space-y-3">
+                  {/* Row 1: Airline + Flight No + Cabin Class */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className={lbl}>Airline</label>
+                      <input type="text" value={fl.airline} onChange={e => updateFlight(i, 'airline', e.target.value)} placeholder="e.g. IndiGo" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Flight No.</label>
+                      <input type="text" value={fl.flightNumber} onChange={e => updateFlight(i, 'flightNumber', e.target.value)} placeholder="e.g. 6E-204" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Cabin Class</label>
+                      <select value={fl.cabinClass || 'Economy'} onChange={e => updateFlight(i, 'cabinClass', e.target.value)} className={inp + ' cursor-pointer'}>
+                        {CABIN_CLASSES.map(c => <option key={c}>{c}</option>)}
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Flight No.</label>
-                    <input type="text" value={fl.flightNumber} onChange={e => updateFlight(i, 'flightNumber', e.target.value)} placeholder="e.g. 6E-204"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+
+                  {/* Row 2: From + To + Date */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className={lbl}>From (Origin)</label>
+                      <input type="text" value={fl.from} onChange={e => updateFlight(i, 'from', e.target.value)} placeholder="Delhi (DEL)" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>To (Destination)</label>
+                      <input type="text" value={fl.to} onChange={e => updateFlight(i, 'to', e.target.value)} placeholder="Srinagar (SXR)" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Date / Day Ref</label>
+                      <input type="text" value={fl.date} onChange={e => updateFlight(i, 'date', e.target.value)} placeholder="Day 1 / 12 Jun" className={inp} />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">From</label>
-                    <input type="text" value={fl.from} onChange={e => updateFlight(i, 'from', e.target.value)} placeholder="e.g. Delhi (DEL)"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+
+                  {/* Row 3: Dep time + Arr time + Duration + Stops */}
+                  <div className="grid grid-cols-4 gap-3">
+                    <div>
+                      <label className={lbl}>Departs</label>
+                      <input type="text" value={fl.time} onChange={e => updateFlight(i, 'time', e.target.value)} placeholder="06:30 AM" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Arrives</label>
+                      <input type="text" value={fl.arrivalTime || ''} onChange={e => updateFlight(i, 'arrivalTime', e.target.value)} placeholder="09:15 AM" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Duration</label>
+                      <input type="text" value={fl.duration || ''} onChange={e => updateFlight(i, 'duration', e.target.value)} placeholder="2h 45m" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Stops</label>
+                      <select value={fl.stops || '0'} onChange={e => updateFlight(i, 'stops', e.target.value)} className={inp + ' cursor-pointer'}>
+                        {STOPS_OPTIONS.map((s, idx) => <option key={s} value={String(idx)}>{s}</option>)}
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">To</label>
-                    <input type="text" value={fl.to} onChange={e => updateFlight(i, 'to', e.target.value)} placeholder="e.g. Srinagar (SXR)"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Date</label>
-                    <input type="text" value={fl.date} onChange={e => updateFlight(i, 'date', e.target.value)} placeholder="e.g. Day 1 / 12 Jun"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Time</label>
-                    <input type="text" value={fl.time} onChange={e => updateFlight(i, 'time', e.target.value)} placeholder="e.g. 06:30 AM"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Cabin Class</label>
-                    <select value={fl.cabinClass || 'Economy'} onChange={e => updateFlight(i, 'cabinClass', e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors cursor-pointer">
-                      {CABIN_CLASSES.map(c => <option key={c}>{c}</option>)}
-                    </select>
+
+                  {/* Row 4: Terminal + Baggage + Meal + PNR */}
+                  <div className="grid grid-cols-4 gap-3">
+                    <div>
+                      <label className={lbl}>Terminal</label>
+                      <input type="text" value={fl.terminal || ''} onChange={e => updateFlight(i, 'terminal', e.target.value)} placeholder="T2" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Baggage</label>
+                      <input type="text" value={fl.baggage || ''} onChange={e => updateFlight(i, 'baggage', e.target.value)} placeholder="15 kg + 7 kg" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Meal</label>
+                      <select value={fl.meal || ''} onChange={e => updateFlight(i, 'meal', e.target.value)} className={inp + ' cursor-pointer'}>
+                        {MEAL_OPTIONS.map(m => <option key={m} value={m}>{m || 'Select…'}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={lbl}>PNR / Ref</label>
+                      <input type="text" value={fl.pnr || ''} onChange={e => updateFlight(i, 'pnr', e.target.value)} placeholder="ABC123" className={inp} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -183,44 +291,98 @@ function FlightsHotelsBuilder({ flights, hotels, onFlightsChange, onHotelsChange
 
       <div className="border-t border-gray-100" />
 
-      {/* Hotels (package-level) */}
+      {/* ── Hotels ── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">🏨 Hotel Details</h4>
+          <div>
+            <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">🏨 Hotel Details</h4>
+            <p className="text-[9px] text-gray-400 font-medium mt-0.5">All hotels across the itinerary</p>
+          </div>
           <button onClick={addHotel} className="text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-100">+ Add Hotel</button>
         </div>
         {hotels.length === 0 ? (
           <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">No hotels added yet — click + Add Hotel</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {hotels.map((h, i) => (
-              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden">
-                <div className="bg-blue-50 px-5 py-3 flex items-center justify-between">
-                  <span className="text-dark font-black text-xs uppercase tracking-[0.15em]">🏨 Hotel {i + 1}</span>
+              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                {/* Hotel header */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-base">🏨</span>
+                    <span className="text-dark font-black text-xs uppercase tracking-[0.12em]">
+                      {h.name || `Hotel ${i + 1}`}
+                    </span>
+                    {h.stars && <span className="text-amber-500 text-xs">{'★'.repeat(Number(h.stars))}</span>}
+                  </div>
                   <button onClick={() => removeHotel(i)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-4 grid grid-cols-2 gap-3">
-                  <div className="col-span-2">
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Hotel Name</label>
-                    <input type="text" value={h.name || ''} onChange={e => updateHotel(i, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+
+                <div className="p-4 space-y-3">
+                  {/* Row 1: Hotel name + Stars */}
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className="col-span-3">
+                      <label className={lbl}>Hotel Name</label>
+                      <input type="text" value={h.name || ''} onChange={e => updateHotel(i, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Stars</label>
+                      <select value={h.stars || '4'} onChange={e => updateHotel(i, 'stars', e.target.value)} className={inp + ' cursor-pointer'}>
+                        {['1','2','3','4','5'].map(s => <option key={s} value={s}>{s} ★</option>)}
+                      </select>
+                    </div>
                   </div>
+
+                  {/* Row 2: Location + Room Type + Meal Plan */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className={lbl}>Location / Area</label>
+                      <input type="text" value={h.location || ''} onChange={e => updateHotel(i, 'location', e.target.value)} placeholder="e.g. Dal Lake, Srinagar" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Room Type</label>
+                      <input type="text" value={h.roomType || ''} onChange={e => updateHotel(i, 'roomType', e.target.value)} placeholder="e.g. Deluxe Double" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Meal Plan</label>
+                      <select value={h.mealPlan || 'CP'} onChange={e => updateHotel(i, 'mealPlan', e.target.value)} className={inp + ' cursor-pointer'}>
+                        {MEAL_PLAN_OPTIONS.map(m => <option key={m} value={m}>{MEAL_PLAN_LABELS[m]}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Row 3: Check-in + Check-out + Nights */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className={lbl}>Check-in Date / Day</label>
+                      <input type="text" value={h.checkIn || ''} onChange={e => updateHotel(i, 'checkIn', e.target.value)} placeholder="Day 1 / 12 Jun" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Check-out Date / Day</label>
+                      <input type="text" value={h.checkOut || ''} onChange={e => updateHotel(i, 'checkOut', e.target.value)} placeholder="Day 4 / 15 Jun" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>No. of Nights</label>
+                      <input type="number" min="1" value={h.nights || ''} onChange={e => updateHotel(i, 'nights', e.target.value)} placeholder="3" className={inp} />
+                    </div>
+                  </div>
+
+                  {/* Row 4: Address + Contact */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={lbl}>Full Address</label>
+                      <input type="text" value={h.address || ''} onChange={e => updateHotel(i, 'address', e.target.value)} placeholder="Srinagar, Jammu & Kashmir" className={inp} />
+                    </div>
+                    <div>
+                      <label className={lbl}>Hotel Contact</label>
+                      <input type="text" value={h.contact || ''} onChange={e => updateHotel(i, 'contact', e.target.value)} placeholder="+91 xxxx xxxxxx" className={inp} />
+                    </div>
+                  </div>
+
+                  {/* Amenities */}
                   <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Room Type</label>
-                    <input type="text" value={h.roomType || ''} onChange={e => updateHotel(i, 'roomType', e.target.value)} placeholder="e.g. Deluxe Double"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Stars</label>
-                    <select value={h.stars || '4'} onChange={e => updateHotel(i, 'stars', e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors cursor-pointer">
-                      {['1','2','3','4','5'].map(s => <option key={s} value={s}>{s} ★</option>)}
-                    </select>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Address</label>
-                    <input type="text" value={h.address || ''} onChange={e => updateHotel(i, 'address', e.target.value)} placeholder="e.g. Srinagar, Jammu & Kashmir"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors" />
+                    <label className={lbl}>Amenities (comma-separated)</label>
+                    <input type="text" value={h.amenities || ''} onChange={e => updateHotel(i, 'amenities', e.target.value)} placeholder="Pool, Spa, Gym, Free WiFi, Airport Shuttle" className={inp} />
                   </div>
                 </div>
               </div>
@@ -259,16 +421,23 @@ function ItineraryBuilder({ itinerary, onChange }) {
     ))
   }
 
+  const toggleMeal = (di, meal) => {
+    const day = itinerary[di]
+    const meals = Array.isArray(day.mealsIncluded) ? day.mealsIncluded : []
+    const updated = meals.includes(meal) ? meals.filter(m => m !== meal) : [...meals, meal]
+    updateDay(di, 'mealsIncluded', updated)
+  }
+
   return (
     <div className="space-y-4">
       {itinerary.length === 0 && (
         <div className="text-center py-8 text-gray-400 font-bold text-sm border-2 border-dashed border-gray-200 rounded-2xl">
-          No days added yet. Click below to build the itinerary.
+          No days added yet. Set the <strong>Nights</strong> in Basic Info — days auto-populate, or click below.
         </div>
       )}
 
       {itinerary.map((day, di) => (
-        <div key={di} className="border border-gray-200 rounded-2xl overflow-hidden">
+        <div key={di} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
           {/* Day header */}
           <div className="bg-gray-50 px-5 py-3.5 flex items-center gap-3">
             <span className="w-7 h-7 bg-dark text-white rounded-lg text-[11px] font-black flex items-center justify-center shrink-0">{day.day}</span>
@@ -276,17 +445,52 @@ function ItineraryBuilder({ itinerary, onChange }) {
               type="text"
               value={day.title}
               onChange={e => updateDay(di, 'title', e.target.value)}
-              placeholder={`Day ${day.day} title…`}
+              placeholder={`Day ${day.day} — what happens today?`}
               className="flex-1 bg-transparent text-dark font-bold text-sm focus:outline-none placeholder:text-gray-400"
             />
             <button onClick={() => removeDay(di)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center shrink-0">✕</button>
+          </div>
+
+          {/* Quick metadata row: transport + meals */}
+          <div className="px-4 pt-3 pb-2 bg-gray-50/50 border-b border-gray-100 grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">🚗 Transport</label>
+              <select
+                value={day.transport || ''}
+                onChange={e => updateDay(di, 'transport', e.target.value)}
+                className="w-full bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors cursor-pointer"
+              >
+                {TRANSPORT_OPTIONS.map(t => <option key={t} value={t}>{t || 'Select transport…'}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">🍽 Meals Included</label>
+              <div className="flex gap-1.5">
+                {DAY_MEAL_OPTS.map(meal => {
+                  const meals = Array.isArray(day.mealsIncluded) ? day.mealsIncluded : []
+                  const on = meals.includes(meal)
+                  return (
+                    <button
+                      key={meal}
+                      type="button"
+                      onClick={() => toggleMeal(di, meal)}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-black border transition-colors ${on ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-400 border-gray-200 hover:border-green-300 hover:text-green-600'}`}
+                    >
+                      {meal[0]}
+                    </button>
+                  )
+                })}
+                {Array.isArray(day.mealsIncluded) && day.mealsIncluded.length > 0 && (
+                  <span className="text-[9px] text-green-600 font-bold self-center">{day.mealsIncluded.join(' + ')}</span>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Activities */}
           <div className="p-4 space-y-2.5">
             {day.activities.map((act, ai) => (
               <div key={ai} className="flex gap-2 items-center">
-                {/* Icon picker */}
                 <select
                   value={act.icon}
                   onChange={e => updateActivity(di, ai, 'icon', e.target.value)}
@@ -294,7 +498,6 @@ function ItineraryBuilder({ itinerary, onChange }) {
                 >
                   {ACTIVITY_ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
                 </select>
-                {/* Time */}
                 <input
                   type="text"
                   value={act.time}
@@ -302,7 +505,6 @@ function ItineraryBuilder({ itinerary, onChange }) {
                   placeholder="Time"
                   className="w-20 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors shrink-0"
                 />
-                {/* Description */}
                 <input
                   type="text"
                   value={act.description}
@@ -327,7 +529,7 @@ function ItineraryBuilder({ itinerary, onChange }) {
             <textarea
               value={day.note || ''}
               onChange={e => updateDay(di, 'note', e.target.value)}
-              placeholder="Special instructions or notes for this day…"
+              placeholder="Special instructions, tips, or notes for this day…"
               rows={2}
               className="w-full bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-dark font-medium text-xs focus:outline-none focus:border-amber-400 transition-colors resize-none placeholder:text-amber-300"
             />
@@ -353,7 +555,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
   const [tab, setTab] = useState(0)
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
-  // Auto-sync itinerary days when nights changes (skip initial mount)
+  // Auto-sync itinerary days when nights changes
   const nightsMounted = useRef(false)
   useEffect(() => {
     if (!nightsMounted.current) { nightsMounted.current = true; return }
@@ -401,6 +603,8 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
 
         {/* Tab content */}
         <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-10 pb-6 modal-scroll" onWheel={e => e.stopPropagation()}>
+
+          {/* ── Tab 0: Basic Info ── */}
           {tab === 0 && (
             <div className="space-y-5">
               <Field label="Package Title" value={form.title} onChange={v => f('title', v)} placeholder="e.g. Romantic Bali Escape" />
@@ -413,6 +617,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Nights</label>
                   <input type="number" min="1" value={form.nights} onChange={e => f('nights', e.target.value)} placeholder="e.g. 6"
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                  <p className="text-[9px] text-gray-400 font-medium mt-1">Auto-creates itinerary days</p>
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Category</label>
@@ -442,13 +647,12 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
             </div>
           )}
 
+          {/* ── Tab 1: Itinerary ── */}
           {tab === 1 && (
-            <ItineraryBuilder
-              itinerary={form.itinerary}
-              onChange={v => f('itinerary', v)}
-            />
+            <ItineraryBuilder itinerary={form.itinerary} onChange={v => f('itinerary', v)} />
           )}
 
+          {/* ── Tab 2: Flights & Hotels ── */}
           {tab === 2 && (
             <FlightsHotelsBuilder
               flights={form.flights}
@@ -458,49 +662,48 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
             />
           )}
 
+          {/* ── Tab 3: Inclusions & Exclusions (Markdown) ── */}
           {tab === 3 && (
             <div className="space-y-8">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">✅ Inclusions</label>
-                  <span className="text-[9px] text-gray-400 font-medium">One item per line</span>
-                </div>
-                <textarea
-                  rows={8}
-                  value={form.inclusions}
-                  onChange={e => f('inclusions', e.target.value)}
-                  placeholder={"Airport transfers\nLuxury hotel stay\nBreakfast daily\nSightseeing as per itinerary"}
-                  className="w-full bg-green-50 border border-green-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-green-400 transition-colors resize-none"
-                />
-              </div>
+              <MarkdownEditor
+                label="✅ Inclusions"
+                hint="Supports **bold**, *italic*, - lists"
+                value={form.inclusions}
+                onChange={v => f('inclusions', v)}
+                placeholder={"- Airport transfers (both ways)\n- **Luxury hotel** stay on twin-sharing basis\n- Daily breakfast\n- Sightseeing as per itinerary\n- Dedicated tour manager"}
+                bgClass="bg-green-50"
+                borderClass="border-green-200"
+                focusClass="focus:border-green-400"
+                rows={9}
+              />
+
               <div className="border-t border-gray-100" />
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">❌ Exclusions</label>
-                  <span className="text-[9px] text-gray-400 font-medium">One item per line</span>
-                </div>
-                <textarea
-                  rows={6}
-                  value={form.exclusions}
-                  onChange={e => f('exclusions', e.target.value)}
-                  placeholder={"Visa fees & processing\nCity taxes (payable at hotel)\nPersonal expenses & shopping\nTips & gratuities"}
-                  className="w-full bg-red-50 border border-red-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-red-400 transition-colors resize-none"
-                />
-              </div>
+
+              <MarkdownEditor
+                label="❌ Exclusions"
+                hint="Supports **bold**, *italic*, - lists"
+                value={form.exclusions}
+                onChange={v => f('exclusions', v)}
+                placeholder={"- Visa fees & processing charges\n- City taxes (payable at hotel)\n- Personal expenses & shopping\n- Tips & gratuities\n- Any activity not mentioned in inclusions"}
+                bgClass="bg-red-50"
+                borderClass="border-red-200"
+                focusClass="focus:border-red-400"
+                rows={7}
+              />
+
               <div className="border-t border-gray-100" />
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">📋 Important Notes</label>
-                  <span className="text-[9px] text-gray-400 font-medium">One item per line</span>
-                </div>
-                <textarea
-                  rows={4}
-                  value={form.notes}
-                  onChange={e => f('notes', e.target.value)}
-                  placeholder={"Carry valid photo ID at all times\nCheck visa requirements before travel"}
-                  className="w-full bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-amber-400 transition-colors resize-none"
-                />
-              </div>
+
+              <MarkdownEditor
+                label="📋 Important Notes"
+                hint="Supports **bold**, *italic*, - lists"
+                value={form.notes}
+                onChange={v => f('notes', v)}
+                placeholder={"- Carry valid photo ID at all times\n- Check visa requirements before travel\n- **COVID policy**: Valid vaccination certificate required"}
+                bgClass="bg-amber-50"
+                borderClass="border-amber-200"
+                focusClass="focus:border-amber-400"
+                rows={5}
+              />
             </div>
           )}
         </div>
@@ -557,7 +760,6 @@ export default function AdminPackagesPage() {
   }, [search, page])
 
   useEffect(() => { fetchAll() }, [fetchAll])
-
   useEffect(() => { setPage(1) }, [search])
 
   const openCreate = () => {
@@ -582,21 +784,45 @@ export default function AdminPackagesPage() {
       inclusions:   Array.isArray(pkg.inclusions) && pkg.inclusions.length ? pkg.inclusions.join('\n') : '',
       exclusions:   Array.isArray(pkg.exclusions) && pkg.exclusions.length ? pkg.exclusions.join('\n') : '',
       notes:        Array.isArray(pkg.notes)      && pkg.notes.length      ? pkg.notes.join('\n')      : '',
-      itinerary:    Array.isArray(pkg.itinerary)  ? pkg.itinerary.map(d => ({
-        day:        d.day,
-        title:      d.title || '',
-        note:       d.note  || '',
-        activities: Array.isArray(d.activities) ? d.activities.map(a => ({
+      itinerary:    Array.isArray(pkg.itinerary) ? pkg.itinerary.map(d => ({
+        day:           d.day,
+        title:         d.title || '',
+        note:          d.note  || '',
+        transport:     d.transport || '',
+        mealsIncluded: Array.isArray(d.mealsIncluded) ? d.mealsIncluded : [],
+        activities:    Array.isArray(d.activities) ? d.activities.map(a => ({
           time: a.time || '', description: a.description || '', icon: a.icon || '📍',
         })) : [emptyActivity()],
       })) : [],
       flights: Array.isArray(pkg.flights) ? pkg.flights.map(fl => ({
-        type: fl.type || 'Departure', airline: fl.airline || '', flightNumber: fl.flightNumber || '',
-        from: fl.from || '', to: fl.to || '', date: fl.date || '', time: fl.time || '',
-        cabinClass: fl.cabinClass || 'Economy',
+        type:        fl.type        || 'Departure',
+        airline:     fl.airline     || '',
+        flightNumber:fl.flightNumber|| '',
+        from:        fl.from        || '',
+        to:          fl.to          || '',
+        date:        fl.date        || '',
+        time:        fl.time        || '',
+        arrivalTime: fl.arrivalTime || '',
+        duration:    fl.duration    || '',
+        stops:       fl.stops       || '0',
+        cabinClass:  fl.cabinClass  || 'Economy',
+        baggage:     fl.baggage     || '',
+        meal:        fl.meal        || '',
+        pnr:         fl.pnr         || '',
+        terminal:    fl.terminal    || '',
       })) : [],
       hotels: Array.isArray(pkg.hotels) ? pkg.hotels.map(h => ({
-        name: h.name || '', roomType: h.roomType || '', stars: h.stars?.toString() || '4', address: h.address || '',
+        name:      h.name      || '',
+        location:  h.location  || '',
+        stars:     h.stars?.toString() || '4',
+        roomType:  h.roomType  || '',
+        mealPlan:  h.mealPlan  || 'CP',
+        nights:    h.nights?.toString() || '',
+        checkIn:   h.checkIn   || '',
+        checkOut:  h.checkOut  || '',
+        amenities: h.amenities || '',
+        address:   h.address   || '',
+        contact:   h.contact   || '',
       })) : [],
     })
     setShowModal(true)
@@ -623,25 +849,44 @@ export default function AdminPackagesPage() {
         exclusions:   (typeof form.exclusions === 'string' ? form.exclusions : form.exclusions.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
         notes:        (typeof form.notes      === 'string' ? form.notes      : form.notes.join('\n')).split('\n').map(s => s.trim()).filter(Boolean),
         itinerary:    form.itinerary.map(d => ({
-          day:        d.day,
-          title:      d.title.trim(),
-          note:       (d.note || '').trim(),
-          activities: d.activities.filter(a => a.description.trim()).map(a => ({
-            time:        a.time.trim(),
-            description: a.description.trim(),
-            icon:        a.icon,
+          day:           d.day,
+          title:         d.title.trim(),
+          note:          (d.note || '').trim(),
+          transport:     d.transport || '',
+          mealsIncluded: Array.isArray(d.mealsIncluded) ? d.mealsIncluded : [],
+          activities:    d.activities.filter(a => a.description.trim()).map(a => ({
+            time: a.time.trim(), description: a.description.trim(), icon: a.icon,
           })),
         })).filter(d => d.title || d.activities.length),
         hotels: (form.hotels || []).filter(h => h.name).map(h => ({
-          name:     h.name.trim(),
-          roomType: h.roomType.trim(),
-          stars:    parseInt(h.stars) || 4,
-          address:  h.address.trim(),
+          name:      h.name.trim(),
+          location:  h.location?.trim() || '',
+          stars:     parseInt(h.stars) || 4,
+          roomType:  h.roomType?.trim() || '',
+          mealPlan:  h.mealPlan || 'CP',
+          nights:    h.nights ? parseInt(h.nights) : null,
+          checkIn:   h.checkIn?.trim() || '',
+          checkOut:  h.checkOut?.trim() || '',
+          amenities: h.amenities?.trim() || '',
+          address:   h.address?.trim() || '',
+          contact:   h.contact?.trim() || '',
         })),
         flights: form.flights.filter(fl => fl.airline || fl.flightNumber || fl.from).map(fl => ({
-          type: fl.type, airline: fl.airline.trim(), flightNumber: fl.flightNumber.trim(),
-          from: fl.from.trim(), to: fl.to.trim(), date: fl.date.trim(), time: fl.time.trim(),
-          cabinClass: fl.cabinClass || 'Economy',
+          type:        fl.type,
+          airline:     fl.airline.trim(),
+          flightNumber:fl.flightNumber.trim(),
+          from:        fl.from.trim(),
+          to:          fl.to.trim(),
+          date:        fl.date.trim(),
+          time:        fl.time.trim(),
+          arrivalTime: fl.arrivalTime?.trim() || '',
+          duration:    fl.duration?.trim() || '',
+          stops:       fl.stops || '0',
+          cabinClass:  fl.cabinClass || 'Economy',
+          baggage:     fl.baggage?.trim() || '',
+          meal:        fl.meal || '',
+          pnr:         fl.pnr?.trim() || '',
+          terminal:    fl.terminal?.trim() || '',
         })),
       }
       if (editPkg) {
@@ -704,8 +949,8 @@ export default function AdminPackagesPage() {
       {stats && (
         <div className="grid grid-cols-3 gap-5">
           {[
-            { label: 'Active Packages', value: stats.active,           icon: '✅' },
-            { label: 'Total Bookings',  value: stats.totalBookings,    icon: '📋' },
+            { label: 'Active Packages', value: stats.active,            icon: '✅' },
+            { label: 'Total Bookings',  value: stats.totalBookings,     icon: '📋' },
             { label: 'Best Seller',     value: stats.bestSeller || '—', icon: '🏆' },
           ].map((s, i) => (
             <motion.div key={s.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}

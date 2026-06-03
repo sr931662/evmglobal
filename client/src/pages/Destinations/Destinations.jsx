@@ -11,10 +11,10 @@ const REGIONS = ['All Regions', 'Europe', 'Asia', 'Middle East', 'Africa', 'Ocea
 export default function Destinations() {
   const [activeRegion,  setActiveRegion]  = useState('All Regions')
   const [destinations,  setDestinations]  = useState([])
+  const [priceMap,      setPriceMap]      = useState({})
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState('')
 
-  // Set meta tags for social sharing
   usePageMeta(
     'Global Destinations | EMV Global',
     'Explore premium travel destinations handpicked by our concierge team. Discover unique experiences across Europe, Asia, Middle East, Africa, and Oceania.',
@@ -24,6 +24,28 @@ export default function Destinations() {
       type: 'website'
     }
   )
+
+  // Fetch packages once to compute price ranges per destination
+  useEffect(() => {
+    api.getPackages({ status: 'Active', limit: 200 })
+      .then(data => {
+        const pkgs = Array.isArray(data) ? data : (data.packages || [])
+        const map = {}
+        pkgs.forEach(pkg => {
+          const price = pkg.priceValue || 0
+          if (!price) return
+          const dests = Array.isArray(pkg.destinations) ? pkg.destinations : []
+          dests.forEach(destName => {
+            if (!map[destName]) map[destName] = { min: price, max: price, count: 0 }
+            map[destName].min   = Math.min(map[destName].min, price)
+            map[destName].max   = Math.max(map[destName].max, price)
+            map[destName].count += 1
+          })
+        })
+        setPriceMap(map)
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     setLoading(true); setError('')
@@ -65,9 +87,19 @@ export default function Destinations() {
           <div className={styles.emptyMsg}>No destinations found in this region.</div>
         ) : (
           <div className={styles.grid}>
-            {destinations.map((dest, i) => (
-              <DestinationCard key={dest.id || dest._id} dest={dest} index={i} />
-            ))}
+            {destinations.map((dest, i) => {
+              const pm = priceMap[dest.name]
+              return (
+                <DestinationCard
+                  key={dest.id || dest._id}
+                  dest={dest}
+                  index={i}
+                  priceMin={pm?.min ?? dest.startingPrice}
+                  priceMax={pm?.max}
+                  packageCount={pm?.count}
+                />
+              )
+            })}
           </div>
         )}
       </div>

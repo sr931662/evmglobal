@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './DestinationCard.module.css'
 
@@ -13,15 +14,28 @@ function buildShareUrl(name) {
   return `${window.location.origin}/destination/${encodeURIComponent(name)}`
 }
 
-export default function DestinationCard({ dest, index }) {
-  const navigate = useNavigate()
+function formatPrice(val) {
+  if (!val && val !== 0) return null
+  const n = Number(val)
+  if (isNaN(n) || n <= 0) return null
+  if (n >= 100000) return `₹${(n / 100000).toFixed(n % 100000 === 0 ? 0 : 1)}L`
+  if (n >= 1000)   return `₹${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 0)}k`
+  return `₹${n}`
+}
+
+export default function DestinationCard({ dest, index, priceMin, priceMax, packageCount }) {
+  const navigate  = useNavigate()
+  const [hovered, setHovered] = useState(false)
+
+  const minFmt = formatPrice(priceMin ?? dest.startingPrice)
+  const maxFmt = formatPrice(priceMax)
+
+  const hasPricing = !!minFmt
 
   async function handleShare(event) {
     event.stopPropagation()
-
-    const shareUrl = buildShareUrl(dest.name)
+    const shareUrl  = buildShareUrl(dest.name)
     const shareText = `Explore ${dest.name}, ${dest.country} with EMV Global`
-
     try {
       if (navigator.share) {
         await navigator.share({ title: dest.name, text: shareText, url: shareUrl })
@@ -30,7 +44,6 @@ export default function DestinationCard({ dest, index }) {
     } catch (err) {
       if (err?.name === 'AbortError') return
     }
-
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareUrl)
@@ -38,7 +51,6 @@ export default function DestinationCard({ dest, index }) {
         return
       }
     } catch {}
-
     window.open(
       `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`,
       '_blank',
@@ -53,6 +65,8 @@ export default function DestinationCard({ dest, index }) {
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 1.2, delay: (index % 4) * 0.12, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -8, transition: { duration: 0.4, ease: [0.33, 1, 0.68, 1] } }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
       onClick={() => navigate(`/packages?destination=${encodeURIComponent(dest.name)}`)}
       className={styles.card}
     >
@@ -73,10 +87,51 @@ export default function DestinationCard({ dest, index }) {
       >
         Share
       </button>
+
+      {/* Pricing hover panel */}
+      <AnimatePresence>
+        {hovered && hasPricing && (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0,  scale: 1    }}
+            exit={{   opacity: 0, y: 8,   scale: 0.96  }}
+            transition={{ duration: 0.25, ease: [0.33, 1, 0.68, 1] }}
+            className={styles.pricePanel}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className={styles.pricePanelInner}>
+              <span className={styles.priceLabel}>
+                {packageCount ? `${packageCount} package${packageCount > 1 ? 's' : ''}` : 'Packages available'}
+              </span>
+              <div className={styles.priceRange}>
+                <span className={styles.priceFrom}>From</span>
+                <span className={styles.priceValue}>{minFmt}</span>
+                {maxFmt && maxFmt !== minFmt && (
+                  <>
+                    <span className={styles.priceSep}>–</span>
+                    <span className={styles.priceValue}>{maxFmt}</span>
+                  </>
+                )}
+                <span className={styles.pricePerAdult}>/ adult</span>
+              </div>
+              <button
+                onClick={e => { e.stopPropagation(); navigate(`/packages?destination=${encodeURIComponent(dest.name)}`) }}
+                className={styles.viewBtn}
+              >
+                View Packages →
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className={styles.info}>
         <span className={styles.region}>{dest.region}</span>
         <h3 className={styles.name}>{dest.name}</h3>
         <p className={styles.country}>{dest.country}</p>
+        {hasPricing && !hovered && (
+          <p className={styles.priceTeaser}>From {minFmt} · hover to explore</p>
+        )}
       </div>
     </motion.div>
   )

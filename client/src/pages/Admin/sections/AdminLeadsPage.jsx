@@ -7,6 +7,13 @@ const STATUS_OPTIONS  = ['All', 'new', 'contacted', 'qualified', 'converted', 'r
 const STATUS_EDITABLE = STATUS_OPTIONS.slice(1)
 const TYPE_TABS       = ['all', 'lead', 'inquiry', 'signup']
 
+const BUDGETS          = ['Under ₹50,000', '₹50k–₹1L', '₹1L–₹2L', '₹2L–₹5L', '₹5L+', 'Flexible / TBD']
+const TRIP_TYPES       = ['Honeymoon', 'Family Holiday', 'Solo Travel', 'Group Tour', 'Luxury Escape', 'Adventure', 'Business + Leisure', 'Pilgrimage / Religious', 'Anniversary', 'Corporate Retreat']
+const ACCOMMODATION    = ['3-Star', '4-Star', '5-Star', 'Boutique / Heritage', 'Budget / Hostel', 'Luxury Resort', 'Villa / Apartment', 'No Preference']
+const HOW_HEARD        = ['Google Search', 'Instagram', 'Facebook', 'WhatsApp', 'Friend / Family', 'Travel Expo', 'LinkedIn', 'YouTube', 'OTA / Booking Site', 'Walk-in', 'Other']
+const CONTACT_PREFS    = ['WhatsApp', 'Phone Call', 'Email', 'Any']
+const MONTHS           = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
 const statusStyles = {
   new:           { pill: 'bg-blue-50 text-blue-700 border-blue-200',       dot: 'bg-blue-500'    },
   contacted:     { pill: 'bg-amber-50 text-amber-700 border-amber-200',    dot: 'bg-amber-500'   },
@@ -92,152 +99,284 @@ function StatusBadge({ lead, onUpdate }) {
   )
 }
 
-// ── Add / Edit modal (type-aware) ───────────────────────────────────────────────
+// ── Add / Edit modal (type-aware, full CRM) ─────────────────────────────────
+const MODAL_TABS_LEAD    = ['Contact', 'Trip Details', 'Preferences', 'Pipeline']
+const MODAL_TABS_INQUIRY = ['Contact', 'Trip Details', 'Preferences', 'Pipeline']
+
 function LeadModal({ lead, onClose, onSave }) {
   useScrollLock()
-  const isEdit = !!lead?._id || !!lead?.id
-  const [type, setType] = useState(lead?.type || 'lead')
-  const [form, setForm] = useState(
-    isEdit
-      ? { name: lead.name || '', phone: lead.phone || '', email: lead.email || '', destination: lead.destination || '', travelDate: lead.travelDate || '', travellers: lead.travellers || '', message: lead.message || '', status: lead.status || 'new' }
-      : { name: '', phone: '', email: '', destination: '', travelDate: '', travellers: '', message: '', status: 'new' }
-  )
-  const [saving, setSaving] = useState(false)
-  const [err,    setErr]    = useState('')
+  const isEdit  = !!lead?._id || !!lead?.id
+  const [type,  setType]  = useState(lead?.type || 'lead')
+  const [tab,   setTab]   = useState(0)
+  const [saving,setSaving]= useState(false)
+  const [err,   setErr]   = useState('')
+
+  const [form, setForm] = useState(isEdit ? {
+    name:               lead.name               || '',
+    phone:              lead.phone              || '',
+    email:              lead.email              || '',
+    city:               lead.city               || '',
+    destination:        lead.destination        || '',
+    travelDate:         lead.travelDate         || '',
+    travelMonth:        lead.travelMonth        || '',
+    travellers:         lead.travellers         || '',
+    numAdults:          lead.numAdults          ?? '',
+    numChildren:        lead.numChildren        ?? '',
+    numInfants:         lead.numInfants         ?? '',
+    departureCity:      lead.departureCity      || '',
+    tripDuration:       lead.tripDuration       || '',
+    budget:             lead.budget             || '',
+    tripType:           lead.tripType           || '',
+    accommodation:      lead.accommodation      || '',
+    occasion:           lead.occasion           || '',
+    howHeard:           lead.howHeard           || '',
+    preferredContact:   lead.preferredContact   || '',
+    specialRequirements:lead.specialRequirements|| '',
+    message:            lead.message            || '',
+    status:             lead.status             || 'new',
+  } : {
+    name: '', phone: '', email: '', city: '',
+    destination: '', travelDate: '', travelMonth: '', travellers: '',
+    numAdults: '', numChildren: '', numInfants: '',
+    departureCity: '', tripDuration: '',
+    budget: '', tripType: '', accommodation: '', occasion: '',
+    howHeard: '', preferredContact: '', specialRequirements: '',
+    message: '', status: 'new',
+  })
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+  const inp = 'w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors'
+  const sel = inp + ' cursor-pointer'
+  const lbl = 'text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block'
 
   const handleSubmit = async () => {
-    if (!form.name.trim() || !form.phone.trim()) { setErr('Name and phone are required.'); return }
+    if (!form.name.trim() || !form.phone.trim()) { setErr('Name and phone are required.'); setTab(0); return }
     setSaving(true); setErr('')
     try { await onSave({ ...form, type }); onClose() }
     catch (e) { setErr(e.message) }
     finally { setSaving(false) }
   }
 
-  const baseFields = [
-    { label: 'Full Name',        key: 'name',  placeholder: 'e.g. Rahul Sharma',      required: true  },
-    { label: 'Phone / WhatsApp', key: 'phone', placeholder: 'e.g. +919876543210',     required: true  },
-    { label: 'Email Address',    key: 'email', placeholder: 'e.g. rahul@email.com',   required: false },
-  ]
-  const tripFields = [
-    { label: 'Destination', key: 'destination', placeholder: 'e.g. Maldives, Bali'       },
-    { label: 'Travel Date', key: 'travelDate',  placeholder: 'e.g. December 2025'         },
-    { label: 'Travellers',  key: 'travellers',  placeholder: 'e.g. 2 adults, 1 child'     },
-  ]
+  const isInquiry = type === 'inquiry' || (isEdit && lead?.type === 'inquiry')
+  const modalTabs = MODAL_TABS_LEAD
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1,    y: 0  }}
         exit={{   opacity: 0, scale: 0.95,  y: 10 }}
         transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2.5rem] p-10 w-full max-w-lg shadow-premium border border-gray-100 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-[2rem] w-full max-w-xl shadow-premium border border-gray-100 max-h-[92vh] flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-3xl font-serif font-bold text-dark">
+        <div className="flex items-center justify-between px-8 pt-8 pb-4 shrink-0">
+          <h3 className="text-2xl font-serif font-bold text-dark">
             {isEdit ? `Edit ${lead.type === 'inquiry' ? 'Inquiry' : 'Lead'}` : 'Add New'}
           </h3>
-          {!isEdit && (
-            <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
-              {['lead', 'inquiry'].map(t => (
-                <button
-                  key={t}
-                  onClick={() => setType(t)}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${type === t ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-dark'}`}
-                >
-                  {t === 'lead' ? '📣 Lead' : '📥 Inquiry'}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-3">
+            {!isEdit && (
+              <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
+                {['lead', 'inquiry'].map(t => (
+                  <button key={t} onClick={() => setType(t)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${type === t ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-dark'}`}>
+                    {t === 'lead' ? '📣 Lead' : '📥 Inquiry'}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button onClick={onClose} className="w-8 h-8 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors flex items-center justify-center text-lg">×</button>
+          </div>
+        </div>
+
+        {/* Tab bar */}
+        <div className="flex gap-1 px-8 pb-3 shrink-0 overflow-x-auto no-scrollbar">
+          {modalTabs.map((t, i) => (
+            <button key={t} onClick={() => setTab(i)}
+              className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.12em] transition-colors whitespace-nowrap ${tab === i ? 'bg-dark text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-8 pb-6 space-y-5">
+
+          {/* ── Tab 0: Contact ── */}
+          {tab === 0 && (
+            <>
+              <div>
+                <label className={lbl}>Full Name <span className="text-brand">*</span></label>
+                <input type="text" placeholder="e.g. Rahul Sharma" value={form.name} onChange={e => f('name', e.target.value)} className={inp} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>Phone / WhatsApp <span className="text-brand">*</span></label>
+                  <input type="text" placeholder="+919876543210" value={form.phone} onChange={e => f('phone', e.target.value)} className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Email Address</label>
+                  <input type="email" placeholder="rahul@email.com" value={form.email} onChange={e => f('email', e.target.value)} className={inp} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>City / Location</label>
+                  <input type="text" placeholder="e.g. Mumbai" value={form.city} onChange={e => f('city', e.target.value)} className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Preferred Contact</label>
+                  <select value={form.preferredContact} onChange={e => f('preferredContact', e.target.value)} className={sel}>
+                    <option value="">Select…</option>
+                    {CONTACT_PREFS.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className={lbl}>How did they hear about us?</label>
+                <select value={form.howHeard} onChange={e => f('howHeard', e.target.value)} className={sel}>
+                  <option value="">Select source…</option>
+                  {HOW_HEARD.map(h => <option key={h} value={h}>{h}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={lbl}>Message / Initial Note</label>
+                <textarea rows={3} placeholder="What are they looking for?" value={form.message} onChange={e => f('message', e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors resize-none" />
+              </div>
+            </>
+          )}
+
+          {/* ── Tab 1: Trip Details ── */}
+          {tab === 1 && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>Destination(s)</label>
+                  <input type="text" placeholder="e.g. Maldives, Bali" value={form.destination} onChange={e => f('destination', e.target.value)} className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Departure City</label>
+                  <input type="text" placeholder="e.g. Delhi" value={form.departureCity} onChange={e => f('departureCity', e.target.value)} className={inp} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>Approx. Travel Date</label>
+                  <input type="text" placeholder="e.g. 15 Dec 2025" value={form.travelDate} onChange={e => f('travelDate', e.target.value)} className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Travel Month</label>
+                  <select value={form.travelMonth} onChange={e => f('travelMonth', e.target.value)} className={sel}>
+                    <option value="">Select month…</option>
+                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className={lbl}>Trip Duration</label>
+                <input type="text" placeholder="e.g. 7 nights / 8 days" value={form.tripDuration} onChange={e => f('tripDuration', e.target.value)} className={inp} />
+              </div>
+
+              <div className="border-t border-gray-100 pt-4">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-4">Travellers</p>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className={lbl}>Adults</label>
+                    <input type="number" min="0" max="20" placeholder="2" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} className={inp} />
+                  </div>
+                  <div>
+                    <label className={lbl}>Children (2–12)</label>
+                    <input type="number" min="0" max="10" placeholder="1" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} className={inp} />
+                  </div>
+                  <div>
+                    <label className={lbl}>Infants (&lt;2)</label>
+                    <input type="number" min="0" max="5" placeholder="0" value={form.numInfants} onChange={e => f('numInfants', e.target.value)} className={inp} />
+                  </div>
+                </div>
+                <p className="text-[9px] text-gray-400 font-medium mt-2">Or use legacy field: <input type="text" placeholder="e.g. 2 adults, 1 child" value={form.travellers} onChange={e => f('travellers', e.target.value)} className="inline-block ml-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold focus:outline-none" /></p>
+              </div>
+            </>
+          )}
+
+          {/* ── Tab 2: Preferences ── */}
+          {tab === 2 && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>Budget (per person)</label>
+                  <select value={form.budget} onChange={e => f('budget', e.target.value)} className={sel}>
+                    <option value="">Select budget…</option>
+                    {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={lbl}>Trip Type</label>
+                  <select value={form.tripType} onChange={e => f('tripType', e.target.value)} className={sel}>
+                    <option value="">Select type…</option>
+                    {TRIP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>Accommodation</label>
+                  <select value={form.accommodation} onChange={e => f('accommodation', e.target.value)} className={sel}>
+                    <option value="">Select preference…</option>
+                    {ACCOMMODATION.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={lbl}>Occasion / Purpose</label>
+                  <input type="text" placeholder="e.g. Honeymoon, Anniversary" value={form.occasion} onChange={e => f('occasion', e.target.value)} className={inp} />
+                </div>
+              </div>
+              <div>
+                <label className={lbl}>Special Requirements</label>
+                <textarea rows={4} placeholder="Dietary needs, accessibility, specific activities, visa help, anniversary surprise, etc."
+                  value={form.specialRequirements} onChange={e => f('specialRequirements', e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors resize-none" />
+              </div>
+            </>
+          )}
+
+          {/* ── Tab 3: Pipeline ── */}
+          {tab === 3 && (
+            <>
+              <div>
+                <label className={lbl}>Pipeline Status</label>
+                <select value={form.status} onChange={e => f('status', e.target.value)} className={sel}>
+                  {STATUS_EDITABLE.map(s => <option key={s} value={s} className="capitalize">{s.replace(/_/g, ' ')}</option>)}
+                </select>
+              </div>
+              <div className="bg-gray-50 rounded-2xl p-5 space-y-3">
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.25em]">Quick Summary</p>
+                {[
+                  { label: 'Name',        value: form.name       },
+                  { label: 'Phone',       value: form.phone      },
+                  { label: 'Destination', value: form.destination },
+                  { label: 'Budget',      value: form.budget     },
+                  { label: 'Trip Type',   value: form.tripType   },
+                  { label: 'Adults',      value: form.numAdults  },
+                  { label: 'Children',    value: form.numChildren },
+                ].filter(r => r.value).map(row => (
+                  <div key={row.label} className="flex items-center gap-3 text-sm">
+                    <span className="text-gray-400 font-bold w-24 shrink-0">{row.label}</span>
+                    <span className="font-bold text-dark truncate">{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
-        <div className="space-y-5">
-          {/* Base fields */}
-          {baseFields.map(field => (
-            <div key={field.key}>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">
-                {field.label}{field.required && <span className="text-brand ml-1">*</span>}
-              </label>
-              <input
-                type="text"
-                placeholder={field.placeholder}
-                value={form[field.key]}
-                onChange={e => f(field.key, e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
-              />
-            </div>
-          ))}
+        {err && <p className="px-8 pb-2 text-red-500 text-sm font-bold shrink-0">{err}</p>}
 
-          {/* Inquiry trip fields (animated) */}
-          <AnimatePresence initial={false}>
-            {(type === 'inquiry' || (isEdit && lead.type === 'inquiry')) && (
-              <motion.div
-                key="trip-fields"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{   opacity: 0, height: 0     }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden space-y-5"
-              >
-                <div className="h-px bg-indigo-100 mt-2" />
-                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em]">Trip Details</p>
-                {tripFields.map(field => (
-                  <div key={field.key}>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">{field.label}</label>
-                    <input
-                      type="text"
-                      placeholder={field.placeholder}
-                      value={form[field.key]}
-                      onChange={e => f(field.key, e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
-                    />
-                  </div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Message */}
-          <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Message</label>
-            <textarea
-              rows={3}
-              placeholder="What are they looking for?"
-              value={form.message}
-              onChange={e => f('message', e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors resize-none"
-            />
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Status</label>
-            <select
-              value={form.status}
-              onChange={e => f('status', e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors capitalize cursor-pointer"
-            >
-              {STATUS_EDITABLE.map(s => <option key={s} value={s} className="capitalize">{s.replace(/_/g, ' ')}</option>)}
-            </select>
-          </div>
-        </div>
-
-        {err && <p className="mt-4 text-red-500 text-sm font-bold">{err}</p>}
-
-        <div className="flex gap-4 mt-8">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50"
-          >
+        <div className="flex gap-4 px-8 py-5 border-t border-gray-100 shrink-0">
+          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">Cancel</button>
+          <button onClick={handleSubmit} disabled={saving}
+            className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50">
             {saving ? 'Saving…' : isEdit ? 'Update' : `Add ${type === 'inquiry' ? 'Inquiry' : 'Lead'}`}
           </button>
         </div>
@@ -345,15 +484,18 @@ function DetailDrawer({ lead, onClose, onEdit, onDelete, onStatusUpdate, onWhats
             </div>
           </div>
 
-          {/* Trip details — inquiry only */}
-          {lead.type === 'inquiry' && (lead.destination || lead.travelDate || lead.travellers) && (
+          {/* Trip details */}
+          {(lead.destination || lead.travelDate || lead.travelMonth || lead.travellers || lead.numAdults || lead.departureCity || lead.tripDuration) && (
             <div>
               <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.25em] mb-3">Trip Details</p>
               <div className="bg-indigo-50/60 rounded-2xl p-5 space-y-3">
                 {[
-                  { icon: '🌍', label: 'Destination', value: lead.destination },
-                  { icon: '📅', label: 'Travel Date',  value: lead.travelDate  },
-                  { icon: '👥', label: 'Travellers',   value: lead.travellers  },
+                  { icon: '🌍', label: 'Destination',     value: lead.destination    },
+                  { icon: '🛫', label: 'From',             value: lead.departureCity  },
+                  { icon: '📅', label: 'Travel Date',      value: lead.travelDate     },
+                  { icon: '🗓', label: 'Month',            value: lead.travelMonth    },
+                  { icon: '⏱', label: 'Duration',         value: lead.tripDuration   },
+                  { icon: '👥', label: 'Travellers',       value: lead.travellers || [lead.numAdults && `${lead.numAdults} adult(s)`, lead.numChildren && `${lead.numChildren} child(ren)`, lead.numInfants && `${lead.numInfants} infant(s)`].filter(Boolean).join(', ') || null },
                 ].filter(r => r.value).map(row => (
                   <div key={row.label} className="flex items-start gap-3">
                     <span className="text-sm mt-0.5">{row.icon}</span>
@@ -364,6 +506,37 @@ function DetailDrawer({ lead, onClose, onEdit, onDelete, onStatusUpdate, onWhats
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Preferences */}
+          {(lead.budget || lead.tripType || lead.accommodation || lead.occasion) && (
+            <div>
+              <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.25em] mb-3">Preferences</p>
+              <div className="bg-amber-50/60 rounded-2xl p-5 space-y-2">
+                {[
+                  { icon: '💰', label: 'Budget',        value: lead.budget        },
+                  { icon: '✈', label: 'Trip Type',     value: lead.tripType      },
+                  { icon: '🏨', label: 'Accommodation', value: lead.accommodation  },
+                  { icon: '🎉', label: 'Occasion',      value: lead.occasion      },
+                ].filter(r => r.value).map(row => (
+                  <div key={row.label} className="flex items-start gap-3">
+                    <span className="text-sm mt-0.5">{row.icon}</span>
+                    <div>
+                      <p className="text-[9px] text-amber-500 font-black uppercase tracking-widest">{row.label}</p>
+                      <p className="font-bold text-dark text-sm">{row.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Special requirements */}
+          {lead.specialRequirements && (
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2">Special Requirements</p>
+              <p className="text-sm text-dark font-medium leading-relaxed bg-gray-50 rounded-2xl p-4">{lead.specialRequirements}</p>
             </div>
           )}
 

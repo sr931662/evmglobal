@@ -101,3 +101,97 @@
   font-weight: 300;
   font-size: 0.875rem;
 }
+
+.priceTeaser {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 6px;
+}
+
+/* Pricing hover panel */
+.pricePanel {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.pricePanelInner {
+  width: 100%;
+  background: rgba(10, 14, 28, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: all;
+}
+
+.priceLabel {
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--brand);
+}
+
+.priceRange {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.priceFrom {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.priceValue {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.priceSep {
+  color: rgba(255,255,255,0.4);
+  font-size: 1.25rem;
+}
+
+.pricePerAdult {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  align-self: flex-start;
+}
+.viewBtn:hover {
+  background: var(--brand-hover, #c0392b);
+  transform: translateX(3px);
+}

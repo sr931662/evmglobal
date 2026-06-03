@@ -34,8 +34,22 @@ export const createLeadSchema = Joi.object({
     .valid('lead', 'inquiry', 'signup')
     .default('lead')
     .optional(),
-  destination: Joi.string().max(200).allow('', null).optional(),
-  travelDate: Joi.string().max(100).allow('', null).optional(),
-  travellers: Joi.string().max(100).allow('', null).optional(),
+  destination:         Joi.string().max(200).allow('', null).optional(),
+  travelDate:          Joi.string().max(100).allow('', null).optional(),
+  travellers:          Joi.string().max(100).allow('', null).optional(),
+  // Enhanced lead-capture fields
+  budget:              Joi.string().max(100).allow('', null).optional(),
+  tripType:            Joi.string().max(100).allow('', null).optional(),
+  travelMonth:         Joi.string().max(100).allow('', null).optional(),
+  numAdults:           Joi.number().min(0).max(99).allow(null).optional(),
+  numChildren:         Joi.number().min(0).max(99).allow(null).optional(),
+  numInfants:          Joi.number().min(0).max(99).allow(null).optional(),
+  departureCity:       Joi.string().max(100).allow('', null).optional(),
+  accommodation:       Joi.string().max(100).allow('', null).optional(),
+  tripDuration:        Joi.string().max(100).allow('', null).optional(),
+  howHeard:            Joi.string().max(200).allow('', null).optional(),
+  preferredContact:    Joi.string().max(50).allow('', null).optional(),
+  occasion:            Joi.string().max(100).allow('', null).optional(),
+  specialRequirements: Joi.string().max(2000).allow('', null).optional(),
   // file is handled by multer separately
 });

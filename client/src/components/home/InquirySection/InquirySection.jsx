@@ -5,16 +5,21 @@ import styles from './InquirySection.module.css'
 
 const EMPTY = {
   name: '', phone: '', email: '', destination: '', travelMonth: '',
-  travelers: '2', budget: '', tripType: '', message: '',
+  numAdults: '2', numChildren: '0', numInfants: '0',
+  budget: '', tripType: '', accommodation: '', occasion: '',
+  departureCity: '', tripDuration: '', howHeard: '', preferredContact: '',
+  specialRequirements: '',
 }
 
-const BUDGETS = ['Under ₹50,000', '₹50k–₹1L', '₹1L–₹2L', '₹2L–₹5L', '₹5L+']
-const TRIP_TYPES = ['Honeymoon', 'Family Holiday', 'Solo Travel', 'Group Tour', 'Luxury Escape', 'Adventure', 'Business + Leisure']
+const BUDGETS       = ['Under ₹50,000', '₹50k–₹1L', '₹1L–₹2L', '₹2L–₹5L', '₹5L+', 'Flexible / TBD']
+const TRIP_TYPES    = ['Honeymoon', 'Family Holiday', 'Solo Travel', 'Group Tour', 'Luxury Escape', 'Adventure', 'Business + Leisure', 'Pilgrimage', 'Anniversary', 'Corporate']
+const ACCOMMODATION = ['3-Star', '4-Star', '5-Star', 'Boutique / Heritage', 'Budget', 'Luxury Resort', 'No Preference']
+const MONTHS        = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 const PERKS = [
   { icon: '✈', text: 'Personalised itinerary within 24 hours' },
   { icon: '💰', text: 'Best price guarantee — no hidden charges' },
-  { icon: '🎧', text: 'Dedicated concierge support throughout' },
+  { icon: '🎧', text: 'Dedicated concierge support throughout'  },
 ]
 
 export default function InquirySection() {
@@ -30,15 +35,48 @@ export default function InquirySection() {
     if (!form.name.trim() || !form.phone.trim()) return
     setLoading(true); setError('')
     try {
+      const travellers = [
+        form.numAdults   && `${form.numAdults} adult(s)`,
+        form.numChildren && form.numChildren !== '0' && `${form.numChildren} child(ren)`,
+        form.numInfants  && form.numInfants  !== '0' && `${form.numInfants} infant(s)`,
+      ].filter(Boolean).join(', ')
+
       const message = [
-        form.destination && `Destination: ${form.destination}`,
-        form.travelMonth && `Travel Month: ${form.travelMonth}`,
-        form.travelers   && `Travelers: ${form.travelers}`,
-        form.budget      && `Budget: ${form.budget}`,
-        form.tripType    && `Trip Type: ${form.tripType}`,
-        form.message     && `Details: ${form.message}`,
+        form.destination        && `Destination: ${form.destination}`,
+        form.travelMonth        && `Travel Month: ${form.travelMonth}`,
+        form.tripDuration       && `Duration: ${form.tripDuration}`,
+        form.departureCity      && `Departure: ${form.departureCity}`,
+        travellers              && `Travellers: ${travellers}`,
+        form.budget             && `Budget: ${form.budget}`,
+        form.tripType           && `Trip Type: ${form.tripType}`,
+        form.accommodation      && `Accommodation: ${form.accommodation}`,
+        form.occasion           && `Occasion: ${form.occasion}`,
+        form.specialRequirements && `Notes: ${form.specialRequirements}`,
+        form.howHeard           && `Source: ${form.howHeard}`,
       ].filter(Boolean).join('\n')
-      await api.submitLead({ ...form, message, type: 'lead' })
+
+      await api.submitLead({
+        name:               form.name,
+        phone:              form.phone,
+        email:              form.email,
+        destination:        form.destination,
+        travelMonth:        form.travelMonth,
+        tripDuration:       form.tripDuration,
+        departureCity:      form.departureCity,
+        numAdults:          parseInt(form.numAdults)   || null,
+        numChildren:        parseInt(form.numChildren) || null,
+        numInfants:         parseInt(form.numInfants)  || null,
+        budget:             form.budget,
+        tripType:           form.tripType,
+        accommodation:      form.accommodation,
+        occasion:           form.occasion,
+        specialRequirements:form.specialRequirements,
+        howHeard:           form.howHeard,
+        preferredContact:   form.preferredContact,
+        travellers,
+        message,
+        type: 'lead',
+      })
       setSuccess(true); setForm(EMPTY)
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -103,13 +141,14 @@ export default function InquirySection() {
 
                   {error && <div className={styles.errorBox}>{error}</div>}
 
+                  {/* Contact */}
                   <div className={styles.row}>
                     <div>
                       <label className={styles.label}>Full Name *</label>
                       <input type="text" required value={form.name} onChange={e => f('name', e.target.value)} placeholder="Your full name" className={styles.input} />
                     </div>
                     <div>
-                      <label className={styles.label}>Phone *</label>
+                      <label className={styles.label}>Phone / WhatsApp *</label>
                       <input type="tel" required value={form.phone} onChange={e => f('phone', e.target.value)} placeholder="+91 70705 95907" className={styles.input} />
                     </div>
                   </div>
@@ -119,6 +158,7 @@ export default function InquirySection() {
                     <input type="email" value={form.email} onChange={e => f('email', e.target.value)} placeholder="your@email.com" className={styles.input} />
                   </div>
 
+                  {/* Trip */}
                   <div>
                     <label className={styles.label}>Where do you want to go? *</label>
                     <input type="text" required value={form.destination} onChange={e => f('destination', e.target.value)} placeholder="e.g. Maldives, Bali, Switzerland…" className={styles.input} />
@@ -126,15 +166,43 @@ export default function InquirySection() {
 
                   <div className={styles.row}>
                     <div>
-                      <label className={styles.label}>Travel Month</label>
-                      <input type="text" value={form.travelMonth} onChange={e => f('travelMonth', e.target.value)} placeholder="e.g. Dec 2025" className={styles.input} />
+                      <label className={styles.label}>From (Departure City)</label>
+                      <input type="text" value={form.departureCity} onChange={e => f('departureCity', e.target.value)} placeholder="e.g. Delhi, Mumbai" className={styles.input} />
                     </div>
                     <div>
-                      <label className={styles.label}>No. of Travellers</label>
-                      <input type="number" min="1" value={form.travelers} onChange={e => f('travelers', e.target.value)} placeholder="2" className={styles.input} />
+                      <label className={styles.label}>Travel Month</label>
+                      <select value={form.travelMonth} onChange={e => f('travelMonth', e.target.value)} className={styles.input}>
+                        <option value="">Select month…</option>
+                        {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                      </select>
                     </div>
                   </div>
 
+                  <div>
+                    <label className={styles.label}>Trip Duration</label>
+                    <input type="text" value={form.tripDuration} onChange={e => f('tripDuration', e.target.value)} placeholder="e.g. 7 nights / 8 days" className={styles.input} />
+                  </div>
+
+                  {/* Travellers */}
+                  <div>
+                    <label className={styles.label}>Travellers</label>
+                    <div className={styles.row3}>
+                      <div>
+                        <label className={styles.labelMini}>Adults</label>
+                        <input type="number" min="1" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} placeholder="2" className={styles.input} />
+                      </div>
+                      <div>
+                        <label className={styles.labelMini}>Children (2–12)</label>
+                        <input type="number" min="0" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} placeholder="0" className={styles.input} />
+                      </div>
+                      <div>
+                        <label className={styles.labelMini}>Infants (&lt;2)</label>
+                        <input type="number" min="0" value={form.numInfants} onChange={e => f('numInfants', e.target.value)} placeholder="0" className={styles.input} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Preferences */}
                   <div className={styles.row}>
                     <div>
                       <label className={styles.label}>Budget (per person)</label>
@@ -152,9 +220,41 @@ export default function InquirySection() {
                     </div>
                   </div>
 
+                  <div className={styles.row}>
+                    <div>
+                      <label className={styles.label}>Accommodation</label>
+                      <select value={form.accommodation} onChange={e => f('accommodation', e.target.value)} className={styles.input}>
+                        <option value="">Select preference…</option>
+                        {ACCOMMODATION.map(a => <option key={a} value={a}>{a}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={styles.label}>Occasion</label>
+                      <input type="text" value={form.occasion} onChange={e => f('occasion', e.target.value)} placeholder="e.g. Honeymoon, Anniversary" className={styles.input} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className={styles.label}>How did you hear about us?</label>
+                    <select value={form.howHeard} onChange={e => f('howHeard', e.target.value)} className={styles.input}>
+                      <option value="">Select source…</option>
+                      <option>Google Search</option>
+                      <option>Instagram</option>
+                      <option>Facebook</option>
+                      <option>WhatsApp</option>
+                      <option>Friend / Family</option>
+                      <option>Travel Expo</option>
+                      <option>YouTube</option>
+                      <option>OTA / Booking Site</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className={styles.label}>Anything else we should know?</label>
-                    <textarea value={form.message} onChange={e => f('message', e.target.value)} placeholder="Special requests, dietary needs, anniversary, preferred hotel, etc." rows={3} className={styles.textarea} />
+                    <textarea value={form.specialRequirements} onChange={e => f('specialRequirements', e.target.value)}
+                      placeholder="Dietary needs, accessibility, visa help, specific hotels, anniversary surprise, group events…"
+                      rows={3} className={styles.textarea} />
                   </div>
 
                   <button type="submit" disabled={loading} className={styles.submitBtn}>

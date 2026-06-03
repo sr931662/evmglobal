@@ -290,3 +290,26 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+.labelSub {
+  font-size: 0.5625rem;
+  font-weight: 900;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.375rem;
+}
+
+.backBtn {
+  flex: 1;
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 1rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+.backBtn:hover { background: #e5e7eb; }
