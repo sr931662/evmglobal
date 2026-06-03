@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async (email, password, rememberMe = false) => {
+    ['emv_c_token', 'emv_c_refresh', 'emv_c_profile', 'emv_quiz_done'].forEach(k => localStorage.removeItem(k))
     setRememberMe(rememberMe)
     const data = await api.login(email, password)
     // setToken / setRefreshToken in api.js now write to the correct store

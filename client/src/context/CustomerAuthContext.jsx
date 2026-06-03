@@ -65,6 +65,10 @@ export function CustomerAuthProvider({ children }) {
   }, [])
 
   const register = useCallback(async ({ name, email, password, phone = '', city = '' }) => {
+    ;['emv_token', 'emv_refresh_token', 'emv_persist'].forEach(k => {
+      localStorage.removeItem(k)
+      sessionStorage.removeItem(k)
+    })
     const data = await api.customerRegister({ name, email, password, phone: phone || undefined, city: city || undefined })
     saveTokens(data.access_token, data.refresh_token)
     saveCustomer(data.customer)
@@ -73,6 +77,10 @@ export function CustomerAuthProvider({ children }) {
   }, [])
 
   const loginCustomer = useCallback(async (email, password) => {
+    ;['emv_token', 'emv_refresh_token', 'emv_persist'].forEach(k => {
+      localStorage.removeItem(k)
+      sessionStorage.removeItem(k)
+    })
     const data = await api.customerLogin(email, password)
     saveTokens(data.access_token, data.refresh_token)
     saveCustomer(data.customer)
