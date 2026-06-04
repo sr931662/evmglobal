@@ -343,7 +343,20 @@ export default function PackageDetails() {
                               <div className={styles.dayHotel}>
                                 <span className={styles.dayHotelIcon}>🏨</span>
                                 <div className={styles.dayHotelInfo}>
-                                  <p className={styles.dayHotelName}>{day.hotel.name}{day.hotel.roomType ? ` — ${day.hotel.roomType}` : ''}</p>
+                                  <div className={styles.dayHotelRow}>
+                                    <p className={styles.dayHotelName}>{day.hotel.name}</p>
+                                    {day.hotel.stars && (
+                                      <span className={styles.dayHotelStars}>{'★'.repeat(parseInt(day.hotel.stars) || 4)}</span>
+                                    )}
+                                  </div>
+                                  <div className={styles.dayHotelBadges}>
+                                    {day.hotel.roomType && <span className={styles.dayHotelBadge}>{day.hotel.roomType}</span>}
+                                    {day.hotel.mealPlan && <span className={styles.dayHotelBadgeMeal}>{day.hotel.mealPlan}</span>}
+                                    {day.hotel.nights && <span className={styles.dayHotelBadgeNights}>🌙 {day.hotel.nights}N</span>}
+                                  </div>
+                                  {(day.hotel.address || day.hotel.location) && (
+                                    <p className={styles.dayHotelAddress}>📍 {day.hotel.address || day.hotel.location}</p>
+                                  )}
                                   {(day.hotel.checkIn || day.hotel.checkOut) && (
                                     <p className={styles.dayHotelMeta}>
                                       {[day.hotel.checkIn && `Check-in: ${day.hotel.checkIn}`, day.hotel.checkOut && `Check-out: ${day.hotel.checkOut}`].filter(Boolean).join(' · ')}

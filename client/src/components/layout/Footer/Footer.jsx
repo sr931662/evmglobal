@@ -44,7 +44,7 @@ export default function Footer() {
             <div>
               <h5 className={styles.colHead}>Company</h5>
               <ul className={styles.colList}>
-                {[['Blog','/blog'],['Careers','/careers'],['Quotes','/quotes'],['Cancellation','/cancellation']].map(([l,p]) => (
+                {[['Blog','/blog'],['Careers','/careers'],['Quotes','/quotes'],['Cancellation Policy','/cancellation-policy']].map(([l,p]) => (
                   <li key={p}><Link to={p} className={styles.colLink}>{l}</Link></li>
                 ))}
               </ul>

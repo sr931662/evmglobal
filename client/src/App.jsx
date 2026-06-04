@@ -29,7 +29,6 @@ import UserAgreement from './pages/UserAgreement/UserAgreement'
 import DataProcessingAgreement from './pages/DataProcessingAgreement/DataProcessingAgreement'
 import CancellationPolicy from './pages/CancellationPolicy/CancellationPolicy'
 import QuotesPage from './pages/Quotes/Quotes'
-import CancellationPage from './pages/Cancellation/CancellationPage'
 import Blog from './pages/Blog/Blog'
 import BlogPost from './pages/BlogPost/BlogPost'
 import Careers from './pages/Careers/Careers'
@@ -111,7 +110,6 @@ function AnimatedRoutes() {
           <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
           <Route path="/cancellation-policy"       element={<CancellationPolicy />} />
           <Route path="/quotes"                     element={<QuotesPage />} />
-          <Route path="/cancellation"              element={<CancellationPage />} />
           <Route path="/blog"                      element={<Blog />} />
           <Route path="/blog/:id"                  element={<BlogPost />} />
           <Route path="/careers"                   element={<Careers />} />

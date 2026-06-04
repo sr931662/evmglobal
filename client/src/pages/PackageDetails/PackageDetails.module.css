@@ -398,18 +398,48 @@ details[open] .dayChevron { transform: rotate(180deg); }
 /* Hotel strip inside day accordion */
 .dayHotel {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.875rem;
   background: #f0f9ff;
   border: 1px solid #bae6fd;
   border-radius: 1rem;
-  padding: 0.875rem 1.25rem;
+  padding: 1rem 1.25rem;
   margin-top: 0.5rem;
 }
-.dayHotelIcon { font-size: 1.125rem; flex-shrink: 0; }
-.dayHotelInfo { flex: 1; min-width: 0; }
-.dayHotelName { font-weight: 700; color: #0c4a6e; font-size: 0.9375rem; }
-.dayHotelMeta { color: #0369a1; font-size: 0.8125rem; font-weight: 500; margin-top: 2px; }
+.dayHotelIcon { font-size: 1.25rem; flex-shrink: 0; margin-top: 2px; }
+.dayHotelInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.dayHotelRow { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.dayHotelName { font-weight: 800; color: #0c4a6e; font-size: 1rem; line-height: 1.3; }
+.dayHotelStars { color: #f59e0b; font-size: 0.75rem; letter-spacing: 0.05em; }
+.dayHotelBadges { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.dayHotelBadge {
+  background: #0c4a6e;
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.dayHotelBadgeMeal {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  border-radius: 9999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+.dayHotelBadgeNights {
+  background: #1e293b;
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+.dayHotelAddress { color: #0369a1; font-size: 0.8125rem; font-weight: 500; }
+.dayHotelMeta { color: #0369a1; font-size: 0.8125rem; font-weight: 500; }
 
 /* Hotel section */
 .hotelSectionHeader {
