@@ -228,22 +228,78 @@ export default function PackageDetails() {
                 transition={{ duration: 0.8, ease: [0.33,1,0.68,1] }}
                 className={styles.card}
               >
-                <h3 className={styles.cardTitleLg}>🏨 Accommodation</h3>
+                <div className={styles.hotelSectionHeader}>
+                  <div>
+                    <h3 className={styles.cardTitleLg}>🏨 Accommodation</h3>
+                    <p className={styles.hotelSectionSub}>{hotels.length} {hotels.length === 1 ? 'property' : 'properties'} included in this package</p>
+                  </div>
+                  <span className={styles.hotelSectionBadge}>{hotels.length} {hotels.length === 1 ? 'Hotel' : 'Hotels'}</span>
+                </div>
                 <div className={styles.hotelsList}>
-                  {hotels.map((h, i) => (
-                    <div key={i} className={styles.hotelCard}>
-                      <div className={styles.hotelHeader}>
-                        <div>
-                          <p className={styles.hotelName}>{h.name}</p>
-                          <p className={styles.hotelStars}>{'★'.repeat(parseInt(h.stars) || 4)}{'☆'.repeat(5 - (parseInt(h.stars) || 4))}</p>
+                  {hotels.map((h, i) => {
+                    const stars = parseInt(h.stars) || 4
+                    return (
+                      <div key={i} className={styles.hotelCard}>
+                        <div className={styles.hotelCardInner}>
+                          <div className={styles.hotelIconWrap}>
+                            <span className={styles.hotelIconEmoji}>🏨</span>
+                            <span className={styles.hotelIndexBadge}>{i + 1}</span>
+                          </div>
+                          <div className={styles.hotelDetails}>
+                            <div className={styles.hotelHeader}>
+                              <div className={styles.hotelNameWrap}>
+                                <p className={styles.hotelName}>{h.name}</p>
+                                <p className={styles.hotelStars}>
+                                  {'★'.repeat(stars)}
+                                  <span className={styles.hotelStarEmpty}>{'★'.repeat(5 - stars)}</span>
+                                  <span className={styles.hotelStarLabel}>{stars}-Star Hotel</span>
+                                </p>
+                              </div>
+                              {h.roomType && <span className={styles.hotelRoomBadge}>{h.roomType}</span>}
+                            </div>
+                            <div className={styles.hotelMeta}>
+                              {h.address && (
+                                <span className={styles.hotelMetaItem}>
+                                  <span className={styles.hotelMetaIcon}>📍</span>
+                                  {h.address}
+                                </span>
+                              )}
+                              {h.city && (
+                                <span className={styles.hotelMetaItem}>
+                                  <span className={styles.hotelMetaIcon}>🌆</span>
+                                  {h.city}
+                                </span>
+                              )}
+                              {h.checkIn && (
+                                <span className={styles.hotelMetaItem}>
+                                  <span className={styles.hotelMetaIcon}>📅</span>
+                                  Check-in: <strong>{h.checkIn}</strong>
+                                </span>
+                              )}
+                              {h.checkOut && (
+                                <span className={styles.hotelMetaItem}>
+                                  <span className={styles.hotelMetaIcon}>📅</span>
+                                  Check-out: <strong>{h.checkOut}</strong>
+                                </span>
+                              )}
+                              {h.nights && (
+                                <span className={styles.hotelNightsBadge}>
+                                  🌙 {h.nights} {h.nights === 1 ? 'Night' : 'Nights'}
+                                </span>
+                              )}
+                            </div>
+                            {Array.isArray(h.amenities) && h.amenities.length > 0 && (
+                              <div className={styles.hotelAmenities}>
+                                {h.amenities.map((a, ai) => (
+                                  <span key={ai} className={styles.hotelAmenityTag}>{a}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {h.roomType && <span className={styles.hotelRoomBadge}>{h.roomType}</span>}
                       </div>
-                      {h.address && (
-                        <p className={styles.hotelAddress}>📍 {h.address}</p>
-                      )}
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </motion.div>
             )}
