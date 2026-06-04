@@ -319,7 +319,11 @@ export default function PackageDetails() {
                     className={styles.itineraryList}
                     style={!itinUnlocked ? { filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' } : undefined}
                   >
-                    {itinerary.map((day) => (
+                    {itinerary.map((day) => {
+                      const fullHotel = day.hotel?.name
+                        ? { ...day.hotel, ...(hotels.find(h => h.name === day.hotel.name) || {}) }
+                        : null
+                      return (
                       <details key={day.day} className={styles.dayAccordion} open={day.day === 1}>
                         <summary className={styles.daySummary}>
                           <span className={styles.dayNum}>{day.day}</span>
@@ -328,7 +332,7 @@ export default function PackageDetails() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                           </svg>
                         </summary>
-                        {(Array.isArray(day.activities) && day.activities.length > 0 || day.note || day.hotel?.name) && (
+                        {(Array.isArray(day.activities) && day.activities.length > 0 || day.note || fullHotel?.name) && (
                           <div className={styles.dayBody}>
                             {Array.isArray(day.activities) && day.activities.map((act, ai) => (
                               <div key={ai} className={styles.activity}>
@@ -339,27 +343,27 @@ export default function PackageDetails() {
                                 </div>
                               </div>
                             ))}
-                            {day.hotel?.name && (
+                            {fullHotel?.name && (
                               <div className={styles.dayHotel}>
                                 <span className={styles.dayHotelIcon}>🏨</span>
                                 <div className={styles.dayHotelInfo}>
                                   <div className={styles.dayHotelRow}>
-                                    <p className={styles.dayHotelName}>{day.hotel.name}</p>
-                                    {day.hotel.stars && (
-                                      <span className={styles.dayHotelStars}>{'★'.repeat(parseInt(day.hotel.stars) || 4)}</span>
+                                    <p className={styles.dayHotelName}>{fullHotel.name}</p>
+                                    {fullHotel.stars && (
+                                      <span className={styles.dayHotelStars}>{'★'.repeat(parseInt(fullHotel.stars) || 4)}</span>
                                     )}
                                   </div>
                                   <div className={styles.dayHotelBadges}>
-                                    {day.hotel.roomType && <span className={styles.dayHotelBadge}>{day.hotel.roomType}</span>}
-                                    {day.hotel.mealPlan && <span className={styles.dayHotelBadgeMeal}>{day.hotel.mealPlan}</span>}
-                                    {day.hotel.nights && <span className={styles.dayHotelBadgeNights}>🌙 {day.hotel.nights}N</span>}
+                                    {fullHotel.roomType && <span className={styles.dayHotelBadge}>{fullHotel.roomType}</span>}
+                                    {fullHotel.mealPlan && <span className={styles.dayHotelBadgeMeal}>{fullHotel.mealPlan}</span>}
+                                    {fullHotel.nights && <span className={styles.dayHotelBadgeNights}>🌙 {fullHotel.nights}N</span>}
                                   </div>
-                                  {(day.hotel.address || day.hotel.location) && (
-                                    <p className={styles.dayHotelAddress}>📍 {day.hotel.address || day.hotel.location}</p>
+                                  {(fullHotel.address || fullHotel.location) && (
+                                    <p className={styles.dayHotelAddress}>📍 {fullHotel.address || fullHotel.location}</p>
                                   )}
-                                  {(day.hotel.checkIn || day.hotel.checkOut) && (
+                                  {(fullHotel.checkIn || fullHotel.checkOut) && (
                                     <p className={styles.dayHotelMeta}>
-                                      {[day.hotel.checkIn && `Check-in: ${day.hotel.checkIn}`, day.hotel.checkOut && `Check-out: ${day.hotel.checkOut}`].filter(Boolean).join(' · ')}
+                                      {[fullHotel.checkIn && `Check-in: ${fullHotel.checkIn}`, fullHotel.checkOut && `Check-out: ${fullHotel.checkOut}`].filter(Boolean).join(' · ')}
                                     </p>
                                   )}
                                 </div>
@@ -374,7 +378,8 @@ export default function PackageDetails() {
                           </div>
                         )}
                       </details>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   {!itinUnlocked && (
