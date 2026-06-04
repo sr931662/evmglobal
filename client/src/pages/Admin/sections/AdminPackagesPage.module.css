@@ -223,3 +223,90 @@
 .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
 .col2  { grid-column: span 2; }
 .col3  { grid-column: span 3; }
+
+/* ── Inclusions & Exclusions split pane ── */
+.inExWrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.inExPreview {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.inExPreviewLabel {
+  font-size: 0.5625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #9ca3af;
+  margin-bottom: 0.125rem;
+}
+
+.inExSection {
+  border-radius: 1.125rem;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+}
+.inExSectionInc   { border-color: #bbf7d0; background: #f0fdf4; }
+.inExSectionExc   { border-color: #fecaca; background: #fef2f2; }
+.inExSectionNotes { border-color: #fde68a; background: #fffbeb; }
+
+.inExSectionHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid transparent;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.inExSectionInc   .inExSectionHead { border-bottom-color: #bbf7d0; color: #166534; }
+.inExSectionExc   .inExSectionHead { border-bottom-color: #fecaca; color: #991b1b; }
+.inExSectionNotes .inExSectionHead { border-bottom-color: #fde68a; color: #92400e; }
+
+.inExSectionCount {
+  margin-left: auto;
+  font-size: 0.5625rem;
+  font-weight: 900;
+  border-radius: 9999px;
+  padding: 0.15rem 0.5rem;
+}
+.inExSectionInc   .inExSectionCount { background: #bbf7d0; color: #166534; }
+.inExSectionExc   .inExSectionCount { background: #fecaca; color: #991b1b; }
+.inExSectionNotes .inExSectionCount { background: #fde68a; color: #92400e; }
+
+.inExList { padding: 0.625rem 1rem; display: flex; flex-direction: column; gap: 0.375rem; }
+
+.inExItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.inExSectionInc   .inExItem { color: #166534; }
+.inExSectionExc   .inExItem { color: #991b1b; }
+.inExSectionNotes .inExItem { color: #92400e; }
+
+.inExDot {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.inExEmpty {
+  padding: 0.75rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #9ca3af;
+  font-style: italic;
+}

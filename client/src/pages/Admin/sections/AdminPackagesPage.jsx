@@ -386,148 +386,145 @@ function DestinationsPicker({ selected, onChange }) {
   )
 }
 
-// ── Flights & Hotels builder ──────────────────────────────────────────────────
-function FlightsHotelsBuilder({ flights, hotels, onFlightsChange, onHotelsChange }) {
-  const addFlight = () => onFlightsChange([...flights, emptyFlight()])
-  const removeFlight = (i) => onFlightsChange(flights.filter((_, idx) => idx !== i))
-  const updateFlight = (i, key, val) => onFlightsChange(flights.map((f, idx) => idx === i ? { ...f, [key]: val } : f))
-
-  const addHotel = () => onHotelsChange([...hotels, emptyHotel()])
-  const removeHotel = (i) => onHotelsChange(hotels.filter((_, idx) => idx !== i))
-  const updateHotel = (i, key, val) => onHotelsChange(hotels.map((h, idx) => idx === i ? { ...h, [key]: val } : h))
+// ── Flights builder ───────────────────────────────────────────────────────────
+function FlightsBuilder({ flights, onChange }) {
+  const add    = () => onChange([...flights, emptyFlight()])
+  const remove = (i) => onChange(flights.filter((_, idx) => idx !== i))
+  const update = (i, key, val) => onChange(flights.map((f, idx) => idx === i ? { ...f, [key]: val } : f))
 
   return (
-    <div className={s.fhWrap}>
-
-      {/* ══ FLIGHT DETAILS PANEL ══ */}
-      <div className={`${s.panel} ${s.panelFlight}`}>
-        <div className={`${s.panelHead} ${s.panelHeadFlight}`}>
-          <div className={s.panelHeadLeft}>
-            <div className={`${s.panelIcon} ${s.panelIconFlight}`}>✈</div>
-            <div>
-              <h4 className={`${s.panelTitle} ${s.panelTitleFlight}`}>Flight Details</h4>
-              <p className={`${s.panelCount} ${s.panelCountFlight}`}>
-                {flights.length === 0 ? 'No flights added' : `${flights.length} flight${flights.length > 1 ? 's' : ''} added`}
-              </p>
-            </div>
+    <div className={`${s.panel} ${s.panelFlight}`}>
+      <div className={`${s.panelHead} ${s.panelHeadFlight}`}>
+        <div className={s.panelHeadLeft}>
+          <div className={`${s.panelIcon} ${s.panelIconFlight}`}>✈</div>
+          <div>
+            <h4 className={`${s.panelTitle} ${s.panelTitleFlight}`}>Flight Details</h4>
+            <p className={`${s.panelCount} ${s.panelCountFlight}`}>
+              {flights.length === 0 ? 'No flights added' : `${flights.length} flight${flights.length > 1 ? 's' : ''} added`}
+            </p>
           </div>
-          <button onClick={addFlight} className={`${s.addBtn} ${s.addBtnFlight}`}>+ Add Flight</button>
         </div>
-
-        <div className={s.panelBody}>
-          {flights.length === 0 ? (
-            <div className={s.empty}>
-              <span className={s.emptyIcon}>✈</span>
-              <p className={s.emptyText}>No flights added yet — click + Add Flight</p>
-            </div>
-          ) : (
-            <div className={s.cardList}>
-              {flights.map((fl, i) => (
-                <div key={i} className={`${s.card} ${s.cardFlight}`}>
-                  <div className={`${s.cardHead} ${s.cardHeadFlight}`}>
-                    <div className={s.cardHeadLeft}>
-                      <span className={`${s.cardIndex} ${s.cardIndexFlight}`}>{i + 1}</span>
-                      <select value={fl.type} onChange={e => updateFlight(i, 'type', e.target.value)}
-                        className={`${s.cardTypeSel} ${s.cardTypeSelFlight}`}>
-                        {FLIGHT_TYPES.map(t => <option key={t}>{t}</option>)}
-                      </select>
-                      {fl.from && fl.to && (
-                        <span className={`${s.cardRoutePill} ${s.cardRoutePillFlight}`}>{fl.from} → {fl.to}</span>
-                      )}
-                    </div>
-                    <button onClick={() => removeFlight(i)} className={s.removeBtn}>✕</button>
-                  </div>
-
-                  <div className={`${s.cardFields} ${s.cardFieldsFlight}`}>
-                    <div className={s.grid4}>
-                      <div><label className={s.lbl}>Airline</label><input type="text" value={fl.airline} onChange={e => updateFlight(i, 'airline', e.target.value)} placeholder="e.g. IndiGo" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Flight No.</label><input type="text" value={fl.flightNumber} onChange={e => updateFlight(i, 'flightNumber', e.target.value)} placeholder="e.g. 6E-204" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Cabin Class</label><select value={fl.cabinClass || 'Economy'} onChange={e => updateFlight(i, 'cabinClass', e.target.value)} className={s.inp}>{CABIN_CLASSES.map(c => <option key={c}>{c}</option>)}</select></div>
-                      <div><label className={s.lbl}>Date / Day Ref</label><input type="text" value={fl.date} onChange={e => updateFlight(i, 'date', e.target.value)} placeholder="Day 1 / 12 Jun" className={s.inp} /></div>
-                    </div>
-                    <div className={s.grid6}>
-                      <div className={s.col2}><label className={s.lbl}>From (Origin)</label><input type="text" value={fl.from} onChange={e => updateFlight(i, 'from', e.target.value)} placeholder="Delhi (DEL)" className={s.inp} /></div>
-                      <div className={s.col2}><label className={s.lbl}>To (Destination)</label><input type="text" value={fl.to} onChange={e => updateFlight(i, 'to', e.target.value)} placeholder="Srinagar (SXR)" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Departs</label><input type="text" value={fl.time} onChange={e => updateFlight(i, 'time', e.target.value)} placeholder="06:30 AM" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Arrives</label><input type="text" value={fl.arrivalTime || ''} onChange={e => updateFlight(i, 'arrivalTime', e.target.value)} placeholder="09:15 AM" className={s.inp} /></div>
-                    </div>
-                    <div className={s.grid6}>
-                      <div><label className={s.lbl}>Duration</label><input type="text" value={fl.duration || ''} onChange={e => updateFlight(i, 'duration', e.target.value)} placeholder="2h 45m" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Stops</label><select value={fl.stops || '0'} onChange={e => updateFlight(i, 'stops', e.target.value)} className={s.inp}>{STOPS_OPTIONS.map((st, idx) => <option key={st} value={String(idx)}>{st}</option>)}</select></div>
-                      <div><label className={s.lbl}>Terminal</label><input type="text" value={fl.terminal || ''} onChange={e => updateFlight(i, 'terminal', e.target.value)} placeholder="T2" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Baggage</label><input type="text" value={fl.baggage || ''} onChange={e => updateFlight(i, 'baggage', e.target.value)} placeholder="15 kg + 7 kg" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Meal</label><select value={fl.meal || ''} onChange={e => updateFlight(i, 'meal', e.target.value)} className={s.inp}>{MEAL_OPTIONS.map(m => <option key={m} value={m}>{m || 'Select…'}</option>)}</select></div>
-                      <div><label className={s.lbl}>PNR / Ref</label><input type="text" value={fl.pnr || ''} onChange={e => updateFlight(i, 'pnr', e.target.value)} placeholder="ABC123" className={s.inp} /></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <button onClick={add} className={`${s.addBtn} ${s.addBtnFlight}`}>+ Add Flight</button>
       </div>
 
-      {/* ══ HOTEL DETAILS PANEL ══ */}
-      <div className={`${s.panel} ${s.panelHotel}`}>
-        <div className={`${s.panelHead} ${s.panelHeadHotel}`}>
-          <div className={s.panelHeadLeft}>
-            <div className={`${s.panelIcon} ${s.panelIconHotel}`}>🏨</div>
-            <div>
-              <h4 className={`${s.panelTitle} ${s.panelTitleHotel}`}>Hotel Details</h4>
-              <p className={`${s.panelCount} ${s.panelCountHotel}`}>
-                {hotels.length === 0 ? 'No hotels added' : `${hotels.length} hotel${hotels.length > 1 ? 's' : ''} added`}
-              </p>
-            </div>
+      <div className={s.panelBody}>
+        {flights.length === 0 ? (
+          <div className={s.empty}>
+            <span className={s.emptyIcon}>✈</span>
+            <p className={s.emptyText}>No flights added yet — click + Add Flight</p>
           </div>
-          <button onClick={addHotel} className={`${s.addBtn} ${s.addBtnHotel}`}>+ Add Hotel</button>
-        </div>
-
-        <div className={s.panelBody}>
-          {hotels.length === 0 ? (
-            <div className={s.empty}>
-              <span className={s.emptyIcon}>🏨</span>
-              <p className={s.emptyText}>No hotels added yet — click + Add Hotel</p>
-            </div>
-          ) : (
-            <div className={s.cardList}>
-              {hotels.map((h, i) => (
-                <div key={i} className={`${s.card} ${s.cardHotel}`}>
-                  <div className={`${s.cardHead} ${s.cardHeadHotel}`}>
-                    <div className={s.cardHeadLeft}>
-                      <span className={`${s.cardIndex} ${s.cardIndexHotel}`}>{i + 1}</span>
-                      <span className={s.cardNamePillHotel}>{h.name || `Hotel ${i + 1}`}</span>
-                      {h.stars && <span className={s.cardStars}>{'★'.repeat(Number(h.stars))}</span>}
-                      {h.location && <span className={s.cardLocPill}>📍 {h.location}</span>}
-                    </div>
-                    <button onClick={() => removeHotel(i)} className={s.removeBtn}>✕</button>
+        ) : (
+          <div className={s.cardList}>
+            {flights.map((fl, i) => (
+              <div key={i} className={`${s.card} ${s.cardFlight}`}>
+                <div className={`${s.cardHead} ${s.cardHeadFlight}`}>
+                  <div className={s.cardHeadLeft}>
+                    <span className={`${s.cardIndex} ${s.cardIndexFlight}`}>{i + 1}</span>
+                    <select value={fl.type} onChange={e => update(i, 'type', e.target.value)}
+                      className={`${s.cardTypeSel} ${s.cardTypeSelFlight}`}>
+                      {FLIGHT_TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                    {fl.from && fl.to && (
+                      <span className={`${s.cardRoutePill} ${s.cardRoutePillFlight}`}>{fl.from} → {fl.to}</span>
+                    )}
                   </div>
-
-                  <div className={`${s.cardFields} ${s.cardFieldsHotel}`}>
-                    <div className={s.grid6}>
-                      <div className={s.col3}><label className={s.lbl}>Hotel Name</label><input type="text" value={h.name || ''} onChange={e => updateHotel(i, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Stars</label><select value={h.stars || '4'} onChange={e => updateHotel(i, 'stars', e.target.value)} className={s.inp}>{['1','2','3','4','5'].map(st => <option key={st} value={st}>{st} ★</option>)}</select></div>
-                      <div><label className={s.lbl}>Room Type</label><input type="text" value={h.roomType || ''} onChange={e => updateHotel(i, 'roomType', e.target.value)} placeholder="Deluxe Double" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Meal Plan</label><select value={h.mealPlan || 'CP'} onChange={e => updateHotel(i, 'mealPlan', e.target.value)} className={s.inp}>{MEAL_PLAN_OPTIONS.map(m => <option key={m} value={m}>{MEAL_PLAN_LABELS[m]}</option>)}</select></div>
-                    </div>
-                    <div className={s.grid6}>
-                      <div className={s.col2}><label className={s.lbl}>Location / Area</label><input type="text" value={h.location || ''} onChange={e => updateHotel(i, 'location', e.target.value)} placeholder="Dal Lake, Srinagar" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Check-in</label><input type="text" value={h.checkIn || ''} onChange={e => updateHotel(i, 'checkIn', e.target.value)} placeholder="Day 1 / 12 Jun" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Check-out</label><input type="text" value={h.checkOut || ''} onChange={e => updateHotel(i, 'checkOut', e.target.value)} placeholder="Day 4 / 15 Jun" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Nights</label><input type="number" min="1" value={h.nights || ''} onChange={e => updateHotel(i, 'nights', e.target.value)} placeholder="3" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Contact</label><input type="text" value={h.contact || ''} onChange={e => updateHotel(i, 'contact', e.target.value)} placeholder="+91 xxxx xxxxxx" className={s.inp} /></div>
-                    </div>
-                    <div className={s.grid2}>
-                      <div><label className={s.lbl}>Full Address</label><input type="text" value={h.address || ''} onChange={e => updateHotel(i, 'address', e.target.value)} placeholder="Srinagar, Jammu & Kashmir" className={s.inp} /></div>
-                      <div><label className={s.lbl}>Amenities (comma-separated)</label><input type="text" value={h.amenities || ''} onChange={e => updateHotel(i, 'amenities', e.target.value)} placeholder="Pool, Spa, Gym, Free WiFi" className={s.inp} /></div>
-                    </div>
+                  <button onClick={() => remove(i)} className={s.removeBtn}>✕</button>
+                </div>
+                <div className={`${s.cardFields} ${s.cardFieldsFlight}`}>
+                  <div className={s.grid4}>
+                    <div><label className={s.lbl}>Airline</label><input type="text" value={fl.airline} onChange={e => update(i, 'airline', e.target.value)} placeholder="e.g. IndiGo" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Flight No.</label><input type="text" value={fl.flightNumber} onChange={e => update(i, 'flightNumber', e.target.value)} placeholder="e.g. 6E-204" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Cabin Class</label><select value={fl.cabinClass || 'Economy'} onChange={e => update(i, 'cabinClass', e.target.value)} className={s.inp}>{CABIN_CLASSES.map(c => <option key={c}>{c}</option>)}</select></div>
+                    <div><label className={s.lbl}>Date / Day Ref</label><input type="text" value={fl.date} onChange={e => update(i, 'date', e.target.value)} placeholder="Day 1 / 12 Jun" className={s.inp} /></div>
+                  </div>
+                  <div className={s.grid6}>
+                    <div className={s.col2}><label className={s.lbl}>From (Origin)</label><input type="text" value={fl.from} onChange={e => update(i, 'from', e.target.value)} placeholder="Delhi (DEL)" className={s.inp} /></div>
+                    <div className={s.col2}><label className={s.lbl}>To (Destination)</label><input type="text" value={fl.to} onChange={e => update(i, 'to', e.target.value)} placeholder="Srinagar (SXR)" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Departs</label><input type="text" value={fl.time} onChange={e => update(i, 'time', e.target.value)} placeholder="06:30 AM" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Arrives</label><input type="text" value={fl.arrivalTime || ''} onChange={e => update(i, 'arrivalTime', e.target.value)} placeholder="09:15 AM" className={s.inp} /></div>
+                  </div>
+                  <div className={s.grid6}>
+                    <div><label className={s.lbl}>Duration</label><input type="text" value={fl.duration || ''} onChange={e => update(i, 'duration', e.target.value)} placeholder="2h 45m" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Stops</label><select value={fl.stops || '0'} onChange={e => update(i, 'stops', e.target.value)} className={s.inp}>{STOPS_OPTIONS.map((st, idx) => <option key={st} value={String(idx)}>{st}</option>)}</select></div>
+                    <div><label className={s.lbl}>Terminal</label><input type="text" value={fl.terminal || ''} onChange={e => update(i, 'terminal', e.target.value)} placeholder="T2" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Baggage</label><input type="text" value={fl.baggage || ''} onChange={e => update(i, 'baggage', e.target.value)} placeholder="15 kg + 7 kg" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Meal</label><select value={fl.meal || ''} onChange={e => update(i, 'meal', e.target.value)} className={s.inp}>{MEAL_OPTIONS.map(m => <option key={m} value={m}>{m || 'Select…'}</option>)}</select></div>
+                    <div><label className={s.lbl}>PNR / Ref</label><input type="text" value={fl.pnr || ''} onChange={e => update(i, 'pnr', e.target.value)} placeholder="ABC123" className={s.inp} /></div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Hotels builder ────────────────────────────────────────────────────────────
+function HotelsBuilder({ hotels, onChange }) {
+  const add    = () => onChange([...hotels, emptyHotel()])
+  const remove = (i) => onChange(hotels.filter((_, idx) => idx !== i))
+  const update = (i, key, val) => onChange(hotels.map((h, idx) => idx === i ? { ...h, [key]: val } : h))
+
+  return (
+    <div className={`${s.panel} ${s.panelHotel}`}>
+      <div className={`${s.panelHead} ${s.panelHeadHotel}`}>
+        <div className={s.panelHeadLeft}>
+          <div className={`${s.panelIcon} ${s.panelIconHotel}`}>🏨</div>
+          <div>
+            <h4 className={`${s.panelTitle} ${s.panelTitleHotel}`}>Hotel Details</h4>
+            <p className={`${s.panelCount} ${s.panelCountHotel}`}>
+              {hotels.length === 0 ? 'No hotels added' : `${hotels.length} hotel${hotels.length > 1 ? 's' : ''} added`}
+            </p>
+          </div>
         </div>
+        <button onClick={add} className={`${s.addBtn} ${s.addBtnHotel}`}>+ Add Hotel</button>
       </div>
 
+      <div className={s.panelBody}>
+        {hotels.length === 0 ? (
+          <div className={s.empty}>
+            <span className={s.emptyIcon}>🏨</span>
+            <p className={s.emptyText}>No hotels added yet — click + Add Hotel</p>
+          </div>
+        ) : (
+          <div className={s.cardList}>
+            {hotels.map((h, i) => (
+              <div key={i} className={`${s.card} ${s.cardHotel}`}>
+                <div className={`${s.cardHead} ${s.cardHeadHotel}`}>
+                  <div className={s.cardHeadLeft}>
+                    <span className={`${s.cardIndex} ${s.cardIndexHotel}`}>{i + 1}</span>
+                    <span className={s.cardNamePillHotel}>{h.name || `Hotel ${i + 1}`}</span>
+                    {h.stars && <span className={s.cardStars}>{'★'.repeat(Number(h.stars))}</span>}
+                    {h.location && <span className={s.cardLocPill}>📍 {h.location}</span>}
+                  </div>
+                  <button onClick={() => remove(i)} className={s.removeBtn}>✕</button>
+                </div>
+                <div className={`${s.cardFields} ${s.cardFieldsHotel}`}>
+                  <div className={s.grid6}>
+                    <div className={s.col3}><label className={s.lbl}>Hotel Name</label><input type="text" value={h.name || ''} onChange={e => update(i, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Stars</label><select value={h.stars || '4'} onChange={e => update(i, 'stars', e.target.value)} className={s.inp}>{['1','2','3','4','5'].map(st => <option key={st} value={st}>{st} ★</option>)}</select></div>
+                    <div><label className={s.lbl}>Room Type</label><input type="text" value={h.roomType || ''} onChange={e => update(i, 'roomType', e.target.value)} placeholder="Deluxe Double" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Meal Plan</label><select value={h.mealPlan || 'CP'} onChange={e => update(i, 'mealPlan', e.target.value)} className={s.inp}>{MEAL_PLAN_OPTIONS.map(m => <option key={m} value={m}>{MEAL_PLAN_LABELS[m]}</option>)}</select></div>
+                  </div>
+                  <div className={s.grid6}>
+                    <div className={s.col2}><label className={s.lbl}>Location / Area</label><input type="text" value={h.location || ''} onChange={e => update(i, 'location', e.target.value)} placeholder="Dal Lake, Srinagar" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Check-in</label><input type="text" value={h.checkIn || ''} onChange={e => update(i, 'checkIn', e.target.value)} placeholder="Day 1 / 12 Jun" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Check-out</label><input type="text" value={h.checkOut || ''} onChange={e => update(i, 'checkOut', e.target.value)} placeholder="Day 4 / 15 Jun" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Nights</label><input type="number" min="1" value={h.nights || ''} onChange={e => update(i, 'nights', e.target.value)} placeholder="3" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Contact</label><input type="text" value={h.contact || ''} onChange={e => update(i, 'contact', e.target.value)} placeholder="+91 xxxx xxxxxx" className={s.inp} /></div>
+                  </div>
+                  <div className={s.grid2}>
+                    <div><label className={s.lbl}>Full Address</label><input type="text" value={h.address || ''} onChange={e => update(i, 'address', e.target.value)} placeholder="Srinagar, Jammu & Kashmir" className={s.inp} /></div>
+                    <div><label className={s.lbl}>Amenities (comma-separated)</label><input type="text" value={h.amenities || ''} onChange={e => update(i, 'amenities', e.target.value)} placeholder="Pool, Spa, Gym, Free WiFi" className={s.inp} /></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -686,7 +683,7 @@ function ItineraryBuilder({ itinerary, onChange }) {
 }
 
 // ── Modal tabs ────────────────────────────────────────────────────────────────
-const TABS = ['Basic Info', 'Itinerary', 'Flights & Hotels', 'Inclusions & Exclusions']
+const TABS = ['Basic Info', 'Itinerary', 'Flights', 'Hotels', 'Inclusions & Exclusions']
 
 function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
   useScrollLock()
@@ -790,45 +787,85 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
             <ItineraryBuilder itinerary={form.itinerary} onChange={v => f('itinerary', v)} />
           )}
 
-          {/* ── Tab 2: Flights & Hotels ── */}
+          {/* ── Tab 2: Flights ── */}
           {tab === 2 && (
-            <FlightsHotelsBuilder
+            <FlightsBuilder
               flights={form.flights}
-              hotels={form.hotels || []}
-              onFlightsChange={v => f('flights', v)}
-              onHotelsChange={v => f('hotels', v)}
+              onChange={v => f('flights', v)}
             />
           )}
 
-          {/* ── Tab 3: Unified Inclusions / Exclusions / Notes Markdown ── */}
+          {/* ── Tab 3: Hotels ── */}
           {tab === 3 && (
-            <div className="space-y-4">
-              {/* Guide strip */}
-              <div className="bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 space-y-2">
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.25em]">How to use</p>
-                <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                  Write everything in <strong className="text-dark">one document</strong>. Use <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">## ✅ Inclusions</code>, <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">## ❌ Exclusions</code>, and <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">## 📋 Important Notes</code> as section headers.
-                  Lines starting with <code className="bg-white border border-gray-200 px-1 rounded text-[10px]">- </code> become bullet points. Supports <strong>**bold**</strong>, <em>*italic*</em>, and all standard Markdown.
-                </p>
-                <div className="flex gap-2 flex-wrap pt-1">
-                  {['- bullet item', '**bold text**', '*italic*', '> blockquote'].map(s => (
-                    <code key={s} className="text-[10px] bg-white border border-gray-200 px-2 py-0.5 rounded font-mono text-gray-600">{s}</code>
-                  ))}
+            <HotelsBuilder
+              hotels={form.hotels || []}
+              onChange={v => f('hotels', v)}
+            />
+          )}
+
+          {/* ── Tab 4: Inclusions & Exclusions ── */}
+          {tab === 4 && (() => {
+            const parsed = parseContentMarkdown(form.contentMarkdown)
+            return (
+              <div className={s.inExWrap}>
+                {/* Left: markdown editor */}
+                <MarkdownEditor
+                  label="📄 Write in Markdown"
+                  hint="Use ## ✅ Inclusions / ## ❌ Exclusions / ## 📋 Important Notes as headers"
+                  value={form.contentMarkdown}
+                  onChange={v => f('contentMarkdown', v)}
+                  placeholder={CONTENT_MD_TEMPLATE}
+                  bgClass="bg-gray-50"
+                  borderClass="border-gray-200"
+                  rows={24}
+                />
+
+                {/* Right: live visual preview */}
+                <div className={s.inExPreview}>
+                  <p className={s.inExPreviewLabel}>Live Preview</p>
+
+                  <div className={`${s.inExSection} ${s.inExSectionInc}`}>
+                    <div className={s.inExSectionHead}>
+                      <span>✅</span> Inclusions
+                      <span className={s.inExSectionCount}>{parsed.inclusions.length}</span>
+                    </div>
+                    {parsed.inclusions.length === 0
+                      ? <p className={s.inExEmpty}>No inclusions yet</p>
+                      : <ul className={s.inExList}>{parsed.inclusions.map((item, i) => (
+                          <li key={i} className={s.inExItem}><span className={s.inExDot}>✓</span>{item}</li>
+                        ))}</ul>
+                    }
+                  </div>
+
+                  <div className={`${s.inExSection} ${s.inExSectionExc}`}>
+                    <div className={s.inExSectionHead}>
+                      <span>❌</span> Exclusions
+                      <span className={s.inExSectionCount}>{parsed.exclusions.length}</span>
+                    </div>
+                    {parsed.exclusions.length === 0
+                      ? <p className={s.inExEmpty}>No exclusions yet</p>
+                      : <ul className={s.inExList}>{parsed.exclusions.map((item, i) => (
+                          <li key={i} className={s.inExItem}><span className={s.inExDot}>✕</span>{item}</li>
+                        ))}</ul>
+                    }
+                  </div>
+
+                  <div className={`${s.inExSection} ${s.inExSectionNotes}`}>
+                    <div className={s.inExSectionHead}>
+                      <span>📋</span> Important Notes
+                      <span className={s.inExSectionCount}>{parsed.notes.length}</span>
+                    </div>
+                    {parsed.notes.length === 0
+                      ? <p className={s.inExEmpty}>No notes yet</p>
+                      : <ul className={s.inExList}>{parsed.notes.map((item, i) => (
+                          <li key={i} className={s.inExItem}><span className={s.inExDot}>•</span>{item}</li>
+                        ))}</ul>
+                    }
+                  </div>
                 </div>
               </div>
-
-              <MarkdownEditor
-                label="📄 Package Content (Inclusions · Exclusions · Notes)"
-                hint="All in one — auto-formats on preview"
-                value={form.contentMarkdown}
-                onChange={v => f('contentMarkdown', v)}
-                placeholder={CONTENT_MD_TEMPLATE}
-                bgClass="bg-gray-50"
-                borderClass="border-gray-200"
-                rows={22}
-              />
-            </div>
-          )}
+            )
+          })()}
         </div>
 
         {/* Footer */}
