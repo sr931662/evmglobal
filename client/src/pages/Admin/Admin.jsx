@@ -41,6 +41,7 @@ const sections = {
 export default function Admin() {
   const [active,     setActive]     = useState('dashboard')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [navState,   setNavState]   = useState(null)
   const { logout, user } = useAuth()
 
   const Section = sections[active] || AdminDashboard
@@ -50,7 +51,7 @@ export default function Admin() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [active])
 
-  const navigate = (id) => { setActive(id); setMobileOpen(false) }
+  const navigate = (id, state = null) => { setNavState(state); setActive(id); setMobileOpen(false) }
 
   return (
     <div className="flex min-h-screen bg-[#f7f8fa]">
@@ -94,7 +95,7 @@ export default function Admin() {
               transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
             >
               <Suspense fallback={<SectionLoader />}>
-                <Section />
+                <Section onNavigate={navigate} navState={navState} />
               </Suspense>
             </motion.div>
           </AnimatePresence>

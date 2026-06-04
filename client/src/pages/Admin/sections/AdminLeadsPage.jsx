@@ -421,7 +421,7 @@ function DeleteConfirm({ lead, onClose, onConfirm }) {
 }
 
 // ── Detail side-drawer ──────────────────────────────────────────────────────────
-function DetailDrawer({ lead, onClose, onEdit, onDelete, onStatusUpdate, onWhatsApp }) {
+function DetailDrawer({ lead, onClose, onEdit, onDelete, onStatusUpdate, onWhatsApp, onCreateQuote }) {
   useScrollLock()
   const typeConf  = typeConfig[lead.type] || typeConfig.lead
 
@@ -567,6 +567,14 @@ function DetailDrawer({ lead, onClose, onEdit, onDelete, onStatusUpdate, onWhats
             </svg>
             WhatsApp {lead.name?.split(' ')[0]}
           </button>
+          {onCreateQuote && (
+            <button
+              onClick={onCreateQuote}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-full bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors"
+            >
+              📋 Create Quote
+            </button>
+          )}
           <div className="flex gap-3">
             <button onClick={onEdit}   className="flex-1 border border-gray-200 text-dark py-3.5 rounded-full font-bold text-sm hover:bg-gray-50 transition-colors">✏ Edit</button>
             <button onClick={onDelete} className="flex-1 border border-red-100 text-red-500 py-3.5 rounded-full font-bold text-sm hover:bg-red-50 transition-colors">🗑 Delete</button>
@@ -589,7 +597,7 @@ function StatCard({ label, value, sub, valueClass }) {
 }
 
 // ── Main page ───────────────────────────────────────────────────────────────────
-export default function AdminLeadsPage() {
+export default function AdminLeadsPage({ onNavigate }) {
   const [leads,        setLeads]        = useState([])
   const [total,        setTotal]        = useState(0)
   const [stats,        setStats]        = useState({ total: 0, newCount: 0, inquiries: 0, converted: 0 })
@@ -936,6 +944,7 @@ export default function AdminLeadsPage() {
             onDelete={() => { setDeleteTarget(drawer); setDrawer(null) }}
             onStatusUpdate={handleStatusUpdate}
             onWhatsApp={() => handleWhatsApp(drawer)}
+            onCreateQuote={onNavigate ? () => { setDrawer(null); onNavigate('quotes', { prefillLead: drawer }) } : undefined}
           />
         )}
       </AnimatePresence>

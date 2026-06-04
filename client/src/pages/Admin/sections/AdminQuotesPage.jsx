@@ -724,7 +724,7 @@ const statusColors = {
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
-export default function AdminQuotesPage() {
+export default function AdminQuotesPage({ navState }) {
   const [quotes, setQuotes]   = useState([])
   const [total,  setTotal]    = useState(0)
   const [page,   setPage]     = useState(1)
@@ -736,6 +736,28 @@ export default function AdminQuotesPage() {
   const [deleting, setDeleting] = useState(null)
   const [printQuote, setPrintQuote] = useState(null)
   const printRef = useRef(null)
+
+  // Auto-open pre-filled modal when navigated from a lead
+  useEffect(() => {
+    if (!navState?.prefillLead) return
+    const lead = navState.prefillLead
+    const pax = [
+      lead.numAdults   ? Number(lead.numAdults)   : null,
+      lead.numChildren ? Number(lead.numChildren) : null,
+      lead.numInfants  ? Number(lead.numInfants)  : null,
+    ].filter(Boolean).reduce((a, b) => a + b, 0)
+    const prefilled = {
+      ...emptyForm(),
+      clientName:  lead.name        || '',
+      clientPhone: lead.phone       || '',
+      clientEmail: lead.email       || '',
+      destinations: lead.destination ? [lead.destination] : [''],
+      pax:          pax || 2,
+      tripTitle:    lead.destination ? `${lead.destination} Trip` : '',
+      startDate:    lead.travelDate  || '',
+    }
+    setModal(prefilled)
+  }, [navState])
 
   const limit = 20
 
