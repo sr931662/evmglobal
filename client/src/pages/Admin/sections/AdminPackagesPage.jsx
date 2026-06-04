@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import s from './AdminPackagesPage.module.css'
 
 const CATEGORIES = ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness']
 
@@ -395,227 +396,138 @@ function FlightsHotelsBuilder({ flights, hotels, onFlightsChange, onHotelsChange
   const removeHotel = (i) => onHotelsChange(hotels.filter((_, idx) => idx !== i))
   const updateHotel = (i, key, val) => onHotelsChange(hotels.map((h, idx) => idx === i ? { ...h, [key]: val } : h))
 
-  const inp = 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors'
-  const lbl = 'text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block'
-
   return (
-    <div className="space-y-8">
-      {/* ── Flights ── */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">✈ Flight Details</h4>
-            <p className="text-[9px] text-gray-400 font-medium mt-0.5">Add all flights in the itinerary</p>
+    <div className={s.fhWrap}>
+
+      {/* ══ FLIGHT DETAILS PANEL ══ */}
+      <div className={`${s.panel} ${s.panelFlight}`}>
+        <div className={`${s.panelHead} ${s.panelHeadFlight}`}>
+          <div className={s.panelHeadLeft}>
+            <div className={`${s.panelIcon} ${s.panelIconFlight}`}>✈</div>
+            <div>
+              <h4 className={`${s.panelTitle} ${s.panelTitleFlight}`}>Flight Details</h4>
+              <p className={`${s.panelCount} ${s.panelCountFlight}`}>
+                {flights.length === 0 ? 'No flights added' : `${flights.length} flight${flights.length > 1 ? 's' : ''} added`}
+              </p>
+            </div>
           </div>
-          <button onClick={addFlight} className="text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full bg-brand/10 text-brand hover:bg-brand/20 transition-colors">+ Add Flight</button>
+          <button onClick={addFlight} className={`${s.addBtn} ${s.addBtnFlight}`}>+ Add Flight</button>
         </div>
-        {flights.length === 0 ? (
-          <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">No flights added yet — click + Add Flight</p>
-        ) : (
-          <div className="space-y-5">
-            {flights.map((fl, i) => (
-              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                {/* Flight header */}
-                <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-5 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-base">✈</span>
-                    <select value={fl.type} onChange={e => updateFlight(i, 'type', e.target.value)}
-                      className="bg-transparent text-dark font-black text-xs focus:outline-none cursor-pointer">
-                      {FLIGHT_TYPES.map(t => <option key={t}>{t}</option>)}
-                    </select>
-                    {fl.from && fl.to && (
-                      <span className="text-[10px] font-bold text-gray-500">{fl.from} → {fl.to}</span>
-                    )}
-                  </div>
-                  <button onClick={() => removeFlight(i)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center">✕</button>
-                </div>
 
-                <div className="p-4 space-y-3">
-                  {/* Row 1: Airline + Flight No + Cabin Class */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className={lbl}>Airline</label>
-                      <input type="text" value={fl.airline} onChange={e => updateFlight(i, 'airline', e.target.value)} placeholder="e.g. IndiGo" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Flight No.</label>
-                      <input type="text" value={fl.flightNumber} onChange={e => updateFlight(i, 'flightNumber', e.target.value)} placeholder="e.g. 6E-204" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Cabin Class</label>
-                      <select value={fl.cabinClass || 'Economy'} onChange={e => updateFlight(i, 'cabinClass', e.target.value)} className={inp + ' cursor-pointer'}>
-                        {CABIN_CLASSES.map(c => <option key={c}>{c}</option>)}
+        <div className={s.panelBody}>
+          {flights.length === 0 ? (
+            <div className={s.empty}>
+              <span className={s.emptyIcon}>✈</span>
+              <p className={s.emptyText}>No flights added yet — click + Add Flight</p>
+            </div>
+          ) : (
+            <div className={s.cardList}>
+              {flights.map((fl, i) => (
+                <div key={i} className={`${s.card} ${s.cardFlight}`}>
+                  <div className={`${s.cardHead} ${s.cardHeadFlight}`}>
+                    <div className={s.cardHeadLeft}>
+                      <span className={`${s.cardIndex} ${s.cardIndexFlight}`}>{i + 1}</span>
+                      <select value={fl.type} onChange={e => updateFlight(i, 'type', e.target.value)}
+                        className={`${s.cardTypeSel} ${s.cardTypeSelFlight}`}>
+                        {FLIGHT_TYPES.map(t => <option key={t}>{t}</option>)}
                       </select>
+                      {fl.from && fl.to && (
+                        <span className={`${s.cardRoutePill} ${s.cardRoutePillFlight}`}>{fl.from} → {fl.to}</span>
+                      )}
                     </div>
+                    <button onClick={() => removeFlight(i)} className={s.removeBtn}>✕</button>
                   </div>
 
-                  {/* Row 2: From + To + Date */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className={lbl}>From (Origin)</label>
-                      <input type="text" value={fl.from} onChange={e => updateFlight(i, 'from', e.target.value)} placeholder="Delhi (DEL)" className={inp} />
+                  <div className={`${s.cardFields} ${s.cardFieldsFlight}`}>
+                    <div className={s.grid4}>
+                      <div><label className={s.lbl}>Airline</label><input type="text" value={fl.airline} onChange={e => updateFlight(i, 'airline', e.target.value)} placeholder="e.g. IndiGo" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Flight No.</label><input type="text" value={fl.flightNumber} onChange={e => updateFlight(i, 'flightNumber', e.target.value)} placeholder="e.g. 6E-204" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Cabin Class</label><select value={fl.cabinClass || 'Economy'} onChange={e => updateFlight(i, 'cabinClass', e.target.value)} className={s.inp}>{CABIN_CLASSES.map(c => <option key={c}>{c}</option>)}</select></div>
+                      <div><label className={s.lbl}>Date / Day Ref</label><input type="text" value={fl.date} onChange={e => updateFlight(i, 'date', e.target.value)} placeholder="Day 1 / 12 Jun" className={s.inp} /></div>
                     </div>
-                    <div>
-                      <label className={lbl}>To (Destination)</label>
-                      <input type="text" value={fl.to} onChange={e => updateFlight(i, 'to', e.target.value)} placeholder="Srinagar (SXR)" className={inp} />
+                    <div className={s.grid6}>
+                      <div className={s.col2}><label className={s.lbl}>From (Origin)</label><input type="text" value={fl.from} onChange={e => updateFlight(i, 'from', e.target.value)} placeholder="Delhi (DEL)" className={s.inp} /></div>
+                      <div className={s.col2}><label className={s.lbl}>To (Destination)</label><input type="text" value={fl.to} onChange={e => updateFlight(i, 'to', e.target.value)} placeholder="Srinagar (SXR)" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Departs</label><input type="text" value={fl.time} onChange={e => updateFlight(i, 'time', e.target.value)} placeholder="06:30 AM" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Arrives</label><input type="text" value={fl.arrivalTime || ''} onChange={e => updateFlight(i, 'arrivalTime', e.target.value)} placeholder="09:15 AM" className={s.inp} /></div>
                     </div>
-                    <div>
-                      <label className={lbl}>Date / Day Ref</label>
-                      <input type="text" value={fl.date} onChange={e => updateFlight(i, 'date', e.target.value)} placeholder="Day 1 / 12 Jun" className={inp} />
-                    </div>
-                  </div>
-
-                  {/* Row 3: Dep time + Arr time + Duration + Stops */}
-                  <div className="grid grid-cols-4 gap-3">
-                    <div>
-                      <label className={lbl}>Departs</label>
-                      <input type="text" value={fl.time} onChange={e => updateFlight(i, 'time', e.target.value)} placeholder="06:30 AM" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Arrives</label>
-                      <input type="text" value={fl.arrivalTime || ''} onChange={e => updateFlight(i, 'arrivalTime', e.target.value)} placeholder="09:15 AM" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Duration</label>
-                      <input type="text" value={fl.duration || ''} onChange={e => updateFlight(i, 'duration', e.target.value)} placeholder="2h 45m" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Stops</label>
-                      <select value={fl.stops || '0'} onChange={e => updateFlight(i, 'stops', e.target.value)} className={inp + ' cursor-pointer'}>
-                        {STOPS_OPTIONS.map((s, idx) => <option key={s} value={String(idx)}>{s}</option>)}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Row 4: Terminal + Baggage + Meal + PNR */}
-                  <div className="grid grid-cols-4 gap-3">
-                    <div>
-                      <label className={lbl}>Terminal</label>
-                      <input type="text" value={fl.terminal || ''} onChange={e => updateFlight(i, 'terminal', e.target.value)} placeholder="T2" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Baggage</label>
-                      <input type="text" value={fl.baggage || ''} onChange={e => updateFlight(i, 'baggage', e.target.value)} placeholder="15 kg + 7 kg" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Meal</label>
-                      <select value={fl.meal || ''} onChange={e => updateFlight(i, 'meal', e.target.value)} className={inp + ' cursor-pointer'}>
-                        {MEAL_OPTIONS.map(m => <option key={m} value={m}>{m || 'Select…'}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className={lbl}>PNR / Ref</label>
-                      <input type="text" value={fl.pnr || ''} onChange={e => updateFlight(i, 'pnr', e.target.value)} placeholder="ABC123" className={inp} />
+                    <div className={s.grid6}>
+                      <div><label className={s.lbl}>Duration</label><input type="text" value={fl.duration || ''} onChange={e => updateFlight(i, 'duration', e.target.value)} placeholder="2h 45m" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Stops</label><select value={fl.stops || '0'} onChange={e => updateFlight(i, 'stops', e.target.value)} className={s.inp}>{STOPS_OPTIONS.map((st, idx) => <option key={st} value={String(idx)}>{st}</option>)}</select></div>
+                      <div><label className={s.lbl}>Terminal</label><input type="text" value={fl.terminal || ''} onChange={e => updateFlight(i, 'terminal', e.target.value)} placeholder="T2" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Baggage</label><input type="text" value={fl.baggage || ''} onChange={e => updateFlight(i, 'baggage', e.target.value)} placeholder="15 kg + 7 kg" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Meal</label><select value={fl.meal || ''} onChange={e => updateFlight(i, 'meal', e.target.value)} className={s.inp}>{MEAL_OPTIONS.map(m => <option key={m} value={m}>{m || 'Select…'}</option>)}</select></div>
+                      <div><label className={s.lbl}>PNR / Ref</label><input type="text" value={fl.pnr || ''} onChange={e => updateFlight(i, 'pnr', e.target.value)} placeholder="ABC123" className={s.inp} /></div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="border-t border-gray-100" />
-
-      {/* ── Hotels ── */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.25em]">🏨 Hotel Details</h4>
-            <p className="text-[9px] text-gray-400 font-medium mt-0.5">All hotels across the itinerary</p>
+      {/* ══ HOTEL DETAILS PANEL ══ */}
+      <div className={`${s.panel} ${s.panelHotel}`}>
+        <div className={`${s.panelHead} ${s.panelHeadHotel}`}>
+          <div className={s.panelHeadLeft}>
+            <div className={`${s.panelIcon} ${s.panelIconHotel}`}>🏨</div>
+            <div>
+              <h4 className={`${s.panelTitle} ${s.panelTitleHotel}`}>Hotel Details</h4>
+              <p className={`${s.panelCount} ${s.panelCountHotel}`}>
+                {hotels.length === 0 ? 'No hotels added' : `${hotels.length} hotel${hotels.length > 1 ? 's' : ''} added`}
+              </p>
+            </div>
           </div>
-          <button onClick={addHotel} className="text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-100">+ Add Hotel</button>
+          <button onClick={addHotel} className={`${s.addBtn} ${s.addBtnHotel}`}>+ Add Hotel</button>
         </div>
-        {hotels.length === 0 ? (
-          <p className="text-gray-400 text-xs font-bold text-center py-6 border-2 border-dashed border-gray-200 rounded-2xl">No hotels added yet — click + Add Hotel</p>
-        ) : (
-          <div className="space-y-5">
-            {hotels.map((h, i) => (
-              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                {/* Hotel header */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-base">🏨</span>
-                    <span className="text-dark font-black text-xs uppercase tracking-[0.12em]">
-                      {h.name || `Hotel ${i + 1}`}
-                    </span>
-                    {h.stars && <span className="text-amber-500 text-xs">{'★'.repeat(Number(h.stars))}</span>}
-                  </div>
-                  <button onClick={() => removeHotel(i)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center">✕</button>
-                </div>
 
-                <div className="p-4 space-y-3">
-                  {/* Row 1: Hotel name + Stars */}
-                  <div className="grid grid-cols-4 gap-3">
-                    <div className="col-span-3">
-                      <label className={lbl}>Hotel Name</label>
-                      <input type="text" value={h.name || ''} onChange={e => updateHotel(i, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace" className={inp} />
+        <div className={s.panelBody}>
+          {hotels.length === 0 ? (
+            <div className={s.empty}>
+              <span className={s.emptyIcon}>🏨</span>
+              <p className={s.emptyText}>No hotels added yet — click + Add Hotel</p>
+            </div>
+          ) : (
+            <div className={s.cardList}>
+              {hotels.map((h, i) => (
+                <div key={i} className={`${s.card} ${s.cardHotel}`}>
+                  <div className={`${s.cardHead} ${s.cardHeadHotel}`}>
+                    <div className={s.cardHeadLeft}>
+                      <span className={`${s.cardIndex} ${s.cardIndexHotel}`}>{i + 1}</span>
+                      <span className={s.cardNamePillHotel}>{h.name || `Hotel ${i + 1}`}</span>
+                      {h.stars && <span className={s.cardStars}>{'★'.repeat(Number(h.stars))}</span>}
+                      {h.location && <span className={s.cardLocPill}>📍 {h.location}</span>}
                     </div>
-                    <div>
-                      <label className={lbl}>Stars</label>
-                      <select value={h.stars || '4'} onChange={e => updateHotel(i, 'stars', e.target.value)} className={inp + ' cursor-pointer'}>
-                        {['1','2','3','4','5'].map(s => <option key={s} value={s}>{s} ★</option>)}
-                      </select>
-                    </div>
+                    <button onClick={() => removeHotel(i)} className={s.removeBtn}>✕</button>
                   </div>
 
-                  {/* Row 2: Location + Room Type + Meal Plan */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className={lbl}>Location / Area</label>
-                      <input type="text" value={h.location || ''} onChange={e => updateHotel(i, 'location', e.target.value)} placeholder="e.g. Dal Lake, Srinagar" className={inp} />
+                  <div className={`${s.cardFields} ${s.cardFieldsHotel}`}>
+                    <div className={s.grid6}>
+                      <div className={s.col3}><label className={s.lbl}>Hotel Name</label><input type="text" value={h.name || ''} onChange={e => updateHotel(i, 'name', e.target.value)} placeholder="e.g. The Lalit Grand Palace" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Stars</label><select value={h.stars || '4'} onChange={e => updateHotel(i, 'stars', e.target.value)} className={s.inp}>{['1','2','3','4','5'].map(st => <option key={st} value={st}>{st} ★</option>)}</select></div>
+                      <div><label className={s.lbl}>Room Type</label><input type="text" value={h.roomType || ''} onChange={e => updateHotel(i, 'roomType', e.target.value)} placeholder="Deluxe Double" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Meal Plan</label><select value={h.mealPlan || 'CP'} onChange={e => updateHotel(i, 'mealPlan', e.target.value)} className={s.inp}>{MEAL_PLAN_OPTIONS.map(m => <option key={m} value={m}>{MEAL_PLAN_LABELS[m]}</option>)}</select></div>
                     </div>
-                    <div>
-                      <label className={lbl}>Room Type</label>
-                      <input type="text" value={h.roomType || ''} onChange={e => updateHotel(i, 'roomType', e.target.value)} placeholder="e.g. Deluxe Double" className={inp} />
+                    <div className={s.grid6}>
+                      <div className={s.col2}><label className={s.lbl}>Location / Area</label><input type="text" value={h.location || ''} onChange={e => updateHotel(i, 'location', e.target.value)} placeholder="Dal Lake, Srinagar" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Check-in</label><input type="text" value={h.checkIn || ''} onChange={e => updateHotel(i, 'checkIn', e.target.value)} placeholder="Day 1 / 12 Jun" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Check-out</label><input type="text" value={h.checkOut || ''} onChange={e => updateHotel(i, 'checkOut', e.target.value)} placeholder="Day 4 / 15 Jun" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Nights</label><input type="number" min="1" value={h.nights || ''} onChange={e => updateHotel(i, 'nights', e.target.value)} placeholder="3" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Contact</label><input type="text" value={h.contact || ''} onChange={e => updateHotel(i, 'contact', e.target.value)} placeholder="+91 xxxx xxxxxx" className={s.inp} /></div>
                     </div>
-                    <div>
-                      <label className={lbl}>Meal Plan</label>
-                      <select value={h.mealPlan || 'CP'} onChange={e => updateHotel(i, 'mealPlan', e.target.value)} className={inp + ' cursor-pointer'}>
-                        {MEAL_PLAN_OPTIONS.map(m => <option key={m} value={m}>{MEAL_PLAN_LABELS[m]}</option>)}
-                      </select>
+                    <div className={s.grid2}>
+                      <div><label className={s.lbl}>Full Address</label><input type="text" value={h.address || ''} onChange={e => updateHotel(i, 'address', e.target.value)} placeholder="Srinagar, Jammu & Kashmir" className={s.inp} /></div>
+                      <div><label className={s.lbl}>Amenities (comma-separated)</label><input type="text" value={h.amenities || ''} onChange={e => updateHotel(i, 'amenities', e.target.value)} placeholder="Pool, Spa, Gym, Free WiFi" className={s.inp} /></div>
                     </div>
-                  </div>
-
-                  {/* Row 3: Check-in + Check-out + Nights */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className={lbl}>Check-in Date / Day</label>
-                      <input type="text" value={h.checkIn || ''} onChange={e => updateHotel(i, 'checkIn', e.target.value)} placeholder="Day 1 / 12 Jun" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Check-out Date / Day</label>
-                      <input type="text" value={h.checkOut || ''} onChange={e => updateHotel(i, 'checkOut', e.target.value)} placeholder="Day 4 / 15 Jun" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>No. of Nights</label>
-                      <input type="number" min="1" value={h.nights || ''} onChange={e => updateHotel(i, 'nights', e.target.value)} placeholder="3" className={inp} />
-                    </div>
-                  </div>
-
-                  {/* Row 4: Address + Contact */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className={lbl}>Full Address</label>
-                      <input type="text" value={h.address || ''} onChange={e => updateHotel(i, 'address', e.target.value)} placeholder="Srinagar, Jammu & Kashmir" className={inp} />
-                    </div>
-                    <div>
-                      <label className={lbl}>Hotel Contact</label>
-                      <input type="text" value={h.contact || ''} onChange={e => updateHotel(i, 'contact', e.target.value)} placeholder="+91 xxxx xxxxxx" className={inp} />
-                    </div>
-                  </div>
-
-                  {/* Amenities */}
-                  <div>
-                    <label className={lbl}>Amenities (comma-separated)</label>
-                    <input type="text" value={h.amenities || ''} onChange={e => updateHotel(i, 'amenities', e.target.value)} placeholder="Pool, Spa, Gym, Free WiFi, Airport Shuttle" className={inp} />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
     </div>
   )
 }
@@ -806,7 +718,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2rem] sm:rounded-[2.5rem] w-full max-w-2xl shadow-premium border border-gray-100 flex flex-col max-h-[95vh] sm:max-h-[92vh] overflow-hidden"
+        className={s.modal}
       >
         {/* Modal header */}
         <div className="flex items-center justify-between px-6 sm:px-10 pt-7 sm:pt-10 pb-5 sm:pb-6 shrink-0">

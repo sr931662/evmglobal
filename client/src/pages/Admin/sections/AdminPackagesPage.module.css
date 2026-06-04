@@ -1,0 +1,225 @@
+/* ── Modal ── */
+.modal {
+  background: #fff;
+  border-radius: 2.5rem;
+  width: 100%;
+  max-width: 64rem;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+  border: 1px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  max-height: 94vh;
+  overflow: hidden;
+}
+
+/* ── Shared field primitives ── */
+.inp {
+  width: 100%;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: #111827;
+  font-weight: 700;
+  font-size: 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+  cursor: text;
+}
+.inp:focus { border-color: var(--color-brand, #e07b39); }
+
+.lbl {
+  display: block;
+  font-size: 0.5625rem;
+  font-weight: 900;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Flights & Hotels wrapper ── */
+.fhWrap { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* ── Section panel ── */
+.panel { border-radius: 1.5rem; overflow: hidden; }
+.panelFlight { border: 1.5px solid #c7d2fe; }
+.panelHotel  { border: 1.5px solid #bae6fd; }
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1.5px solid transparent;
+}
+.panelHeadFlight {
+  background: linear-gradient(120deg, #eef2ff 0%, #e0e7ff 60%, #ede9fe 100%);
+  border-bottom-color: #c7d2fe;
+}
+.panelHeadHotel {
+  background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 60%, #ecfeff 100%);
+  border-bottom-color: #bae6fd;
+}
+
+.panelHeadLeft { display: flex; align-items: center; gap: 0.875rem; }
+
+.panelIcon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.panelIconFlight { border: 1.5px solid #c7d2fe; }
+.panelIconHotel  { border: 1.5px solid #bae6fd; }
+
+.panelTitle {
+  font-size: 0.875rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.panelTitleFlight { color: #312e81; }
+.panelTitleHotel  { color: #0c4a6e; }
+
+.panelCount {
+  font-size: 0.625rem;
+  font-weight: 700;
+  margin-top: 0.125rem;
+}
+.panelCountFlight { color: #818cf8; }
+.panelCountHotel  { color: #38bdf8; }
+
+.addBtn {
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.45rem 1.1rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.addBtnFlight { background: #4f46e5; color: #fff; }
+.addBtnFlight:hover { background: #4338ca; }
+.addBtnHotel  { background: #0284c7; color: #fff; }
+.addBtnHotel:hover  { background: #0369a1; }
+
+/* ── Panel body ── */
+.panelBody { background: #fff; padding: 1.25rem; }
+
+/* ── Empty state ── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  border-radius: 1.25rem;
+  border: 2px dashed #e5e7eb;
+  gap: 0.5rem;
+}
+.emptyIcon { font-size: 2rem; opacity: 0.25; }
+.emptyText { font-size: 0.75rem; font-weight: 700; color: #9ca3af; }
+
+/* ── Cards list ── */
+.cardList { display: flex; flex-direction: column; gap: 1rem; }
+
+/* ── Individual card ── */
+.card { border-radius: 1.25rem; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.cardFlight { border: 1.5px solid #c7d2fe; }
+.cardHotel  { border: 1.5px solid #bae6fd; }
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 1.25rem;
+}
+.cardHeadFlight { background: linear-gradient(90deg, #eef2ff, #e0e7ff); }
+.cardHeadHotel  { background: linear-gradient(90deg, #f0f9ff, #e0f2fe); }
+
+.cardHeadLeft { display: flex; align-items: center; gap: 0.625rem; }
+
+.cardIndex {
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.cardIndexFlight { background: #4f46e5; }
+.cardIndexHotel  { background: #0284c7; }
+
+.cardTypeSel {
+  background: transparent;
+  font-weight: 900;
+  font-size: 0.75rem;
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
+.cardTypeSelFlight { color: #3730a3; }
+.cardTypeSelHotel  { color: #0c4a6e; }
+
+.cardRoutePill {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: #fff;
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+}
+.cardRoutePillFlight { color: #4f46e5; border: 1px solid #c7d2fe; }
+.cardNamePillHotel   { color: #0284c7; border: 1px solid #bae6fd; font-size: 0.75rem; font-weight: 800; }
+.cardStars { color: #f59e0b; font-size: 0.75rem; }
+.cardLocPill {
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: #fff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.removeBtn {
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 0.625rem;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  color: #9ca3af;
+  font-size: 0.7rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.removeBtn:hover { color: #ef4444; border-color: #fca5a5; }
+
+/* ── Card fields area ── */
+.cardFields { padding: 1.125rem; display: flex; flex-direction: column; gap: 0.875rem; }
+.cardFieldsFlight { background: rgba(238,242,255,0.3); }
+.cardFieldsHotel  { background: rgba(240,249,255,0.3); }
+
+/* ── Grid layouts ── */
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+.grid6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; }
+.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+.col2  { grid-column: span 2; }
+.col3  { grid-column: span 3; }
