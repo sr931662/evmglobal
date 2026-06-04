@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { openWhatsApp } from '../../utils/whatsapp'
 import { api } from '../../services/api'
 import styles from './Careers.module.css'
@@ -66,8 +66,9 @@ const typeStyle = {
 }
 
 export default function Careers() {
-  const [openings, setOpenings] = useState([])
-  const [loading,  setLoading]  = useState(true)
+  const [openings,    setOpenings]    = useState([])
+  const [loading,     setLoading]     = useState(true)
+  const [expandedId,  setExpandedId]  = useState(null)
 
   useEffect(() => {
     api.getCareers({ status: 'open' })
@@ -168,53 +169,87 @@ export default function Careers() {
             <div className={styles.emptyMsg}>No open positions right now. Check back soon!</div>
           ) : (
             <div className={styles.jobList}>
-              {openings.map((job, i) => (
-                <motion.div
-                  key={job._id || job.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.07, duration: 0.6 }}
-                  className={styles.jobCard}
-                >
-                  <div className={styles.jobInner}>
-                    <div className={styles.jobInfo}>
-                      <div className={styles.jobBadges}>
-                        <span
-                          className={styles.jobBadge}
-                          style={deptStyle[job.department] || { background: '#f3f4f6', color: '#374151' }}
-                        >
-                          {job.department}
-                        </span>
-                        <span
-                          className={styles.jobBadge}
-                          style={typeStyle[job.type] || { background: '#f3f4f6', color: '#374151' }}
-                        >
-                          {job.type}
-                        </span>
-                        <span className={styles.jobLocation}>📍 {job.location}</span>
-                      </div>
-                      <h3 className={styles.jobTitle}>{job.title}</h3>
-                      <RichText text={job.description} className={styles.jobDesc} />
-                      {job.requirements?.length > 0 && (
-                        <div>
-                          <p className={styles.reqLabel}>Requirements</p>
-                          <ul className={styles.reqList}>
-                            {job.requirements.map((r, ri) => (
-                              <li key={ri} className={styles.reqItem}>
-                                <span className={styles.reqCheck}>✓</span> {r}
-                              </li>
-                            ))}
-                          </ul>
+              {openings.map((job, i) => {
+                const id       = job._id || job.id
+                const isOpen   = expandedId === id
+                const toggle   = () => setExpandedId(isOpen ? null : id)
+                return (
+                  <motion.div
+                    key={id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.07, duration: 0.6 }}
+                    className={`${styles.jobCard} ${isOpen ? styles.jobCardOpen : ''}`}
+                  >
+                    {/* Always-visible header row */}
+                    <button className={styles.jobHeader} onClick={toggle} aria-expanded={isOpen}>
+                      <div className={styles.jobInfo}>
+                        <div className={styles.jobBadges}>
+                          <span
+                            className={styles.jobBadge}
+                            style={deptStyle[job.department] || { background: '#f3f4f6', color: '#374151' }}
+                          >
+                            {job.department}
+                          </span>
+                          <span
+                            className={styles.jobBadge}
+                            style={typeStyle[job.type] || { background: '#f3f4f6', color: '#374151' }}
+                          >
+                            {job.type}
+                          </span>
+                          <span className={styles.jobLocation}>📍 {job.location}</span>
                         </div>
-                      )}
-                    </div>
-                    <button onClick={() => applyWhatsApp(job.title)} className={styles.jobApplyBtn}>
-                      Apply via WhatsApp <span>→</span>
+                        <h3 className={styles.jobTitle}>{job.title}</h3>
+                      </div>
+                      <div className={styles.jobHeaderRight}>
+                        <span className={`${styles.jobChevron} ${isOpen ? styles.jobChevronOpen : ''}`}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                        </span>
+                      </div>
                     </button>
-                  </div>
-                </motion.div>
-              ))}
+
+                    {/* Expandable body */}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="body"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: [0.33, 1, 0.68, 1] }}
+                          className={styles.jobBody}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <div className={styles.jobBodyInner}>
+                            <RichText text={job.description} className={styles.jobDesc} />
+                            {job.requirements?.length > 0 && (
+                              <div className={styles.reqBlock}>
+                                <p className={styles.reqLabel}>Requirements</p>
+                                <ul className={styles.reqList}>
+                                  {job.requirements.map((r, ri) => (
+                                    <li key={ri} className={styles.reqItem}>
+                                      <span className={styles.reqCheck}>✓</span> {r}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); applyWhatsApp(job.title) }}
+                              className={styles.jobApplyBtn}
+                            >
+                              Apply via WhatsApp <span>→</span>
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )
+              })}
             </div>
           )}
         </div>
