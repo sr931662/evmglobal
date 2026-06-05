@@ -72,6 +72,7 @@
 
 .visualWrap {
   margin-top: 2.75rem;
+  padding-bottom: 4rem;
 }
 
 .visualCard {
@@ -234,13 +235,14 @@
 }
 
 .noteTop {
-  top: 0.25rem;
-  right: 0;
+  top: -1.25rem;
+  right: -0.5rem;
+  transform: translateY(-100%);
 }
 
 .noteBottom {
-  left: 1rem;
-  bottom: 0.4rem;
+  left: 0.5rem;
+  bottom: -4.5rem;
 }
 
 .noteDot {
