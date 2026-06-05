@@ -64,7 +64,11 @@ export default function BentoSection() {
                 <div className={`${styles.icon} ${card.dark ? styles.iconDark : styles.iconLight}`}>
                   {card.icon}
                 </div>
-                <h3 className={`${styles.cardTitle} ${card.dark ? styles.cardTitleDark : styles.cardTitleLight}`}>
+                <h3 className={[
+                  styles.cardTitle,
+                  card.dark ? styles.cardTitleDark : styles.cardTitleLight,
+                  card.cta  ? styles.cardTitleFeatured : '',
+                ].filter(Boolean).join(' ')}>
                   {card.title}
                 </h3>
                 <p className={`${styles.cardDesc} ${card.dark ? styles.cardDescDark : styles.cardDescLight}`}>

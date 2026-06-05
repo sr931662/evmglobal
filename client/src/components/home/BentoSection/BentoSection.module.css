@@ -95,7 +95,7 @@
   .cardSpan2 { grid-column: span 2; }
   .cardRow2  { grid-row: span 2; }
 }
-.cardFullBottom { justify-content: flex-start; }
+.cardFullBottom { justify-content: space-between; }
 
 .cardGlow {
   position: absolute;
@@ -137,6 +137,9 @@
 .cardTitleLight { color: var(--dark); }
 .cardTitleDark  { color: #fff; }
 
+.cardTitleFeatured { font-size: 2.5rem; line-height: 1.1; margin-bottom: 1rem; }
+@media (min-width: 768px) { .cardTitleFeatured { font-size: 3rem; } }
+
 .cardDesc {
   font-size: 0.875rem;
   font-weight: 300;
@@ -149,7 +152,7 @@
 .ctaBtn {
   position: relative;
   z-index: 10;
-  margin-top: 1.5rem;
+  margin-top: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
