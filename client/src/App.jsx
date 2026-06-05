@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { useLenis, getLenis } from './hooks/useLenis'
@@ -93,6 +93,7 @@ function ProtectedAdmin() {
 function AnimatedRoutes() {
   const { user } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const isAdmin  = location.pathname.startsWith('/admin')
 
   return (
@@ -120,7 +121,7 @@ function AnimatedRoutes() {
             <Route index                           element={<ProfileSettings />} />
             <Route path="trips"                    element={<TripHistory />} />
           </Route>
-          <Route path="/admin/login"               element={user ? <Navigate to="/admin" replace /> : <AdminLogin onSuccess={() => {}} />} />
+          <Route path="/admin/login"               element={user ? <Navigate to="/admin" replace /> : <AdminLogin onSuccess={() => navigate('/admin', { replace: true })} />} />
           <Route path="/admin"                     element={<ProtectedAdmin />} />
         </Routes>
 
