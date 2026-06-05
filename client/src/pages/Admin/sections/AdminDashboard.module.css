@@ -113,8 +113,23 @@
   padding: 2rem;
   border: 1px solid #f3f4f6;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 @media (min-width: 1280px) { .chartCardWide { grid-column: span 2; } }
+
+/* Fix: global svg { height: auto } collapses Recharts SVG height attribute */
+.chartCard :global(svg),
+.chartCardWide :global(svg) {
+  display: block;
+  height: 100% !important;
+}
+
+/* Keep tooltip wrapper absolutely positioned, never in flow */
+.chartCard :global(.recharts-tooltip-wrapper),
+.chartCardWide :global(.recharts-tooltip-wrapper) {
+  position: absolute !important;
+  pointer-events: none;
+}
 
 .chartHead { margin-bottom: 2rem; }
 .chartTitle { font-size: 1.25rem; font-family: var(--font-serif); font-weight: 700; color: var(--dark); }
