@@ -218,15 +218,6 @@ function TripCard({ trip }) {
                 </div>
               </div>
             )}
-
-            <div className={styles.cancelRow}>
-              <Link
-                to={`/cancellation?ref=${trip.refNumber}`}
-                className={styles.cancelBtn}
-              >
-                Request Cancellation
-              </Link>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
