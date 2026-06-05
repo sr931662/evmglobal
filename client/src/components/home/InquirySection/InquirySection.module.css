@@ -70,6 +70,203 @@
 }
 .perkText { font-weight: 700; color: #374151; font-size: 0.875rem; }
 
+.visualWrap {
+  margin-top: 2.75rem;
+}
+
+.visualCard {
+  position: relative;
+  min-height: 26rem;
+  border-radius: 2.5rem;
+  overflow: visible;
+}
+
+.visualGlow {
+  position: absolute;
+  inset: 3rem 2rem 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(229, 57, 53, 0.16), transparent 42%),
+    radial-gradient(circle at 70% 70%, rgba(26, 115, 232, 0.1), transparent 38%),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.9), rgba(247, 248, 250, 0) 72%);
+  filter: blur(8px);
+}
+
+.postcard {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 34rem);
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 2rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow: 0 28px 55px -28px rgba(15, 23, 42, 0.28);
+}
+
+.postcardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.postcardEyebrow {
+  margin: 0;
+  color: var(--brand);
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+}
+
+.postcardTitle {
+  margin: 0.4rem 0 0;
+  color: var(--dark);
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  line-height: 1.05;
+  font-weight: 700;
+}
+
+.routePills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.routePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: #fff5f5;
+  border: 1px solid rgba(229, 57, 53, 0.14);
+  color: #9f2d29;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.photoStack {
+  position: relative;
+  height: 16rem;
+  margin-bottom: 1.2rem;
+}
+
+.photo {
+  position: absolute;
+  border-radius: 1.75rem;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.45);
+}
+
+.photoPrimary {
+  inset: 0 5.5rem 1.5rem 0;
+  background-image:
+    linear-gradient(180deg, rgba(10, 10, 10, 0.06), rgba(10, 10, 10, 0.3)),
+    url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80');
+}
+
+.photoSecondary {
+  right: 0;
+  bottom: 0;
+  width: 11rem;
+  height: 8rem;
+  border: 6px solid #fff;
+  background-image:
+    linear-gradient(180deg, rgba(10, 10, 10, 0.05), rgba(10, 10, 10, 0.18)),
+    url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80');
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 0.9rem;
+  border-radius: 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #edf0f3;
+}
+
+.statValue {
+  color: var(--dark);
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.statLabel {
+  color: #6b7280;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.floatingNote {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  max-width: 15rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.45);
+  color: #475569;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.noteTop {
+  top: 0.25rem;
+  right: 0;
+}
+
+.noteBottom {
+  left: 1rem;
+  bottom: 0.4rem;
+}
+
+.noteDot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ef4444, #f59e0b);
+  flex-shrink: 0;
+}
+
+.noteBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  background: var(--dark);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  flex-shrink: 0;
+}
+
 /* Right form */
 .formCard {
   background: #fff;
@@ -218,4 +415,16 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
+}
+
+@media (max-width: 1023px) {
+  .visualWrap {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .row3 {
+    grid-template-columns: 1fr;
+  }
 }

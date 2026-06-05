@@ -27,6 +27,11 @@ export default function InquirySection() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error,   setError]   = useState('')
+  const highlights = [
+    { value: '24h', label: 'First itinerary draft' },
+    { value: '50+', label: 'Handpicked destinations' },
+    { value: '4.9/5', label: 'Traveller satisfaction' },
+  ]
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
@@ -108,6 +113,42 @@ export default function InquirySection() {
                   <p className={styles.perkText}>{item.text}</p>
                 </div>
               ))}
+            </div>
+            <div className={styles.visualWrap} aria-hidden="true">
+              <div className={styles.visualCard}>
+                <div className={styles.visualGlow} />
+                <div className={styles.postcard}>
+                  <div className={styles.postcardTop}>
+                    <p className={styles.postcardEyebrow}>Tailored Journey</p>
+                    <p className={styles.postcardTitle}>Bali to Swiss Alps</p>
+                  </div>
+                  <div className={styles.routePills}>
+                    <span className={styles.routePill}>Romance</span>
+                    <span className={styles.routePill}>Private Tours</span>
+                    <span className={styles.routePill}>Visa Guided</span>
+                  </div>
+                  <div className={styles.photoStack}>
+                    <div className={`${styles.photo} ${styles.photoPrimary}`} />
+                    <div className={`${styles.photo} ${styles.photoSecondary}`} />
+                  </div>
+                  <div className={styles.statGrid}>
+                    {highlights.map(item => (
+                      <div key={item.label} className={styles.statCard}>
+                        <strong className={styles.statValue}>{item.value}</strong>
+                        <span className={styles.statLabel}>{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className={`${styles.floatingNote} ${styles.noteTop}`}>
+                  <span className={styles.noteDot} />
+                  Visa, stays, transfers and concierge bundled neatly.
+                </div>
+                <div className={`${styles.floatingNote} ${styles.noteBottom}`}>
+                  <span className={styles.noteBadge}>EMV</span>
+                  Built around your pace, budget and travel style.
+                </div>
+              </div>
             </div>
           </motion.div>
 
