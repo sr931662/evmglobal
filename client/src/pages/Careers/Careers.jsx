@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { openWhatsApp } from '../../utils/whatsapp'
 import { api } from '../../services/api'
+
+const CAREERS_EMAIL = 'info@easemyvacationsglobal.com'
 import styles from './Careers.module.css'
 
 function RichText({ text, className }) {
@@ -77,8 +78,8 @@ export default function Careers() {
       .finally(() => setLoading(false))
   }, [])
 
-  const applyWhatsApp = (role) => {
-    openWhatsApp(`Hi, I would like to apply for the ${role} position at EMV Global.`)
+  const applyEmail = (role) => {
+    window.location.href = `mailto:${CAREERS_EMAIL}?subject=${encodeURIComponent(`Application for ${role} — EMV Global`)}&body=${encodeURIComponent(`Hi,\n\nI would like to apply for the ${role} position at EMV Global.\n\nPlease find my details below:\n\n`)}`
   }
 
   return (
@@ -238,10 +239,10 @@ export default function Careers() {
                               </div>
                             )}
                             <button
-                              onClick={(e) => { e.stopPropagation(); applyWhatsApp(job.title) }}
+                              onClick={(e) => { e.stopPropagation(); applyEmail(job.title) }}
                               className={styles.jobApplyBtn}
                             >
-                              Apply via WhatsApp <span>→</span>
+                              Apply via Email <span>→</span>
                             </button>
                           </div>
                         </motion.div>
@@ -268,7 +269,7 @@ export default function Careers() {
             <h2 className={styles.ctaHeading}>Don't see your role?</h2>
             <p className={styles.ctaDesc}>We are always looking for talented people. Send us your CV and tell us how you can contribute.</p>
             <button
-              onClick={() => openWhatsApp('Hi, I would like to explore career opportunities at EMV Global.')}
+              onClick={() => { window.location.href = `mailto:${CAREERS_EMAIL}?subject=${encodeURIComponent('Career Enquiry — EMV Global')}&body=${encodeURIComponent('Hi,\n\nI would like to explore career opportunities at EMV Global.\n\n')}` }}
               className={styles.ctaBtn}
             >
               Get in Touch

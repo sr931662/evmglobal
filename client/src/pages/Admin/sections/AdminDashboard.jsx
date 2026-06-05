@@ -191,7 +191,7 @@ export default function AdminDashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#9CA3AF', fontWeight: 700 }} axisLine={false} tickLine={false} />
                   <YAxis hide />
-                  <Tooltip contentStyle={{ borderRadius: '1rem', border: '1px solid #F3F4F6', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }} />
+                  <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="inquiries" name="Inquiries" fill="#E53935" radius={[6,6,0,0]} />
                   <Bar dataKey="quotes"    name="Quotes"    fill="#FECACA" radius={[6,6,0,0]} />
                 </BarChart>
