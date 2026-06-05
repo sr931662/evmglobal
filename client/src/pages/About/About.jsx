@@ -266,7 +266,7 @@ export default function About() {
               19AAHCE1058Q2Z2
             </span>
             <span className={styles.legalDivider} />
-            <span className={styles.legalNote}>Ease My Vacations Global Private Limited · Registered in India</span>
+            <span className={styles.legalNote}>Global Ease My Vacations (OPC) Private Limited · Registered in India</span>
           </motion.div>
         </div>
       </section>

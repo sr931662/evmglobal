@@ -4,7 +4,7 @@ export default function CookiePolicy() {
   return (
     <LegalLayout
       title="Cookie Policy"
-      subtitle="Ease My Vacations Global Private Limited · Effective Date: 11 May 2026"
+      subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Introduction" />
       <P>This Cookie Policy explains how EMV uses cookies and similar technologies across its website, applications, and digital platforms.</P>

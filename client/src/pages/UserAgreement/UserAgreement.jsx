@@ -4,7 +4,7 @@ export default function UserAgreement() {
   return (
     <LegalLayout
       title="User Agreement"
-      subtitle="Ease My Vacations Global Private Limited · Effective Date: 11 May 2026"
+      subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Acceptance of Terms" />
       <P>By accessing or using the EMV Platform, you agree to comply with this User Agreement, Privacy Policy, and all applicable laws and regulations.</P>

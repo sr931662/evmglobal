@@ -75,7 +75,7 @@ export default function Footer() {
         </div>
 
         <div className={styles.bottom}>
-          <p className={styles.copy}>© {new Date().getFullYear()} Ease My Vacations Global Private Limited. All rights reserved.</p>
+          <p className={styles.copy}>© {new Date().getFullYear()} Global Ease My Vacations (OPC) Private Limited. All rights reserved.</p>
           <p className={styles.craft}>Crafted with precision. Delivered with passion.</p>
         </div>
       </div>

@@ -4,7 +4,7 @@ export default function TermsOfService() {
   return (
     <LegalLayout
       title="Terms of Service"
-      subtitle="Ease My Vacations Global Private Limited · Effective Date: 11 May 2026"
+      subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Scope" />
       <P>These Terms of Service govern the use of all EMV digital platforms, services, APIs, and associated travel services.</P>

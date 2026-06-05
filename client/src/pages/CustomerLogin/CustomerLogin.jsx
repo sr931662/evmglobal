@@ -153,7 +153,7 @@ export default function CustomerLogin() {
               </div>
             </motion.div>
           </div>
-          <p className={styles.leftFooter}>© {new Date().getFullYear()} Ease My Vacations Global Pvt. Ltd.</p>
+          <p className={styles.leftFooter}>© {new Date().getFullYear()} Global Ease My Vacations (OPC) Private Limited.</p>
         </div>
       </div>
 

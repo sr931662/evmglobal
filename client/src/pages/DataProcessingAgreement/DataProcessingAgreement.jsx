@@ -4,7 +4,7 @@ export default function DataProcessingAgreement() {
   return (
     <LegalLayout
       title="Data Processing Agreement"
-      subtitle="Ease My Vacations Global Private Limited · Effective Date: 11 May 2026"
+      subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Purpose" />
       <P>This Data Processing Agreement ("DPA") governs the processing of personal data by EMV on behalf of business partners, suppliers, affiliates, and enterprise customers.</P>

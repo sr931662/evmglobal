@@ -4,10 +4,10 @@ export default function PrivacyPolicy() {
   return (
     <LegalLayout
       title="Privacy Policy"
-      subtitle="Ease My Vacations Global Private Limited · Effective Date: 11 May 2026"
+      subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Introduction" />
-      <P>Ease My Vacations Global Private Limited ("EMV", "Ease My Vacations", "Company", "we", "our", or "us") values the privacy of its users and is committed to protecting personal information shared with us through our website, mobile applications, customer support channels, offices, call centers, and partner platforms ("Platform").</P>
+      <P>Global Ease My Vacations (OPC) Private Limited ("EMV", "Ease My Vacations", "Company", "we", "our", or "us") values the privacy of its users and is committed to protecting personal information shared with us through our website, mobile applications, customer support channels, offices, call centers, and partner platforms ("Platform").</P>
       <P>This Privacy Policy explains how we collect, use, process, store, disclose, and protect your personal information when you access or use our travel-related services including flights, hotels, holiday packages, visa services, travel insurance, transportation bookings, and other related offerings.</P>
 
       <Section title="2. Applicability" />
@@ -120,7 +120,7 @@ export default function PrivacyPolicy() {
       <Section title="14. Contact Information" />
       <Highlight>
         <Strong>Data Protection Officer</Strong><br />
-        Ease My Vacations Global Private Limited<br />
+        Global Ease My Vacations (OPC) Private Limited<br />
         CIN: U72900WB2022PTC254985 · GST: 19AAHCE1058Q2Z2<br />
         Enkay Tower, Cyber City, Phase V, Udyog Vihar, Sector 19, Gurugram, Haryana – 122016<br />
         Email: <Strong>info@easemyvacationsglobal.com</Strong>
