@@ -218,6 +218,15 @@ function TripCard({ trip }) {
                 </div>
               </div>
             )}
+
+            <div className={styles.cancelRow}>
+              <Link
+                to={`/cancellation-policy`}
+                className={styles.cancelBtn}
+              >
+                Read Cancellation Policy
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
