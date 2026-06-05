@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import styles from './AdminNavbar.module.css'
 
 const sectionTitles = {
   dashboard: 'Dashboard',
@@ -13,17 +14,17 @@ export default function AdminNavbar({ active, onLogout, user }) {
   const name    = user?.email?.split('@')[0] || 'Admin'
 
   return (
-    <header className="fixed top-0 inset-x-0 z-40 h-[64px] bg-white border-b border-gray-100 flex items-center px-5 md:px-8 gap-4 shadow-sm">
+    <header className={styles.header}>
       {/* Brand */}
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="w-8 h-8 bg-dark rounded-xl flex items-center justify-center text-white font-bold font-serif text-base shadow-sm">E</div>
-        <div className="hidden sm:block">
-          <p className="font-black text-xs tracking-[0.25em] uppercase text-dark leading-none">EMV</p>
-          <p className="text-[9px] text-gray-400 font-medium leading-none mt-0.5">Admin</p>
+      <div className={styles.brand}>
+        <div className={styles.logo}>E</div>
+        <div className={styles.brandText}>
+          <p className={styles.brandName}>EMV</p>
+          <p className={styles.brandSub}>Admin</p>
         </div>
       </div>
 
-      <div className="w-px h-6 bg-gray-200 mx-1 hidden md:block" />
+      <div className={styles.divider} />
 
       {/* Current section title */}
       <motion.h1
@@ -31,34 +32,30 @@ export default function AdminNavbar({ active, onLogout, user }) {
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className="hidden md:block text-sm font-black text-dark tracking-[0.15em] uppercase"
+        className={styles.sectionTitle}
       >
         {sectionTitles[active] || 'Dashboard'}
       </motion.h1>
 
-      <div className="flex-1" />
+      <div className={styles.spacer} />
 
       {/* Right side */}
-      <div className="flex items-center gap-3">
+      <div className={styles.right}>
         {/* User pill */}
-        <div className="hidden sm:flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-full pl-1 pr-4 py-1">
-          <div className="w-7 h-7 bg-brand rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+        <div className={styles.userPill}>
+          <div className={styles.avatar}>
             {initial}
           </div>
-          <div className="leading-none">
-            <p className="text-xs font-bold text-dark capitalize">{name}</p>
-            <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mt-0.5">{user?.role || 'Admin'}</p>
+          <div className={styles.userText}>
+            <p className={styles.userName}>{name}</p>
+            <p className={styles.userRole}>{user?.role || 'Admin'}</p>
           </div>
         </div>
 
         {/* Sign out */}
-        <button
-          onClick={onLogout}
-          className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-gray-500 hover:bg-red-50 hover:text-red-500 border border-gray-200 hover:border-red-100 transition-colors"
-          title="Sign out"
-        >
-          <span className="text-sm">→</span>
-          <span className="hidden sm:inline">Sign Out</span>
+        <button onClick={onLogout} className={styles.signout} title="Sign out">
+          <span className={styles.signoutArrow}>→</span>
+          <span className={styles.signoutLabel}>Sign Out</span>
         </button>
       </div>
     </header>

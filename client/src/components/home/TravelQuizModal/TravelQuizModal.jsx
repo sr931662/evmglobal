@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from
 import { api } from '../../../services/api'
 import { openWhatsApp } from '../../../utils/whatsapp'
 import { getLenis } from '../../../hooks/useLenis'
+import styles from './TravelQuizModal.module.css'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -274,27 +275,25 @@ function ImageCard({ option, selected, onClick, index, isMobile }) {
           ? { transformStyle: 'flat' }
           : { rotateX: srx, rotateY: sry, transformStyle: 'preserve-3d' }
         }
-        className={`relative w-full block rounded-2xl overflow-hidden cursor-pointer text-left ring-2 ${
-          selected ? 'ring-brand' : 'ring-transparent hover:ring-white/25'
-        }`}
+        className={`${styles.imgCard} ${selected ? styles.imgCardSelected : ''}`}
       >
-        <div style={{ aspectRatio: '4/3', position: 'relative', overflow: 'hidden' }}>
+        <div className={styles.imgFrame}>
           <motion.img
             src={option.img}
             alt={option.label}
-            className="w-full h-full object-cover"
+            className={styles.coverImg}
             loading="lazy"
             whileHover={isMobile ? undefined : { scale: 1.08 }}
             transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-transparent" />
+          <div className={styles.imgGradient} />
 
           <AnimatePresence>
             {selected && (
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-brand/25"
+                className={styles.imgSelectedTint}
               />
             )}
           </AnimatePresence>
@@ -306,18 +305,18 @@ function ImageCard({ option, selected, onClick, index, isMobile }) {
                 animate={{ scale: 1, rotate: 0 }}
                 exit={{ scale: 0, rotate: 45 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                className="absolute top-2.5 right-2.5 w-7 h-7 bg-brand rounded-full flex items-center justify-center shadow-glow"
+                className={styles.checkBadge}
               >
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="absolute bottom-0 left-0 right-0 p-3">
-            <p className="text-white font-bold text-sm leading-tight">{option.label}</p>
-            <p style={{ color: 'rgba(255,255,255,0.7)' }} className="text-[11px] mt-0.5 font-medium">{option.sub}</p>
+          <div className={styles.imgCaption}>
+            <p className={styles.imgLabel}>{option.label}</p>
+            <p className={styles.imgSub}>{option.sub}</p>
           </div>
         </div>
       </motion.button>
@@ -342,11 +341,7 @@ function IconCard({ option, selected, onClick, index, isMobile }) {
       whileHover={isMobile ? undefined : { y: -5, scale: 1.03 }}
       whileTap={{ scale: 0.93 }}
       style={{ willChange: 'transform' }}
-      className={`relative rounded-2xl p-5 cursor-pointer text-left border-2 overflow-hidden ${
-        selected
-          ? 'border-brand bg-brand/10'
-          : 'border-white/15 bg-white/6 hover:border-white/25'
-      }`}
+      className={`${styles.iconCard} ${selected ? styles.iconCardSelected : ''}`}
     >
       <AnimatePresence>
         {selected && (
@@ -355,7 +350,7 @@ function IconCard({ option, selected, onClick, index, isMobile }) {
             animate={{ scale: 4, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full pointer-events-none"
+            className={styles.iconGlow}
             style={{ backgroundColor: option.accent, filter: 'blur(24px)', opacity: 0.2 }}
           />
         )}
@@ -368,9 +363,9 @@ function IconCard({ option, selected, onClick, index, isMobile }) {
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-            className="absolute top-3 right-3 w-6 h-6 bg-brand rounded-full flex items-center justify-center"
+            className={styles.iconCheck}
           >
-            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </motion.div>
@@ -378,15 +373,15 @@ function IconCard({ option, selected, onClick, index, isMobile }) {
       </AnimatePresence>
 
       <motion.div
-        className="text-4xl mb-3 leading-none relative"
+        className={styles.iconEmoji}
         animate={selected ? { scale: [1, 1.3, 1], rotate: [0, -12, 12, 0] } : { scale: 1, rotate: 0 }}
         transition={{ duration: 0.45, ease: 'backOut' }}
       >
         {option.icon}
       </motion.div>
 
-      <p className="relative text-white font-bold text-sm">{option.label}</p>
-      <p className="relative text-[11px] mt-0.5 font-medium leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>{option.sub}</p>
+      <p className={styles.iconLabel}>{option.label}</p>
+      <p className={styles.iconSub}>{option.sub}</p>
     </motion.button>
   )
 }
@@ -677,10 +672,10 @@ export default function TravelQuizModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
+            className={styles.overlay}
           >
             {/* Cinematic background */}
-            <div className="absolute inset-0 overflow-hidden">
+            <div className={styles.bgLayer}>
               <AnimatePresence>
                 <motion.div
                   key={bgKey}
@@ -688,20 +683,20 @@ export default function TravelQuizModal() {
                   animate={{ opacity: 1, scale: 1.06 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1.2, ease: [0.32, 0.72, 0, 1] }}
-                  className="absolute inset-0"
+                  className={styles.bgFill}
                   style={{ willChange: 'transform, opacity' }}
                 >
                   <motion.img
                     src={bgSrc}
                     alt=""
-                    className="w-full h-full object-cover"
+                    className={styles.coverImg}
                     style={isMobile ? undefined : { x: bgOffX, y: bgOffY }}
                   />
                 </motion.div>
               </AnimatePresence>
 
-              <div className="absolute inset-0 bg-black/65" />
-              <div className="absolute inset-0 hero-vignette opacity-50" />
+              <div className={styles.bgDim} />
+              <div className={`${styles.bgVignette} hero-vignette`} />
             </div>
 
             {/* Ambient orbs & particles — desktop only */}
@@ -710,30 +705,30 @@ export default function TravelQuizModal() {
 
             {done && <ConfettiBurst />}
 
-            <div className="absolute inset-0" onClick={closeModal} />
+            <div className={styles.clickCatcher} onClick={closeModal} />
 
             {/* Panel */}
             <motion.div
               key="panel"
               {...panelAnimate}
               onClick={e => e.stopPropagation()}
-              className="relative z-10 w-full max-w-2xl flex flex-col max-h-[92vh] rounded-3xl border border-white/12 shadow-[0_30px_80px_-10px_rgba(0,0,0,0.85)] overflow-hidden"
+              className={styles.panel}
               style={{ ...panelStyle, willChange: 'transform, opacity' }}
             >
               {/* Corner glow */}
-              <div className="absolute -top-20 -left-20 w-44 h-44 bg-brand/18 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-brand/12 rounded-full blur-3xl pointer-events-none" />
+              <div className={styles.cornerGlowTL} />
+              <div className={styles.cornerGlowBR} />
 
               {/* Progress bar */}
-              <div className="h-[3px] shrink-0 relative overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+              <div className={styles.progressTrack}>
                 <motion.div
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-brand via-red-400 to-brand"
+                  className={styles.progressFill}
                   animate={{ width: `${progressPct}%` }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
                 />
                 {!isMobile && (
                   <motion.div
-                    className="absolute inset-y-0 w-12 bg-white/40"
+                    className={styles.progressShine}
                     animate={{ x: ['-100%', '2000%'] }}
                     transition={{ duration: 2.5, repeat: Infinity, delay: 1, ease: 'linear' }}
                     style={{ filter: 'blur(6px)' }}
@@ -742,12 +737,12 @@ export default function TravelQuizModal() {
               </div>
 
               {/* Top bar */}
-              <div className="flex items-center justify-between px-6 pt-5 pb-3 shrink-0">
-                <div className="flex items-center gap-2">
+              <div className={styles.topBar}>
+                <div className={styles.stepDots}>
                   {!done && STEPS.map((s, i) => (
                     <motion.div
                       key={s}
-                      className={`h-[3px] rounded-full ${i <= step ? 'bg-brand' : 'bg-white/18'}`}
+                      className={`${styles.stepDot} ${i <= step ? styles.stepDotActive : styles.stepDotInactive}`}
                       animate={{ width: i === step ? 26 : i < step ? 10 : 7 }}
                       transition={{ duration: 0.4, type: 'spring', stiffness: 200 }}
                     />
@@ -769,17 +764,17 @@ export default function TravelQuizModal() {
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                   transition={{ duration: 0.18 }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  className={styles.closeBtn}
                   style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.55)' }}
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </motion.button>
               </div>
 
               {/* Scrollable body */}
-              <div className="flex-1 overflow-y-auto no-scrollbar px-6 pb-6">
+              <div className={`${styles.body} no-scrollbar`}>
                 <AnimatePresence mode="wait" custom={dir}>
 
                   {/* SUCCESS */}
@@ -789,12 +784,12 @@ export default function TravelQuizModal() {
                       initial={{ opacity: 0, scale: 0.9, y: 16 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                      className="py-10 text-center relative"
+                      className={styles.success}
                     >
                       {['🌍','✈️','🏖️','🗺️','🎊'].map((emoji, i) => (
                         <motion.div
                           key={i}
-                          className="absolute text-2xl pointer-events-none select-none"
+                          className={styles.floatEmoji}
                           style={{ left: `${10 + i * 20}%`, top: '10%' }}
                           initial={{ y: 0, opacity: 0 }}
                           animate={{ y: [-10, -35, -10], opacity: [0, 1, 0] }}
@@ -808,12 +803,12 @@ export default function TravelQuizModal() {
                         initial={{ scale: 0, rotate: -18 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ delay: 0.1, type: 'spring', stiffness: 220, damping: 16 }}
-                        className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center text-5xl relative"
+                        className={styles.successIcon}
                         style={{ background: 'linear-gradient(135deg, rgba(229,57,53,0.2), rgba(229,57,53,0.05))', border: '1px solid rgba(229,57,53,0.3)' }}
                       >
                         ✈️
                         <motion.div
-                          className="absolute inset-[-6px] rounded-full border-2 border-dashed border-brand/40"
+                          className={styles.successRing}
                           animate={{ rotate: 360 }}
                           transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
                         />
@@ -824,10 +819,10 @@ export default function TravelQuizModal() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.25 }}
                       >
-                        <h2 className="text-3xl font-serif font-bold text-white mb-3">Your Journey Awaits! 🎉</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.6)' }} className="text-sm font-medium leading-relaxed max-w-xs mx-auto">
+                        <h2 className={styles.successTitle}>Your Journey Awaits! 🎉</h2>
+                        <p className={styles.successText}>
                           Our travel concierge will craft your personalised itinerary and reach out within{' '}
-                          <span className="text-white font-bold">24 hours</span>.
+                          <span className={styles.successTextStrong}>24 hours</span>.
                         </p>
                       </motion.div>
 
@@ -835,11 +830,11 @@ export default function TravelQuizModal() {
                         initial={{ opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.42 }}
-                        className="mt-6 mx-auto max-w-sm rounded-2xl p-4 text-left"
+                        className={styles.profileBox}
                         style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
                       >
                         <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.625rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '0.75rem' }}>Your Trip Profile</p>
-                        <div className="grid grid-cols-2 gap-2.5">
+                        <div className={styles.profileGrid}>
                           {[
                             { icon: '🌍', key: 'Destination', val: answers.destination?.label },
                             { icon: '📅', key: 'Season',      val: answers.season?.label },
@@ -851,13 +846,13 @@ export default function TravelQuizModal() {
                               initial={{ opacity: 0, x: i % 2 === 0 ? -10 : 10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.52 + i * 0.07 }}
-                              className="flex items-center gap-2 rounded-xl px-3 py-2"
+                              className={styles.profileItem}
                               style={{ background: 'rgba(255,255,255,0.06)' }}
                             >
-                              <span className="text-lg">{x.icon}</span>
+                              <span className={styles.profileEmoji}>{x.icon}</span>
                               <div>
                                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.5625rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{x.key}</p>
-                                <p className="text-white font-bold text-xs">{x.val}</p>
+                                <p className={styles.profileVal}>{x.val}</p>
                               </div>
                             </motion.div>
                           ))}
@@ -871,12 +866,12 @@ export default function TravelQuizModal() {
                         whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
                         onClick={() => { reset(); closeModal() }}
-                        className="mt-7 px-8 py-3 bg-brand text-white rounded-full font-bold text-sm hover:bg-brand-hover transition-colors shadow-glow"
+                        className={styles.closeExploreBtn}
                       >
                         Close &amp; Explore Packages →
                       </motion.button>
 
-                      <div className="mt-4 flex gap-3 justify-center">
+                      <div className={styles.altBtnRow}>
                         <button
                           onClick={() => {
                             const parts = [
@@ -892,7 +887,7 @@ export default function TravelQuizModal() {
                             const msg = `New lead from Trip Planner Quiz:\n${parts}\n\nPlease create a draft quote and follow up.`
                             openWhatsApp(msg)
                           }}
-                          className="px-6 py-2 rounded-full bg-white text-dark font-bold text-sm hover:bg-gray-100 transition-colors"
+                          className={styles.waBtn}
                         >
                           Request Quote on WhatsApp
                         </button>
@@ -911,7 +906,7 @@ export default function TravelQuizModal() {
                             navigator.clipboard?.writeText(details)
                             alert('Lead details copied to clipboard — paste into your CRM or WhatsApp.')
                           }}
-                          className="px-4 py-2 rounded-full bg-transparent text-white font-bold text-sm border border-white/10 hover:bg-white/5 transition-colors"
+                          className={styles.copyBtn}
                         >
                           Copy Details
                         </button>
@@ -931,7 +926,7 @@ export default function TravelQuizModal() {
                       <StepQuestion stepKey={currentStepKey} isMobile={isMobile} />
 
                       {currentStepKey === 'destination' && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+                        <div className={styles.gridDest}>
                           {DESTINATIONS.map((d, i) => (
                             <ImageCard key={d.id} option={d} index={i} isMobile={isMobile}
                               selected={answers.destination?.id === d.id}
@@ -942,7 +937,7 @@ export default function TravelQuizModal() {
                       )}
 
                       {currentStepKey === 'season' && (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className={styles.gridTwo}>
                           {SEASONS.map((s, i) => (
                             <IconCard key={s.id} option={s} index={i} isMobile={isMobile}
                               selected={answers.season?.id === s.id}
@@ -953,7 +948,7 @@ export default function TravelQuizModal() {
                       )}
 
                       {currentStepKey === 'travellers' && (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className={styles.gridTwo}>
                           {TRAVELLERS.map((t, i) => (
                             <IconCard key={t.id} option={t} index={i} isMobile={isMobile}
                               selected={answers.travellers?.id === t.id}
@@ -964,7 +959,7 @@ export default function TravelQuizModal() {
                       )}
 
                       {currentStepKey === 'budget' && (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className={styles.gridTwo}>
                           {BUDGETS.map((b, i) => (
                             <IconCard key={b.id} option={b} index={i} isMobile={isMobile}
                               selected={answers.budget?.id === b.id}
@@ -983,7 +978,7 @@ export default function TravelQuizModal() {
                           transition={{ delay: 0.15 }}
                         >
                           {/* Recap chips */}
-                          <div className="flex flex-wrap gap-2 mb-1">
+                          <div className={styles.chips}>
                             {[
                               answers.destination && { icon: '🌍', val: answers.destination.label },
                               answers.season      && { icon: '📅', val: answers.season.label },
@@ -995,7 +990,7 @@ export default function TravelQuizModal() {
                                 initial={{ opacity: 0, scale: 0.75 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: i * 0.06 }}
-                                className="flex items-center gap-1.5 px-3 py-1 rounded-full font-bold"
+                                className={styles.chip}
                                 style={{ background: 'rgba(229,57,53,0.15)', border: '1px solid rgba(229,57,53,0.3)', color: '#ff6b6b', fontSize: '0.6875rem' }}
                               >
                                 {x.icon} {x.val}
@@ -1031,7 +1026,7 @@ export default function TravelQuizModal() {
                               </label>
                               <input
                                 type={type}
-                                className="quiz-input"
+                                className={styles.quizInput}
                                 autoComplete={key}
                                 value={contact[key]}
                                 onChange={e => setContact(p => ({ ...p, [key]: e.target.value }))}
@@ -1078,15 +1073,14 @@ export default function TravelQuizModal() {
                       )}
 
                       {/* Navigation */}
-                      <div className="flex items-center justify-between mt-6 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                      <div className={styles.nav}>
                         <motion.button
                           onClick={step > 0 ? goBack : closeModal}
                           whileHover={{ x: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex items-center gap-1.5 px-4 py-2.5 font-bold text-sm transition-colors"
-                          style={{ color: 'rgba(255,255,255,0.5)' }}
+                          className={styles.backBtn}
                         >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                           </svg>
                           {step > 0 ? 'Back' : 'Skip for now'}
@@ -1097,20 +1091,20 @@ export default function TravelQuizModal() {
                           disabled={!canProceed() || loading}
                           whileHover={canProceed() && !loading ? { scale: 1.04, boxShadow: '0 0 28px rgba(229,57,53,0.5)' } : undefined}
                           whileTap={canProceed() && !loading ? { scale: 0.95 } : undefined}
-                          className="relative flex items-center gap-2.5 px-6 py-3 bg-brand text-white rounded-full font-bold text-sm hover:bg-brand-hover transition-all shadow-glow disabled:opacity-30 disabled:cursor-not-allowed overflow-hidden"
+                          className={styles.nextBtn}
                           style={{ willChange: 'transform' }}
                         >
                           {!isMobile && (
                             <motion.div
-                              className="absolute inset-0 bg-white/15 -skew-x-12"
+                              className={styles.nextShine}
                               animate={{ x: ['-200%', '200%'] }}
                               transition={{ duration: 2.5, repeat: Infinity, delay: 1.5, ease: 'linear' }}
                             />
                           )}
-                          <span className="relative flex items-center gap-2.5">
+                          <span className={styles.nextInner}>
                             {loading ? (
                               <>
-                                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                <span className={styles.btnSpinner} />
                                 Building your dream…
                               </>
                             ) : currentStepKey === 'contact' ? (
@@ -1118,7 +1112,7 @@ export default function TravelQuizModal() {
                             ) : (
                               <>
                                 Continue
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                                 </svg>
                               </>
@@ -1134,18 +1128,6 @@ export default function TravelQuizModal() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style>{`
-        .quiz-input::placeholder { color: rgba(255,255,255,0.38) !important; }
-        .quiz-input:-webkit-autofill,
-        .quiz-input:-webkit-autofill:hover,
-        .quiz-input:-webkit-autofill:focus {
-          -webkit-text-fill-color: #fff !important;
-          -webkit-box-shadow: 0 0 0 1000px rgba(30,10,10,0.95) inset !important;
-          transition: background-color 9999s ease-in-out 0s;
-          caret-color: #E53935;
-        }
-      `}</style>
     </>
   )
 }

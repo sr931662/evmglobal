@@ -1,0 +1,395 @@
+/* ── Image (destination) card ── */
+.imgCard {
+  position: relative;
+  width: 100%;
+  display: block;
+  border-radius: 1rem;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 0.2s;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.imgCard:hover { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25); }
+.imgCardSelected,
+.imgCardSelected:hover { box-shadow: 0 0 0 2px var(--brand); }
+
+.imgFrame { aspect-ratio: 4 / 3; position: relative; overflow: hidden; }
+.coverImg { width: 100%; height: 100%; object-fit: cover; }
+
+.imgGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.15) 50%, transparent 100%);
+}
+.imgSelectedTint { position: absolute; inset: 0; background: rgba(229, 57, 53, 0.25); }
+
+.checkBadge {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: var(--brand);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow);
+}
+.checkBadge svg { width: 1rem; height: 1rem; color: #fff; }
+
+.imgCaption { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.75rem; }
+.imgLabel { color: #fff; font-weight: 700; font-size: 0.875rem; line-height: 1.25; }
+.imgSub { font-size: 11px; margin-top: 0.125rem; font-weight: 500; color: rgba(255, 255, 255, 0.7); }
+
+/* ── Icon card ── */
+.iconCard {
+  position: relative;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  text-align: left;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.iconCard:hover { border-color: rgba(255, 255, 255, 0.25); }
+.iconCardSelected,
+.iconCardSelected:hover {
+  border-color: var(--brand);
+  background: rgba(229, 57, 53, 0.1);
+}
+
+.iconGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.iconCheck {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--brand);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iconCheck svg { width: 0.875rem; height: 0.875rem; color: #fff; }
+
+.iconEmoji { font-size: 2.25rem; margin-bottom: 0.75rem; line-height: 1; position: relative; }
+.iconLabel { position: relative; color: #fff; font-weight: 700; font-size: 0.875rem; }
+.iconSub { position: relative; font-size: 11px; margin-top: 0.125rem; font-weight: 500; line-height: 1.625; color: rgba(255, 255, 255, 0.55); }
+
+/* ── Modal shell ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+@media (min-width: 768px) { .overlay { padding: 2rem; } }
+
+.bgLayer { position: absolute; inset: 0; overflow: hidden; }
+.bgFill { position: absolute; inset: 0; }
+.bgDim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); }
+.bgVignette { position: absolute; inset: 0; opacity: 0.5; }
+.clickCatcher { position: absolute; inset: 0; }
+
+.panel {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 42rem;
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+}
+
+.cornerGlowTL {
+  position: absolute;
+  top: -5rem;
+  left: -5rem;
+  width: 11rem;
+  height: 11rem;
+  background: rgba(229, 57, 53, 0.18);
+  border-radius: 9999px;
+  filter: blur(64px);
+  pointer-events: none;
+}
+.cornerGlowBR {
+  position: absolute;
+  bottom: -5rem;
+  right: -5rem;
+  width: 11rem;
+  height: 11rem;
+  background: rgba(229, 57, 53, 0.12);
+  border-radius: 9999px;
+  filter: blur(64px);
+  pointer-events: none;
+}
+
+/* ── Progress bar ── */
+.progressTrack {
+  height: 3px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+.progressFill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to right, var(--brand), #f87171, var(--brand));
+}
+.progressShine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Top bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0.75rem;
+  flex-shrink: 0;
+}
+.stepDots { display: flex; align-items: center; gap: 0.5rem; }
+.stepDot { height: 3px; border-radius: 9999px; }
+.stepDotActive { background: var(--brand); }
+.stepDotInactive { background: rgba(255, 255, 255, 0.18); }
+
+.closeBtn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+.closeBtn svg { width: 1rem; height: 1rem; }
+
+/* ── Body ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* ── Success ── */
+.success { padding: 2.5rem 0; text-align: center; position: relative; }
+.floatEmoji {
+  position: absolute;
+  font-size: 1.5rem;
+  pointer-events: none;
+  user-select: none;
+}
+.successIcon {
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto 1.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  position: relative;
+}
+.successRing {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px dashed rgba(229, 57, 53, 0.4);
+}
+.successTitle {
+  font-size: 1.875rem;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+.successText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.625;
+  max-width: 20rem;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.6);
+}
+.successTextStrong { color: #fff; font-weight: 700; }
+
+.profileBox {
+  margin: 1.5rem auto 0;
+  max-width: 24rem;
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: left;
+}
+.profileGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.625rem; }
+.profileItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+.profileEmoji { font-size: 1.125rem; }
+.profileVal { color: #fff; font-weight: 700; font-size: 0.75rem; }
+
+.closeExploreBtn {
+  margin-top: 1.75rem;
+  padding: 0.75rem 2rem;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: background-color 0.2s;
+}
+.closeExploreBtn:hover { background: var(--brand-hover); }
+
+.altBtnRow { margin-top: 1rem; display: flex; gap: 0.75rem; justify-content: center; }
+.waBtn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  background: #fff;
+  color: var(--dark);
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.waBtn:hover { background: #f3f4f6; }
+.copyBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.copyBtn:hover { background: rgba(255, 255, 255, 0.05); }
+
+/* ── Step option grids ── */
+.gridDest {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+}
+@media (min-width: 768px) { .gridDest { grid-template-columns: repeat(3, 1fr); } }
+.gridTwo { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+
+/* ── Contact form ── */
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.25rem; }
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+/* ── Navigation ── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  color: rgba(255, 255, 255, 0.5);
+}
+.backBtn svg { width: 1rem; height: 1rem; }
+
+.nextBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  overflow: hidden;
+  transition: background-color 0.2s;
+}
+.nextBtn:hover { background: var(--brand-hover); }
+.nextBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+.nextShine {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  transform: skewX(-12deg);
+}
+.nextInner { position: relative; display: flex; align-items: center; gap: 0.625rem; }
+.nextInner svg { width: 1rem; height: 1rem; }
+.btnSpinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+}
+
+/* ── Inputs ── */
+.quizInput::placeholder { color: rgba(255, 255, 255, 0.38) !important; }
+.quizInput:-webkit-autofill,
+.quizInput:-webkit-autofill:hover,
+.quizInput:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(30, 10, 10, 0.95) inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: #E53935;
+}

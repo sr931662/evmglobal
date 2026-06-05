@@ -37,7 +37,7 @@ export default function Loader({ onComplete }) {
               </motion.div>
             </div>
 
-            <div className="overflow-hidden">
+            <div className={styles.textMask}>
               <motion.p
                 className={styles.text}
                 initial={{ y: '110%', opacity: 0 }}

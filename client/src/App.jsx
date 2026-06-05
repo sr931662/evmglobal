@@ -16,6 +16,7 @@ import Loader from './components/layout/Loader/Loader'
 import CustomCursor from './components/layout/CustomCursor/CustomCursor'
 import TravelQuizModal from './components/home/TravelQuizModal/TravelQuizModal'
 import CookieConsent from './components/layout/CookieConsent/CookieConsent'
+import styles from './App.module.css'
 
 import Home from './pages/Home/Home'
 import Destinations from './pages/Destinations/Destinations'
@@ -62,8 +63,8 @@ function ProtectedCustomer() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      <div className={styles.loadingScreen}>
+        <div className={styles.spinner} />
       </div>
     )
   }
@@ -79,8 +80,8 @@ function ProtectedAdmin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      <div className={styles.loadingScreen}>
+        <div className={styles.spinner} />
       </div>
     )
   }
@@ -136,7 +137,7 @@ function AppShell() {
   useGoogleAnalytics()
 
   return (
-    <div className="flex flex-col min-h-screen w-full overflow-x-hidden text-dark selection:bg-brand selection:text-white">
+    <div className={styles.shell}>
       <ScrollToTop />
       <CustomCursor />
       {!isAdmin && <Navbar />}

@@ -313,3 +313,25 @@
   transition: background-color 0.2s;
 }
 .backBtn:hover { background: #e5e7eb; }
+
+/* Step progress */
+.stepProgress { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+.stepCol { flex: 1; }
+.stepBar {
+  height: 0.25rem;
+  border-radius: 9999px;
+  background: #e5e7eb;
+  transition: background-color 0.2s;
+}
+.stepBarActive { background: var(--brand); }
+.stepLabel {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 0.25rem;
+  color: #9ca3af;
+}
+.stepLabelActive { color: var(--brand); }
+
+.btnRow { display: flex; gap: 0.75rem; }

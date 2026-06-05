@@ -1,0 +1,69 @@
+/* Region colours (colour only — combine with adminCommon .pill / local .imgBadge) */
+.regionBlue   { background: #eff6ff; color: #1d4ed8; border-color: #dbeafe; }
+.regionGreen  { background: #f0fdf4; color: #15803d; border-color: #dcfce7; }
+.regionOrange { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
+.regionYellow { background: #fefce8; color: #a16207; border-color: #fef9c3; }
+.regionTeal   { background: #f0fdfa; color: #0f766e; border-color: #ccfbf1; }
+.regionPurple { background: #faf5ff; color: #7e22ce; border-color: #f3e8ff; }
+.regionGray   { background: #f9fafb; color: #4b5563; border-color: #f3f4f6; }
+
+.card {
+  background: #fff;
+  border-radius: 1.5rem;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+.card:hover { transform: translateY(-0.25rem); }
+
+.imgWrap { position: relative; height: 11rem; overflow: hidden; background: #f3f4f6; }
+.img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+.card:hover .img { transform: scale(1.05); }
+.imgOverlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent); }
+.imgBadge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 9px;
+  font-weight: 900;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.info { padding: 1.25rem; }
+.name { font-family: var(--font-serif); font-weight: 700; color: var(--dark); font-size: 1.125rem; line-height: 1.25; }
+.country { color: #9ca3af; font-size: 0.875rem; font-weight: 700; margin-top: 0.125rem; }
+.price { color: var(--brand); font-size: 0.75rem; font-weight: 900; margin-top: 0.25rem; }
+
+.cardBtns { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.editBtn, .delBtn {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.625rem;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #4b5563;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+.editBtn:hover { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+.delBtn:hover { color: #ef4444; border-color: #fecaca; background: #fef2f2; }
+.delBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.modalImgPreview {
+  margin-bottom: 1.5rem;
+  height: 9rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
+  background: #f9fafb;
+}
+.modalImgPreview img { width: 100%; height: 100%; object-fit: cover; }

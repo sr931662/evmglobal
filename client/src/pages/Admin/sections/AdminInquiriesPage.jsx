@@ -2,16 +2,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import c from './adminCommon.module.css'
+import styles from './AdminInquiriesPage.module.css'
 
 const STATUS_OPTIONS = ['All', 'new', 'contacted', 'qualified', 'converted', 'rejected']
 const STATUS_EDITABLE = STATUS_OPTIONS.slice(1)
 
 const statusStyles = {
-  new:       'bg-blue-50 text-blue-700 border-blue-100',
-  contacted: 'bg-yellow-50 text-yellow-700 border-yellow-100',
-  qualified: 'bg-purple-50 text-purple-700 border-purple-100',
-  converted: 'bg-green-50 text-green-700 border-green-100',
-  rejected:  'bg-red-50 text-red-500 border-red-100',
+  new:       c.badgeBlue,
+  contacted: c.badgeYellow,
+  qualified: c.badgePurple,
+  converted: c.badgeGreen,
+  rejected:  c.badgeRed,
 }
 
 const emptyForm = {
@@ -68,37 +70,37 @@ function InquiryModal({ inquiry, onClose, onSave }) {
   ]
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className={c.overlay} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2.5rem] p-10 w-full max-w-lg shadow-premium border border-gray-100 max-h-[90vh] overflow-y-auto"
+        className={`${c.modal} ${c.modalScroll}`}
       >
-        <h3 className="text-3xl font-serif font-bold text-dark mb-8">
+        <h3 className={c.modalTitle}>
           {isEdit ? 'Edit Inquiry' : 'Add Inquiry'}
         </h3>
 
-        <div className="space-y-5">
+        <div className={c.stack}>
           {textFields.map(field => (
             <div key={field.key}>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">
-                {field.label}{field.required && <span className="text-brand ml-1">*</span>}
+              <label className={c.label}>
+                {field.label}{field.required && <span className={c.req}> *</span>}
               </label>
               <input
                 type="text"
                 placeholder={field.placeholder}
                 value={form[field.key]}
                 onChange={e => f(field.key, e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
+                className={c.input}
               />
             </div>
           ))}
 
           <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">
+            <label className={c.label}>
               Trip Description
             </label>
             <textarea
@@ -106,32 +108,32 @@ function InquiryModal({ inquiry, onClose, onSave }) {
               placeholder="What are they looking for?"
               value={form.message}
               onChange={e => f('message', e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors resize-none"
+              className={`${c.input} ${c.textarea}`}
             />
           </div>
 
           <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Status</label>
+            <label className={c.label}>Status</label>
             <select
               value={form.status}
               onChange={e => f('status', e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer capitalize"
+              className={`${c.input} ${c.select}`}
             >
-              {STATUS_EDITABLE.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+              {STATUS_EDITABLE.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
         </div>
 
-        {err && <p className="mt-4 text-red-500 text-sm font-bold">{err}</p>}
+        {err && <p className={c.formError}>{err}</p>}
 
-        <div className="flex gap-4 mt-8">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">
+        <div className={c.modalActions}>
+          <button onClick={onClose} className={`${c.btnOutline} ${c.flex1}`}>
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50"
+            className={`${c.btnBrand} ${c.flex1}`}
           >
             {saving ? 'Saving…' : isEdit ? 'Update Inquiry' : 'Add Inquiry'}
           </button>
@@ -149,26 +151,26 @@ function DeleteConfirm({ inquiry, onClose, onConfirm }) {
     setDeleting(false)
   }
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className={c.overlay} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-premium border border-gray-100 text-center"
+        className={`${c.modal} ${c.modalSm}`}
       >
-        <div className="text-4xl mb-4">🗑️</div>
-        <h3 className="text-xl font-serif font-bold text-dark mb-2">Delete Inquiry?</h3>
-        <p className="text-gray-500 text-sm font-medium mb-8">
-          <span className="font-bold text-dark">{inquiry.name}</span> will be permanently removed.
+        <div className={c.confirmIcon}>🗑️</div>
+        <h3 className={c.confirmTitle}>Delete Inquiry?</h3>
+        <p className={c.confirmText}>
+          <span className={c.strong}>{inquiry.name}</span> will be permanently removed.
         </p>
-        <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-full font-bold hover:bg-gray-50 text-sm">Cancel</button>
+        <div className={c.actionsTight}>
+          <button onClick={onClose} className={`${c.btnOutline} ${c.btnSm} ${c.flex1}`}>Cancel</button>
           <button
             onClick={handleConfirm}
             disabled={deleting}
-            className="flex-1 bg-red-500 text-white py-3 rounded-full font-bold hover:bg-red-600 text-sm disabled:opacity-50"
+            className={`${c.btnDanger} ${c.flex1}`}
           >
             {deleting ? 'Deleting…' : 'Delete'}
           </button>
@@ -263,47 +265,41 @@ export default function AdminInquiriesPage() {
   const pending    = inquiries.filter(i => i.status === 'new' || i.status === 'contacted').length
 
   return (
-    <div className="space-y-8">
+    <div className={c.page}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className={c.header}>
         <div>
-          <h2 className="text-4xl font-serif font-bold text-dark tracking-tight">Inquiries</h2>
-          <p className="text-gray-400 mt-1 font-medium">{total} total · {pending} pending action</p>
+          <h2 className={c.title}>Inquiries</h2>
+          <p className={c.subtitle}>{total} total · {pending} pending action</p>
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={handleExport}
-            className="border border-gray-200 text-gray-600 px-6 py-3.5 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
-          >
+        <div className={c.headerActions}>
+          <button onClick={handleExport} className={c.btnExport}>
             ⬇ Export CSV
           </button>
-          <button
-            onClick={() => setModal('create')}
-            className="bg-brand text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-brand-hover transition-colors shadow-glow"
-          >
+          <button onClick={() => setModal('create')} className={c.addBtn}>
             + Add Inquiry
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+      <div className={c.toolbar}>
+        <div className={c.searchFlex}>
+          <span className={c.searchIcon}>🔍</span>
           <input
             type="text"
             placeholder="Search by name, phone, destination…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-5 py-3 bg-white border border-gray-200 rounded-full text-sm focus:outline-none focus:border-brand transition-colors font-bold text-dark shadow-sm"
+            className={c.searchSolo}
           />
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className={c.tabRow}>
           {STATUS_OPTIONS.map(s => (
             <button
               key={s}
               onClick={() => { setStatus(s); setPage(1) }}
-              className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all capitalize ${status === s ? 'bg-dark text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand'}`}
+              className={`${c.tab} ${status === s ? c.tabActive : ''}`}
             >
               {s}
             </button>
@@ -313,36 +309,36 @@ export default function AdminInquiriesPage() {
 
       {/* Table */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden"
+        className={c.panel}
       >
         {error ? (
-          <div className="px-8 py-12 text-center text-red-500 font-bold">{error}</div>
+          <div className={c.errorCenter}>{error}</div>
         ) : loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+          <div className={c.loadingSm}>
+            <div className={c.spinner} />
           </div>
         ) : inquiries.length === 0 ? (
-          <div className="px-8 py-16 text-center">
-            <p className="text-gray-400 font-bold mb-4">No inquiries found.</p>
-            <button onClick={() => setModal('create')} className="bg-brand text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-brand-hover transition-colors">
+          <div className={c.empty}>
+            <p className={c.emptyText} style={{ marginBottom: '1rem' }}>No inquiries found.</p>
+            <button onClick={() => setModal('create')} className={c.btnBrandSm}>
               + Add First Inquiry
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-gray-600">
-              <thead className="bg-gray-50 text-[10px] uppercase text-gray-400 font-black border-b border-gray-100 tracking-[0.2em]">
+          <div className={c.scroll}>
+            <table className={c.table}>
+              <thead className={styles.thead}>
                 <tr>
-                  <th className="px-6 py-5 text-left">Client</th>
-                  <th className="px-6 py-5 text-left hidden lg:table-cell">Destination</th>
-                  <th className="px-6 py-5 text-left hidden md:table-cell">Travel Date</th>
-                  <th className="px-6 py-5 text-left hidden xl:table-cell">Travellers</th>
-                  <th className="px-6 py-5 text-left hidden md:table-cell">Submitted</th>
-                  <th className="px-6 py-5 text-left">Status</th>
-                  <th className="px-6 py-5 text-right">Actions</th>
+                  <th className={styles.th}>Client</th>
+                  <th className={`${styles.th} ${styles.hideLg}`}>Destination</th>
+                  <th className={`${styles.th} ${styles.hideMd}`}>Travel Date</th>
+                  <th className={`${styles.th} ${styles.hideXl}`}>Travellers</th>
+                  <th className={`${styles.th} ${styles.hideMd}`}>Submitted</th>
+                  <th className={styles.th}>Status</th>
+                  <th className={styles.thRight}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody>
                 {inquiries.map(inquiry => {
                   const id = inquiry._id || inquiry.id
                   return (
@@ -350,36 +346,36 @@ export default function AdminInquiriesPage() {
                       key={id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="hover:bg-gray-50/60 transition-colors group"
+                      className={styles.row}
                     >
-                      <td className="px-6 py-5">
-                        <p className="font-bold text-dark group-hover:text-brand transition-colors">{inquiry.name}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{inquiry.phone}</p>
-                        <p className="text-[10px] text-gray-400 font-medium mt-0.5">{inquiry.email || ''}</p>
+                      <td className={styles.td}>
+                        <p className={styles.clientName}>{inquiry.name}</p>
+                        <p className={styles.clientPhone}>{inquiry.phone}</p>
+                        <p className={styles.clientEmail}>{inquiry.email || ''}</p>
                       </td>
-                      <td className="px-6 py-5 hidden lg:table-cell">
-                        <p className="font-medium text-dark">{inquiry.destination || '—'}</p>
+                      <td className={`${styles.td} ${styles.hideLg}`}>
+                        <p className={styles.cellText}>{inquiry.destination || '—'}</p>
                       </td>
-                      <td className="px-6 py-5 hidden md:table-cell">
-                        <p className="font-medium text-dark">{inquiry.travelDate || '—'}</p>
+                      <td className={`${styles.td} ${styles.hideMd}`}>
+                        <p className={styles.cellText}>{inquiry.travelDate || '—'}</p>
                       </td>
-                      <td className="px-6 py-5 hidden xl:table-cell">
-                        <p className="font-medium text-dark">{inquiry.travellers || '—'}</p>
+                      <td className={`${styles.td} ${styles.hideXl}`}>
+                        <p className={styles.cellText}>{inquiry.travellers || '—'}</p>
                       </td>
-                      <td className="px-6 py-5 text-gray-500 font-medium hidden md:table-cell whitespace-nowrap">
+                      <td className={`${styles.td} ${styles.cellDate} ${styles.hideMd}`}>
                         {formatDate(inquiry.created_at)}
                       </td>
-                      <td className="px-6 py-5">
-                        <span className={`px-3.5 py-1.5 rounded-full text-[10px] font-black border uppercase tracking-[0.15em] ${statusStyles[inquiry.status] || 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                      <td className={styles.td}>
+                        <span className={`${c.badge} ${statusStyles[inquiry.status] || c.badgeGray}`}>
                           {inquiry.status}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-right">
-                        <div className="flex justify-end gap-2">
+                      <td className={styles.tdRight}>
+                        <div className={styles.actions}>
                           {/* WhatsApp */}
                           <button
                             onClick={() => handleWhatsApp(inquiry)}
-                            className="w-9 h-9 rounded-xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors flex items-center justify-center shadow-sm"
+                            className={`${c.iconBtn} ${c.iconBtnWa}`}
                             title="WhatsApp"
                           >
                             <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.112.555 4.094 1.523 5.813L0 24l6.336-1.499A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.946 0-3.77-.51-5.338-1.4l-.382-.225-3.961.937.997-3.868-.249-.401A9.942 9.942 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
@@ -388,20 +384,20 @@ export default function AdminInquiriesPage() {
                           {inquiry.message && (
                             <button
                               onClick={() => alert(`Message from ${inquiry.name}:\n\n${inquiry.message}`)}
-                              className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-brand hover:border-brand/30 transition-colors text-sm flex items-center justify-center shadow-sm"
+                              className={`${c.iconBtn} ${c.iconBtnMsg}`}
                               title="View message"
                             >💬</button>
                           )}
                           {/* Edit */}
                           <button
                             onClick={() => setModal(inquiry)}
-                            className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors text-sm flex items-center justify-center shadow-sm"
+                            className={`${c.iconBtn} ${c.iconBtnEdit}`}
                             title="Edit inquiry"
                           >✏</button>
                           {/* Delete */}
                           <button
                             onClick={() => setDeleteTarget(inquiry)}
-                            className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 transition-colors text-sm flex items-center justify-center shadow-sm"
+                            className={`${c.iconBtn} ${c.iconBtnDelete}`}
                             title="Delete inquiry"
                           >🗑</button>
                         </div>
@@ -416,13 +412,13 @@ export default function AdminInquiriesPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-8 py-4 border-t border-gray-50 flex items-center justify-between">
-            <p className="text-sm text-gray-400 font-bold">Showing {inquiries.length} of {total} inquiries</p>
-            <div className="flex gap-1">
+          <div className={c.pagBar}>
+            <p className={c.pagInfo}>Showing {inquiries.length} of {total} inquiries</p>
+            <div className={c.pagBtns}>
               <button
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
-                className="w-8 h-8 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+                className={c.pagBtn}
               >‹</button>
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                 const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i
@@ -430,14 +426,14 @@ export default function AdminInquiriesPage() {
                   <button
                     key={p}
                     onClick={() => setPage(p)}
-                    className={`w-8 h-8 rounded-lg text-sm font-bold ${p === page ? 'bg-dark text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                    className={`${c.pagBtn} ${p === page ? c.pagBtnActive : ''}`}
                   >{p}</button>
                 )
               })}
               <button
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
-                className="w-8 h-8 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+                className={c.pagBtn}
               >›</button>
             </div>
           </div>

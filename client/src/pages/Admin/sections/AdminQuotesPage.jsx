@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import styles from './AdminQuotesPage.module.css'
 
 // ─── Default data factories ───────────────────────────────────────────────────
 const emptyFlight = () => ({
@@ -85,21 +86,18 @@ function nightsLabel(n) {
 function Field({ label, children, className = '' }) {
   return (
     <div className={className}>
-      {label && <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1.5">{label}</label>}
+      {label && <label className={styles.fieldLabel}>{label}</label>}
       {children}
     </div>
   )
 }
 
-const inp = 'w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm text-dark placeholder-gray-400 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all bg-white'
-const sel = inp + ' appearance-none cursor-pointer'
-
 function Input({ label, className = '', ...props }) {
-  return <Field label={label} className={className}><input className={inp} {...props} /></Field>
+  return <Field label={label} className={className}><input className={styles.inp} {...props} /></Field>
 }
 
 function Select({ label, className = '', children, ...props }) {
-  return <Field label={label} className={className}><select className={sel} {...props}>{children}</select></Field>
+  return <Field label={label} className={className}><select className={`${styles.inp} ${styles.sel}`} {...props}>{children}</select></Field>
 }
 
 // ─── List editor (inclusions / exclusions / notes / terms) ────────────────────
@@ -109,19 +107,19 @@ function ListEditor({ items, onChange, placeholder = 'Add item...' }) {
   const remove = (i) => onChange(items.filter((_, idx) => idx !== i))
 
   return (
-    <div className="space-y-2">
+    <div className={styles.listStack}>
       {items.map((item, i) => (
-        <div key={i} className="flex gap-2">
+        <div key={i} className={styles.listItemRow}>
           <input
-            className={inp + ' flex-1'}
+            className={`${styles.inp} ${styles.flex1}`}
             value={item}
             placeholder={placeholder}
             onChange={e => update(i, e.target.value)}
           />
-          <button onClick={() => remove(i)} className="w-9 h-9 rounded-xl bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center text-base flex-shrink-0">×</button>
+          <button onClick={() => remove(i)} className={styles.removeBtn}>×</button>
         </div>
       ))}
-      <button onClick={add} className="text-xs text-brand font-bold hover:underline">+ Add item</button>
+      <button onClick={add} className={styles.addLink}>+ Add item</button>
     </div>
   )
 }
@@ -401,40 +399,35 @@ function QuoteModal({ quote, onSave, onClose }) {
   return (
     /* Overlay — this element scrolls, not the inner card */
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
+      className={styles.overlay}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="min-h-full flex items-start justify-center p-4 py-10">
-        <div className="bg-[#f7f8fa] rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.35)] ring-1 ring-black/10 w-full max-w-4xl">
+      <div className={styles.modalWrap}>
+        <div className={styles.modalCard}>
 
         {/* Header — sticky inside the scrolling overlay */}
-        <div className="sticky top-10 z-20 bg-white rounded-t-3xl flex items-center justify-between px-7 py-4 border-b border-gray-200 shadow-sm">
+        <div className={styles.modalHeader}>
           <div>
-            <h2 className="font-serif font-bold text-xl text-dark">
+            <h2 className={styles.modalTitle}>
               {quote ? `Edit Quote · ${quote.refNumber}` : 'New Travel Quote'}
             </h2>
-            <p className="text-[11px] text-gray-500 mt-0.5">Fill in each tab · Save or Print as PDF</p>
+            <p className={styles.modalSub}>Fill in each tab · Save or Print as PDF</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-300 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
-            >
+          <div className={styles.headerBtns}>
+            <button onClick={handlePrint} className={styles.printBtn}>
               <span>🖨</span> Print PDF
             </button>
-            <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-500 hover:text-dark text-xl leading-none transition-colors font-bold">×</button>
+            <button onClick={onClose} className={styles.iconClose}>×</button>
           </div>
         </div>
 
         {/* Tab bar — sticky below header */}
-        <div className="sticky top-[114px] z-20 bg-white flex gap-1 px-7 py-3 border-b border-gray-200 overflow-x-auto shadow-sm">
+        <div className={styles.tabBar}>
           {TABS.map((t, i) => (
             <button
               key={t}
               onClick={() => setTab(i)}
-              className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                tab === i ? 'bg-dark text-white shadow-sm' : 'text-gray-400 hover:bg-gray-100 hover:text-dark'
-              }`}
+              className={`${styles.tab} ${tab === i ? styles.tabActive : ''}`}
             >
               {i + 1}. {t}
             </button>
@@ -442,16 +435,16 @@ function QuoteModal({ quote, onSave, onClose }) {
         </div>
 
         {/* Tab content — natural height, modal body is gray so white cards stand out */}
-        <div className="px-7 py-6">
+        <div className={styles.tabContent}>
 
           {/* ── Tab 0: Client & Trip ── */}
           {tab === 0 && (
-            <div className="space-y-6">
+            <div className={styles.section}>
 
               {/* Client info block */}
-              <div className="bg-white rounded-2xl p-5 space-y-4 border border-gray-200 shadow-sm">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Client Information</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={`${styles.block} ${styles.blockStack}`}>
+                <p className={styles.blockLabel}>Client Information</p>
+                <div className={styles.grid2}>
                   <Input label="Client Name *" value={form.clientName} onChange={e => set('clientName', e.target.value)} placeholder="Full name" />
                   <Input label="Phone" value={form.clientPhone} onChange={e => set('clientPhone', e.target.value)} placeholder="+91 99999 99999" />
                   <Input label="Email" type="email" value={form.clientEmail} onChange={e => set('clientEmail', e.target.value)} placeholder="client@example.com" />
@@ -460,26 +453,26 @@ function QuoteModal({ quote, onSave, onClose }) {
               </div>
 
               {/* Trip info block */}
-              <div className="bg-white rounded-2xl p-5 space-y-4 border border-gray-200 shadow-sm">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Trip Information</p>
+              <div className={`${styles.block} ${styles.blockStack}`}>
+                <p className={styles.blockLabel}>Trip Information</p>
                 <Input label="Trip Title *" value={form.tripTitle} onChange={e => set('tripTitle', e.target.value)} placeholder="Dubai 5N6D" />
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1.5">Destinations</label>
+                  <label className={styles.fieldLabelFaint}>Destinations</label>
                   {form.destinations.map((d, i) => (
-                    <div key={i} className="flex gap-2 mb-2">
-                      <input className={inp + ' flex-1'} value={d} placeholder="e.g. Dubai" onChange={e => { const a=[...form.destinations]; a[i]=e.target.value; set('destinations',a) }} />
+                    <div key={i} className={styles.rowMb}>
+                      <input className={`${styles.inp} ${styles.flex1}`} value={d} placeholder="e.g. Dubai" onChange={e => { const a=[...form.destinations]; a[i]=e.target.value; set('destinations',a) }} />
                       {form.destinations.length > 1 && (
-                        <button onClick={() => set('destinations', form.destinations.filter((_,idx)=>idx!==i))} className="w-9 h-9 rounded-xl bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center text-base flex-shrink-0 transition-colors">×</button>
+                        <button onClick={() => set('destinations', form.destinations.filter((_,idx)=>idx!==i))} className={styles.removeBtn}>×</button>
                       )}
                     </div>
                   ))}
-                  <button onClick={() => set('destinations', [...form.destinations, ''])} className="text-xs text-brand font-bold hover:underline">+ Add destination</button>
+                  <button onClick={() => set('destinations', [...form.destinations, ''])} className={styles.addLink}>+ Add destination</button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <Input label="Start Date" type="text" value={form.startDate} onChange={e => set('startDate', e.target.value)} placeholder="15 Jun 2026" className="col-span-2" />
-                  <Input label="Valid Until" type="text" value={form.validUntil} onChange={e => set('validUntil', e.target.value)} placeholder="31 May 2026" className="col-span-2" />
+                <div className={styles.gridDates}>
+                  <Input label="Start Date" type="text" value={form.startDate} onChange={e => set('startDate', e.target.value)} placeholder="15 Jun 2026" className={styles.span2} />
+                  <Input label="Valid Until" type="text" value={form.validUntil} onChange={e => set('validUntil', e.target.value)} placeholder="31 May 2026" className={styles.span2} />
                   <Input label="Nights" type="number" min="1" value={form.nights} onChange={e => set('nights', e.target.value)} />
                   <Input label="Pax" type="number" min="1" value={form.pax} onChange={e => set('pax', e.target.value)} />
                   <Select label="Trip Type" value={form.tripType} onChange={e => set('tripType', e.target.value)}>
@@ -499,73 +492,73 @@ function QuoteModal({ quote, onSave, onClose }) {
 
           {/* ── Tab 1: Costs & Flights ── */}
           {tab === 1 && (
-            <div className="space-y-6">
+            <div className={styles.section}>
 
               {/* Cost items */}
-              <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Cost Breakdown</p>
-                  <button onClick={() => addNested('costItems', () => ({ description: '', amount: 0 }))} className="text-xs text-brand font-bold hover:underline">+ Add item</button>
+              <div className={styles.block}>
+                <div className={styles.blockHeadRow}>
+                  <p className={styles.blockLabel}>Cost Breakdown</p>
+                  <button onClick={() => addNested('costItems', () => ({ description: '', amount: 0 }))} className={styles.addLink}>+ Add item</button>
                 </div>
-                <div className="space-y-2">
+                <div className={styles.listStack}>
                   {form.costItems.map((item, i) => (
-                    <div key={i} className="flex gap-2 items-center">
-                      <input className={inp + ' flex-1'} placeholder="e.g. Land Package" value={item.description} onChange={e => setNested('costItems', i, 'description', e.target.value)} />
-                      <div className="flex items-center border border-gray-200 rounded-xl bg-white overflow-hidden">
-                        <span className="px-3 text-xs text-gray-400 font-bold border-r border-gray-200 py-2.5">₹</span>
-                        <input type="number" className="w-32 px-3 py-2.5 text-sm focus:outline-none" placeholder="0" value={item.amount} onChange={e => setNested('costItems', i, 'amount', e.target.value)} />
+                    <div key={i} className={styles.costRow}>
+                      <input className={`${styles.inp} ${styles.flex1}`} placeholder="e.g. Land Package" value={item.description} onChange={e => setNested('costItems', i, 'description', e.target.value)} />
+                      <div className={styles.amountGroup}>
+                        <span className={styles.amountPrefix}>₹</span>
+                        <input type="number" className={styles.amountInput} placeholder="0" value={item.amount} onChange={e => setNested('costItems', i, 'amount', e.target.value)} />
                       </div>
-                      <button onClick={() => removeNested('costItems', i)} className="w-9 h-9 rounded-xl bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center text-base flex-shrink-0 transition-colors">×</button>
+                      <button onClick={() => removeNested('costItems', i)} className={styles.removeBtn}>×</button>
                     </div>
                   ))}
                 </div>
 
                 {/* Summary row */}
-                <div className="mt-4 pt-4 border-t border-gray-200 flex items-center gap-6 flex-wrap bg-gray-50 -mx-5 -mb-5 px-5 pb-5 rounded-b-2xl">
+                <div className={styles.summary}>
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">Subtotal</div>
-                    <div className="text-lg font-serif font-bold text-dark mt-0.5">₹{fmt(subtotal)}</div>
+                    <div className={styles.summaryLabel}>Subtotal</div>
+                    <div className={styles.summaryVal}>₹{fmt(subtotal)}</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">Tax / Markup</div>
-                    <div className="flex items-center border border-gray-200 rounded-xl bg-white overflow-hidden">
-                      <input type="number" className="w-14 px-2 py-1.5 text-sm font-bold text-center focus:outline-none" value={form.taxPercent} onChange={e => set('taxPercent', e.target.value)} />
-                      <span className="px-2 text-xs text-gray-400 font-bold border-l border-gray-200 py-1.5">%</span>
+                  <div className={styles.taxGroup}>
+                    <div className={styles.summaryLabel}>Tax / Markup</div>
+                    <div className={styles.taxBox}>
+                      <input type="number" className={styles.taxInput} value={form.taxPercent} onChange={e => set('taxPercent', e.target.value)} />
+                      <span className={styles.taxSuffix}>%</span>
                     </div>
                   </div>
-                  <div className="ml-auto text-right">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">Grand Total</div>
-                    <div className="text-xl font-serif font-bold text-brand mt-0.5">₹{fmt(total)}</div>
+                  <div className={styles.toRight}>
+                    <div className={styles.summaryLabel}>Grand Total</div>
+                    <div className={styles.summaryTotal}>₹{fmt(total)}</div>
                   </div>
                 </div>
               </div>
 
               {/* Flights */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Flights <span className="font-medium normal-case tracking-normal text-gray-400">(leave empty for land-only)</span></p>
-                  <button onClick={() => addNested('flights', emptyFlight)} className="text-xs text-brand font-bold hover:underline">+ Add flight</button>
+                <div className={styles.blockHeadRowSm}>
+                  <p className={styles.blockLabel}>Flights <span className={styles.normalHint}>(leave empty for land-only)</span></p>
+                  <button onClick={() => addNested('flights', emptyFlight)} className={styles.addLink}>+ Add flight</button>
                 </div>
                 {form.flights.length === 0 && (
-                  <div className="text-sm text-gray-500 text-center py-8 border-2 border-dashed border-gray-300 rounded-2xl bg-white">
+                  <div className={styles.emptyBox}>
                     No flights added
                   </div>
                 )}
                 {form.flights.map((fl, i) => (
-                  <div key={i} className="border border-gray-200 rounded-2xl p-5 mb-3 bg-white shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${fl.type === 'outbound' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
+                  <div key={i} className={styles.subCard}>
+                    <div className={styles.subHead}>
+                      <div className={styles.subHeadLeft}>
+                        <span className={`${styles.typeTag} ${fl.type === 'outbound' ? styles.typeOut : styles.typeRet}`}>
                           {fl.type === 'outbound' ? '↗ Outbound' : '↙ Return'}
                         </span>
-                        <select className="text-xs font-bold text-gray-500 border-none bg-transparent focus:outline-none cursor-pointer" value={fl.type} onChange={e => setNested('flights', i, 'type', e.target.value)}>
+                        <select className={styles.typeSelect} value={fl.type} onChange={e => setNested('flights', i, 'type', e.target.value)}>
                           <option value="outbound">Mark as Outbound</option>
                           <option value="return">Mark as Return</option>
                         </select>
                       </div>
-                      <button onClick={() => removeNested('flights', i)} className="text-xs text-red-400 font-bold hover:underline">Remove</button>
+                      <button onClick={() => removeNested('flights', i)} className={styles.removeLink}>Remove</button>
                     </div>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className={styles.grid3}>
                       <Input label="Airline" value={fl.airline} onChange={e => setNested('flights',i,'airline',e.target.value)} placeholder="Emirates" />
                       <Input label="Flight No." value={fl.flightNumber} onChange={e => setNested('flights',i,'flightNumber',e.target.value)} placeholder="EK 500" />
                       <Input label="Class" value={fl.class} onChange={e => setNested('flights',i,'class',e.target.value)} placeholder="Economy" />
@@ -584,26 +577,26 @@ function QuoteModal({ quote, onSave, onClose }) {
 
           {/* ── Tab 2: Hotels & Itinerary ── */}
           {tab === 2 && (
-            <div className="space-y-6">
+            <div className={styles.section}>
 
               {/* Hotels */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Hotels &amp; Accommodation</p>
-                  <button onClick={() => addNested('hotels', emptyHotel)} className="text-xs text-brand font-bold hover:underline">+ Add hotel</button>
+                <div className={styles.blockHeadRowSm}>
+                  <p className={styles.blockLabel}>Hotels &amp; Accommodation</p>
+                  <button onClick={() => addNested('hotels', emptyHotel)} className={styles.addLink}>+ Add hotel</button>
                 </div>
                 {form.hotels.map((h, i) => (
-                  <div key={i} className="border border-gray-200 rounded-2xl p-5 mb-3 bg-white shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-500 text-xs font-black flex items-center justify-center">H{i+1}</div>
-                        <span className="text-sm font-bold text-dark">{h.name || `Hotel ${i + 1}`}</span>
-                        {h.stars > 0 && <span className="text-xs text-amber-400">{'★'.repeat(h.stars)}</span>}
+                  <div key={i} className={styles.subCard}>
+                    <div className={styles.subHead}>
+                      <div className={styles.subHeadLeft}>
+                        <div className={styles.hotelTag}>H{i+1}</div>
+                        <span className={styles.hotelName}>{h.name || `Hotel ${i + 1}`}</span>
+                        {h.stars > 0 && <span className={styles.stars}>{'★'.repeat(h.stars)}</span>}
                       </div>
-                      <button onClick={() => removeNested('hotels', i)} className="text-xs text-red-400 font-bold hover:underline">Remove</button>
+                      <button onClick={() => removeNested('hotels', i)} className={styles.removeLink}>Remove</button>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      <Input label="Hotel Name" value={h.name} onChange={e => setNested('hotels',i,'name',e.target.value)} placeholder="Atlantis The Palm" className="col-span-2" />
+                    <div className={styles.grid23}>
+                      <Input label="Hotel Name" value={h.name} onChange={e => setNested('hotels',i,'name',e.target.value)} placeholder="Atlantis The Palm" className={styles.span2} />
                       <Select label="Stars" value={h.stars} onChange={e => setNested('hotels',i,'stars',Number(e.target.value))}>
                         {[1,2,3,4,5].map(s=><option key={s} value={s}>{s} ★</option>)}
                       </Select>
@@ -618,7 +611,7 @@ function QuoteModal({ quote, onSave, onClose }) {
                         <option value="AP">AP — Full Board</option>
                         <option value="AI">All Inclusive</option>
                       </Select>
-                      <Input label="Address" value={h.address} onChange={e => setNested('hotels',i,'address',e.target.value)} placeholder="Full address" className="col-span-2" />
+                      <Input label="Address" value={h.address} onChange={e => setNested('hotels',i,'address',e.target.value)} placeholder="Full address" className={styles.span2} />
                     </div>
                   </div>
                 ))}
@@ -626,26 +619,26 @@ function QuoteModal({ quote, onSave, onClose }) {
 
               {/* Itinerary */}
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-3">
+                <p className={styles.blockLabelMb}>
                   Day-wise Itinerary — {nightsLabel(nights)}
-                  <span className="font-medium normal-case tracking-normal text-gray-400 ml-2">auto-synced with nights</span>
+                  <span className={styles.normalHint}> auto-synced with nights</span>
                 </p>
-                <div className="space-y-3">
+                <div className={styles.listStack}>
                   {form.itinerary.map((day, i) => (
-                    <div key={i} className="border border-gray-200 rounded-2xl p-5 bg-white shadow-sm">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-dark text-white text-xs font-black flex items-center justify-center flex-shrink-0">
+                    <div key={i} className={styles.dayCard}>
+                      <div className={styles.dayHead}>
+                        <div className={styles.dayNum}>
                           {day.day}
                         </div>
                         <input
-                          className={inp + ' flex-1'}
+                          className={`${styles.inp} ${styles.flex1}`}
                           placeholder={`Day ${day.day} title — e.g. Arrival & Desert Safari`}
                           value={day.title}
                           onChange={e => setNested('itinerary', i, 'title', e.target.value)}
                         />
                       </div>
                       <textarea
-                        className={inp + ' resize-none'}
+                        className={`${styles.inp} ${styles.resizeNone}`}
                         rows={3}
                         placeholder="Describe activities, sightseeing, meals, transfers for this day..."
                         value={day.description}
@@ -660,24 +653,24 @@ function QuoteModal({ quote, onSave, onClose }) {
 
           {/* ── Tab 3: Inclusions & Notes ── */}
           {tab === 3 && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm border-l-4 border-l-green-500">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-green-700 mb-4">✓ Inclusions</p>
+            <div className={styles.section}>
+              <div className={styles.grid2}>
+                <div className={`${styles.incBlock} ${styles.incGreen}`}>
+                  <p className={styles.incLabelGreen}>✓ Inclusions</p>
                   <ListEditor items={form.inclusions} onChange={v => set('inclusions', v)} placeholder="e.g. Return airfare" />
                 </div>
-                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm border-l-4 border-l-red-400">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-4">✗ Exclusions</p>
+                <div className={`${styles.incBlock} ${styles.incRed}`}>
+                  <p className={styles.incLabelRed}>✗ Exclusions</p>
                   <ListEditor items={form.exclusions} onChange={v => set('exclusions', v)} placeholder="e.g. Visa fees" />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm border-l-4 border-l-amber-400">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-4">⚠ Important Notes</p>
+              <div className={styles.grid2}>
+                <div className={`${styles.incBlock} ${styles.incAmber}`}>
+                  <p className={styles.incLabelAmber}>⚠ Important Notes</p>
                   <ListEditor items={form.notes} onChange={v => set('notes', v)} placeholder="e.g. Tourism dirham fee charged at hotel" />
                 </div>
-                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm border-l-4 border-l-gray-400">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-4">§ Terms &amp; Conditions</p>
+                <div className={`${styles.incBlock} ${styles.incGray}`}>
+                  <p className={styles.incLabelGray}>§ Terms &amp; Conditions</p>
                   <ListEditor items={form.terms} onChange={v => set('terms', v)} placeholder="e.g. 25% advance required to confirm" />
                 </div>
               </div>
@@ -686,20 +679,20 @@ function QuoteModal({ quote, onSave, onClose }) {
         </div>
 
         {/* Footer — sticky at bottom of viewport while scrolling */}
-        <div className="sticky bottom-0 z-20 bg-white rounded-b-3xl flex items-center gap-4 px-7 py-4 border-t border-gray-200 shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
-          <div className="flex-1 min-w-0">
+        <div className={styles.modalFooter}>
+          <div className={styles.footInfo}>
             {err
-              ? <p className="text-xs text-red-500 font-bold">{err}</p>
-              : <div className="text-xs text-gray-500">
-                  <span className="font-black text-dark">₹{fmt(total)}</span>
-                  <span className="text-gray-400"> · {form.pax} pax · {nightsLabel(nights)} · {form.tripType}</span>
+              ? <p className={styles.footErr}>{err}</p>
+              : <div className={styles.footSummary}>
+                  <span className={styles.footTotal}>₹{fmt(total)}</span>
+                  <span className={styles.footMuted}> · {form.pax} pax · {nightsLabel(nights)} · {form.tripType}</span>
                 </div>
             }
           </div>
-          <button onClick={onClose} className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors">
+          <button onClick={onClose} className={styles.cancelBtn}>
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 rounded-xl bg-dark text-white text-sm font-bold hover:bg-dark/90 disabled:opacity-50 transition-colors shadow-sm">
+          <button onClick={handleSave} disabled={saving} className={styles.saveBtn}>
             {saving ? 'Saving…' : quote ? 'Save Changes' : 'Create Quote'}
           </button>
         </div>
@@ -717,10 +710,10 @@ function QuoteModal({ quote, onSave, onClose }) {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const statusColors = {
-  Draft:    'bg-gray-100 text-gray-500',
-  Sent:     'bg-blue-50 text-blue-600',
-  Accepted: 'bg-green-50 text-green-600',
-  Rejected: 'bg-red-50 text-red-500',
+  Draft:    styles.stDraft,
+  Sent:     styles.stSent,
+  Accepted: styles.stAccepted,
+  Rejected: styles.stRejected,
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
@@ -821,47 +814,44 @@ export default function AdminQuotesPage({ navState }) {
   const totalPages = Math.ceil(total / limit)
 
   const statCards = [
-    { label: 'Total Quotes', value: stats.total, color: 'bg-dark text-white' },
-    { label: 'Sent',         value: stats.sent,     color: 'bg-blue-50 text-blue-700' },
-    { label: 'Accepted',     value: stats.accepted,  color: 'bg-green-50 text-green-700' },
+    { label: 'Total Quotes', value: stats.total, color: styles.statDark },
+    { label: 'Sent',         value: stats.sent,     color: styles.statBlue },
+    { label: 'Accepted',     value: stats.accepted,  color: styles.statGreen },
   ]
 
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+      <div className={styles.headerRow}>
         <div>
-          <h1 className="text-2xl font-serif font-bold text-dark">Travel Quotes</h1>
-          <p className="text-sm text-gray-400 mt-1 font-light">Build, print, and manage client travel proposals</p>
+          <h1 className={styles.pageTitle}>Travel Quotes</h1>
+          <p className={styles.pageSub}>Build, print, and manage client travel proposals</p>
         </div>
-        <button
-          onClick={() => setModal('new')}
-          className="flex items-center gap-2 px-5 py-2.5 bg-dark text-white rounded-2xl text-sm font-bold hover:bg-dark/90 transition-colors shadow-sm"
-        >
+        <button onClick={() => setModal('new')} className={styles.newBtn}>
           <span>+</span> New Quote
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {statCards.map(c => (
-          <div key={c.label} className={`${c.color} rounded-2xl p-5`}>
-            <div className="text-3xl font-serif font-bold">{c.value}</div>
-            <div className="text-xs font-black uppercase tracking-widest mt-1 opacity-70">{c.label}</div>
+      <div className={styles.statsGrid}>
+        {statCards.map(card => (
+          <div key={card.label} className={`${styles.statCard} ${card.color}`}>
+            <div className={styles.statValue}>{card.value}</div>
+            <div className={styles.statLabel}>{card.label}</div>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className={styles.filters}>
         <input
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand flex-1 min-w-48"
+          className={styles.filterSearch}
           placeholder="Search by client, trip, ref..."
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <select
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand"
+          className={styles.filterSelect}
           value={filter}
           onChange={e => setFilter(e.target.value)}
         >
@@ -874,23 +864,23 @@ export default function AdminQuotesPage({ navState }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className={styles.tableCard}>
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+          <div className={styles.loading}>
+            <div className={styles.spinner} />
           </div>
         ) : quotes.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 text-sm">
-            <div className="text-4xl mb-3">📋</div>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📋</div>
             No quotes found. Create your first quote.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className={styles.scroll}>
+            <table className={styles.table}>
               <thead>
-                <tr className="border-b border-gray-100">
+                <tr className={styles.theadRow}>
                   {['Ref', 'Client', 'Trip', 'Pax', 'Total', 'Status', 'Date', ''].map(h => (
-                    <th key={h} className="px-5 py-3.5 text-left text-[10px] font-black uppercase tracking-widest text-gray-400">{h}</th>
+                    <th key={h} className={styles.th}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -898,33 +888,33 @@ export default function AdminQuotesPage({ navState }) {
                 {quotes.map(q => {
                   const total = computeTotal(q.costItems || [], q.taxPercent || 5)
                   return (
-                    <tr key={q.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                      <td className="px-5 py-4">
-                        <span className="font-mono text-xs font-bold text-gray-500">{q.refNumber}</span>
+                    <tr key={q.id} className={styles.row}>
+                      <td className={styles.td}>
+                        <span className={styles.refText}>{q.refNumber}</span>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="font-bold text-dark">{q.clientName}</div>
-                        {q.clientPhone && <div className="text-xs text-gray-400">{q.clientPhone}</div>}
+                      <td className={styles.td}>
+                        <div className={styles.clientName}>{q.clientName}</div>
+                        {q.clientPhone && <div className={styles.subText}>{q.clientPhone}</div>}
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-dark max-w-48 truncate">{q.tripTitle}</div>
-                        <div className="text-xs text-gray-400">{q.destinations?.join(', ')} · {nightsLabel(q.nights || 1)}</div>
+                      <td className={styles.td}>
+                        <div className={styles.tripTitle}>{q.tripTitle}</div>
+                        <div className={styles.subText}>{q.destinations?.join(', ')} · {nightsLabel(q.nights || 1)}</div>
                       </td>
-                      <td className="px-5 py-4 text-gray-600">{q.pax}</td>
-                      <td className="px-5 py-4 font-bold text-dark">₹{fmt(total)}</td>
-                      <td className="px-5 py-4">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusColors[q.status] || statusColors.Draft}`}>
+                      <td className={styles.tdMuted}>{q.pax}</td>
+                      <td className={styles.tdStrong}>₹{fmt(total)}</td>
+                      <td className={styles.td}>
+                        <span className={`${styles.statusBadge} ${statusColors[q.status] || statusColors.Draft}`}>
                           {q.status}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-xs text-gray-400">
+                      <td className={styles.tdDate}>
                         {q.created_at ? new Date(q.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—'}
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => handlePrint(q)} title="Print PDF" className="w-8 h-8 rounded-lg hover:bg-blue-50 hover:text-blue-600 text-gray-400 flex items-center justify-center transition-colors text-base">🖨</button>
-                          <button onClick={() => setModal(q)} title="Edit" className="w-8 h-8 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-dark flex items-center justify-center transition-colors text-base">✏</button>
-                          <button onClick={() => setDeleting(q)} title="Delete" className="w-8 h-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition-colors text-base">🗑</button>
+                      <td className={styles.td}>
+                        <div className={styles.rowActions}>
+                          <button onClick={() => handlePrint(q)} title="Print PDF" className={`${styles.actBtn} ${styles.actPrint}`}>🖨</button>
+                          <button onClick={() => setModal(q)} title="Edit" className={`${styles.actBtn} ${styles.actEdit}`}>✏</button>
+                          <button onClick={() => setDeleting(q)} title="Delete" className={`${styles.actBtn} ${styles.actDelete}`}>🗑</button>
                         </div>
                       </td>
                     </tr>
@@ -956,16 +946,16 @@ export default function AdminQuotesPage({ navState }) {
 
       {/* Delete confirm */}
       {deleting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center">
-            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">🗑</div>
-            <h3 className="font-serif font-bold text-lg text-dark mb-2">Delete Quote?</h3>
-            <p className="text-sm text-gray-500 mb-6">
+        <div className={styles.confirmOverlay}>
+          <div className={styles.confirmCard}>
+            <div className={styles.confirmIcon}>🗑</div>
+            <h3 className={styles.confirmTitle}>Delete Quote?</h3>
+            <p className={styles.confirmText}>
               <strong>{deleting.refNumber}</strong> — {deleting.clientName} will be permanently deleted.
             </p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleting(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-500">Cancel</button>
-              <button onClick={() => handleDelete(deleting.id || deleting._id?.toString())} className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600">Delete</button>
+            <div className={styles.confirmActions}>
+              <button onClick={() => setDeleting(null)} className={styles.confirmCancel}>Cancel</button>
+              <button onClick={() => handleDelete(deleting.id || deleting._id?.toString())} className={styles.confirmDelete}>Delete</button>
             </div>
           </div>
         </div>

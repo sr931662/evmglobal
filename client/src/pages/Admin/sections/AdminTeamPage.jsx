@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import c from './adminCommon.module.css'
+import styles from './AdminTeamPage.module.css'
 
 const DEPARTMENTS   = ['Sales', 'Operations', 'Marketing', 'Technology', 'Management', 'Customer Support']
 const STATUS_OPTIONS = ['All', 'active', 'inactive']
@@ -48,94 +50,94 @@ function TeamModal({ member, onClose, onSave }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className={c.overlay} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2.5rem] p-10 w-full max-w-2xl shadow-premium border border-gray-100 max-h-[90vh] overflow-y-auto modal-scroll"
+        className={`${c.modal} ${c.modalLg} ${c.modalScroll} modal-scroll`}
       >
-        <h3 className="text-3xl font-serif font-bold text-dark mb-8">
+        <h3 className={c.modalTitle}>
           {isEdit ? 'Edit Team Member' : 'Add Team Member'}
         </h3>
 
-        <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+        <div className={c.stack}>
+          <div className={c.grid2}>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Full Name <span className="text-brand">*</span></label>
+              <label className={c.label}>Full Name <span className={c.req}>*</span></label>
               <input type="text" value={form.name} onChange={e => f('name', e.target.value)}
                 placeholder="e.g. Priya Sharma"
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                className={c.input} />
             </div>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Designation <span className="text-brand">*</span></label>
+              <label className={c.label}>Designation <span className={c.req}>*</span></label>
               <input type="text" value={form.role} onChange={e => f('role', e.target.value)}
                 placeholder="e.g. Senior Travel Consultant"
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                className={c.input} />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={c.grid2}>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Department</label>
+              <label className={c.label}>Department</label>
               <select value={form.department} onChange={e => f('department', e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                className={`${c.input} ${c.select}`}>
                 {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Status</label>
+              <label className={c.label}>Status</label>
               <select value={form.status} onChange={e => f('status', e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                className={`${c.input} ${c.select}`}>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={c.grid2}>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Email</label>
+              <label className={c.label}>Email</label>
               <input type="email" value={form.email} onChange={e => f('email', e.target.value)}
                 placeholder="priya@emvglobal.in"
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                className={c.input} />
             </div>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Phone</label>
+              <label className={c.label}>Phone</label>
               <input type="text" value={form.phone} onChange={e => f('phone', e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                className={c.input} />
             </div>
           </div>
 
           <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Bio</label>
+            <label className={c.label}>Bio</label>
             <textarea rows={3} value={form.bio} onChange={e => f('bio', e.target.value)}
               placeholder="Brief professional bio…"
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-brand transition-colors resize-none" />
+              className={`${c.input} ${c.textarea}`} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={c.grid2}>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Avatar URL</label>
+              <label className={c.label}>Avatar URL</label>
               <input type="text" value={form.avatar} onChange={e => f('avatar', e.target.value)}
                 placeholder="https://…"
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                className={c.input} />
             </div>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Joined Date</label>
+              <label className={c.label}>Joined Date</label>
               <input type="date" value={form.joinedAt} onChange={e => f('joinedAt', e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                className={c.input} />
             </div>
           </div>
         </div>
 
-        {err && <p className="mt-4 text-red-500 text-sm font-bold">{err}</p>}
+        {err && <p className={c.formError}>{err}</p>}
 
-        <div className="flex gap-4 mt-8">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">Cancel</button>
+        <div className={c.modalActions}>
+          <button onClick={onClose} className={`${c.btnOutline} ${c.flex1}`}>Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
-            className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50">
+            className={`${c.btnBrand} ${c.flex1}`}>
             {saving ? 'Saving…' : isEdit ? 'Update Member' : 'Add Member'}
           </button>
         </div>
@@ -147,22 +149,22 @@ function TeamModal({ member, onClose, onSave }) {
 function DeleteConfirm({ label, onClose, onConfirm }) {
   const [deleting, setDeleting] = useState(false)
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className={c.overlay} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-premium border border-gray-100 text-center"
+        className={`${c.modal} ${c.modalSm}`}
       >
-        <div className="text-4xl mb-4">🗑️</div>
-        <h3 className="text-xl font-serif font-bold text-dark mb-2">Remove Member?</h3>
-        <p className="text-gray-500 text-sm font-medium mb-8">
-          <span className="font-bold text-dark">{label}</span> will be permanently removed.
+        <div className={c.confirmIcon}>🗑️</div>
+        <h3 className={c.confirmTitle}>Remove Member?</h3>
+        <p className={c.confirmText}>
+          <span className={c.strong}>{label}</span> will be permanently removed.
         </p>
-        <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-full font-bold hover:bg-gray-50 text-sm">Cancel</button>
+        <div className={c.actionsTight}>
+          <button onClick={onClose} className={`${c.btnOutline} ${c.btnSm} ${c.flex1}`}>Cancel</button>
           <button onClick={async () => { setDeleting(true); await onConfirm(); setDeleting(false) }} disabled={deleting}
-            className="flex-1 bg-red-500 text-white py-3 rounded-full font-bold hover:bg-red-600 text-sm disabled:opacity-50">
+            className={`${c.btnDanger} ${c.flex1}`}>
             {deleting ? 'Removing…' : 'Remove'}
           </button>
         </div>
@@ -173,9 +175,9 @@ function DeleteConfirm({ label, onClose, onConfirm }) {
 
 function Avatar({ src, name }) {
   const initials = name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?'
-  if (src) return <img src={src} alt={name} className="w-10 h-10 rounded-2xl object-cover flex-shrink-0" />
+  if (src) return <img src={src} alt={name} className={styles.avatar} />
   return (
-    <div className="w-10 h-10 rounded-2xl bg-brand/10 text-brand flex items-center justify-center font-bold text-sm flex-shrink-0">
+    <div className={styles.avatarFallback}>
       {initials}
     </div>
   )
@@ -231,50 +233,49 @@ export default function AdminTeamPage() {
   }, {})
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className={c.page}>
+      <div className={c.header}>
         <div>
-          <h2 className="text-4xl font-serif font-bold text-dark tracking-tight">Team</h2>
-          <p className="text-gray-400 mt-1 font-medium">{active} active · {inactive} inactive</p>
+          <h2 className={c.title}>Team</h2>
+          <p className={c.subtitle}>{active} active · {inactive} inactive</p>
         </div>
-        <button onClick={() => setModal('create')}
-          className="bg-brand text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-brand-hover transition-colors shadow-glow">
+        <button onClick={() => setModal('create')} className={c.addBtn}>
           + Add Member
         </button>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className={c.tabRow}>
         {STATUS_OPTIONS.map(s => (
           <button key={s} onClick={() => setStatus(s)}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all capitalize ${status === s ? 'bg-dark text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand'}`}>
+            className={`${c.tab} ${status === s ? c.tabActive : ''}`}>
             {s}
           </button>
         ))}
       </div>
 
       {error ? (
-        <div className="text-red-500 font-bold px-6 py-4 bg-red-50 rounded-2xl">{error}</div>
+        <div className={c.errorBox}>{error}</div>
       ) : loading ? (
-        <div className="flex items-center justify-center h-48">
-          <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <div className={c.loadingSm}>
+          <div className={c.spinner} />
         </div>
       ) : members.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm px-8 py-16 text-center">
-          <p className="text-gray-400 font-bold mb-4">No team members yet.</p>
-          <button onClick={() => setModal('create')} className="bg-brand text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-brand-hover transition-colors">
+        <div className={c.emptyCard}>
+          <p className={styles.emptyMb}>No team members yet.</p>
+          <button onClick={() => setModal('create')} className={c.btnBrandSm}>
             + Add First Member
           </button>
         </div>
       ) : status !== 'All' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className={styles.grid3}>
           {members.map(m => <MemberCard key={m._id || m.id} member={m} onEdit={() => setModal(m)} onDelete={() => setDeleteTarget(m)} />)}
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className={styles.deptGroups}>
           {Object.entries(deptGroups).sort(([a], [b]) => a.localeCompare(b)).map(([dept, deptMembers]) => (
             <div key={dept}>
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 mb-4">{dept}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <p className={styles.deptLabel}>{dept}</p>
+              <div className={styles.grid3}>
                 {deptMembers.map(m => <MemberCard key={m._id || m.id} member={m} onEdit={() => setModal(m)} onDelete={() => setDeleteTarget(m)} />)}
               </div>
             </div>
@@ -297,44 +298,42 @@ export default function AdminTeamPage() {
 function MemberCard({ member, onEdit, onDelete }) {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 group hover:border-brand/30 transition-colors">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
+      className={styles.card}>
+      <div className={styles.cardTop}>
+        <div className={styles.cardHead}>
           <Avatar src={member.avatar} name={member.name} />
           <div>
-            <p className="font-bold text-dark group-hover:text-brand transition-colors">{member.name}</p>
-            <p className="text-xs text-gray-400 font-bold mt-0.5">{member.role}</p>
+            <p className={styles.name}>{member.name}</p>
+            <p className={styles.role}>{member.role}</p>
           </div>
         </div>
-        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black border uppercase tracking-[0.1em] ${member.status === 'active' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
+        <span className={`${c.badge} ${member.status === 'active' ? c.badgeGreen : c.badgeGray}`}>
           {member.status}
         </span>
       </div>
 
       {member.bio && (
-        <p className="text-gray-400 text-sm mb-4 line-clamp-2">{member.bio}</p>
+        <p className={styles.bio}>{member.bio}</p>
       )}
 
-      <div className="space-y-1.5 mb-5">
+      <div className={styles.contacts}>
         {member.email && (
-          <p className="text-xs text-gray-500 font-medium flex items-center gap-2">
-            <span className="text-gray-300">✉</span> {member.email}
+          <p className={styles.contact}>
+            <span className={styles.contactIcon}>✉</span> {member.email}
           </p>
         )}
         {member.phone && (
-          <p className="text-xs text-gray-500 font-medium flex items-center gap-2">
-            <span className="text-gray-300">☎</span> {member.phone}
+          <p className={styles.contact}>
+            <span className={styles.contactIcon}>☎</span> {member.phone}
           </p>
         )}
       </div>
 
-      <div className="flex gap-2">
-        <button onClick={onEdit}
-          className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-xs font-bold hover:border-blue-200 hover:text-blue-600 transition-colors">
+      <div className={styles.cardBtns}>
+        <button onClick={onEdit} className={styles.editBtn}>
           Edit
         </button>
-        <button onClick={onDelete}
-          className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 transition-colors text-sm flex items-center justify-center">
+        <button onClick={onDelete} className={`${c.iconBtn} ${c.iconBtnDelete}`}>
           🗑
         </button>
       </div>

@@ -1,0 +1,33 @@
+.modalFlex {
+  background: #fff;
+  border-radius: 2.5rem;
+  width: 100%;
+  max-width: 42rem;
+  box-shadow: var(--shadow-premium);
+  border: 1px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+}
+.modalHead { padding: 2.5rem 2.5rem 0; flex-shrink: 0; }
+.modalBody { flex: 1; overflow-y: auto; padding: 0 2.5rem 0.5rem; }
+.modalFoot { padding: 1.5rem 2.5rem; flex-shrink: 0; border-top: 1px solid #f3f4f6; }
+.footRow { display: flex; gap: 1rem; }
+
+.thead { background: #f9fafb; border-bottom: 1px solid #f3f4f6; }
+.th { padding: 1.25rem 2rem; text-align: left; font-size: 10px; font-weight: 900; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.2em; }
+.thRight { padding: 1.25rem 2rem; text-align: right; font-size: 10px; font-weight: 900; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.2em; }
+.row { transition: background-color 0.2s; }
+.row:not(:first-child) { border-top: 1px solid #f9fafb; }
+.row:hover { background: rgba(249, 250, 251, 0.6); }
+.td { padding: 1.25rem 2rem; }
+.tdRight { padding: 1.25rem 2rem; text-align: right; }
+.titleCell { padding: 1.25rem 2rem; max-width: 260px; }
+.titleText { font-weight: 700; color: var(--dark); transition: color 0.2s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row:hover .titleText { color: var(--brand); }
+.excerptText { font-size: 10px; color: #9ca3af; font-weight: 700; margin-top: 0.125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cellMuted { color: #6b7280; }
+.cellDate { color: #6b7280; font-weight: 500; white-space: nowrap; }
+.actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+.hideMd { display: none; }
+@media (min-width: 768px) { .hideMd { display: table-cell; } }

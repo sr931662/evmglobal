@@ -16,9 +16,14 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 3rem;
-  align-items: center;
+  align-items: start;
 }
 @media (min-width: 1024px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 5rem; } }
+
+/* Keep the left copy in view alongside the long form on desktop. */
+@media (min-width: 1024px) {
+  .copy { position: sticky; top: 7rem; }
+}
 
 /* Left copy */
 .eyebrow {

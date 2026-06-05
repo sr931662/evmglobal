@@ -6,6 +6,7 @@ import {
   Tooltip, ResponsiveContainer,
 } from 'recharts'
 import { api } from '../../../services/api'
+import styles from './AdminAnalytics.module.css'
 
 const STATUS_COLORS = {
   new:       '#60A5FA',
@@ -25,10 +26,10 @@ const QUOTE_STATUS_COLORS = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-gray-100 shadow-lg rounded-2xl px-5 py-4 text-sm min-w-[140px]">
-      <p className="font-black text-gray-400 uppercase tracking-widest text-[10px] mb-2">{label}</p>
+    <div className={styles.tooltip}>
+      <p className={styles.tooltipLabel}>{label}</p>
       {payload.map((p, i) => (
-        <p key={i} className="font-bold" style={{ color: p.color || p.fill }}>
+        <p key={i} className={styles.tooltipVal} style={{ color: p.color || p.fill }}>
           {p.name}: {p.value}
         </p>
       ))}
@@ -42,10 +43,10 @@ function SectionCard({ title, subtitle, delay = 0, children }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
-      className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm"
+      className={styles.card}
     >
-      <h3 className="text-xl font-serif font-bold text-dark mb-1">{title}</h3>
-      {subtitle && <p className="text-gray-400 text-sm mb-6">{subtitle}</p>}
+      <h3 className={styles.cardTitle}>{title}</h3>
+      {subtitle && <p className={styles.cardSub}>{subtitle}</p>}
       {children}
     </motion.div>
   )
@@ -68,13 +69,13 @@ export default function AdminAnalytics() {
   }, [])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+    <div className={styles.loading}>
+      <div className={styles.spinner} />
     </div>
   )
 
   if (error) return (
-    <div className="bg-red-50 border border-red-100 text-red-500 font-bold px-6 py-4 rounded-2xl">{error}</div>
+    <div className={styles.error}>{error}</div>
   )
 
   // ── Lead status pie ────────────────────────────────────────────────────────
@@ -110,16 +111,16 @@ export default function AdminAnalytics() {
     .slice(0, 6)
 
   return (
-    <div className="space-y-10">
+    <div className={styles.page}>
       <div>
-        <h2 className="text-4xl font-serif font-bold text-dark tracking-tight">Analytics</h2>
-        <p className="text-gray-400 mt-1 font-medium">Live data from your business.</p>
+        <h2 className={styles.title}>Analytics</h2>
+        <p className={styles.subtitle}>Live data from your business.</p>
       </div>
 
       {/* ── Lead KPIs ──────────────────────────────────────────────────────── */}
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 mb-4">Inquiries</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        <p className={styles.sectionLabel}>Inquiries</p>
+        <div className={styles.kpiGrid}>
           {[
             { label: 'Total Inquiries', value: stats.total,             sub: `${stats.thisMonth} this month` },
             { label: 'Converted',      value: stats.converted,         sub: `${stats.conversionRate}% rate` },
@@ -130,11 +131,11 @@ export default function AdminAnalytics() {
               key={s.label}
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07 }}
-              className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm"
+              className={styles.kpiCard}
             >
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2">{s.label}</p>
-              <p className="text-3xl font-serif font-bold text-dark">{s.value}</p>
-              <p className="text-sm text-gray-400 font-bold mt-1">{s.sub}</p>
+              <p className={styles.kpiLabel}>{s.label}</p>
+              <p className={styles.kpiValue}>{s.value}</p>
+              <p className={styles.kpiSub}>{s.sub}</p>
             </motion.div>
           ))}
         </div>
@@ -143,8 +144,8 @@ export default function AdminAnalytics() {
       {/* ── Quote KPIs ─────────────────────────────────────────────────────── */}
       {stats.quotes && (
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 mb-4">Quotes</p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <p className={styles.sectionLabel}>Quotes</p>
+          <div className={styles.kpiGrid}>
             {[
               { label: 'Total Quotes', value: stats.quotes.total,    sub: 'All time' },
               { label: 'Draft',        value: stats.quotes.draft,    sub: 'In progress' },
@@ -155,11 +156,11 @@ export default function AdminAnalytics() {
                 key={s.label}
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.28 + i * 0.07 }}
-                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm"
+                className={styles.kpiCard}
               >
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2">{s.label}</p>
-                <p className="text-3xl font-serif font-bold text-dark">{s.value}</p>
-                <p className="text-sm text-gray-400 font-bold mt-1">{s.sub}</p>
+                <p className={styles.kpiLabel}>{s.label}</p>
+                <p className={styles.kpiValue}>{s.value}</p>
+                <p className={styles.kpiSub}>{s.sub}</p>
               </motion.div>
             ))}
           </div>
@@ -186,12 +187,12 @@ export default function AdminAnalytics() {
       </SectionCard>
 
       {/* ── Status Breakdowns ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className={styles.twoCol}>
 
         {/* Lead Status */}
         <SectionCard title="Inquiry Pipeline" subtitle="Distribution across inquiry stages" delay={0.3}>
           {statusPieData.length > 0 ? (
-            <div className="flex items-center gap-8">
+            <div className={styles.pieRow}>
               <ResponsiveContainer width="55%" height={220}>
                 <PieChart>
                   <Pie data={statusPieData} cx="50%" cy="50%" innerRadius={58} outerRadius={86} paddingAngle={4} dataKey="value">
@@ -200,32 +201,32 @@ export default function AdminAnalytics() {
                   <Tooltip formatter={(v, n) => [v, n]} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex-1 space-y-4">
+              <div className={styles.legend}>
                 {statusPieData.map(s => (
                   <div key={s.name}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="font-bold text-gray-700 flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: s.color }} />
+                    <div className={styles.legendTop}>
+                      <span className={styles.legendName}>
+                        <span className={styles.dot} style={{ background: s.color }} />
                         {s.name}
                       </span>
-                      <span className="font-black text-dark">{s.value}</span>
+                      <span className={styles.legendCount}>{s.value}</span>
                     </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${stats.total > 0 ? Math.round((s.value / stats.total) * 100) : 0}%`, background: s.color }} />
+                    <div className={styles.barTrack}>
+                      <div className={styles.bar} style={{ width: `${stats.total > 0 ? Math.round((s.value / stats.total) * 100) : 0}%`, background: s.color }} />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-gray-400 font-bold text-sm text-center py-8">No inquiry data yet.</p>
+            <p className={styles.empty}>No inquiry data yet.</p>
           )}
         </SectionCard>
 
         {/* Quote Status */}
         <SectionCard title="Quote Pipeline" subtitle="Distribution across quote stages" delay={0.35}>
           {quotePieData.length > 0 ? (
-            <div className="flex items-center gap-8">
+            <div className={styles.pieRow}>
               <ResponsiveContainer width="55%" height={220}>
                 <PieChart>
                   <Pie data={quotePieData} cx="50%" cy="50%" innerRadius={58} outerRadius={86} paddingAngle={4} dataKey="value">
@@ -234,31 +235,31 @@ export default function AdminAnalytics() {
                   <Tooltip formatter={(v, n) => [v, n]} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex-1 space-y-4">
+              <div className={styles.legend}>
                 {quotePieData.map(s => (
                   <div key={s.name}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="font-bold text-gray-700 flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: s.color }} />
+                    <div className={styles.legendTop}>
+                      <span className={styles.legendName}>
+                        <span className={styles.dot} style={{ background: s.color }} />
                         {s.name}
                       </span>
-                      <span className="font-black text-dark">{s.value}</span>
+                      <span className={styles.legendCount}>{s.value}</span>
                     </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${stats.quotes.total > 0 ? Math.round((s.value / stats.quotes.total) * 100) : 0}%`, background: s.color }} />
+                    <div className={styles.barTrack}>
+                      <div className={styles.bar} style={{ width: `${stats.quotes.total > 0 ? Math.round((s.value / stats.quotes.total) * 100) : 0}%`, background: s.color }} />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-gray-400 font-bold text-sm text-center py-8">No quotes created yet.</p>
+            <p className={styles.empty}>No quotes created yet.</p>
           )}
         </SectionCard>
       </div>
 
       {/* ── Packages ──────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className={styles.twoCol}>
 
         {/* Category Breakdown */}
         <SectionCard title="Packages by Category" subtitle="How your package portfolio is structured" delay={0.4}>
@@ -273,33 +274,33 @@ export default function AdminAnalytics() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 font-bold text-sm text-center py-8">No packages created yet.</p>
+            <p className={styles.empty}>No packages created yet.</p>
           )}
         </SectionCard>
 
         {/* Package Stats */}
         <SectionCard title="Package Stats" subtitle="Portfolio at a glance" delay={0.42}>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className={styles.statGrid}>
             {[
               { label: 'Total Packages', value: stats.packages?.total ?? packages.length },
               { label: 'Active',         value: stats.packages?.active ?? packages.filter(p => p.status === 'Active').length },
             ].map(s => (
-              <div key={s.label} className="bg-gray-50 rounded-2xl p-5">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{s.label}</p>
-                <p className="text-3xl font-serif font-bold text-dark">{s.value}</p>
+              <div key={s.label} className={styles.statBox}>
+                <p className={styles.statLabel}>{s.label}</p>
+                <p className={styles.statValue}>{s.value}</p>
               </div>
             ))}
           </div>
           {topPackages.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Top by Bookings</p>
+            <div className={styles.topList}>
+              <p className={styles.topHeading}>Top by Bookings</p>
               {topPackages.slice(0, 4).map(pkg => (
-                <div key={pkg.id || pkg._id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                  <div className="min-w-0">
-                    <p className="font-bold text-dark text-sm truncate">{pkg.title}</p>
-                    <p className="text-xs text-gray-400">{pkg.category} · {pkg.nights}N · {pkg.price}</p>
+                <div key={pkg.id || pkg._id} className={styles.topRow}>
+                  <div className={styles.topInfo}>
+                    <p className={styles.topTitle}>{pkg.title}</p>
+                    <p className={styles.topMeta}>{pkg.category} · {pkg.nights}N · {pkg.price}</p>
                   </div>
-                  <span className="font-black text-dark text-sm ml-4 flex-shrink-0">{pkg.bookings ?? 0} bkg</span>
+                  <span className={styles.topBkg}>{pkg.bookings ?? 0} bkg</span>
                 </div>
               ))}
             </div>
@@ -310,22 +311,22 @@ export default function AdminAnalytics() {
       {/* ── Recent Leads ──────────────────────────────────────────────────── */}
       <SectionCard title="Recent Inquiries" subtitle="Latest 5 inquiries" delay={0.5}>
         {stats.recent?.length > 0 ? (
-          <div className="space-y-4">
+          <div className={styles.recentList}>
             {stats.recent.slice(0, 5).map(lead => {
               const statusColor = {
-                new:       'bg-blue-50 text-blue-700 border-blue-100',
-                contacted: 'bg-yellow-50 text-yellow-700 border-yellow-100',
-                qualified: 'bg-purple-50 text-purple-700 border-purple-100',
-                converted: 'bg-green-50 text-green-700 border-green-100',
-                rejected:  'bg-red-50 text-red-500 border-red-100',
-              }[lead.status] || 'bg-gray-50 text-gray-500 border-gray-100'
+                new:       styles.badgeNew,
+                contacted: styles.badgeContacted,
+                qualified: styles.badgeQualified,
+                converted: styles.badgeConverted,
+                rejected:  styles.badgeRejected,
+              }[lead.status] || styles.badgeDefault
               return (
-                <div key={lead.id || lead._id} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+                <div key={lead.id || lead._id} className={styles.recentRow}>
                   <div>
-                    <p className="font-bold text-dark">{lead.name}</p>
-                    <p className="text-gray-400 text-sm font-medium mt-0.5">{lead.phone}</p>
+                    <p className={styles.recentName}>{lead.name}</p>
+                    <p className={styles.recentPhone}>{lead.phone}</p>
                   </div>
-                  <span className={`px-3.5 py-1.5 rounded-full text-[10px] font-black border uppercase tracking-[0.15em] ${statusColor}`}>
+                  <span className={`${styles.recentBadge} ${statusColor}`}>
                     {lead.status}
                   </span>
                 </div>
@@ -333,7 +334,7 @@ export default function AdminAnalytics() {
             })}
           </div>
         ) : (
-          <p className="text-gray-400 font-bold text-sm text-center py-8">No inquiries yet.</p>
+          <p className={styles.empty}>No inquiries yet.</p>
         )}
       </SectionCard>
     </div>

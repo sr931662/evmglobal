@@ -1,1 +1,149 @@
-/* Uses global accordion CSS + Tailwind */
+.list { display: flex; flex-direction: column; gap: 2rem; }
+
+.item {
+  background: #fff;
+  border-radius: 3rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: var(--shadow-glass);
+  overflow: hidden;
+}
+
+.header {
+  padding: 2.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.2s;
+}
+.header:hover { background: rgba(249, 250, 251, 0.5); }
+@media (min-width: 768px) { .header { padding: 3rem; } }
+
+.headerLeft { display: flex; align-items: center; gap: 2rem; }
+
+.dayBadge {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.875rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #9ca3af;
+}
+.dayBadgeActive {
+  background: rgba(229, 57, 53, 0.05);
+  color: var(--brand);
+  border-color: rgba(229, 57, 53, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.title {
+  font-size: 1.875rem;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+.date {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+.icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  flex-shrink: 0;
+  transition: transform 0.7s var(--ease-out-expo), border-color 0.2s;
+}
+.header:hover .icon { border-color: #d1d5db; }
+.iconOpen { transform: rotate(180deg); }
+.icon svg { width: 1.25rem; height: 1.25rem; }
+
+.content {
+  border-top: 1px solid #f3f4f6;
+  background: rgba(249, 250, 251, 0.3);
+}
+
+.timeline {
+  padding: 2.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+@media (min-width: 768px) { .timeline { padding: 3.5rem; } }
+
+.timelineLine {
+  position: absolute;
+  left: 4.5rem;
+  top: 3.5rem;
+  bottom: 3.5rem;
+  width: 2px;
+  background: #e5e7eb;
+  border-radius: 9999px;
+}
+@media (min-width: 768px) { .timelineLine { left: 5.5rem; } }
+
+.activity { display: flex; gap: 2.5rem; position: relative; z-index: 10; }
+
+.actIconCol {
+  width: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.actIcon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e5e7eb;
+  font-size: 1.5rem;
+}
+.actIconBlue  { border-color: #dbeafe; color: #2563eb; }
+.actIconGreen { border-color: #dcfce7; color: #16a34a; }
+.actIconBrand { border-color: rgba(229, 57, 53, 0.2); color: var(--brand); }
+
+.actBody { flex: 1; }
+.actBodySpaced { padding-bottom: 1rem; }
+.actTitle {
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-family: var(--font-serif);
+}
+.actDesc {
+  color: #4b5563;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  font-weight: 300;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 2rem;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.single { padding: 2.5rem; }
+@media (min-width: 768px) { .single { padding: 3.5rem; } }

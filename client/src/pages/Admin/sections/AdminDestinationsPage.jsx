@@ -1,16 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
+import c from './adminCommon.module.css'
+import styles from './AdminDestinationsPage.module.css'
 
 const REGIONS = ['Europe', 'Asia', 'Middle East', 'Africa', 'Oceania', 'Americas']
 
 const regionColors = {
-  Europe:        'bg-blue-50 text-blue-700 border-blue-100',
-  Asia:          'bg-green-50 text-green-700 border-green-100',
-  'Middle East': 'bg-orange-50 text-orange-700 border-orange-100',
-  Africa:        'bg-yellow-50 text-yellow-700 border-yellow-100',
-  Oceania:       'bg-teal-50 text-teal-700 border-teal-100',
-  Americas:      'bg-purple-50 text-purple-700 border-purple-100',
+  Europe:        styles.regionBlue,
+  Asia:          styles.regionGreen,
+  'Middle East': styles.regionOrange,
+  Africa:        styles.regionYellow,
+  Oceania:       styles.regionTeal,
+  Americas:      styles.regionPurple,
 }
 
 const FALLBACK = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=400'
@@ -111,26 +113,23 @@ export default function AdminDestinationsPage() {
   }, {})
 
   return (
-    <div className="space-y-8">
+    <div className={c.page}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className={c.header}>
         <div>
-          <h2 className="text-4xl font-serif font-bold text-dark tracking-tight">Destinations</h2>
-          <p className="text-gray-400 mt-1 font-medium">{destinations.length} destination{destinations.length !== 1 ? 's' : ''} across {Object.keys(regionCounts).length} region{Object.keys(regionCounts).length !== 1 ? 's' : ''}</p>
+          <h2 className={c.title}>Destinations</h2>
+          <p className={c.subtitle}>{destinations.length} destination{destinations.length !== 1 ? 's' : ''} across {Object.keys(regionCounts).length} region{Object.keys(regionCounts).length !== 1 ? 's' : ''}</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="bg-brand text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-3 hover:bg-brand-hover transition-colors shadow-glow"
-        >
+        <button onClick={openCreate} className={c.addBtn}>
           + Add Destination
         </button>
       </div>
 
       {/* Region summary pills */}
       {Object.keys(regionCounts).length > 0 && (
-        <div className="flex flex-wrap gap-3">
+        <div className={c.pillRow}>
           {Object.entries(regionCounts).map(([region, count]) => (
-            <span key={region} className={`px-4 py-2 rounded-full text-xs font-black border uppercase tracking-[0.15em] ${regionColors[region] || 'bg-gray-50 text-gray-600 border-gray-100'}`}>
+            <span key={region} className={`${c.pill} ${regionColors[region] || styles.regionGray}`}>
               {region} · {count}
             </span>
           ))}
@@ -138,30 +137,30 @@ export default function AdminDestinationsPage() {
       )}
 
       {/* Search */}
-      <div className="relative max-w-xs">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+      <div className={c.searchWrapXs}>
+        <span className={c.searchIcon}>🔍</span>
         <input
           type="text"
           placeholder="Search destinations..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-10 pr-5 py-3 bg-white border border-gray-200 rounded-full text-sm focus:outline-none focus:border-brand transition-colors font-bold text-dark shadow-sm"
+          className={c.searchSolo}
         />
       </div>
 
       {/* Grid */}
       {error ? (
-        <div className="bg-red-50 border border-red-100 text-red-500 font-bold px-6 py-4 rounded-2xl">{error}</div>
+        <div className={c.errorBox}>{error}</div>
       ) : loading ? (
-        <div className="flex items-center justify-center h-48">
-          <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <div className={c.loadingSm}>
+          <div className={c.spinner} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm px-8 py-16 text-center text-gray-400 font-bold">
+        <div className={c.emptyCard}>
           {search ? 'No destinations match your search.' : 'No destinations yet. Add one to get started.'}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className={c.cardGrid}>
           {filtered.map((dest, i) => {
             const id = dest.id || dest._id
             return (
@@ -170,39 +169,36 @@ export default function AdminDestinationsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
-                className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:-translate-y-1 transition-transform duration-300"
+                className={styles.card}
               >
                 {/* Image */}
-                <div className="relative h-44 overflow-hidden bg-gray-100">
+                <div className={styles.imgWrap}>
                   <img
                     src={dest.image || FALLBACK}
                     alt={dest.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className={styles.img}
                     onError={e => { e.target.src = FALLBACK }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                  <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[9px] font-black border uppercase tracking-[0.15em] ${regionColors[dest.region] || 'bg-white/90 text-gray-600 border-gray-100'}`}>
+                  <div className={styles.imgOverlay} />
+                  <span className={`${styles.imgBadge} ${regionColors[dest.region] || styles.regionGray}`}>
                     {dest.region}
                   </span>
                 </div>
 
                 {/* Info */}
-                <div className="p-5">
-                  <p className="font-serif font-bold text-dark text-lg leading-tight">{dest.name}</p>
-                  <p className="text-gray-400 text-sm font-bold mt-0.5">{dest.country}</p>
-                  {dest.startingPrice && <p className="text-brand text-xs font-black mt-1">From {dest.startingPrice}</p>}
+                <div className={styles.info}>
+                  <p className={styles.name}>{dest.name}</p>
+                  <p className={styles.country}>{dest.country}</p>
+                  {dest.startingPrice && <p className={styles.price}>From {dest.startingPrice}</p>}
 
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => openEdit(dest)}
-                      className="flex-1 text-[11px] font-black uppercase tracking-[0.15em] py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-colors"
-                    >
+                  <div className={styles.cardBtns}>
+                    <button onClick={() => openEdit(dest)} className={styles.editBtn}>
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(dest)}
                       disabled={deletingId === id}
-                      className="flex-1 text-[11px] font-black uppercase tracking-[0.15em] py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-600 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors disabled:opacity-40"
+                      className={styles.delBtn}
                     >
                       {deletingId === id ? '…' : 'Delete'}
                     </button>
@@ -216,23 +212,23 @@ export default function AdminDestinationsPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={closeModal}>
+        <div className={c.overlay} onClick={closeModal}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             onClick={e => e.stopPropagation()}
-            className="bg-white rounded-[2.5rem] p-10 w-full max-w-md shadow-premium border border-gray-100"
+            className={c.modal}
           >
-            <h3 className="text-3xl font-serif font-bold text-dark mb-8">{editId ? 'Edit Destination' : 'New Destination'}</h3>
+            <h3 className={c.modalTitle}>{editId ? 'Edit Destination' : 'New Destination'}</h3>
 
             {/* Image preview */}
             {form.image && (
-              <div className="mb-6 h-36 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
-                <img src={form.image} alt="preview" className="w-full h-full object-cover" onError={e => { e.target.style.display = 'none' }} />
+              <div className={styles.modalImgPreview}>
+                <img src={form.image} alt="preview" onError={e => { e.target.style.display = 'none' }} />
               </div>
             )}
 
-            <div className="space-y-5">
+            <div className={c.stack}>
               {[
                 { label: 'Destination Name', key: 'name',          placeholder: 'e.g. Santorini' },
                 { label: 'Country',          key: 'country',        placeholder: 'e.g. Greece' },
@@ -240,35 +236,35 @@ export default function AdminDestinationsPage() {
                 { label: 'Image URL',        key: 'image',          placeholder: 'https://images.unsplash.com/...' },
               ].map(field => (
                 <div key={field.key}>
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">{field.label}</label>
+                  <label className={c.label}>{field.label}</label>
                   <input
                     type="text"
                     placeholder={field.placeholder}
                     value={form[field.key]}
                     onChange={e => f(field.key, e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
+                    className={c.input}
                   />
                 </div>
               ))}
 
               <div>
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Region</label>
+                <label className={c.label}>Region</label>
                 <select
                   value={form.region}
                   onChange={e => f('region', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer"
+                  className={`${c.input} ${c.select}`}
                 >
                   {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
             </div>
 
-            <div className="flex gap-4 mt-8">
-              <button onClick={closeModal} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">Cancel</button>
+            <div className={c.modalActions}>
+              <button onClick={closeModal} className={`${c.btnOutline} ${c.flex1}`}>Cancel</button>
               <button
                 onClick={handleSave}
                 disabled={saving || !form.name.trim() || !form.country.trim()}
-                className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50"
+                className={`${c.btnBrand} ${c.flex1}`}
               >
                 {saving ? 'Saving…' : (editId ? 'Update' : 'Add Destination')}
               </button>

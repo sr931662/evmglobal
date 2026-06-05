@@ -33,7 +33,7 @@ export default function BentoSection() {
               <span className={styles.eyebrowLine} /> The Philosophy
             </motion.span>
             <motion.h2 variants={fadeUpChild} className={styles.heading}>
-              Artisans of <br className="hidden sm:block" />global travel.
+              Artisans of <br className={styles.brBreak} />global travel.
             </motion.h2>
           </div>
           <motion.p variants={fadeUpChild} className={styles.subtitle}>

@@ -49,6 +49,9 @@
   font-size: clamp(1.875rem, 5vw, 3.75rem);
 }
 
+.brBreak { display: none; }
+@media (min-width: 640px) { .brBreak { display: block; } }
+
 .subtitle {
   color: #6b7280;
   font-size: 1rem;
@@ -93,7 +96,9 @@
   .cardSpan2 { grid-column: span 2; }
   .cardRow2  { grid-row: span 2; }
 }
-.cardFullBottom { justify-content: space-between; }
+/* Featured (tall) card: center the content block so the extra height
+   reads as balanced breathing room instead of a void in the middle. */
+.cardFullBottom { justify-content: center; }
 
 .cardGlow {
   position: absolute;

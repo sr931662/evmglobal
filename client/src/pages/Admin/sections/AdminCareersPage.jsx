@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import c from './adminCommon.module.css'
+import styles from './AdminCareersPage.module.css'
 
 const DEPARTMENTS = ['Sales', 'Operations', 'Marketing', 'Technology', 'Management', 'Customer Support']
 const JOB_TYPES   = ['Full-time', 'Part-time', 'Remote', 'Hybrid']
@@ -51,84 +53,84 @@ function CareerModal({ job, onClose, onSave }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className={c.overlay} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2.5rem] p-10 w-full max-w-2xl shadow-premium border border-gray-100 max-h-[90vh] overflow-y-auto modal-scroll"
+        className={`${c.modal} ${c.modalLg} ${c.modalScroll} modal-scroll`}
         onWheel={e => e.stopPropagation()}
       >
-        <h3 className="text-3xl font-serif font-bold text-dark mb-8">
+        <h3 className={c.modalTitle}>
           {isEdit ? 'Edit Job Posting' : 'New Job Posting'}
         </h3>
 
-        <div className="space-y-5">
+        <div className={c.stack}>
           <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Job Title <span className="text-brand">*</span></label>
+            <label className={c.label}>Job Title <span className={c.req}>*</span></label>
             <input type="text" value={form.title} onChange={e => f('title', e.target.value)}
               placeholder="e.g. Travel Sales Executive"
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+              className={c.input} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={c.grid2}>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Department</label>
+              <label className={c.label}>Department</label>
               <select value={form.department} onChange={e => f('department', e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                className={`${c.input} ${c.select}`}>
                 {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Status</label>
+              <label className={c.label}>Status</label>
               <select value={form.status} onChange={e => f('status', e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                className={`${c.input} ${c.select}`}>
                 <option value="open">Open</option>
                 <option value="closed">Closed</option>
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={c.grid2}>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Location</label>
+              <label className={c.label}>Location</label>
               <input type="text" value={form.location} onChange={e => f('location', e.target.value)}
                 placeholder="Gurugram / Remote"
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
+                className={c.input} />
             </div>
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Type</label>
+              <label className={c.label}>Type</label>
               <select value={form.type} onChange={e => f('type', e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                className={`${c.input} ${c.select}`}>
                 {JOB_TYPES.map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">Description <span className="text-brand">*</span></label>
-              <span className="text-[9px] text-gray-400 font-medium">Use ## for heading, - for bullet points</span>
+            <div className={c.labelRow}>
+              <label className={c.label} style={{ marginBottom: 0 }}>Description <span className={c.req}>*</span></label>
+              <span className={c.labelHint}>Use ## for heading, - for bullet points</span>
             </div>
             <textarea rows={5} value={form.description} onChange={e => f('description', e.target.value)}
               placeholder={"Describe the role and responsibilities…\n\n## Responsibilities\n- Manage client relationships\n- Coordinate with operations team"}
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-brand transition-colors resize-none font-mono" />
+              className={`${c.input} ${c.textareaMono}`} />
           </div>
 
           <div>
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Requirements (one per line)</label>
+            <label className={c.label}>Requirements (one per line)</label>
             <textarea rows={4} value={form.requirements} onChange={e => f('requirements', e.target.value)}
               placeholder={"2+ years in travel sales\nExcellent communication skills\nKnowledge of GDS systems"}
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-medium text-sm focus:outline-none focus:border-brand transition-colors resize-none" />
+              className={`${c.input} ${c.textarea}`} />
           </div>
         </div>
 
-        {err && <p className="mt-4 text-red-500 text-sm font-bold">{err}</p>}
+        {err && <p className={c.formError}>{err}</p>}
 
-        <div className="flex gap-4 mt-8">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">Cancel</button>
+        <div className={c.modalActions}>
+          <button onClick={onClose} className={`${c.btnOutline} ${c.flex1}`}>Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
-            className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50">
+            className={`${c.btnBrand} ${c.flex1}`}>
             {saving ? 'Saving…' : isEdit ? 'Update Posting' : 'Create Posting'}
           </button>
         </div>
@@ -140,22 +142,22 @@ function CareerModal({ job, onClose, onSave }) {
 function DeleteConfirm({ label, onClose, onConfirm }) {
   const [deleting, setDeleting] = useState(false)
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={onClose}>
+    <div className={c.overlay} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-premium border border-gray-100 text-center"
+        className={`${c.modal} ${c.modalSm}`}
       >
-        <div className="text-4xl mb-4">🗑️</div>
-        <h3 className="text-xl font-serif font-bold text-dark mb-2">Delete Posting?</h3>
-        <p className="text-gray-500 text-sm font-medium mb-8">
-          <span className="font-bold text-dark">{label}</span> will be permanently removed.
+        <div className={c.confirmIcon}>🗑️</div>
+        <h3 className={c.confirmTitle}>Delete Posting?</h3>
+        <p className={c.confirmText}>
+          <span className={c.strong}>{label}</span> will be permanently removed.
         </p>
-        <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-full font-bold hover:bg-gray-50 text-sm">Cancel</button>
+        <div className={c.actionsTight}>
+          <button onClick={onClose} className={`${c.btnOutline} ${c.btnSm} ${c.flex1}`}>Cancel</button>
           <button onClick={async () => { setDeleting(true); await onConfirm(); setDeleting(false) }} disabled={deleting}
-            className="flex-1 bg-red-500 text-white py-3 rounded-full font-bold hover:bg-red-600 text-sm disabled:opacity-50">
+            className={`${c.btnDanger} ${c.flex1}`}>
             {deleting ? 'Deleting…' : 'Delete'}
           </button>
         </div>
@@ -214,79 +216,75 @@ export default function AdminCareersPage() {
   const open   = jobs.filter(j => j.status === 'open').length
   const closed = jobs.filter(j => j.status === 'closed').length
 
-  const typeBadge = (type) => {
-    const map = {
-      'Full-time': 'bg-blue-50 text-blue-700 border-blue-100',
-      'Part-time': 'bg-purple-50 text-purple-700 border-purple-100',
-      'Remote':    'bg-green-50 text-green-700 border-green-100',
-      'Hybrid':    'bg-orange-50 text-orange-700 border-orange-100',
-    }
-    return map[type] || 'bg-gray-50 text-gray-500 border-gray-100'
-  }
+  const typeBadge = (type) => ({
+    'Full-time': c.badgeBlue,
+    'Part-time': c.badgePurple,
+    'Remote':    c.badgeGreen,
+    'Hybrid':    c.badgeOrange,
+  }[type] || c.badgeGray)
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className={c.page}>
+      <div className={c.header}>
         <div>
-          <h2 className="text-4xl font-serif font-bold text-dark tracking-tight">Careers</h2>
-          <p className="text-gray-400 mt-1 font-medium">{open} open · {closed} closed</p>
+          <h2 className={c.title}>Careers</h2>
+          <p className={c.subtitle}>{open} open · {closed} closed</p>
         </div>
-        <button onClick={() => setModal('create')}
-          className="bg-brand text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-brand-hover transition-colors shadow-glow">
+        <button onClick={() => setModal('create')} className={c.addBtn}>
           + New Posting
         </button>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className={c.tabRow}>
         {STATUS_OPTIONS.map(s => (
           <button key={s} onClick={() => setStatus(s)}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all capitalize ${status === s ? 'bg-dark text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:border-brand hover:text-brand'}`}>
+            className={`${c.tab} ${status === s ? c.tabActive : ''}`}>
             {s}
           </button>
         ))}
       </div>
 
       {error ? (
-        <div className="text-red-500 font-bold px-6 py-4 bg-red-50 rounded-2xl">{error}</div>
+        <div className={c.errorBox}>{error}</div>
       ) : loading ? (
-        <div className="flex items-center justify-center h-48">
-          <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <div className={c.loadingSm}>
+          <div className={c.spinner} />
         </div>
       ) : jobs.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm px-8 py-16 text-center">
-          <p className="text-gray-400 font-bold mb-4">No job postings yet.</p>
-          <button onClick={() => setModal('create')} className="bg-brand text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-brand-hover transition-colors">
+        <div className={c.emptyCard}>
+          <p className={styles.emptyMb}>No job postings yet.</p>
+          <button onClick={() => setModal('create')} className={c.btnBrandSm}>
             + Create First Posting
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className={c.listStack}>
           {jobs.map(job => {
             const id = job._id || job.id
             return (
               <motion.div key={id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-3xl border border-gray-100 shadow-sm px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-brand/30 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap mb-1.5">
-                    <h3 className="font-bold text-dark text-lg group-hover:text-brand transition-colors">{job.title}</h3>
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-[0.15em] ${typeBadge(job.type)}`}>
+                className={styles.listRow}>
+                <div className={styles.rowMain}>
+                  <div className={styles.rowTop}>
+                    <h3 className={styles.rowTitle}>{job.title}</h3>
+                    <span className={`${c.badge} ${typeBadge(job.type)}`}>
                       {job.type}
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-[0.15em] ${job.status === 'open' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
+                    <span className={`${c.badge} ${job.status === 'open' ? c.badgeGreen : c.badgeGray}`}>
                       {job.status}
                     </span>
                   </div>
-                  <p className="text-gray-500 text-sm font-medium">{job.department} · {job.location}</p>
+                  <p className={styles.dept}>{job.department} · {job.location}</p>
                   {job.description && (
-                    <p className="text-gray-400 text-sm mt-1.5 line-clamp-2">{job.description}</p>
+                    <p className={styles.desc}>{job.description}</p>
                   )}
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div className={c.actionsInline}>
                   <button onClick={() => setModal(job)}
-                    className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors text-sm flex items-center justify-center shadow-sm"
+                    className={`${c.iconBtn} ${c.iconBtnEdit}`}
                     title="Edit posting">✏</button>
                   <button onClick={() => setDeleteTarget(job)}
-                    className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 transition-colors text-sm flex items-center justify-center shadow-sm"
+                    className={`${c.iconBtn} ${c.iconBtnDelete}`}
                     title="Delete posting">🗑</button>
                 </div>
               </motion.div>

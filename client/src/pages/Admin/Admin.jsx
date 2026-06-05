@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
 import AdminSidebar from '../../components/admin/AdminSidebar/AdminSidebar'
 import AdminMobileSidebar from '../../components/admin/AdminSidebar/AdminMobileSidebar'
+import styles from './Admin.module.css'
 
 const AdminDashboard         = lazy(() => import('./sections/AdminDashboard'))
 const AdminAnalytics         = lazy(() => import('./sections/AdminAnalytics'))
@@ -18,8 +19,8 @@ const AdminUsersPage         = lazy(() => import('./sections/AdminUsersPage'))
 
 function SectionLoader() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+    <div className={styles.sectionLoader}>
+      <div className={styles.spinner} />
     </div>
   )
 }
@@ -54,7 +55,7 @@ export default function Admin() {
   const navigate = (id, state = null) => { setNavState(state); setActive(id); setMobileOpen(false) }
 
   return (
-    <div className="flex min-h-screen bg-[#f7f8fa]">
+    <div className={styles.shell}>
       {/* Desktop sidebar */}
       <AdminSidebar active={active} onNavigate={navigate} onLogout={logout} user={user} />
 
@@ -68,24 +69,21 @@ export default function Admin() {
         onClose={() => setMobileOpen(false)}
       />
 
-      <main className="flex-1 min-w-0">
+      <main className={styles.main}>
         {/* Mobile top bar */}
-        <div className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3.5 bg-white border-b border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-dark rounded-xl flex items-center justify-center text-white font-bold font-serif text-base">E</div>
-            <span className="font-black text-xs tracking-[0.25em] uppercase text-dark">Workspace</span>
+        <div className={styles.mobileBar}>
+          <div className={styles.mobileBarLeft}>
+            <div className={styles.mobileLogo}>E</div>
+            <span className={styles.mobileTitle}>Workspace</span>
           </div>
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl hover:bg-gray-100 transition-colors"
-          >
-            <span className="w-5 h-0.5 bg-dark rounded-full" />
-            <span className="w-5 h-0.5 bg-dark rounded-full" />
-            <span className="w-3 h-0.5 bg-dark rounded-full self-start ml-1" />
+          <button onClick={() => setMobileOpen(true)} className={styles.hamburger}>
+            <span className={styles.bar} />
+            <span className={styles.bar} />
+            <span className={styles.barShort} />
           </button>
         </div>
 
-        <div className="px-4 md:px-10 py-6 md:py-8">
+        <div className={styles.content}>
           <AnimatePresence mode="wait">
             <motion.div
               key={active}

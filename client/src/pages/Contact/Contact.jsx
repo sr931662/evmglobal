@@ -172,11 +172,11 @@ export default function Contact() {
                   <p className={styles.formSubtitle}>We'll respond within 24 hours.</p>
 
                   {/* Step progress */}
-                  <div className="flex gap-2 mb-6">
+                  <div className={styles.stepProgress}>
                     {STEPS.map((s, i) => (
-                      <div key={s} className="flex-1">
-                        <div className={`h-1 rounded-full transition-colors ${i <= step ? 'bg-brand' : 'bg-gray-200'}`} />
-                        <p className={`text-[9px] font-black uppercase tracking-[0.15em] mt-1 ${i <= step ? 'text-brand' : 'text-gray-400'}`}>{s}</p>
+                      <div key={s} className={styles.stepCol}>
+                        <div className={`${styles.stepBar} ${i <= step ? styles.stepBarActive : ''}`} />
+                        <p className={`${styles.stepLabel} ${i <= step ? styles.stepLabelActive : ''}`}>{s}</p>
                       </div>
                     ))}
                   </div>
@@ -283,7 +283,7 @@ export default function Contact() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className={styles.btnRow}>
                           <button type="button" onClick={() => setStep(0)} className={styles.backBtn}>← Back</button>
                           <button type="submit" className={styles.submitBtn} style={{ flex: 2 }}>Next: Preferences →</button>
                         </div>
@@ -331,7 +331,7 @@ export default function Contact() {
                             placeholder="Dietary needs, accessibility requirements, preferred activities, anniversary surprise, visa assistance, specific hotels…"
                             rows={4} className={styles.textarea} />
                         </div>
-                        <div className="flex gap-3">
+                        <div className={styles.btnRow}>
                           <button type="button" onClick={() => setStep(1)} className={styles.backBtn}>← Back</button>
                           <button type="submit" disabled={loading} className={styles.submitBtn} style={{ flex: 2 }}>
                             {loading ? (
