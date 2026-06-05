@@ -186,7 +186,7 @@ export default function AdminDashboard() {
             >
               <h3 className={styles.chartTitleTight}>Weekly Activity</h3>
               <p className={styles.chartSubMb}>Inquiries vs Quotes created — this week</p>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={weeklyActivity} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#9CA3AF', fontWeight: 700 }} axisLine={false} tickLine={false} />
