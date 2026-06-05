@@ -7,6 +7,8 @@ import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
 import s from './AdminPackagesPage.module.css'
 
+const cx = (...values) => values.filter(Boolean).join(' ')
+
 const CATEGORIES = ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness']
 
 const ACTIVITY_ICONS = ['✈', '🚗', '🚢', '🏨', '🍽', '🎭', '🧘', '🏖', '⛵', '🏔', '🎿', '🛕', '🌅', '🤿', '📍', '🚌', '🚂', '🛳', '🎪', '🏛', '🌊', '🦁', '🌋', '🏰', '🎑']
@@ -21,11 +23,11 @@ const TRANSPORT_OPTIONS = ['', 'Private Car / SUV', 'Shared Transfer', 'Flight',
 const DAY_MEAL_OPTS = ['Breakfast', 'Lunch', 'Dinner']
 
 const categoryColors = {
-  Honeymoon: 'bg-pink-50 text-pink-700 border-pink-100',
-  Luxury:    'bg-purple-50 text-purple-700 border-purple-100',
-  Domestic:  'bg-blue-50 text-blue-700 border-blue-100',
-  Family:    'bg-orange-50 text-orange-700 border-orange-100',
-  Wellness:  'bg-green-50 text-green-700 border-green-100',
+  Honeymoon: s.catHoneymoon,
+  Luxury:    s.catLuxury,
+  Domestic:  s.catDomestic,
+  Family:    s.catFamily,
+  Wellness:  s.catWellness,
 }
 
 // ── Inclusions / Exclusions / Notes unified markdown helpers ──────────────────
@@ -95,15 +97,15 @@ const emptyForm = () => ({
 // ── Small reusable input ──────────────────────────────────────────────────────
 function Field({ label, value, onChange, placeholder, type = 'text' }) {
   return (
-    <div>
-      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">{label}</label>
+    <div className={s.fieldWrap}>
+      <label className={s.fieldLabel}>{label}</label>
       {type === 'textarea' ? (
         <textarea
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
           rows={3}
-          className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors resize-none"
+          className={cx(s.fieldInput, s.fieldTextarea)}
         />
       ) : (
         <input
@@ -111,7 +113,7 @@ function Field({ label, value, onChange, placeholder, type = 'text' }) {
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors"
+          className={s.fieldInput}
         />
       )}
     </div>
@@ -227,10 +229,10 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
 
   function Toolbar() {
     return (
-      <div className="flex items-center gap-0.5 px-3 py-2 bg-gray-50 border-b border-gray-200 flex-wrap">
+      <div className={s.mdToolbar}>
         {MD_TOOLBAR_GROUPS.map((grp, gi) => (
-          <div key={grp.label} className="flex items-center gap-0.5">
-            {gi > 0 && <span className="inline-block w-px h-4 bg-gray-200 mx-1.5 shrink-0" />}
+          <div key={grp.label} className={s.mdToolbarGroup}>
+            {gi > 0 && <span className={s.mdToolbarDivider} />}
             {grp.items.map(btn => (
               <button
                 key={btn.icon}
@@ -238,7 +240,7 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
                 title={btn.title}
                 onClick={() => apply(btn)}
                 style={btn.btnStyle}
-                className="px-2 py-1 rounded-lg text-[11px] text-gray-500 border border-transparent hover:bg-white hover:border-gray-200 hover:text-dark transition-all"
+                className={s.mdToolbarBtn}
               >
                 {btn.icon}
               </button>
@@ -246,9 +248,9 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
           </div>
         ))}
         {/* Group labels on right */}
-        <div className="ml-auto flex gap-1 items-center">
+        <div className={s.mdToolbarMeta}>
           {MD_TOOLBAR_GROUPS.map(g => (
-            <span key={g.label} className="text-[8px] text-gray-300 uppercase tracking-widest font-bold hidden xl:block">{g.label}</span>
+            <span key={g.label} className={s.mdToolbarMetaLabel}>{g.label}</span>
           ))}
         </div>
       </div>
@@ -256,14 +258,14 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
   }
 
   const minH = `${rows * 22}px`
-  const editorCls = 'w-full border-0 px-4 py-3 text-dark font-mono text-xs leading-relaxed focus:outline-none resize-none bg-transparent'
+  const editorCls = s.mdTextarea
 
   const PreviewPane = () => (
-    <div className={`${bgClass} px-5 py-4 overflow-y-auto prose prose-sm max-w-none prose-headings:font-bold prose-headings:text-dark prose-headings:tracking-tight prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-dark prose-code:text-brand prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded`}
+    <div className={cx(s.mdPreview, bgClass)}
       style={{ minHeight: minH }}>
       {value.trim()
         ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
-        : <p className="text-gray-400 text-xs italic">Preview renders here…</p>
+        : <p className={s.mdPreviewEmpty}>Preview renders here…</p>
       }
     </div>
   )
@@ -271,20 +273,20 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
   return (
     <div>
       {/* Header row */}
-      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <div className={s.mdHeader}>
         <div>
-          <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">{label}</label>
-          {hint && <span className="text-[9px] text-gray-400 font-medium ml-3">{hint}</span>}
+          <label className={s.fieldLabelCompact}>{label}</label>
+          {hint && <span className={s.mdHint}>{hint}</span>}
         </div>
         {/* Mode toggle */}
-        <div className="flex bg-gray-100 rounded-full p-0.5 gap-0.5">
+        <div className={s.mdModeToggle}>
           {[
             { id: 'edit',    icon: '✏',  name: 'Edit'    },
             { id: 'split',   icon: '⧉',  name: 'Split'   },
             { id: 'preview', icon: '👁',  name: 'Preview' },
           ].map(m => (
             <button key={m.id} type="button" onClick={() => setMode(m.id)} title={m.name}
-              className={`px-3 py-1 rounded-full text-[10px] font-black transition-colors ${mode === m.id ? 'bg-white text-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
+              className={cx(s.mdModeBtn, mode === m.id ? s.mdModeBtnActive : s.mdModeBtnInactive)}>
               {m.icon} {m.name}
             </button>
           ))}
@@ -292,7 +294,7 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
       </div>
 
       {/* Container */}
-      <div className={`border ${borderClass} rounded-2xl overflow-hidden`}>
+      <div className={cx(s.mdContainer, borderClass)}>
         {/* Toolbar — hidden in pure preview mode */}
         {mode !== 'preview' && <Toolbar />}
 
@@ -312,7 +314,7 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
         {mode === 'preview' && <PreviewPane />}
 
         {mode === 'split' && (
-          <div className="grid grid-cols-2 divide-x divide-gray-200" style={{ minHeight: minH }}>
+          <div className={s.mdSplit} style={{ minHeight: minH }}>
             <textarea
               ref={taRef}
               value={value}
@@ -326,11 +328,11 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
         )}
 
         {/* Footer: stats + shortcut hints */}
-        <div className="flex items-center justify-between px-4 py-1.5 bg-gray-50 border-t border-gray-100">
-          <span className="text-[9px] text-gray-400 font-bold">
+        <div className={s.mdFooter}>
+          <span className={s.mdFooterMeta}>
             {words} word{words !== 1 ? 's' : ''} · {value.length} chars
           </span>
-          <span className="text-[8px] text-gray-300 font-mono hidden sm:block">
+          <span className={s.mdFooterHints}>
             Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Tab Indent
           </span>
         </div>
@@ -352,13 +354,13 @@ function DestinationsPicker({ selected, onChange }) {
 
   return (
     <div>
-      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Destinations</label>
+      <label className={s.fieldLabel}>Destinations</label>
       {available.length === 0 ? (
-        <p className="text-gray-400 text-xs font-bold text-center py-3 border-2 border-dashed border-gray-200 rounded-2xl">
+        <p className={s.destinationsEmpty}>
           No destinations available — add destinations first
         </p>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className={s.destinationsList}>
           {available.map(dest => {
             const name = dest.name
             const isSelected = selected.includes(name)
@@ -367,11 +369,7 @@ function DestinationsPicker({ selected, onChange }) {
                 key={dest.id || dest._id}
                 type="button"
                 onClick={() => toggle(name)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                  isSelected
-                    ? 'bg-dark text-white border-dark'
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-100'
-                }`}
+                className={cx(s.destinationChip, isSelected ? s.destinationChipActive : s.destinationChipInactive)}
               >
                 {name}
               </button>
@@ -380,7 +378,7 @@ function DestinationsPicker({ selected, onChange }) {
         </div>
       )}
       {selected.length > 0 && (
-        <p className="text-[10px] text-brand font-bold mt-2 truncate">Selected: {selected.join(', ')}</p>
+        <p className={s.destinationsSelected}>Selected: {selected.join(', ')}</p>
       )}
     </div>
   )
@@ -564,43 +562,43 @@ function ItineraryBuilder({ itinerary, onChange }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={s.itineraryWrap}>
       {itinerary.length === 0 && (
-        <div className="text-center py-8 text-gray-400 font-bold text-sm border-2 border-dashed border-gray-200 rounded-2xl">
+        <div className={s.itineraryEmpty}>
           No days added yet. Set the <strong>Nights</strong> in Basic Info — days auto-populate, or click below.
         </div>
       )}
 
       {itinerary.map((day, di) => (
-        <div key={di} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+        <div key={di} className={s.dayCard}>
           {/* Day header */}
-          <div className="bg-gray-50 px-5 py-3.5 flex items-center gap-3">
-            <span className="w-7 h-7 bg-dark text-white rounded-lg text-[11px] font-black flex items-center justify-center shrink-0">{day.day}</span>
+          <div className={s.dayHead}>
+            <span className={s.dayIndex}>{day.day}</span>
             <input
               type="text"
               value={day.title}
               onChange={e => updateDay(di, 'title', e.target.value)}
               placeholder={`Day ${day.day} — what happens today?`}
-              className="flex-1 bg-transparent text-dark font-bold text-sm focus:outline-none placeholder:text-gray-400"
+              className={s.dayTitleInput}
             />
-            <button onClick={() => removeDay(di)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors text-[10px] flex items-center justify-center shrink-0">✕</button>
+            <button onClick={() => removeDay(di)} className={s.dayRemoveBtn}>✕</button>
           </div>
 
           {/* Quick metadata row: transport + meals */}
-          <div className="px-4 pt-3 pb-2 bg-gray-50/50 border-b border-gray-100 grid grid-cols-2 gap-3">
+          <div className={s.dayMetaRow}>
             <div>
-              <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">🚗 Transport</label>
+              <label className={s.microLabel}>🚗 Transport</label>
               <select
                 value={day.transport || ''}
                 onChange={e => updateDay(di, 'transport', e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors cursor-pointer"
+                className={s.dayTransportSelect}
               >
                 {TRANSPORT_OPTIONS.map(t => <option key={t} value={t}>{t || 'Select transport…'}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">🍽 Meals Included</label>
-              <div className="flex gap-1.5">
+              <label className={s.microLabel}>🍽 Meals Included</label>
+              <div className={s.mealsRow}>
                 {DAY_MEAL_OPTS.map(meal => {
                   const meals = Array.isArray(day.mealsIncluded) ? day.mealsIncluded : []
                   const on = meals.includes(meal)
@@ -609,27 +607,27 @@ function ItineraryBuilder({ itinerary, onChange }) {
                       key={meal}
                       type="button"
                       onClick={() => toggleMeal(di, meal)}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-black border transition-colors ${on ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-400 border-gray-200 hover:border-green-300 hover:text-green-600'}`}
+                      className={cx(s.mealChip, on ? s.mealChipActive : s.mealChipInactive)}
                     >
                       {meal[0]}
                     </button>
                   )
                 })}
                 {Array.isArray(day.mealsIncluded) && day.mealsIncluded.length > 0 && (
-                  <span className="text-[9px] text-green-600 font-bold self-center">{day.mealsIncluded.join(' + ')}</span>
+                  <span className={s.mealsSummary}>{day.mealsIncluded.join(' + ')}</span>
                 )}
               </div>
             </div>
           </div>
 
           {/* Activities */}
-          <div className="p-4 space-y-2.5">
+          <div className={s.activitiesWrap}>
             {day.activities.map((act, ai) => (
-              <div key={ai} className="flex gap-2 items-center">
+              <div key={ai} className={s.activityRow}>
                 <select
                   value={act.icon}
                   onChange={e => updateActivity(di, ai, 'icon', e.target.value)}
-                  className="w-12 h-9 bg-gray-50 border border-gray-200 rounded-xl text-center text-base focus:outline-none cursor-pointer shrink-0"
+                  className={s.activityIconSelect}
                 >
                   {ACTIVITY_ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
                 </select>
@@ -638,35 +636,35 @@ function ItineraryBuilder({ itinerary, onChange }) {
                   value={act.time}
                   onChange={e => updateActivity(di, ai, 'time', e.target.value)}
                   placeholder="Time"
-                  className="w-20 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors shrink-0"
+                  className={s.activityTimeInput}
                 />
                 <input
                   type="text"
                   value={act.description}
                   onChange={e => updateActivity(di, ai, 'description', e.target.value)}
                   placeholder="Activity description…"
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-dark font-bold text-xs focus:outline-none focus:border-brand transition-colors"
+                  className={s.activityDescInput}
                 />
-                <button onClick={() => removeActivity(di, ai)} className="w-7 h-7 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors text-[10px] flex items-center justify-center shrink-0">✕</button>
+                <button onClick={() => removeActivity(di, ai)} className={s.activityRemoveBtn}>✕</button>
               </div>
             ))}
             <button
               onClick={() => addActivity(di)}
-              className="w-full text-[10px] font-black uppercase tracking-[0.15em] py-2 rounded-xl border border-dashed border-gray-200 text-gray-400 hover:border-brand hover:text-brand transition-colors"
+              className={s.addActivityBtn}
             >
               + Add Activity
             </button>
           </div>
 
           {/* Day note */}
-          <div className="px-4 pb-4">
-            <label className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em] mb-1 block">📝 Day Note (optional)</label>
+          <div className={s.dayNoteWrap}>
+            <label className={s.dayNoteLabel}>📝 Day Note (optional)</label>
             <textarea
               value={day.note || ''}
               onChange={e => updateDay(di, 'note', e.target.value)}
               placeholder="Special instructions, tips, or notes for this day…"
               rows={2}
-              className="w-full bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-dark font-medium text-xs focus:outline-none focus:border-amber-400 transition-colors resize-none placeholder:text-amber-300"
+              className={s.dayNoteInput}
             />
           </div>
         </div>
@@ -674,7 +672,7 @@ function ItineraryBuilder({ itinerary, onChange }) {
 
       <button
         onClick={addDay}
-        className="w-full py-3.5 rounded-2xl border-2 border-dashed border-brand/30 text-brand text-sm font-black uppercase tracking-[0.15em] hover:border-brand hover:bg-brand/5 transition-colors"
+        className={s.addDayBtn}
       >
         + Add Day {itinerary.length + 1}
       </button>
@@ -710,7 +708,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
   const canSave = form.title.trim() && form.price.trim() && form.nights
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
+    <div className={s.modalOverlay} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -718,18 +716,18 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         className={s.modal}
       >
         {/* Modal header */}
-        <div className="flex items-center justify-between px-6 sm:px-10 pt-7 sm:pt-10 pb-5 sm:pb-6 shrink-0">
-          <h3 className="text-2xl sm:text-3xl font-serif font-bold text-dark">{editPkg ? 'Edit Package' : 'New Package'}</h3>
-          <button onClick={onClose} className="w-9 h-9 rounded-2xl bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors text-lg flex items-center justify-center shrink-0">✕</button>
+        <div className={s.modalHeader}>
+          <h3 className={s.modalTitle}>{editPkg ? 'Edit Package' : 'New Package'}</h3>
+          <button onClick={onClose} className={s.modalCloseBtn}>✕</button>
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-1 px-6 sm:px-10 pb-4 shrink-0 overflow-x-auto no-scrollbar">
+        <div className={s.tabBar}>
           {TABS.map((t, i) => (
             <button
               key={t}
               onClick={() => setTab(i)}
-              className={`px-4 py-2.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-[0.12em] transition-colors whitespace-nowrap ${tab === i ? 'bg-dark text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+               className={cx(s.tabBtn, tab === i ? s.tabBtnActive : s.tabBtnInactive)}
             >
               {t}
             </button>
@@ -737,27 +735,27 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-6 sm:px-10 pb-6 modal-scroll" onWheel={e => e.stopPropagation()}>
+        <div className={s.tabContent} onWheel={e => e.stopPropagation()}>
 
           {/* ── Tab 0: Basic Info ── */}
           {tab === 0 && (
-            <div className="space-y-5">
+            <div className={s.basicInfoStack}>
               <Field label="Package Title" value={form.title} onChange={v => f('title', v)} placeholder="e.g. Romantic Bali Escape" />
-              <div className="grid grid-cols-2 gap-4">
+              <div className={s.basicInfoGrid2}>
                 <Field label="Price Display" value={form.price} onChange={v => f('price', v)} placeholder="e.g. ₹85,000" />
                 <Field label="Price (numeric)" value={form.priceValue} onChange={v => f('priceValue', v)} placeholder="e.g. 85000" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className={s.basicInfoGrid2}>
                 <div>
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Nights</label>
-                  <input type="number" min="1" value={form.nights} onChange={e => f('nights', e.target.value)} placeholder="e.g. 6"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors" />
-                  <p className="text-[9px] text-gray-400 font-medium mt-1">Auto-creates itinerary days</p>
+                  <label className={s.fieldLabel}>Nights</label>
+                <input type="number" min="1" value={form.nights} onChange={e => f('nights', e.target.value)} placeholder="e.g. 6"
+                    className={s.fieldInput} />
+                  <p className={s.fieldHelp}>Auto-creates itinerary days</p>
                 </div>
                 <div>
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Category</label>
+                  <label className={s.fieldLabel}>Category</label>
                   <select value={form.category} onChange={e => f('category', e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                    className={cx(s.fieldInput, s.selectInput)}>
                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
@@ -767,14 +765,14 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
               <Field label="Highlights (comma-separated)" value={form.highlights} onChange={v => f('highlights', v)} placeholder="e.g. Airport transfers, Luxury hotel" />
               <Field label="Cover Image URL" value={form.image} onChange={v => f('image', v)} placeholder="https://images.unsplash.com/..." />
               {form.image && (
-                <div className="h-32 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
-                  <img src={form.image} alt="preview" className="w-full h-full object-cover" onError={e => { e.target.style.display = 'none' }} />
+                <div className={s.imagePreviewWrap}>
+                  <img src={form.image} alt="preview" className={s.imagePreview} onError={e => { e.target.style.display = 'none' }} />
                 </div>
               )}
               <div>
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-2 block">Status</label>
+                <label className={s.fieldLabel}>Status</label>
                 <select value={form.status} onChange={e => f('status', e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 text-dark font-bold text-sm focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                  className={cx(s.fieldInput, s.selectInput)}>
                   <option value="Active">Active</option>
                   <option value="Draft">Draft</option>
                 </select>
@@ -815,8 +813,8 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
                   value={form.contentMarkdown}
                   onChange={v => f('contentMarkdown', v)}
                   placeholder={CONTENT_MD_TEMPLATE}
-                  bgClass="bg-gray-50"
-                  borderClass="border-gray-200"
+                  bgClass={s.mdSurface}
+                  borderClass={s.mdBorder}
                   rows={24}
                 />
 
@@ -869,12 +867,12 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
         </div>
 
         {/* Footer */}
-        <div className="flex gap-4 px-6 sm:px-10 py-5 sm:py-6 border-t border-gray-100 shrink-0">
-          <button onClick={onClose} className="flex-1 border border-gray-200 text-gray-600 py-4 rounded-full font-bold hover:bg-gray-50 transition-colors text-sm">Cancel</button>
+        <div className={s.modalFooter}>
+          <button onClick={onClose} className={s.modalCancelBtn}>Cancel</button>
           <button
             onClick={onSave}
             disabled={saving || !canSave}
-            className="flex-1 bg-brand text-white py-4 rounded-full font-bold hover:bg-brand-hover transition-colors shadow-glow text-sm disabled:opacity-50"
+            className={s.modalSaveBtn}
           >
             {saving ? 'Saving…' : (editPkg ? 'Update Package' : 'Save Package')}
           </button>
@@ -1100,126 +1098,126 @@ export default function AdminPackagesPage() {
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-8">
+    <div className={s.page}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className={s.pageHeader}>
         <div>
-          <h2 className="text-4xl font-serif font-bold text-dark tracking-tight">Packages</h2>
-          <p className="text-gray-400 mt-1 font-medium">
+          <h2 className={s.pageTitle}>Packages</h2>
+          <p className={s.pageSubtitle}>
             {stats ? `${stats.total} packages · ${stats.active} active` : 'Loading…'}
           </p>
         </div>
-        <button onClick={openCreate} className="bg-brand text-white px-7 py-3.5 rounded-full text-sm font-bold flex items-center gap-3 hover:bg-brand-hover transition-colors shadow-glow">
+        <button onClick={openCreate} className={s.addPackageBtn}>
           + Add Package
         </button>
       </div>
 
       {/* Performance Summary */}
       {stats && (
-        <div className="grid grid-cols-3 gap-5">
+        <div className={s.statsGrid}>
           {[
             { label: 'Active Packages', value: stats.active,            icon: '✅' },
             { label: 'Total Bookings',  value: stats.totalBookings,     icon: '📋' },
             { label: 'Best Seller',     value: stats.bestSeller || '—', icon: '🏆' },
           ].map((s, i) => (
             <motion.div key={s.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-              className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm"
+              className={s.statCard}
             >
-              <span className="text-2xl mb-3 block">{s.icon}</span>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] mb-1">{s.label}</p>
-              <p className="text-2xl font-serif font-bold text-dark truncate">{s.value}</p>
+              <span className={s.statIcon}>{s.icon}</span>
+              <p className={s.statLabel}>{s.label}</p>
+              <p className={s.statValue}>{s.value}</p>
             </motion.div>
           ))}
         </div>
       )}
 
       {/* Search */}
-      <div className="relative max-w-xs">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+      <div className={s.searchWrap}>
+        <span className={s.searchIcon}>🔍</span>
         <input
           type="text"
           placeholder="Search packages…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-10 pr-5 py-3 bg-white border border-gray-200 rounded-full text-sm focus:outline-none focus:border-brand transition-colors font-bold text-dark shadow-sm"
+          className={s.searchInput}
         />
       </div>
 
       {/* Table */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-        className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden"
+        className={s.tableCard}
       >
         {error ? (
-          <div className="px-8 py-12 text-center text-red-500 font-bold">{error}</div>
+          <div className={s.tableError}>{error}</div>
         ) : loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+          <div className={s.tableLoading}>
+            <div className={s.spinner} />
           </div>
         ) : packages.length === 0 ? (
-          <div className="px-8 py-12 text-center text-gray-400 font-bold">No packages found. Add one to get started.</div>
+          <div className={s.tableEmpty}>No packages found. Add one to get started.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-[10px] uppercase text-gray-400 font-black border-b border-gray-100 tracking-[0.2em]">
+          <div className={s.tableScroll}>
+            <table className={s.table}>
+              <thead className={s.tableHead}>
                 <tr>
-                  <th className="px-8 py-5 text-left">Package</th>
-                  <th className="px-8 py-5 text-left">Category</th>
-                  <th className="px-8 py-5 text-center hidden md:table-cell">Nights</th>
-                  <th className="px-8 py-5 text-center hidden lg:table-cell">Itinerary</th>
-                  <th className="px-8 py-5 text-right">Price</th>
-                  <th className="px-8 py-5 text-center">Bookings</th>
-                  <th className="px-8 py-5 text-center">Status</th>
-                  <th className="px-8 py-5 text-right">Actions</th>
+                  <th className={cx(s.th, s.thLeft)}>Package</th>
+                  <th className={cx(s.th, s.thLeft)}>Category</th>
+                  <th className={cx(s.th, s.thCenter, s.hideMd)}>Nights</th>
+                  <th className={cx(s.th, s.thCenter, s.hideLg)}>Itinerary</th>
+                  <th className={cx(s.th, s.thRight)}>Price</th>
+                  <th className={cx(s.th, s.thCenter)}>Bookings</th>
+                  <th className={cx(s.th, s.thCenter)}>Status</th>
+                  <th className={cx(s.th, s.thRight)}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className={s.tableBody}>
                 {packages.map((pkg, i) => {
                   const id = pkg._id || pkg.id
                   const hasDays = Array.isArray(pkg.itinerary) && pkg.itinerary.length > 0
                   return (
                     <motion.tr key={id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 + i * 0.03 }}
-                      className="hover:bg-gray-50/60 transition-colors group"
+                      className={s.tableRow}
                     >
-                      <td className="px-8 py-5">
-                        <p className="font-bold text-dark group-hover:text-brand transition-colors">{pkg.title}</p>
-                        <p className="text-[10px] text-gray-400 font-bold mt-0.5">{pkg.nights ? `${pkg.nights}N / ${pkg.nights + 1}D` : '—'}</p>
+                      <td className={s.cell}>
+                        <p className={s.pkgTitle}>{pkg.title}</p>
+                        <p className={s.pkgMeta}>{pkg.nights ? `${pkg.nights}N / ${pkg.nights + 1}D` : '—'}</p>
                       </td>
-                      <td className="px-8 py-5">
-                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black border uppercase tracking-[0.1em] ${categoryColors[pkg.category] || 'bg-gray-50 text-gray-600 border-gray-100'}`}>
+                      <td className={s.cell}>
+                        <span className={cx(s.categoryBadge, categoryColors[pkg.category] || s.catDefault)}>
                           {pkg.category}
                         </span>
                       </td>
-                      <td className="px-8 py-5 text-center text-gray-500 font-bold hidden md:table-cell">{pkg.nights || '—'}</td>
-                      <td className="px-8 py-5 text-center hidden lg:table-cell">
-                        <span className={`text-[10px] font-black uppercase tracking-[0.1em] px-2.5 py-1 rounded-full border ${hasDays ? 'bg-brand/5 text-brand border-brand/20' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
+                      <td className={cx(s.cell, s.cellCenter, s.cellMuted, s.hideMd)}>{pkg.nights || '—'}</td>
+                      <td className={cx(s.cell, s.cellCenter, s.hideLg)}>
+                        <span className={cx(s.itineraryBadge, hasDays ? s.itineraryBadgeActive : s.itineraryBadgeEmpty)}>
                           {hasDays ? `${pkg.itinerary.length}d` : 'None'}
                         </span>
                       </td>
-                      <td className="px-8 py-5 text-right font-serif font-bold text-dark">{pkg.price || '—'}</td>
-                      <td className="px-8 py-5 text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="font-black text-dark">{pkg.bookings ?? 0}</span>
-                          <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-brand rounded-full" style={{ width: `${Math.min(((pkg.bookings ?? 0) / 90) * 100, 100)}%` }} />
+                      <td className={cx(s.cell, s.cellRight, s.priceCell)}>{pkg.price || '—'}</td>
+                      <td className={cx(s.cell, s.cellCenter)}>
+                        <div className={s.bookingsWrap}>
+                          <span className={s.bookingsValue}>{pkg.bookings ?? 0}</span>
+                          <div className={s.bookingsTrack}>
+                            <div className={s.bookingsFill} style={{ width: `${Math.min(((pkg.bookings ?? 0) / 90) * 100, 100)}%` }} />
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-5 text-center">
+                      <td className={cx(s.cell, s.cellCenter)}>
                         <button
                           onClick={() => handleToggleStatus(pkg)}
-                          className={`px-3 py-1.5 rounded-full text-[10px] font-black border uppercase tracking-[0.1em] cursor-pointer transition-colors ${pkg.status === 'Active' ? 'bg-green-50 text-green-700 border-green-100 hover:bg-green-100' : 'bg-gray-50 text-gray-500 border-gray-100 hover:bg-gray-100'}`}
+                          className={cx(s.statusBtn, pkg.status === 'Active' ? s.statusBtnActive : s.statusBtnDraft)}
                         >
                           {pkg.status}
                         </button>
                       </td>
-                      <td className="px-8 py-5 text-right">
-                        <div className="flex justify-end gap-2">
+                      <td className={cx(s.cell, s.cellRight)}>
+                        <div className={s.actionRow}>
                           <button onClick={() => openEdit(pkg)}
-                            className="w-8 h-8 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors text-xs flex items-center justify-center shadow-sm" title="Edit">
+                            className={s.editIconBtn} title="Edit">
                             ✏
                           </button>
                           <button onClick={() => handleDelete(pkg)} disabled={deletingId === id}
-                            className="w-8 h-8 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 transition-colors text-xs flex items-center justify-center shadow-sm disabled:opacity-40" title="Delete">
+                            className={s.deleteIconBtn} title="Delete">
                             {deletingId === id ? '…' : '🗑'}
                           </button>
                         </div>
@@ -1255,3 +1253,6 @@ export default function AdminPackagesPage() {
     </div>
   )
 }
+
+
+

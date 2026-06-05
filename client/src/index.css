@@ -50,6 +50,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+::selection {
+  background: var(--brand);
+  color: #fff;
+}
+
 /* Do not hide scrollbars globally — use the `.no-scrollbar` util where needed */
 
 /* ── Global Utility Classes (used across many components) ── */
