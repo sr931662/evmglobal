@@ -1,6 +1,7 @@
 .shell {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;          /* changed from min-height */
+  overflow: hidden;       /* prevents whole‑page scroll */
   background: #f7f8fa;
 }
 
@@ -19,8 +20,13 @@
   animation: spin 1s linear infinite;
 }
 
-.main { flex: 1; min-width: 0; }
+.main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;        /* enables scrolling inside the main area */
+}
 
+/* Mobile top bar – stays sticky inside the scrollable .main */
 .mobileBar {
   display: flex;
   align-items: center;
@@ -33,9 +39,17 @@
   top: 0;
   z-index: 30;
 }
-@media (min-width: 768px) { .mobileBar { display: none; } }
+@media (min-width: 768px) {
+  .mobileBar {
+    display: none;
+  }
+}
 
-.mobileBarLeft { display: flex; align-items: center; gap: 0.625rem; }
+.mobileBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
 .mobileLogo {
   width: 2rem;
   height: 2rem;
@@ -71,8 +85,15 @@
   cursor: pointer;
   transition: background-color 0.2s;
 }
-.hamburger:hover { background: #f3f4f6; }
-.bar { width: 1.25rem; height: 2px; background: var(--dark); border-radius: 9999px; }
+.hamburger:hover {
+  background: #f3f4f6;
+}
+.bar {
+  width: 1.25rem;
+  height: 2px;
+  background: var(--dark);
+  border-radius: 9999px;
+}
 .barShort {
   width: 0.75rem;
   height: 2px;
@@ -82,5 +103,11 @@
   margin-left: 0.25rem;
 }
 
-.content { padding: 1.5rem 1rem; }
-@media (min-width: 768px) { .content { padding: 2rem 2.5rem; } }
+.content {
+  padding: 1.5rem 1rem;
+}
+@media (min-width: 768px) {
+  .content {
+    padding: 2rem 2.5rem;
+  }
+}
