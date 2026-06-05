@@ -33,12 +33,12 @@ export default function BentoSection() {
               <span className={styles.eyebrowLine} /> The Philosophy
             </motion.span>
             <motion.h2 variants={fadeUpChild} className={styles.heading}>
-              Artisans of <br className={styles.brBreak} />global travel.
+              Artisans of global travel.
             </motion.h2>
+            <motion.p variants={fadeUpChild} className={styles.subtitle}>
+              We replace algorithms with experts. Every detail is immaculate, from inspiration to your safe return.
+            </motion.p>
           </div>
-          <motion.p variants={fadeUpChild} className={styles.subtitle}>
-            We replace algorithms with experts. Every detail is immaculate, from inspiration to your safe return.
-          </motion.p>
         </motion.div>
 
         <div className={styles.grid}>

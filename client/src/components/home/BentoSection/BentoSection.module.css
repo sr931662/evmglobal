@@ -16,16 +16,15 @@
 .header {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: flex-start;
-  gap: 1.5rem;
+  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 @media (min-width: 768px) {
-  .header { flex-direction: row; align-items: flex-end; margin-bottom: 2.5rem; }
+  .header { margin-bottom: 2.5rem; }
 }
 
-.headerLeft { max-width: 40rem; }
+.headerLeft { max-width: 60rem; }
 
 .eyebrow {
   color: var(--brand);
@@ -56,10 +55,10 @@
   color: #6b7280;
   font-size: 1rem;
   font-weight: 300;
-  max-width: 20rem;
-  line-height: 1.7;
+  line-height: 1.5;
+  white-space: nowrap;
 }
-@media (min-width: 768px) { .subtitle { font-size: 1.125rem; text-align: right; } }
+@media (min-width: 768px) { .subtitle { font-size: 1.125rem; } }
 
 /* ── Bento grid ── */
 .grid {
@@ -96,9 +95,7 @@
   .cardSpan2 { grid-column: span 2; }
   .cardRow2  { grid-row: span 2; }
 }
-/* Featured (tall) card: center the content block so the extra height
-   reads as balanced breathing room instead of a void in the middle. */
-.cardFullBottom { justify-content: center; }
+.cardFullBottom { justify-content: flex-start; }
 
 .cardGlow {
   position: absolute;
