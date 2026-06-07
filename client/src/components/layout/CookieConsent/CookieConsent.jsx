@@ -1,24 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { initMetaPixel, trackPageView } from '../../../utils/analytics'
 import styles from './CookieConsent.module.css'
 
 const CONSENT_KEY = 'emv_cookie_consent'
-
-function initMetaPixel() {
-  if (window.fbq) return
-  try {
-    /* eslint-disable */
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-    (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    /* eslint-enable */
-    window.fbq('init', '2533390780452728')
-    window.fbq('track', 'PageView')
-  } catch {}
-}
 
 function applyConsent(level) {
   if (level === 'all') {
@@ -47,7 +33,6 @@ export default function CookieConsent() {
     if (saved) {
       applyConsent(saved)
     } else {
-      // Small delay so the page settles before banner appears
       const t = setTimeout(() => setVisible(true), 800)
       return () => clearTimeout(t)
     }
@@ -56,6 +41,10 @@ export default function CookieConsent() {
   const accept = (level) => {
     localStorage.setItem(CONSENT_KEY, level)
     applyConsent(level)
+    // The route hook has already run for this page — fire the missed page view now
+    if (level === 'all') {
+      trackPageView(window.location.pathname + window.location.search)
+    }
     setVisible(false)
   }
 

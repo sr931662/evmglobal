@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA | Bespoke Travel Management</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #050A15;
+      --gold-accent: #D4AF37;
+      --gold-muted: rgba(212, 175, 55, 0.6);
+      --glass-bg: rgba(255, 255, 255, 0.02);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --text-main: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --font-display: 'Cinzel', serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+    }
+
+    /* 3D Canvas Container */
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* Subtle gradient overlay to ensure text readability */
+    .vignette {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(5, 10, 21, 0.8) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .dashboard-layout {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-areas: 
+        "header header header"
+        "left center right"
+        "left bottom right";
+      grid-template-columns: 340px 1fr 360px;
+      grid-template-rows: auto 1fr minmax(260px, auto);
+      height: 100vh;
+      padding: 1.5rem 2rem;
+      gap: 1.5rem;
+      pointer-events: none; /* Allows interacting with the 3D globe in empty areas */
+    }
+
+    .dashboard-layout > * {
+      pointer-events: auto; /* Re-enables interaction on the dashboard panels */
+    }
+
+    .glass-panel {
+      background: rgba(10, 15, 25, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .area-header { grid-area: header; }
+    .area-left { grid-area: left; }
+    .area-right { grid-area: right; }
+    .area-bottom { grid-area: bottom; }
+
+    /* Typography & Utilities */
+    h1, h2, h3, .font-display {
+      font-family: var(--font-display);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .text-gold { color: var(--gold-accent); }
+    
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-muted); }
+
+    .search-input::placeholder { color: rgba(255,255,255,0.4); }
+    
+    .crm-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .crm-table th { 
+      padding: 1rem; 
+      font-size: 0.65rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.15em; 
+      color: var(--text-muted); 
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-weight: 500;
+    }
+    .crm-table td {
+      padding: 1rem;
+      font-size: 0.85rem;
+      color: #e5e7eb;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      font-weight: 300;
+    }
+    .crm-table tr { transition: background 0.3s ease; }
+    .crm-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .status-airborne { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status-scheduled { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
+    .status-boarding { background: rgba(212, 175, 55, 0.1); color: var(--gold-accent); border: 1px solid rgba(212, 175, 55, 0.2); }
+
+    .pulse-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .status-airborne .pulse-dot { background: #34d399; box-shadow: 0 0 8px #34d399; animation: pulse-green 2s infinite; }
+    .status-scheduled .pulse-dot { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
+    .status-boarding .pulse-dot { background: var(--gold-accent); box-shadow: 0 0 8px var(--gold-accent); animation: pulse-gold 2s infinite; }
+
+    @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); } }
+    @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+
+    /* Client Cards */
+    .client-card {
+      padding: 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .client-card:hover { background: rgba(255, 255, 255, 0.02); }
+    .client-card:last-child { border-bottom: none; }
+    .contact-btn {
+      opacity: 0; transform: translateX(10px); transition: all 0.3s ease;
+    }
+    .client-card:hover .contact-btn { opacity: 1; transform: translateX(0); }
+
+  </style>
+</head>
+<body>
+
+  <div id="canvas-container"></div>
+  <div class="vignette"></div>
+
+  <div class="dashboard-layout">
+    
+    <!-- Area 1: Top Navigation Header -->
+    <header class="area-header glass-panel !flex-row justify-between items-center px-8 py-4 h-fit !rounded-2xl">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full border border-[#D4AF37]/40 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.15)]">
+          <div class="w-2 h-2 rounded-full bg-[#D4AF37]"></div>
+        </div>
+        <div>
+          <h1 class="text-2xl text-white tracking-widest">AURA</h1>
+          <div class="text-[9px] tracking-[0.3em] text-[#D4AF37] uppercase font-body">Command Center</div>
+        </div>
+      </div>
+
+      <!-- Global Search -->
+      <div class="flex-1 max-w-xl mx-12">
+        <div class="flex items-center bg-black/40 border border-white/10 rounded-full px-5 py-2.5 transition-colors focus-within:border-[#D4AF37]/50">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Search Tail #, Client ID, or Destination..." class="search-input bg-transparent border-none outline-none text-sm text-white w-full ml-3 font-body font-light tracking-wide" />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-8">
+        <div class="flex gap-4">
+          <button class="relative text-gray-400 hover:text-white transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.8)]"></span>
+          </button>
+          <button class="text-gray-400 hover:text-white transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+        </div>
+        <div class="h-8 w-px bg-white/10"></div>
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <div class="text-sm text-white font-display">Eleanor Vance</div>
+            <div class="text-[9px] text-gray-400 tracking-widest uppercase">Director of Operations</div>
+          </div>
+          <img src="https://i.pravatar.cc/100?img=5" alt="Profile" class="w-10 h-10 rounded-full border border-white/20 grayscale hover:grayscale-0 transition-all duration-500">
+        </div>
+      </div>
+    </header>
+
+    <!-- Area 2: Left Metrics Panel -->
+    <aside class="area-left glass-panel p-0">
+      <div class="p-6 border-b border-white/5">
+        <h2 class="text-xs tracking-[0.2em] text-gray-400 uppercase font-body flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+          Global Analytics
+        </h2>
+      </div>
+      
+      <div class="p-6 flex-1 overflow-y-auto space-y-8">
+        <!-- Revenue Stat -->
+        <div>
+          <div class="text-[10px] text-gray-500 mb-2 font-light tracking-wider uppercase">Q3 Projected Revenue</div>
+          <div class="text-4xl font-display text-white mb-4">$14.8<span class="text-xl text-[#D4AF37]">M</span></div>
+          
+          <!-- Elegant mini bar chart -->
+          <div class="flex items-end h-12 gap-1.5">
+            <div class="w-full bg-white/5 rounded-t-sm h-[40%] hover:bg-white/20 transition-colors"></div>
+            <div class="w-full bg-white/5 rounded-t-sm h-[60%] hover:bg-white/20 transition-colors"></div>
+            <div class="w-full bg-white/5 rounded-t-sm h-[45%] hover:bg-white/20 transition-colors"></div>
+            <div class="w-full bg-white/5 rounded-t-sm h-[80%] hover:bg-white/20 transition-colors"></div>
+            <div class="w-full bg-gradient-to-t from-[#D4AF37]/20 to-[#D4AF37] rounded-t-sm h-full shadow-[0_0_10px_rgba(212,175,55,0.3)]"></div>
+          </div>
+        </div>
+
+        <div class="h-px w-full bg-gradient-to-r from-white/10 to-transparent"></div>
+        
+        <!-- Fleet Stat -->
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <div class="text-[10px] text-gray-500 font-light tracking-wider uppercase">Fleet Utilization</div>
+            <div class="text-xs text-[#D4AF37] font-display">75%</div>
+          </div>
+          <div class="text-2xl font-display text-white mb-3">18 <span class="text-sm text-gray-500 font-body">/ 24 Active Assets</span></div>
+          
+          <!-- Progress bar -->
+          <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+            <div class="h-full bg-[#D4AF37] w-[75%] relative">
+               <div class="absolute right-0 top-0 h-full w-4 bg-white/50 blur-[2px]"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="p-6 border-t border-white/5 bg-black/20 space-y-3">
+        <button class="w-full border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all duration-300 rounded py-3 text-[10px] tracking-[0.2em] uppercase font-semibold">
+          + Deploy New Asset
+        </button>
+        <button class="w-full border border-white/10 text-white hover:bg-white hover:text-black transition-all duration-300 rounded py-3 text-[10px] tracking-[0.2em] uppercase font-semibold">
+          View Master Calendar
+        </button>
+      </div>
+    </aside>
+
+    <!-- Area 3: Bottom Live Data Table -->
+    <main class="area-bottom glass-panel flex flex-col p-0">
+      <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-black/20">
+        <h2 class="text-xs tracking-[0.2em] text-white uppercase font-body flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          Live Global Deployments
+        </h2>
+        <button class="text-[10px] text-gray-400 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-1">
+          Filter View <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto">
+        <table class="crm-table">
+          <thead>
+            <tr>
+              <th class="pl-6">Mission ID</th>
+              <th>Primary Client</th>
+              <th>Aircraft (Tail #)</th>
+              <th>Routing</th>
+              <th>ETA / Dept</th>
+              <th class="pr-6 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 -->
+            <tr>
+              <td class="pl-6 font-display text-white">AUR-88X</td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <img src="https://i.pravatar.cc/100?img=33" class="w-6 h-6 rounded-full border border-white/20 grayscale">
+                  <span>Alexander Sterling</span>
+                </div>
+              </td>
+              <td class="text-gray-400">Global 7500 <span class="text-xs text-gray-600 ml-1">N-884X</span></td>
+              <td>
+                <div class="flex items-center gap-2 text-gray-300">
+                  <span>LHR</span>
+                  <div class="w-8 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent relative"><div class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-[#D4AF37]"></div></div>
+                  <span>DXB</span>
+                </div>
+              </td>
+              <td class="font-mono text-xs text-gray-400">14:20 UTC</td>
+              <td class="pr-6 text-right"><span class="status-badge status-airborne"><div class="pulse-dot"></div> Airborne</span></td>
+            </tr>
+            
+            <!-- Row 2 -->
+            <tr>
+              <td class="pl-6 font-display text-white">AUR-42V</td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <img src="https://i.pravatar.cc/100?img=11" class="w-6 h-6 rounded-full border border-white/20 grayscale">
+                  <span>Julian Vance</span>
+                </div>
+              </td>
+              <td class="text-gray-400">Gulfstream G650 <span class="text-xs text-gray-600 ml-1">V-771T</span></td>
+              <td>
+                <div class="flex items-center gap-2 text-gray-300">
+                  <span>JFK</span>
+                  <div class="w-8 h-px bg-white/20 relative"><div class="absolute left-1/2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-white/50"></div></div>
+                  <span>NCE</span>
+                </div>
+              </td>
+              <td class="font-mono text-xs text-gray-400">18:00 UTC</td>
+              <td class="pr-6 text-right"><span class="status-badge status-scheduled"><div class="pulse-dot"></div> Scheduled</span></td>
+            </tr>
+
+            <!-- Row 3 -->
+            <tr>
+              <td class="pl-6 font-display text-white">AUR-91C</td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <img src="https://i.pravatar.cc/100?img=44" class="w-6 h-6 rounded-full border border-white/20 grayscale">
+                  <span>Isabella Rossi</span>
+                </div>
+              </td>
+              <td class="text-gray-400">Citation X+ <span class="text-xs text-gray-600 ml-1">C-112B</span></td>
+              <td>
+                <div class="flex items-center gap-2 text-gray-300">
+                  <span>HND</span>
+                  <div class="w-8 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent relative"><div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-[#D4AF37]"></div></div>
+                  <span>SIN</span>
+                </div>
+              </td>
+              <td class="font-mono text-xs text-gray-400">02:15 UTC</td>
+              <td class="pr-6 text-right"><span class="status-badge status-boarding"><div class="pulse-dot"></div> Boarding</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- Area 4: Right Priority Intel Panel -->
+    <aside class="area-right glass-panel p-0">
+      <div class="px-6 py-5 border-b border-white/5 bg-black/20">
+        <h2 class="text-xs tracking-[0.2em] text-[#D4AF37] uppercase font-body flex justify-between items-center">
+          Priority Intel
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </h2>
+      </div>
+
+      <div class="flex-1 overflow-y-auto">
+        <!-- VIP Card 1 -->
+        <div class="client-card px-6">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <img src="https://i.pravatar.cc/100?img=33" alt="Avatar" class="w-10 h-10 rounded-full border border-[#D4AF37]/50 grayscale">
+                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-[#050A15]"></div>
+              </div>
+              <div>
+                <div class="text-base font-display text-white">A. Sterling</div>
+                <div class="text-[9px] text-[#D4AF37] tracking-widest uppercase">Obsidian Tier</div>
+              </div>
+            </div>
+            <button class="contact-btn text-xs text-gray-400 hover:text-white border border-white/10 rounded px-2 py-1">Contact</button>
+          </div>
+          <div class="text-xs text-gray-400 font-light leading-relaxed pl-14">
+            <span class="text-white/70 font-medium">Concierge Note:</span> Helicopter transfer from NCE confirmed. Awaiting final menu approval for Le Louis XV dinner.
+          </div>
+        </div>
+
+        <!-- VIP Card 2 -->
+        <div class="client-card px-6">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <img src="https://i.pravatar.cc/100?img=44" alt="Avatar" class="w-10 h-10 rounded-full border border-white/20 grayscale">
+                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-[#050A15]"></div>
+              </div>
+              <div>
+                <div class="text-base font-display text-white">I. Rossi</div>
+                <div class="text-[9px] text-gray-400 tracking-widest uppercase">Platinum Tier</div>
+              </div>
+            </div>
+            <button class="contact-btn text-xs text-gray-400 hover:text-white border border-white/10 rounded px-2 py-1">Contact</button>
+          </div>
+          <div class="text-xs text-gray-400 font-light leading-relaxed pl-14">
+            <span class="text-white/70 font-medium">Concierge Note:</span> Requested bespoke tea ceremony at Aman Tokyo. Pending final itinerary approval.
+          </div>
+        </div>
+
+         <!-- VIP Card 3 -->
+         <div class="client-card px-6 border-none">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <img src="https://i.pravatar.cc/100?img=11" alt="Avatar" class="w-10 h-10 rounded-full border border-[#D4AF37]/50 grayscale">
+                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-[#050A15]"></div>
+              </div>
+              <div>
+                <div class="text-base font-display text-white">J. Vance</div>
+                <div class="text-[9px] text-[#D4AF37] tracking-widest uppercase">Obsidian Tier</div>
+              </div>
+            </div>
+            <button class="contact-btn text-xs text-gray-400 hover:text-white border border-white/10 rounded px-2 py-1">Contact</button>
+          </div>
+          <div class="text-xs text-gray-400 font-light leading-relaxed pl-14">
+            <span class="text-white/70 font-medium">Concierge Note:</span> Yacht charter finalized for Amalfi. Captain notified of vintage wine preferences.
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-4 border-t border-white/5 bg-black/20 text-center mt-auto">
+        <button class="text-[10px] tracking-[0.2em] text-gray-400 hover:text-[#D4AF37] uppercase transition-colors">Access Complete Directory →</button>
+      </div>
+    </aside>
+
+  </div>
+
+  <script>
+    const container = document.getElementById('canvas-container');
+    
+    // Scene setup
+    const scene = new THREE.Scene();
+    // Add subtle fog to blend edges
+    scene.fog = new THREE.FogExp2(0x050A15, 0.002);
+    
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 2000);
+    // Position camera to look down slightly at the globe
+    camera.position.set(0, 50, 300);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // optimize performance
+    // Elegant color management
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    container.appendChild(renderer.domElement);
+
+    // Group for the entire globe
+    const earthGroup = new THREE.Group();
+    scene.add(earthGroup);
+    
+    // Slight tilt for aesthetic realism
+    earthGroup.rotation.z = 23.5 * Math.PI / 180;
+
+    const radius = 100;
+
+    // --- Procedural Terrain Maps ---
+    // Generates elegant continents and oceans without external textures
+    function generateEarthMaps() {
+        const canvasMap = document.createElement('canvas');
+        const canvasBump = document.createElement('canvas');
+        const sizeX = 2048, sizeY = 1024; // High res for smooth terrain
+        canvasMap.width = canvasBump.width = sizeX;
+        canvasMap.height = canvasBump.height = sizeY;
+        const ctxMap = canvasMap.getContext('2d');
+        const ctxBump = canvasBump.getContext('2d');
+        
+        // Base Ocean Depth - Earth-like Deep Blue
+        const oceanGradient = ctxMap.createLinearGradient(0, 0, 0, sizeY);
+        oceanGradient.addColorStop(0, '#061329'); // Darker near poles
+        oceanGradient.addColorStop(0.5, '#0d325e'); // Richer blue at equator
+        oceanGradient.addColorStop(1, '#061329');
+        ctxMap.fillStyle = oceanGradient;
+        ctxMap.fillRect(0, 0, sizeX, sizeY);
+        
+        ctxBump.fillStyle = '#000000';
+        ctxBump.fillRect(0, 0, sizeX, sizeY);
+        
+        // Blur to create smooth coastlines
+        ctxMap.filter = 'blur(15px)';
+        ctxBump.filter = 'blur(15px)';
+        
+        // Seeded random for consistent landmass shapes
+        let seed = 42;
+        const random = () => { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
+        
+        for(let i = 0; i < 400; i++) {
+            const x = random() * sizeX;
+            const y = random() * sizeY;
+            const radius = random() * 80 + 20;
+            
+            // Keep mostly away from extremes to form bands of continents
+            if (y > 100 && y < sizeY - 100) {
+                // Earth-like land colors based on latitude
+                if (y < 250 || y > sizeY - 250) {
+                    ctxMap.fillStyle = '#4a5d4e'; // Boreal/Tundra
+                } else if (y > 400 && y < 600) {
+                    ctxMap.fillStyle = '#26422b'; // Darker equatorial jungle
+                } else {
+                    ctxMap.fillStyle = '#3a5335'; // Temperate green
+                }
+                
+                ctxBump.fillStyle = '#ffffff'; // Elevate land via bump map
+                
+                ctxMap.beginPath(); ctxMap.arc(x, y, radius, 0, Math.PI*2); ctxMap.fill();
+                ctxBump.beginPath(); ctxBump.arc(x, y, radius, 0, Math.PI*2); ctxBump.fill();
+            }
+        }
+
+        // Add subtle polar ice caps
+        ctxMap.filter = 'blur(25px)';
+        ctxMap.fillStyle = '#dbe4ed'; // Soft ice white
+        ctxMap.fillRect(0, 0, sizeX, 150);
+        ctxMap.fillRect(0, sizeY - 150, sizeX, 150);
+        
+        const mapTexture = new THREE.CanvasTexture(canvasMap);
+        const bumpTexture = new THREE.CanvasTexture(canvasBump);
+        mapTexture.wrapS = bumpTexture.wrapS = THREE.RepeatWrapping;
+        return { mapTexture, bumpTexture };
+    }
+
+    const { mapTexture, bumpTexture } = generateEarthMaps();
+
+    // 1. Procedural Terrain Earth Mesh
+    const earthGeometry = new THREE.SphereGeometry(radius, 64, 64);
+    const earthMaterial = new THREE.MeshStandardMaterial({
+      color: 0xffffff,      // Color comes from the procedural map
+      map: mapTexture,
+      bumpMap: bumpTexture,
+      bumpScale: 2.0,       // Adds 3D depth to the landmasses
+      roughness: 0.8,       // Matte finish
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.95
+    });
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    earthGroup.add(earth);
+
+    // 2. Soft Atmosphere Glow (Halo)
+    const atmosphereGeometry = new THREE.SphereGeometry(radius * 1.05, 64, 64);
+    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+      color: 0x4a90e2, // Earth-like sky blue
+      transparent: true,
+      opacity: 0.2, // Slightly increased for a better atmospheric effect
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending
+    });
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    earthGroup.add(atmosphere);
+
+    // 3. Subtle City Lights / Particles
+    const pGeometry = new THREE.BufferGeometry();
+    const pCount = 800; // Less dense for a cleaner look
+    const pPos = new Float32Array(pCount * 3);
+
+    for(let i=0; i<pCount; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos((Math.random() * 2) - 1);
+      const r = radius * 1.005; // Just sitting on the surface
+      
+      pPos[i*3] = r * Math.sin(phi) * Math.cos(theta);
+      pPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+      pPos[i*3+2] = r * Math.cos(phi);
+    }
+    pGeometry.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+
+    const pMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.8,
+      transparent: true,
+      opacity: 0.4,
+      blending: THREE.AdditiveBlending
+    });
+    const cities = new THREE.Points(pGeometry, pMaterial);
+    earthGroup.add(cities);
+
+    // --- Airplane Model Generator ---
+    function createAirplane() {
+        const group = new THREE.Group();
+        const mat = new THREE.MeshStandardMaterial({ 
+            color: 0xD4AF37, // Golden accent
+            roughness: 0.3, 
+            metalness: 0.8 
+        });
+
+        // Main fuselage (cylinder) aligned along Z-axis
+        const bodyGeom = new THREE.CylinderGeometry(0.15, 0.15, 1.5, 16);
+        bodyGeom.rotateX(Math.PI / 2); 
+        const body = new THREE.Mesh(bodyGeom, mat);
+        group.add(body);
+
+        // Nose (cone)
+        const noseGeom = new THREE.ConeGeometry(0.15, 0.5, 16);
+        noseGeom.rotateX(Math.PI / 2);
+        noseGeom.translate(0, 0, 1);
+        const nose = new THREE.Mesh(noseGeom, mat);
+        group.add(nose);
+
+        // Main Wings
+        const wingGeom = new THREE.BoxGeometry(2, 0.05, 0.5);
+        const wings = new THREE.Mesh(wingGeom, mat);
+        wings.position.set(0, 0, 0.2);
+        group.add(wings);
+
+        // Vertical Tail
+        const tailGeom = new THREE.BoxGeometry(0.05, 0.5, 0.3);
+        const tail = new THREE.Mesh(tailGeom, mat);
+        tail.position.set(0, 0.25, -0.6);
+        group.add(tail);
+
+        // Horizontal Stabilizers
+        const hTailGeom = new THREE.BoxGeometry(0.8, 0.05, 0.2);
+        const hTail = new THREE.Mesh(hTailGeom, mat);
+        hTail.position.set(0, 0, -0.6);
+        group.add(hTail);
+
+        group.scale.set(1.5, 1.5, 1.5);
+        return group;
+    }
+
+    // 4. Elegant Flight Arcs (Golden)
+    const arcGroup = new THREE.Group();
+    earthGroup.add(arcGroup);
+    
+    const arcs = [];
+    const arcCount = 15; // Minimal lines
+
+    for (let i = 0; i < arcCount; i++) {
+      // Generate random start/end coordinates on the sphere
+      const startPhi = Math.acos((Math.random() * 2) - 1);
+      const startTheta = Math.random() * Math.PI * 2;
+      const endPhi = Math.acos((Math.random() * 2) - 1);
+      const endTheta = Math.random() * Math.PI * 2;
+
+      const start = new THREE.Vector3().setFromSphericalCoords(radius, startPhi, startTheta);
+      const end = new THREE.Vector3().setFromSphericalCoords(radius, endPhi, endTheta);
+
+      // Create a smooth arc curve
+      const mid = start.clone().lerp(end, 0.5);
+      const dist = start.distanceTo(end);
+      // Height of the arc depends on the distance
+      mid.normalize().multiplyScalar(radius + (dist * 0.3)); 
+
+      const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+      
+      // Tube Geometry for the line
+      const lineGeom = new THREE.TubeGeometry(curve, 30, 0.15, 4, false);
+      const lineMat = new THREE.MeshBasicMaterial({
+        color: 0xD4AF37, // Gold
+        transparent: true,
+        opacity: 0.25,
+        blending: THREE.AdditiveBlending
+      });
+      const lineMesh = new THREE.Mesh(lineGeom, lineMat);
+      arcGroup.add(lineMesh);
+
+      // Golden airplane moving along the curve
+      const planeMesh = createAirplane();
+      arcGroup.add(planeMesh);
+
+      arcs.push({
+        curve: curve,
+        mesh: planeMesh,
+        progress: Math.random(),
+        speed: 0.001 + (Math.random() * 0.002) // Slow, majestic speed
+      });
+    }
+
+    // 5. Lighting Setup (Crucial for the elegant look)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    // Main soft directional light (acting like a distant soft sun)
+    const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.5); // Warm white
+    dirLight.position.set(150, 50, 100);
+    scene.add(dirLight);
+
+    // Subtle blue back-light for rim lighting
+    const backLight = new THREE.DirectionalLight(0x2962FF, 1);
+    backLight.position.set(-150, -50, -100);
+    scene.add(backLight);
+
+    // Interactive Dragging
+    let isDragging = false;
+    let prevMouse = { x: 0, y: 0 };
+    let targetRotation = { x: 0, y: 0.8 }; // Initial rotation
+    let currentRotation = { x: 0, y: 0.8 };
+
+    container.addEventListener('mousedown', (e) => { isDragging = true; });
+    container.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        targetRotation.y += (e.offsetX - prevMouse.x) * 0.004;
+        targetRotation.x += (e.offsetY - prevMouse.y) * 0.004;
+      }
+      prevMouse = { x: e.offsetX, y: e.offsetY };
+    });
+    document.addEventListener('mouseup', () => { isDragging = false; });
+    // Touch support for dragging
+    container.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    });
+    container.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            targetRotation.y += (e.touches[0].clientX - prevMouse.x) * 0.004;
+            targetRotation.x += (e.touches[0].clientY - prevMouse.y) * 0.004;
+        }
+        prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    });
+    document.addEventListener('touchend', () => { isDragging = false; });
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Smooth interpolation for dragging
+      currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05;
+      currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05;
+
+      // Apply rotation: manual + slow auto-spin
+      earthGroup.rotation.y = currentRotation.y + (Date.now() * 0.00005);
+      // Keep x rotation within bounds so we don't flip the earth upside down
+      earthGroup.rotation.x = Math.max(-Math.PI/4, Math.min(Math.PI/4, currentRotation.x));
+
+      // Twinkle cities slightly
+      const time = Date.now() * 0.001;
+      cities.material.opacity = 0.3 + Math.sin(time) * 0.1;
+
+      // Move airplanes along flight arcs
+      arcs.forEach(arc => {
+        arc.progress += arc.speed;
+        if(arc.progress > 1) {
+            arc.progress = 0;
+            // Optionally randomize path on reset for variety
+        }
+        
+        // Get current position and next position (for calculating tangent)
+        const pos = arc.curve.getPointAt(arc.progress);
+        const nextPos = arc.curve.getPointAt(Math.min(1.0, arc.progress + 0.005));
+        
+        arc.mesh.position.copy(pos);
+        
+        // Orient the airplane to the curve
+        // 1. Define "Up" as pointing away from the center of the earth
+        arc.mesh.up.copy(pos).normalize();
+        // 2. Look at the next immediate point on the curve to align the nose
+        arc.mesh.lookAt(nextPos);
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    // Handle Window Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Start
+    window.onload = () => animate();
+
+  </script>
+</body>
+</html>

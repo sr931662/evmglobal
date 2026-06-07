@@ -1,15 +1,11 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { trackPageView } from '../utils/analytics'
 
 export function useGoogleAnalytics() {
   const location = useLocation()
 
   useEffect(() => {
-    if (localStorage.getItem('emv_cookie_consent') !== 'all') return
-    if (typeof window.gtag !== 'function') return
-    window.gtag('event', 'page_view', {
-      page_path:     location.pathname + location.search,
-      page_location: window.location.href,
-    })
+    trackPageView(location.pathname + location.search)
   }, [location.pathname, location.search])
 }
