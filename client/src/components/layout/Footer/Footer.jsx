@@ -63,14 +63,6 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
-            <div>
-              <h5 className={styles.colHead}>Contact</h5>
-              <ul className={styles.colList}>
-                <li><a href="mailto:info@easemyvacationsglobal.com" className={styles.colLink}>info@easemyvacationsglobal.com</a></li>
-                <li><span className={styles.colText}>Enkay Tower, Cyber City, Gurugram – 122016</span></li>
-                <li><a href="https://wa.me/917070595907" target="_blank" rel="noopener noreferrer" className={styles.colLink}>WhatsApp: +91 70705 95907</a></li>
-              </ul>
-            </div>
           </div>
         </div>
 

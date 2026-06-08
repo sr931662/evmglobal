@@ -161,6 +161,7 @@
 }
 .searchFieldInput {
   width: 100%;
+  border: none;
   outline: none;
   color: var(--dark);
   font-weight: 700;
@@ -239,6 +240,7 @@
 .searchField:hover .searchFieldLabel2 { color: var(--brand); }
 .searchInput {
   width: 100%;
+  border: none;
   outline: none;
   color: var(--dark);
   font-weight: 700;
@@ -248,6 +250,7 @@
 .searchInput::placeholder { color: #6b7280; }
 .searchSelect {
   width: 100%;
+  border: none;
   outline: none;
   color: var(--dark);
   font-weight: 700;
