@@ -279,6 +279,46 @@
 .searchGoBtn svg { width: 1.5rem; height: 1.5rem; transition: transform 0.2s; }
 .searchGoBtn:hover svg { transform: translateX(4px); }
 
+/* ── Destination dropdown ── */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -1.5rem;
+  right: -1.5rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 100;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
+  max-height: 17rem;
+  overflow-y: auto;
+}
+.dropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--dark);
+  transition: background-color 0.15s;
+}
+.dropdownItem:hover { background: #f9fafb; }
+.dropdownIcon { font-size: 0.875rem; flex-shrink: 0; }
+.dropdownCountry {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
 /* ── Scroll indicator ── */
 .scrollIndicator {
   position: absolute;

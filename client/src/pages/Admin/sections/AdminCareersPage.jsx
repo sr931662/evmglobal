@@ -13,6 +13,7 @@ const STATUS_OPTIONS = ['All', 'open', 'closed']
 const emptyForm = {
   title: '', department: 'Sales', location: 'Gurugram',
   type: 'Full-time', description: '', requirements: '', status: 'open',
+  salaryType: 'not_disclosed', salaryMin: '', salaryMax: '',
 }
 
 function CareerModal({ job, onClose, onSave }) {
@@ -26,6 +27,9 @@ function CareerModal({ job, onClose, onSave }) {
     description:  job.description  || '',
     requirements: Array.isArray(job.requirements) ? job.requirements.join('\n') : (job.requirements || ''),
     status:       job.status       || 'open',
+    salaryType:   job.salaryType   || 'not_disclosed',
+    salaryMin:    job.salaryMin    != null ? String(job.salaryMin) : '',
+    salaryMax:    job.salaryMax    != null ? String(job.salaryMax) : '',
   } : { ...emptyForm })
   const [saving, setSaving] = useState(false)
   const [err,    setErr]    = useState('')
@@ -42,6 +46,8 @@ function CareerModal({ job, onClose, onSave }) {
       const payload = {
         ...form,
         requirements: form.requirements.split('\n').map(r => r.trim()).filter(Boolean),
+        salaryMin: form.salaryType !== 'not_disclosed' && form.salaryMin !== '' ? Number(form.salaryMin) : null,
+        salaryMax: form.salaryType !== 'not_disclosed' && form.salaryMax !== '' ? Number(form.salaryMax) : null,
       }
       await onSave(payload)
       onClose()
@@ -123,6 +129,40 @@ function CareerModal({ job, onClose, onSave }) {
               placeholder={"2+ years in travel sales\nExcellent communication skills\nKnowledge of GDS systems"}
               className={`${c.input} ${c.textarea}`} />
           </div>
+
+          {/* Salary */}
+          <div>
+            <label className={c.label}>Salary</label>
+            <select value={form.salaryType} onChange={e => f('salaryType', e.target.value)} className={`${c.input} ${c.select}`}>
+              <option value="not_disclosed">Not Disclosed</option>
+              <option value="range">Range (e.g. 5 LPA – 9 LPA)</option>
+              <option value="upto">Upto (e.g. Upto 9 LPA)</option>
+            </select>
+          </div>
+          {form.salaryType === 'range' && (
+            <div className={c.grid2}>
+              <div>
+                <label className={c.label}>Min (LPA)</label>
+                <input type="number" min="0" step="0.5" value={form.salaryMin}
+                  onChange={e => f('salaryMin', e.target.value)}
+                  placeholder="e.g. 5" className={c.input} />
+              </div>
+              <div>
+                <label className={c.label}>Max (LPA)</label>
+                <input type="number" min="0" step="0.5" value={form.salaryMax}
+                  onChange={e => f('salaryMax', e.target.value)}
+                  placeholder="e.g. 9" className={c.input} />
+              </div>
+            </div>
+          )}
+          {form.salaryType === 'upto' && (
+            <div>
+              <label className={c.label}>Upto (LPA)</label>
+              <input type="number" min="0" step="0.5" value={form.salaryMax}
+                onChange={e => f('salaryMax', e.target.value)}
+                placeholder="e.g. 9" className={c.input} />
+            </div>
+          )}
         </div>
 
         {err && <p className={c.formError}>{err}</p>}

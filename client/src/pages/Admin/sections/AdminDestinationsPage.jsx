@@ -17,7 +17,7 @@ const regionColors = {
 
 const FALLBACK = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=400'
 
-const empty = { name: '', country: '', region: 'Europe', image: '', startingPrice: '' }
+const empty = { name: '', country: '', region: 'Europe', image: '' }
 
 export default function AdminDestinationsPage() {
   const [destinations, setDestinations] = useState([])
@@ -61,11 +61,10 @@ export default function AdminDestinationsPage() {
   const openEdit = (dest) => {
     setEditId(dest.id || dest._id)
     setForm({
-      name:          dest.name          || '',
-      country:       dest.country       || '',
-      region:        dest.region        || 'Europe',
-      image:         dest.image         || '',
-      startingPrice: dest.startingPrice || '',
+      name:    dest.name    || '',
+      country: dest.country || '',
+      region:  dest.region  || 'Europe',
+      image:   dest.image   || '',
     })
     setShowModal(true)
   }
@@ -189,7 +188,6 @@ export default function AdminDestinationsPage() {
                 <div className={styles.info}>
                   <p className={styles.name}>{dest.name}</p>
                   <p className={styles.country}>{dest.country}</p>
-                  {dest.startingPrice && <p className={styles.price}>From {dest.startingPrice}</p>}
 
                   <div className={styles.cardBtns}>
                     <button onClick={() => openEdit(dest)} className={styles.editBtn}>
@@ -230,10 +228,9 @@ export default function AdminDestinationsPage() {
 
             <div className={c.stack}>
               {[
-                { label: 'Destination Name', key: 'name',          placeholder: 'e.g. Santorini' },
-                { label: 'Country',          key: 'country',        placeholder: 'e.g. Greece' },
-                { label: 'Starting Price',   key: 'startingPrice',  placeholder: 'e.g. ₹85k or ₹1.2L (shown on home)' },
-                { label: 'Image URL',        key: 'image',          placeholder: 'https://images.unsplash.com/...' },
+                { label: 'Destination Name', key: 'name',    placeholder: 'e.g. Santorini' },
+                { label: 'Country',          key: 'country', placeholder: 'e.g. Greece' },
+                { label: 'Image URL',        key: 'image',   placeholder: 'https://images.unsplash.com/...' },
               ].map(field => (
                 <div key={field.key}>
                   <label className={c.label}>{field.label}</label>

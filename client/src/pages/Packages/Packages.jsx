@@ -7,6 +7,35 @@ import styles from './Packages.module.css'
 import { usePageMeta } from '../../hooks/usePageMeta'
 
 const CATEGORIES = ['All', 'Honeymoon', 'Family', 'Domestic', 'Luxury', 'Wellness']
+
+const INDIAN_LOCATIONS = new Set([
+  // States & UTs
+  'andhra pradesh','arunachal pradesh','assam','bihar','chhattisgarh','goa','gujarat',
+  'haryana','himachal pradesh','jharkhand','karnataka','kerala','madhya pradesh',
+  'maharashtra','manipur','meghalaya','mizoram','nagaland','odisha','punjab',
+  'rajasthan','sikkim','tamil nadu','telangana','tripura','uttar pradesh',
+  'uttarakhand','west bengal','andaman and nicobar','andaman','nicobar','chandigarh',
+  'dadra and nagar haveli','daman and diu','delhi','new delhi','jammu and kashmir',
+  'jammu','kashmir','ladakh','lakshadweep','puducherry','pondicherry',
+  // Popular cities & tourist spots
+  'agra','ajmer','alleppey','allepy','amritsar','aurangabad','banaras','bangalore',
+  'bengaluru','bhopal','bhubaneswar','bodh gaya','chennai','cherrapunji','chikmagalur',
+  'coorg','coimbatore','darjeeling','dehradun','dooars','dwarka','gulmarg','hampi',
+  'haridwar','hyderabad','jaipur','jaisalmer','jodhpur','kannur','kanyakumari',
+  'kochi','kodaikanal','kolkata','kovalam','kufri','kullu','manali','leh','lonavala',
+  'mahabalipuram','mahabaleshwar','matheran','mount abu','munnar','mussoorie',
+  'mysore','mysuru','nagpur','nainital','northeast india','north east india','ooty',
+  'pachmarhi','pahalgam','panaji','puri','pushkar','ranthambore','rishikesh','shimla',
+  'spiti','spiti valley','srinagar','thekkady','tirupati','udaipur','varanasi',
+  'varkala','vishakhapatnam','visakhapatnam','vrindavan','wayanad','kutch',
+  'india','north india','south india',
+])
+
+function isDomestic(pkg) {
+  if (pkg.category === 'Domestic') return true
+  const dests = Array.isArray(pkg.destinations) ? pkg.destinations : []
+  return dests.some(d => INDIAN_LOCATIONS.has((d || '').toLowerCase().trim()))
+}
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1000'
 
 const SORT_OPTIONS = [
@@ -36,6 +65,7 @@ const BUDGET_FILTERS = [
 ]
 
 function adaptPackage(pkg) {
+  const domestic = isDomestic(pkg)
   return {
     id:            pkg.id || pkg._id,
     slug:          pkg.slug || pkg.id || pkg._id,
@@ -43,6 +73,7 @@ function adaptPackage(pkg) {
     nights:        pkg.nights,
     badge:         pkg.category,
     badgeVariant:  pkg.category === 'Domestic' ? 'dark' : 'brand',
+    geoTag:        domestic ? 'Domestic' : 'International',
     image:         pkg.image || FALLBACK_IMAGE,
     location:      Array.isArray(pkg.destinations) && pkg.destinations.length
                      ? pkg.destinations.join(', ')

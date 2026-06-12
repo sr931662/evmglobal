@@ -9,6 +9,9 @@ export const CareerSchema = new Schema(
     description:  { type: String, required: true },
     requirements: [{ type: String, trim: true }],
     status:       { type: String, enum: ['open', 'closed'], default: 'open' },
+    salaryType:   { type: String, enum: ['range', 'upto', 'not_disclosed'], default: 'not_disclosed' },
+    salaryMin:    { type: Number, default: null },
+    salaryMax:    { type: Number, default: null },
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

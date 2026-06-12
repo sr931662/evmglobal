@@ -23,11 +23,18 @@ export default function PackageCard({ pkg, index }) {
         <div className={styles.nightsBadge}>
           <span className={styles.nightsStar}>◑</span> {pkg.nights} Nights
         </div>
-        {pkg.badge && (
-          <div className={pkg.badgeVariant === 'dark' ? styles.catBadgeDark : styles.catBadgeBrand}>
-            {pkg.badge}
-          </div>
-        )}
+        <div className={styles.badgeStack}>
+          {pkg.badge && (
+            <div className={pkg.badgeVariant === 'dark' ? styles.catBadgeDark : styles.catBadgeBrand}>
+              {pkg.badge}
+            </div>
+          )}
+          {pkg.geoTag && (
+            <div className={pkg.geoTag === 'Domestic' ? styles.geoBadgeDomestic : styles.geoBadgeIntl}>
+              {pkg.geoTag}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.body}>

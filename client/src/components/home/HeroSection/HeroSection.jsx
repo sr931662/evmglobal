@@ -1,6 +1,7 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../../../services/api'
 import styles from './HeroSection.module.css'
 
 const wordVariants = {
@@ -53,6 +54,51 @@ export default function HeroSection() {
   const heroRef   = useRef(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '20%'])
+
+  const [destInput,      setDestInput]      = useState('')
+  const [duration,       setDuration]       = useState('')
+  const [travelers,      setTravelers]      = useState('')
+  const [allDests,       setAllDests]       = useState([])
+  const [showDropdown,   setShowDropdown]   = useState(false)
+  const [mobileDestInput, setMobileDestInput] = useState('')
+  const [showMobileDropdown, setShowMobileDropdown] = useState(false)
+  const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    api.getDestinations({})
+      .then(data => setAllDests(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }, [])
+
+  const filteredDests = destInput.trim()
+    ? allDests.filter(d => d.name.toLowerCase().includes(destInput.toLowerCase()))
+    : allDests.slice(0, 8)
+
+  const filteredMobileDests = mobileDestInput.trim()
+    ? allDests.filter(d => d.name.toLowerCase().includes(mobileDestInput.toLowerCase()))
+    : allDests.slice(0, 6)
+
+  const handleSearch = () => {
+    const params = new URLSearchParams()
+    if (destInput.trim()) params.set('destination', destInput.trim())
+    navigate(params.toString() ? `/packages?${params}` : '/packages')
+  }
+
+  const handleMobileSearch = () => {
+    const params = new URLSearchParams()
+    if (mobileDestInput.trim()) params.set('destination', mobileDestInput.trim())
+    navigate(params.toString() ? `/packages?${params}` : '/packages')
+  }
+
+  const selectDest = (name) => {
+    setDestInput(name)
+    setShowDropdown(false)
+  }
+
+  const selectMobileDest = (name) => {
+    setMobileDestInput(name)
+    setShowMobileDropdown(false)
+  }
 
   return (
     <section ref={heroRef} className={styles.section}>
@@ -128,15 +174,33 @@ export default function HeroSection() {
         >
           <div className={styles.searchMobileCard}>
             <div className={styles.searchMobileRow}>
-              <div className={styles.searchMobileField}>
+              <div className={styles.searchMobileField} style={{ position: 'relative' }}>
                 <span className={styles.searchFieldLabel}>Destination</span>
-                <input type="text" placeholder="Where to?" className={styles.searchFieldInput} />
+                <input
+                  type="text"
+                  placeholder="Where to?"
+                  className={styles.searchFieldInput}
+                  value={mobileDestInput}
+                  onChange={e => { setMobileDestInput(e.target.value); setShowMobileDropdown(true) }}
+                  onFocus={() => setShowMobileDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowMobileDropdown(false), 150)}
+                />
+                {showMobileDropdown && filteredMobileDests.length > 0 && (
+                  <div className={styles.dropdown}>
+                    {filteredMobileDests.map(d => (
+                      <button key={d.id || d._id} className={styles.dropdownItem} onMouseDown={() => selectMobileDest(d.name)}>
+                        <span className={styles.dropdownIcon}>📍</span> {d.name}
+                        <span className={styles.dropdownCountry}>{d.country}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              <button onClick={() => navigate('/packages')} className={styles.searchMobileGo}>
+              <button onClick={handleMobileSearch} className={styles.searchMobileGo}>
                 {ARROW}
               </button>
             </div>
-            <button onClick={() => navigate('/packages')} className={styles.searchMobileExplore}>
+            <button onClick={handleMobileSearch} className={styles.searchMobileExplore}>
               Explore Journeys →
             </button>
           </div>
@@ -148,15 +212,35 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.6, ease: [0.34, 1.56, 0.64, 1] }}
           className={styles.searchDesktop}
+          ref={dropdownRef}
         >
-          <div className={styles.searchField}>
+          <div className={styles.searchField} style={{ position: 'relative' }}>
             <label className={styles.searchFieldLabel2}>Destination</label>
-            <input type="text" placeholder="Where to?" className={styles.searchInput} />
+            <input
+              type="text"
+              placeholder="Where to?"
+              className={styles.searchInput}
+              value={destInput}
+              onChange={e => { setDestInput(e.target.value); setShowDropdown(true) }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            />
+            {showDropdown && filteredDests.length > 0 && (
+              <div className={styles.dropdown}>
+                {filteredDests.map(d => (
+                  <button key={d.id || d._id} className={styles.dropdownItem} onMouseDown={() => selectDest(d.name)}>
+                    <span className={styles.dropdownIcon}>📍</span> {d.name}
+                    <span className={styles.dropdownCountry}>{d.country}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className={styles.searchDivider} />
           <div className={styles.searchField}>
             <label className={styles.searchFieldLabel2}>Duration</label>
-            <select className={styles.searchSelect}>
+            <select className={styles.searchSelect} value={duration} onChange={e => setDuration(e.target.value)}>
               <option value="">Any length</option>
               <option value="3-5">3 – 5 Days</option>
               <option value="6-9">6 – 9 Days</option>
@@ -166,14 +250,14 @@ export default function HeroSection() {
           <div className={styles.searchDivider} />
           <div className={styles.searchField}>
             <label className={styles.searchFieldLabel2}>Travelers</label>
-            <select className={styles.searchSelect}>
+            <select className={styles.searchSelect} value={travelers} onChange={e => setTravelers(e.target.value)}>
               <option value="">Who's going?</option>
               <option value="couple">Couple</option>
               <option value="family">Family</option>
               <option value="group">Group</option>
             </select>
           </div>
-          <button onClick={() => navigate('/packages')} className={styles.searchGoBtn}>
+          <button onClick={handleSearch} className={styles.searchGoBtn}>
             {ARROW}
           </button>
         </motion.div>

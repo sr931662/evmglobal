@@ -66,6 +66,17 @@ const typeStyle = {
   'Hybrid':    { background: '#fff7ed', color: '#c2410c' },
 }
 
+function formatSalary(job) {
+  if (!job.salaryType || job.salaryType === 'not_disclosed') return null
+  if (job.salaryType === 'range' && job.salaryMin != null && job.salaryMax != null) {
+    return `₹${job.salaryMin} LPA – ₹${job.salaryMax} LPA`
+  }
+  if (job.salaryType === 'upto' && job.salaryMax != null) {
+    return `Upto ₹${job.salaryMax} LPA`
+  }
+  return null
+}
+
 export default function Careers() {
   const [openings,    setOpenings]    = useState([])
   const [loading,     setLoading]     = useState(true)
@@ -201,6 +212,9 @@ export default function Careers() {
                             {job.type}
                           </span>
                           <span className={styles.jobLocation}>📍 {job.location}</span>
+                          {formatSalary(job) && (
+                            <span className={styles.jobSalary}>💰 {formatSalary(job)}</span>
+                          )}
                         </div>
                         <h3 className={styles.jobTitle}>{job.title}</h3>
                       </div>
