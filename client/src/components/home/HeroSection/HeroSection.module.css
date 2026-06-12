@@ -282,16 +282,30 @@
 /* ── Destination dropdown ── */
 .dropdown {
   position: absolute;
-  top: calc(100% + 8px);
-  left: -1.5rem;
-  right: -1.5rem;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
   background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 1.25rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.06);
   z-index: 100;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.06);
-  max-height: 17rem;
+  border: 1px solid rgba(0,0,0,0.07);
+  max-height: 18rem;
+  overflow-y: auto;
+}
+.dropdownMobile {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 100;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.07);
+  max-height: 14rem;
   overflow-y: auto;
 }
 .dropdownItem {

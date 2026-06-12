@@ -172,9 +172,9 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 1.6, ease: [0.34, 1.56, 0.64, 1] }}
           className={styles.searchMobile}
         >
-          <div className={styles.searchMobileCard}>
+          <div className={styles.searchMobileCard} style={{ position: 'relative' }}>
             <div className={styles.searchMobileRow}>
-              <div className={styles.searchMobileField} style={{ position: 'relative' }}>
+              <div className={styles.searchMobileField}>
                 <span className={styles.searchFieldLabel}>Destination</span>
                 <input
                   type="text"
@@ -185,16 +185,6 @@ export default function HeroSection() {
                   onFocus={() => setShowMobileDropdown(true)}
                   onBlur={() => setTimeout(() => setShowMobileDropdown(false), 150)}
                 />
-                {showMobileDropdown && filteredMobileDests.length > 0 && (
-                  <div className={styles.dropdown}>
-                    {filteredMobileDests.map(d => (
-                      <button key={d.id || d._id} className={styles.dropdownItem} onMouseDown={() => selectMobileDest(d.name)}>
-                        <span className={styles.dropdownIcon}>📍</span> {d.name}
-                        <span className={styles.dropdownCountry}>{d.country}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
               <button onClick={handleMobileSearch} className={styles.searchMobileGo}>
                 {ARROW}
@@ -203,6 +193,16 @@ export default function HeroSection() {
             <button onClick={handleMobileSearch} className={styles.searchMobileExplore}>
               Explore Journeys →
             </button>
+            {showMobileDropdown && filteredMobileDests.length > 0 && (
+              <div className={styles.dropdownMobile}>
+                {filteredMobileDests.map(d => (
+                  <button key={d.id || d._id} className={styles.dropdownItem} onMouseDown={() => selectMobileDest(d.name)}>
+                    <span className={styles.dropdownIcon}>📍</span> {d.name}
+                    <span className={styles.dropdownCountry}>{d.country}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -214,7 +214,7 @@ export default function HeroSection() {
           className={styles.searchDesktop}
           ref={dropdownRef}
         >
-          <div className={styles.searchField} style={{ position: 'relative' }}>
+          <div className={styles.searchField}>
             <label className={styles.searchFieldLabel2}>Destination</label>
             <input
               type="text"
@@ -226,16 +226,6 @@ export default function HeroSection() {
               onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
             />
-            {showDropdown && filteredDests.length > 0 && (
-              <div className={styles.dropdown}>
-                {filteredDests.map(d => (
-                  <button key={d.id || d._id} className={styles.dropdownItem} onMouseDown={() => selectDest(d.name)}>
-                    <span className={styles.dropdownIcon}>📍</span> {d.name}
-                    <span className={styles.dropdownCountry}>{d.country}</span>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
           <div className={styles.searchDivider} />
           <div className={styles.searchField}>
@@ -260,6 +250,16 @@ export default function HeroSection() {
           <button onClick={handleSearch} className={styles.searchGoBtn}>
             {ARROW}
           </button>
+          {showDropdown && filteredDests.length > 0 && (
+            <div className={styles.dropdown}>
+              {filteredDests.map(d => (
+                <button key={d.id || d._id} className={styles.dropdownItem} onMouseDown={() => selectDest(d.name)}>
+                  <span className={styles.dropdownIcon}>📍</span> {d.name}
+                  <span className={styles.dropdownCountry}>{d.country}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
 
