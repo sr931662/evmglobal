@@ -62,12 +62,29 @@ const mdComponents = {
   img: ({ src, alt }) => <img src={src} alt={alt} className={styles.mdImg} />,
 }
 
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800'
+
+function recScore(pkg, tags) {
+  const lowerTags = tags.map(t => t.toLowerCase())
+  const dests = (pkg.destinations || []).map(d => d.toLowerCase())
+  const title = (pkg.title || '').toLowerCase()
+  const cat   = (pkg.category || '').toLowerCase()
+  let score = 0
+  lowerTags.forEach(tag => {
+    if (dests.some(d => d.includes(tag) || tag.includes(d))) score += 3
+    if (title.includes(tag)) score += 1
+    if (cat.includes(tag))   score += 1
+  })
+  return score
+}
+
 export default function BlogPost() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [post, setPost] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [post,        setPost]        = useState(null)
+  const [loading,     setLoading]     = useState(true)
+  const [error,       setError]       = useState('')
+  const [recPackages, setRecPackages] = useState([])
 
   useEffect(() => {
     api.getBlog(id)
@@ -75,6 +92,37 @@ export default function BlogPost() {
       .catch(err => setError(err.message || 'Post not found'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    if (!post) return
+    const tags = post.tags?.length ? post.tags : []
+    const categoryMap = {
+      Honeymoon:      'Honeymoon',
+      'Family Travel':'Family',
+      Luxury:         'Luxury',
+      Wellness:       'Wellness',
+      Destinations:   null,
+      'Travel Tips':  null,
+    }
+    const catFilter = categoryMap[post.category]
+    const params = { status: 'Active', limit: 100 }
+    if (catFilter && !tags.length) params.category = catFilter
+
+    api.getPackages(params)
+      .then(data => {
+        const pkgs = Array.isArray(data) ? data : (data.packages || [])
+        if (!tags.length) {
+          setRecPackages(pkgs.slice(0, 4))
+          return
+        }
+        const scored = pkgs
+          .map(pkg => ({ pkg, score: recScore(pkg, tags) }))
+          .filter(({ score }) => score > 0)
+          .sort((a, b) => b.score - a.score)
+        setRecPackages(scored.slice(0, 4).map(({ pkg }) => pkg))
+      })
+      .catch(() => {})
+  }, [post])
 
   useEffect(() => {
     if (!post || typeof window === 'undefined') return
@@ -240,6 +288,76 @@ export default function BlogPost() {
           </button>
         </motion.div>
       </div>
+
+      {recPackages.length > 0 && (
+        <motion.section
+          className={styles.recSection}
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.45, ease: [0.33, 1, 0.68, 1] }}
+        >
+          <div className={styles.recInner}>
+            <div className={styles.recHead}>
+              <div>
+                <span className={styles.recEyebrow}>Curated for this article</span>
+                <h2 className={styles.recHeading}>Recommended Packages</h2>
+              </div>
+              <button onClick={() => navigate('/packages')} className={styles.recViewAll}>
+                View all packages →
+              </button>
+            </div>
+
+            <div className={styles.recGrid}>
+              {recPackages.map((pkg, i) => {
+                const dest = Array.isArray(pkg.destinations) && pkg.destinations.length
+                  ? pkg.destinations.join(', ')
+                  : pkg.category || ''
+                const slug = pkg.slug || pkg.id || pkg._id
+                return (
+                  <motion.div
+                    key={pkg.id || pkg._id}
+                    className={styles.recCard}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.5 + i * 0.08, ease: [0.33, 1, 0.68, 1] }}
+                    whileHover={{ y: -6, transition: { duration: 0.3 } }}
+                    onClick={() => navigate(`/package-details/${slug}`)}
+                  >
+                    <div className={styles.recCardImg}>
+                      <img
+                        src={pkg.image || FALLBACK_IMG}
+                        alt={pkg.title}
+                        className={styles.recImg}
+                      />
+                      <div className={styles.recImgOverlay} />
+                      <span className={styles.recNightsBadge}>◑ {pkg.nights} Nights</span>
+                      {pkg.category && (
+                        <span className={styles.recCatBadge}>{pkg.category}</span>
+                      )}
+                    </div>
+                    <div className={styles.recCardBody}>
+                      <p className={styles.recDest}>📍 {dest}</p>
+                      <h3 className={styles.recTitle}>{pkg.title}</h3>
+                      <div className={styles.recFooter}>
+                        <div>
+                          <span className={styles.recPriceLabel}>Per Adult</span>
+                          <span className={styles.recPrice}>{pkg.price}</span>
+                        </div>
+                        <button
+                          className={styles.recBtn}
+                          onClick={e => { e.stopPropagation(); navigate(`/package-details/${slug}`) }}
+                        >
+                          View →
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        </motion.section>
+      )}
     </div>
   )
 }
