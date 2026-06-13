@@ -90,7 +90,7 @@ export default function InquirySection({
 
       await api.submitLead({
         name: form.name,
-        phone: form.phone,
+        phone: form.phone.replace(/[^\d+]/g, ''),
         email: form.email,
         destination: form.destination,
         travelMonth: form.travelMonth,

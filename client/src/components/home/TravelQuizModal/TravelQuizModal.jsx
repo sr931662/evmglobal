@@ -544,7 +544,7 @@ export default function TravelQuizModal({ standalone = false }) {
     try {
       await api.submitLead({
         name:  contact.name.trim(),
-        phone: contact.phone.trim(),
+        phone: contact.phone.replace(/[^\d+]/g, ''),
         ...(contact.email.trim() && { email: contact.email.trim() }),
         ...(answers.destination  && { destination: answers.destination.label }),
         ...(answers.travellers   && { travellers: answers.travellers.label }),
