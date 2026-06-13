@@ -1,3 +1,8 @@
 name = "evmglobal"
 pages_build_output_dir = "./client/dist"
 compatibility_date = "2024-11-07"
+
+[vars]
+# Backend URL used by the Cloudflare Pages Worker (_worker.js) to fetch blog data
+# for crawler / link-preview OG tag pre-rendering.
+API_URL = "https://evmglobal-270604353720.europe-west1.run.app"
