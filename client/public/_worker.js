@@ -95,33 +95,33 @@ export default {
       const blogMatch = url.pathname.match(/^\/blog\/([^/]+)\/?$/);
 
       if (blogMatch) {
-        const slug    = blogMatch[1];
-        const apiBase = (env.API_URL || '').replace(/\/$/, '');
+        const slug = blogMatch[1];
+        // env.API_URL set in Cloudflare dashboard takes priority;
+        // fall back to the known Cloud Run URL so the worker works even
+        // before the env var is configured in the Cloudflare Pages dashboard.
+        const apiBase = (env.API_URL || 'https://evmglobal-270604353720.europe-west1.run.app').replace(/\/$/, '');
 
-        if (apiBase) {
-          try {
-            const res = await fetch(`${apiBase}/api/blogs/${encodeURIComponent(slug)}`, {
-              headers: { Accept: 'application/json' },
-              cf: { cacheTtl: 3600, cacheEverything: true },
+        try {
+          const res = await fetch(`${apiBase}/api/blogs/${encodeURIComponent(slug)}`, {
+            headers: { Accept: 'application/json' },
+            cf: { cacheTtl: 3600, cacheEverything: true },
+          });
+
+          if (res.ok) {
+            const post = await res.json();
+            return new Response(buildBlogHtml(post, slug, url.origin), {
+              headers: {
+                'Content-Type': 'text/html; charset=utf-8',
+                'Cache-Control': 'public, max-age=3600',
+              },
             });
-
-            if (res.ok) {
-              const post = await res.json();
-              return new Response(buildBlogHtml(post, slug, url.origin), {
-                headers: {
-                  'Content-Type': 'text/html; charset=utf-8',
-                  'Cache-Control': 'public, max-age=3600',
-                },
-              });
-            }
-          } catch {
-            // API unreachable — serve slug-based fallback below
           }
+        } catch {
+          // API unreachable — serve slug-based fallback below
         }
 
-        // API_URL not configured or API call failed:
-        // Return fallback HTML that is at least URL/title-specific for this blog post.
-        // This is far better than serving index.html with homepage OG tags.
+        // API call failed: return slug-derived fallback HTML.
+        // Better than serving index.html with homepage OG tags.
         return new Response(buildBlogFallbackHtml(slug, url.origin), {
           headers: {
             'Content-Type': 'text/html; charset=utf-8',
