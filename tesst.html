@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kashti Adventures | The Grand Terminal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Space Grotesk (Modern/Technical) & Playfair Display (Luxury) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for standard icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            green: '#1b8c5e',
+                            dark: '#0f5235',
+                            gold: '#ebb15b',
+                            black: '#0a0a0a',
+                            charcoal: '#1a1a1a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fly-past': 'flyPast 20s linear infinite',
+                        'sail-past': 'sailPast 30s ease-in-out infinite',
+                        'drive-past': 'drivePast 15s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        flyPast: {
+                            '0%': { transform: 'translate(-100%, 100%) scale(0.5) rotate(-15deg)', opacity: '0' },
+                            '10%': { opacity: '0.4' },
+                            '50%': { transform: 'translate(50vw, -10vh) scale(1) rotate(0deg)', opacity: '0.8' },
+                            '90%': { opacity: '0.4' },
+                            '100%': { transform: 'translate(150vw, -50vh) scale(1.5) rotate(15deg)', opacity: '0' },
+                        },
+                        sailPast: {
+                            '0%': { transform: 'translateX(-20vw) translateY(5px)', opacity: '0' },
+                            '20%': { opacity: '1' },
+                            '50%': { transform: 'translateX(50vw) translateY(-5px)' },
+                            '80%': { opacity: '1' },
+                            '100%': { transform: 'translateX(120vw) translateY(5px)', opacity: '0' },
+                        },
+                        drivePast: {
+                            '0%': { transform: 'translateX(120vw)' },
+                            '100%': { transform: 'translateX(-20vw)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: theme('colors.brand.black');
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* The Frame - Gives a Viewfinder/Kiosk vibe */
+        .viewport-frame {
+            position: fixed;
+            top: 20px;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        @media (max-width: 768px) {
+            .viewport-frame { top: 10px; bottom: 10px; left: 10px; right: 10px; }
+        }
+
+        /* Hide scrollbar for immersive feel */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        /* Typography & layout utilities */
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+        }
+        
+        .section-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 100px 5vw;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Scroll Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.2s; }
+        .reveal-delay-2 { transition-delay: 0.4s; }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-gold selection:text-brand-black">
+
+    <!-- The Viewfinder Frame (Fixed overlay) -->
+    <div class="viewport-frame">
+        <!-- Top Bar -->
+        <div class="flex justify-between items-start pointer-events-auto px-4 pt-2">
+            <div class="flex items-center gap-4">
+                <img src="image_5e1ecc.png" alt="Kashti Adventures" class="h-12 w-auto filter brightness-0 invert" onerror="this.outerHTML='<span class=\'font-serif text-2xl font-bold text-white\'>KASHTI</span>'">
+                <div class="hidden md:block h-[1px] w-12 bg-brand-gold"></div>
+                <span class="hidden md:block font-sans text-xs tracking-[0.3em] uppercase text-gray-400">Terminal Access</span>
+            </div>
+            
+            <nav class="hidden md:flex gap-8 font-sans text-xs tracking-widest uppercase items-center">
+                <a href="#gate-1" class="hover:text-brand-gold transition-colors">Gate 01: Leisure</a>
+                <a href="#gate-2" class="hover:text-brand-gold transition-colors">Gate 02: Corporate</a>
+                <a href="#gate-3" class="hover:text-brand-gold transition-colors">Gate 03: Education</a>
+                <a href="#dispatch" class="bg-brand-gold text-brand-black px-6 py-2 rounded-full font-bold hover:bg-white transition-colors">Book Passage</a>
+            </nav>
+
+            <!-- Mobile Menu Btn -->
+            <button class="md:hidden text-white text-xl p-2"><i class="fas fa-bars"></i></button>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="flex justify-between items-end pointer-events-auto px-4 pb-2 font-sans text-[10px] tracking-widest uppercase text-gray-500">
+            <div class="flex gap-4">
+                <span>LAT 26.8467° N</span>
+                <span>LON 80.9462° E</span>
+            </div>
+            <div class="animate-pulse">Scroll to navigate <i class="fas fa-arrow-down ml-1"></i></div>
+        </div>
+    </div>
+
+    <!-- Main Content Flow -->
+    <main>
+        <!-- HERO: The Departure Lounge -->
+        <section class="section-container justify-center text-center overflow-hidden">
+            <!-- Dynamic Background -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Luxury Lounge" class="w-full h-full object-cover opacity-20 scale-105 animate-pulse-slow">
+                <div class="absolute inset-0 bg-gradient-to-b from-brand-black/80 via-brand-black/60 to-brand-black"></div>
+            </div>
+
+            <!-- Content -->
+            <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+                <div class="inline-flex items-center gap-3 border border-gray-700 rounded-full px-4 py-1 mb-8">
+                    <span class="w-2 h-2 rounded-full bg-brand-green animate-ping"></span>
+                    <span class="font-sans text-xs uppercase tracking-widest text-gray-300">Boarding Now Open</span>
+                </div>
+                
+                <h1 class="font-serif text-6xl md:text-8xl lg:text-9xl font-bold leading-none mb-6">
+                    <span class="block text-outline">BEYOND</span>
+                    <span class="block">THE MAP.</span>
+                </h1>
+                
+                <p class="font-sans text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed mb-10">
+                    We don't just book tickets. We engineer movement. From private jets and luxury ocean liners to secure educational convoys across India.
+                </p>
+
+                <div class="flex gap-4 font-sans">
+                    <a href="#gate-1" class="w-14 h-14 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-brand-gold hover:text-brand-gold transition-all duration-300">
+                        <i class="fas fa-plane"></i>
+                    </a>
+                    <a href="#gate-2" class="w-14 h-14 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-brand-gold hover:text-brand-gold transition-all duration-300">
+                        <i class="fas fa-ship"></i>
+                    </a>
+                    <a href="#gate-3" class="w-14 h-14 rounded-full border border-gray-600 flex items-center justify-center text-gray-400 hover:border-brand-gold hover:text-brand-gold transition-all duration-300">
+                        <i class="fas fa-train"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- GATE 01: B2C Leisure (Ship/Hotel Theme) -->
+        <section id="gate-1" class="section-container overflow-hidden">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1599640842225-85d111c60e6b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Ocean Resort" class="w-full h-full object-cover opacity-30">
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-black via-brand-black/80 to-transparent"></div>
+            </div>
+
+            <!-- Vehicle Animation (Ship) -->
+            <div class="absolute bottom-20 left-0 w-full z-0 opacity-40 pointer-events-none">
+                <div class="animate-sail-past text-white">
+                    <i class="fas fa-ship text-6xl drop-shadow-2xl"></i>
+                    <div class="w-32 h-[1px] bg-gradient-to-r from-white to-transparent mt-2"></div>
+                </div>
+            </div>
+
+            <div class="relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <div class="font-sans text-brand-gold text-sm font-bold tracking-[0.2em] uppercase mb-4 flex items-center gap-4">
+                        <span>Gate 01</span>
+                        <div class="h-[1px] w-12 bg-brand-gold"></div>
+                        <i class="fas fa-hotel"></i>
+                    </div>
+                    <h2 class="font-serif text-5xl md:text-7xl font-bold mb-6">The Leisure<br>Fleet.</h2>
+                    <p class="font-sans text-gray-300 text-lg mb-8 max-w-md leading-relaxed">
+                        Drop anchor at world-class boutique resorts or sail the Mediterranean. Crafted exclusively for individuals, couples, and families seeking authentic, unhurried escapes.
+                    </p>
+                    
+                    <div class="space-y-4 font-sans text-sm tracking-wide text-gray-400">
+                        <div class="flex items-center gap-3"><i class="fas fa-check text-brand-green"></i> Bespoke Family Itineraries</div>
+                        <div class="flex items-center gap-3"><i class="fas fa-check text-brand-green"></i> Premium Hotel & Cabana Sourcing</div>
+                        <div class="flex items-center gap-3"><i class="fas fa-check text-brand-green"></i> Cruise Line Reservations</div>
+                    </div>
+                </div>
+                
+                <!-- Floating Visuals -->
+                <div class="relative h-[500px] hidden lg:block reveal reveal-delay-1">
+                    <div class="absolute right-0 top-10 w-3/4 h-3/4 glass-panel p-2 rounded-lg transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Resort" class="w-full h-full object-cover rounded">
+                    </div>
+                    <!-- UI Badge -->
+                    <div class="absolute bottom-20 left-10 glass-panel px-6 py-4 rounded flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-gold/20 flex items-center justify-center text-brand-gold">
+                            <i class="fas fa-passport"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase text-gray-400 font-sans tracking-wider">Status</div>
+                            <div class="font-bold text-white font-serif">Boarding</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GATE 02: Corporate (Jet/Lounge Theme) -->
+        <section id="gate-2" class="section-container overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1540914945898-33318f7cfbd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Corporate Event" class="w-full h-full object-cover opacity-20 grayscale">
+                <div class="absolute inset-0 bg-gradient-to-l from-brand-black via-brand-black/90 to-brand-black/40"></div>
+            </div>
+
+            <!-- Vehicle Animation (Plane) -->
+            <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                <div class="animate-fly-past absolute top-0 left-0 text-white opacity-20">
+                    <i class="fas fa-plane text-[15rem]"></i>
+                </div>
+            </div>
+
+            <div class="relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Floating Visuals -->
+                <div class="relative h-[500px] hidden lg:block order-2 lg:order-1 reveal">
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4/5 h-4/5 glass-panel p-2 rounded-lg transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Corporate Meeting" class="w-full h-full object-cover rounded">
+                    </div>
+                    <div class="absolute top-10 right-0 glass-panel px-6 py-4 rounded flex items-center gap-4 border-l-4 border-brand-green">
+                        <i class="fas fa-briefcase text-2xl text-brand-green"></i>
+                        <div>
+                            <div class="text-xs uppercase text-gray-400 font-sans tracking-wider">Clearance</div>
+                            <div class="font-bold text-white font-serif">Executive Class</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2 lg:pl-12 reveal reveal-delay-1 text-right lg:text-left flex flex-col items-end lg:items-start">
+                    <div class="font-sans text-brand-green text-sm font-bold tracking-[0.2em] uppercase mb-4 flex items-center gap-4 flex-row-reverse lg:flex-row">
+                        <span>Gate 02</span>
+                        <div class="h-[1px] w-12 bg-brand-green"></div>
+                        <i class="fas fa-plane-departure"></i>
+                    </div>
+                    <h2 class="font-serif text-5xl md:text-7xl font-bold mb-6">The Executive<br>Lounge.</h2>
+                    <p class="font-sans text-gray-300 text-lg mb-8 max-w-md leading-relaxed text-right lg:text-left">
+                        Take the boardroom to the clouds. We specialize in flawless MICE logistics, corporate offsites, and reward trips requiring absolute precision and discretion.
+                    </p>
+                    
+                    <div class="space-y-4 font-sans text-sm tracking-wide text-gray-400 text-right lg:text-left w-full">
+                        <div class="flex items-center gap-3 justify-end lg:justify-start"><i class="fas fa-check text-brand-gold"></i> Conference Venue Charters</div>
+                        <div class="flex items-center gap-3 justify-end lg:justify-start"><i class="fas fa-check text-brand-gold"></i> Team Building & Offsites</div>
+                        <div class="flex items-center gap-3 justify-end lg:justify-start"><i class="fas fa-check text-brand-gold"></i> Private Aviation Coordination</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GATE 03: Educational (Train/Bus Theme) -->
+        <section id="gate-3" class="section-container overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Train tracks in forest" class="w-full h-full object-cover opacity-30">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/70 to-brand-black/90"></div>
+            </div>
+
+            <!-- Vehicle Animation (Train/Bus) -->
+            <div class="absolute bottom-10 w-full z-0 pointer-events-none flex items-center">
+                <!-- Train Track visual -->
+                <div class="absolute bottom-0 w-full h-[2px] border-b-2 border-dashed border-gray-600 opacity-30"></div>
+                <div class="animate-drive-past text-white absolute bottom-1 flex items-center gap-1">
+                    <i class="fas fa-train text-4xl text-gray-400"></i>
+                    <div class="w-4 h-2 bg-brand-gold rounded-sm opacity-50"></div>
+                    <div class="w-4 h-2 bg-brand-gold rounded-sm opacity-50"></div>
+                </div>
+            </div>
+
+            <div class="relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <div class="font-sans text-blue-400 text-sm font-bold tracking-[0.2em] uppercase mb-4 flex items-center gap-4">
+                        <span>Gate 03</span>
+                        <div class="h-[1px] w-12 bg-blue-400"></div>
+                        <i class="fas fa-bus"></i>
+                    </div>
+                    <h2 class="font-serif text-5xl md:text-7xl font-bold mb-6">The Discovery<br>Express.</h2>
+                    <p class="font-sans text-gray-300 text-lg mb-8 max-w-md leading-relaxed">
+                        Transforming the world into a classroom. We arrange highly secure, premium coach and rail journeys for schools and institutes focused on experiential learning.
+                    </p>
+                    
+                    <div class="space-y-4 font-sans text-sm tracking-wide text-gray-400">
+                        <div class="flex items-center gap-3"><i class="fas fa-shield-alt text-blue-400"></i> High-Security Environments</div>
+                        <div class="flex items-center gap-3"><i class="fas fa-industry text-blue-400"></i> Industrial & Heritage Visits</div>
+                        <div class="flex items-center gap-3"><i class="fas fa-ticket-alt text-blue-400"></i> Group Rail & Premium Coach Booking</div>
+                    </div>
+                </div>
+                
+                <div class="relative h-[500px] hidden lg:block reveal reveal-delay-1">
+                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-4/5 h-3/4 glass-panel p-2 rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Bus Tour" class="w-full h-full object-cover rounded filter sepia-[0.2]">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOOKING: The Dispatch Center -->
+        <section id="dispatch" class="min-h-screen flex items-center relative py-20 px-5 lg:px-20 bg-brand-charcoal border-t border-gray-800">
+            
+            <div class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-xl overflow-hidden reveal">
+                
+                <!-- Left: Info panel styled like a ticket stub -->
+                <div class="lg:col-span-4 bg-brand-green p-10 flex flex-col justify-between relative overflow-hidden text-white">
+                    <i class="fas fa-globe-asia absolute -right-10 -bottom-10 text-[15rem] opacity-10"></i>
+                    
+                    <div>
+                        <h3 class="font-serif text-3xl font-bold mb-2">Central Dispatch</h3>
+                        <p class="font-sans text-sm opacity-80 uppercase tracking-widest mb-10">Clearance Request</p>
+                        
+                        <div class="space-y-6 font-sans text-sm">
+                            <div>
+                                <span class="block opacity-60 text-xs uppercase mb-1">Coordinates</span>
+                                <span class="font-bold tracking-wide">Lucknow, UP, India</span>
+                            </div>
+                            <div>
+                                <span class="block opacity-60 text-xs uppercase mb-1">Comm Channel</span>
+                                <span class="font-bold tracking-wide">boarding@kashtiadventures.com</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 pt-8 border-t border-white/20">
+                        <img src="image_5e1ecc.png" alt="Kashti Logo" class="h-8 filter brightness-0 invert opacity-80" onerror="this.style.display='none'">
+                    </div>
+                </div>
+
+                <!-- Right: Form panel -->
+                <div class="lg:col-span-8 bg-brand-black p-10 lg:p-16 relative">
+                    <!-- Techy grid background pattern -->
+                    <div class="absolute inset-0 z-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px); background-size: 20px 20px;"></div>
+                    
+                    <form id="dispatchForm" class="relative z-10 space-y-8 font-sans">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="relative group">
+                                <input type="text" id="name" required class="w-full bg-transparent border-b border-gray-700 py-2 text-white focus:outline-none focus:border-brand-gold transition-colors peer placeholder-transparent">
+                                <label for="name" class="absolute left-0 top-2 text-gray-500 text-sm uppercase tracking-widest transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-brand-gold peer-valid:-top-4 peer-valid:text-xs">Lead Passenger Name</label>
+                            </div>
+                            <div class="relative group">
+                                <input type="email" id="email" required class="w-full bg-transparent border-b border-gray-700 py-2 text-white focus:outline-none focus:border-brand-gold transition-colors peer placeholder-transparent">
+                                <label for="email" class="absolute left-0 top-2 text-gray-500 text-sm uppercase tracking-widest transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-brand-gold peer-valid:-top-4 peer-valid:text-xs">Secure Comm (Email)</label>
+                            </div>
+                        </div>
+
+                        <div class="relative group">
+                            <select id="segment" required class="w-full bg-transparent border-b border-gray-700 py-2 text-white focus:outline-none focus:border-brand-gold transition-colors appearance-none cursor-pointer">
+                                <option value="" disabled selected class="text-gray-900">Select Travel Segment...</option>
+                                <option value="b2c" class="text-gray-900">Gate 01: Leisure / Personal</option>
+                                <option value="corp" class="text-gray-900">Gate 02: Corporate / MICE</option>
+                                <option value="edu" class="text-gray-900">Gate 03: Educational Tour</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-0 top-3 text-gray-500 pointer-events-none"></i>
+                        </div>
+
+                        <div class="relative group mt-8">
+                            <textarea id="details" rows="3" required class="w-full bg-transparent border-b border-gray-700 py-2 text-white focus:outline-none focus:border-brand-gold transition-colors peer placeholder-transparent resize-none"></textarea>
+                            <label for="details" class="absolute left-0 top-2 text-gray-500 text-sm uppercase tracking-widest transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-brand-gold peer-valid:-top-4 peer-valid:text-xs">Destinations & Logistics Required</label>
+                        </div>
+
+                        <button type="button" onclick="submitDispatch()" class="mt-8 bg-white text-brand-black px-8 py-4 uppercase tracking-[0.2em] font-bold text-xs hover:bg-brand-gold hover:text-white transition-all w-full md:w-auto flex items-center justify-center gap-3">
+                            Issue Clearance Request <i class="fas fa-satellite-dish"></i>
+                        </button>
+                        
+                        <!-- Custom Success Message (replaces alert) -->
+                        <div id="formSuccess" class="hidden mt-4 p-4 border border-brand-green bg-brand-green/10 text-brand-green text-sm tracking-wide">
+                            <i class="fas fa-check-circle mr-2"></i> Clearance request logged. Our dispatch team will initiate contact.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Intersection Observer for scroll reveal animations
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    // Optional: stop observing once revealed
+                    // observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const revealOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15 // Trigger when 15% of element is visible
+        };
+
+        const observer = new IntersectionObserver(revealCallback, revealOptions);
+        
+        revealElements.forEach(el => observer.observe(el));
+
+        // Form Submission Handler (No ugly alerts)
+        function submitDispatch() {
+            const form = document.getElementById('dispatchForm');
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const segment = document.getElementById('segment').value;
+            const details = document.getElementById('details').value;
+
+            // Simple validation check
+            if (!name || !email || !segment || !details) {
+                // Focus on the first invalid field
+                form.reportValidity();
+                return;
+            }
+
+            // Show success message
+            const successMsg = document.getElementById('formSuccess');
+            successMsg.classList.remove('hidden');
+            
+            // Reset form
+            form.reset();
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                successMsg.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
