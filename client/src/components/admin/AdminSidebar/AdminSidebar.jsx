@@ -10,6 +10,7 @@ const nav = [
   { icon: '💼', label: 'Careers',      id: 'careers'      },
   { icon: '👥', label: 'Team',         id: 'team'         },
   { icon: '👤', label: 'Users',        id: 'users'        },
+  { icon: '🔐', label: 'Access',       id: 'access'       },
   { icon: '📊', label: 'Analytics',    id: 'analytics'    },
   { icon: '⚙',  label: 'Settings',    id: 'settings'     },
 ]

@@ -1,12 +1,15 @@
 import {
   Injectable,
   ConflictException,
+  BadRequestException,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
+
+const ALLOWED_DOMAIN = 'easemyvacationsglobal.com';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +28,13 @@ export class UsersService {
 
   async create(userData: { email: string; password: string; role?: string }) {
     const { email, password, role = 'admin' } = userData;
+
+    const domain = email.toLowerCase().split('@')[1];
+    if (domain !== ALLOWED_DOMAIN) {
+      throw new BadRequestException(
+        `Only @${ALLOWED_DOMAIN} email addresses can be registered as team members.`
+      );
+    }
 
     const existing = await this.findByEmail(email);
     if (existing) {
@@ -66,6 +76,13 @@ export class UsersService {
       .select('-password')
       .lean()
       .exec();
+  }
+
+  async delete(id: string) {
+    const result = await this.userModel.findByIdAndDelete(id).lean().exec();
+    if (!result) throw new Error('User not found');
+    this.logger.log(`User deleted: ${id}`);
+    return { message: 'User removed successfully' };
   }
 
   async updatePassword(id: string, newPlainPassword: string) {

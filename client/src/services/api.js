@@ -315,4 +315,13 @@ export const api = {
     const qs = new URLSearchParams({ phone, ...(message ? { message } : {}) }).toString()
     return request(`/whatsapp/link?${qs}`)
   },
+
+  // ─── Admin Users (Portal Access) ──────────────────────────────────────────
+  getAdminUsers: () => request('/users'),
+
+  createAdminUser: (email, password) =>
+    request('/users', { method: 'POST', body: JSON.stringify({ email, password }) }),
+
+  deleteAdminUser: (id) =>
+    request(`/users/${id}`, { method: 'DELETE' }),
 }

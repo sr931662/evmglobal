@@ -99,6 +99,63 @@ export class EmailService {
     this.logger.log(`OTP email sent to ${to}`);
   }
 
+  async sendCustomerWelcomeEmail(to: string, name: string) {
+    const firstName = this.escapeHtml(name.split(' ')[0] || name);
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; background: #f7f8fa; margin: 0; padding: 0; }
+          .wrap { max-width: 560px; margin: 32px auto; background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; }
+          .header { background: linear-gradient(135deg, #E53935, #b71c1c); padding: 40px 36px; text-align: center; }
+          .header h1 { color: #fff; margin: 0 0 6px; font-size: 26px; font-family: Georgia, serif; letter-spacing: -0.5px; }
+          .header p { color: rgba(255,255,255,0.75); margin: 0; font-size: 14px; }
+          .body { padding: 36px; }
+          .greeting { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 12px; }
+          p { color: #555; font-size: 14px; line-height: 1.7; margin: 0 0 16px; }
+          .features { background: #f7f8fa; border-radius: 12px; padding: 20px 24px; margin: 24px 0; border: 1px solid #e5e7eb; }
+          .feature { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+          .feature:last-child { margin-bottom: 0; }
+          .feature-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+          .feature-text { font-size: 13px; color: #374151; line-height: 1.5; }
+          .feature-text strong { color: #111; }
+          .cta { display: block; margin: 28px auto 0; background: #E53935; color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 50px; font-weight: 700; font-size: 14px; text-align: center; width: fit-content; }
+          .footer { padding: 20px 36px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #9ca3af; text-align: center; line-height: 1.6; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <div class="header">
+            <h1>Welcome to EMV Global ✈️</h1>
+            <p>Your world of bespoke holidays begins here</p>
+          </div>
+          <div class="body">
+            <p class="greeting">Hi ${firstName},</p>
+            <p>
+              Welcome aboard! Your <strong>EMV Global</strong> account is ready. We specialise in crafting extraordinary, personalised travel experiences — from luxury honeymoons to family adventures across the globe.
+            </p>
+            <div class="features">
+              <div class="feature"><span class="feature-icon">🌍</span><div class="feature-text"><strong>Explore curated destinations</strong> — handpicked itineraries for every taste and budget</div></div>
+              <div class="feature"><span class="feature-icon">📋</span><div class="feature-text"><strong>Track your trip quotes</strong> — request a quote and monitor it from your profile</div></div>
+              <div class="feature"><span class="feature-icon">💬</span><div class="feature-text"><strong>Dedicated concierge support</strong> — our team is always a WhatsApp away</div></div>
+            </div>
+            <p>Ready to start planning? Browse our packages or use the Trip Planner to tell us your dream destination.</p>
+            <a class="cta" href="https://easemyvacationsglobal.com/plan-trip">Plan My Trip →</a>
+          </div>
+          <div class="footer">
+            EMV Global · Bespoke International Holidays<br>
+            <a href="https://easemyvacationsglobal.com" style="color:#E53935">easemyvacationsglobal.com</a><br><br>
+            You're receiving this because you created an account with us. Do not reply to this email.
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    await this.send({ to, subject: 'Welcome to EMV Global — Your journey begins ✈️', html });
+    this.logger.log(`Welcome email sent to ${to}`);
+  }
+
   async sendCustomerOtpEmail(to: string, otp: string, name: string) {
     const html = `
       <!DOCTYPE html>

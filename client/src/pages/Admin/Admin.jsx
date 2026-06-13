@@ -16,6 +16,7 @@ const AdminCareersPage       = lazy(() => import('./sections/AdminCareersPage'))
 const AdminTeamPage          = lazy(() => import('./sections/AdminTeamPage'))
 const AdminSettings          = lazy(() => import('./sections/AdminSettings'))
 const AdminUsersPage         = lazy(() => import('./sections/AdminUsersPage'))
+const AdminAccessPage        = lazy(() => import('./sections/AdminAccessPage'))
 
 function SectionLoader() {
   return (
@@ -36,6 +37,7 @@ const sections = {
   careers:      AdminCareersPage,
   team:         AdminTeamPage,
   users:        AdminUsersPage,
+  access:       AdminAccessPage,
   settings:     AdminSettings,
 }
 
