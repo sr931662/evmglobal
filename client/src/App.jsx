@@ -35,6 +35,7 @@ import BlogPost from './pages/BlogPost/BlogPost'
 import Careers from './pages/Careers/Careers'
 import Contact from './pages/Contact/Contact'
 import PlanTrip from './pages/PlanTrip/PlanTrip'
+import TravelInquiry from './pages/TravelInquiry/TravelInquiry'
 import Admin from './pages/Admin/Admin'
 import AdminLogin from './pages/Admin/Login/AdminLogin'
 
@@ -118,6 +119,7 @@ function AnimatedRoutes() {
           <Route path="/careers"                   element={<Careers />} />
           <Route path="/contact"                   element={<Contact />} />
           <Route path="/plan-trip"                 element={<PlanTrip />} />
+          <Route path="/travel-inquiry"            element={<TravelInquiry />} />
           <Route path="/login"                     element={<CustomerLogin />} />
           <Route path="/customer/profile"          element={<ProtectedCustomer />}>
             <Route index                           element={<ProfileSettings />} />
