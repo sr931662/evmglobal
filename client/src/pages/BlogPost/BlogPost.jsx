@@ -40,6 +40,28 @@ function buildShareUrl(slug) {
   return `${window.location.origin}/blog/${slug}`
 }
 
+function resolveMetaImage(post) {
+  if (typeof window === 'undefined') return ''
+
+  const candidates = [
+    post?.coverImage,
+    post?.image,
+    post?.thumbnail,
+    post?.featuredImage,
+    post?.heroImage,
+  ]
+
+  for (const candidate of candidates) {
+    if (!candidate) continue
+    try {
+      const resolved = new URL(candidate, window.location.origin).toString()
+      if (!resolved.includes('favicon')) return resolved
+    } catch {}
+  }
+
+  return `${window.location.origin}/favicon.png`
+}
+
 const mdComponents = {
   h1: ({ children }) => <h2 className={styles.mdH1}>{children}</h2>,
   h2: ({ children }) => <h3 className={styles.mdH2}>{children}</h3>,
@@ -130,7 +152,7 @@ export default function BlogPost() {
     const title = `${post.title} | EMV Global Blog`
     const description = post.excerpt || 'Read the latest travel story from EMV Global.'
     const url = buildShareUrl(post.slug || post.id || id)
-    const image = post.coverImage || `${window.location.origin}/favicon.png`
+    const image = resolveMetaImage(post)
     const previousTitle = document.title
 
     document.title = title

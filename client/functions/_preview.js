@@ -113,3 +113,30 @@ export function resolvePreviewImage(image, origin) {
     return DEFAULT_IMAGE
   }
 }
+
+export function extractPreviewImageFromContent(content, origin) {
+  if (!content) return DEFAULT_IMAGE
+
+  const markdownMatch = content.match(/!\[[^\]]*\]\(([^)\s]+)\)/)
+  const htmlMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i)
+  const candidate = markdownMatch?.[1] || htmlMatch?.[1] || ''
+
+  return resolvePreviewImage(candidate, origin)
+}
+
+export function resolvePreviewPostImage(post, origin) {
+  const fieldCandidates = [
+    post?.coverImage,
+    post?.image,
+    post?.thumbnail,
+    post?.featuredImage,
+    post?.heroImage,
+  ]
+
+  for (const candidate of fieldCandidates) {
+    const resolved = resolvePreviewImage(candidate, origin)
+    if (resolved !== DEFAULT_IMAGE) return resolved
+  }
+
+  return extractPreviewImageFromContent(post?.content, origin)
+}

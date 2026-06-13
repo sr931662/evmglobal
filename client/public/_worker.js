@@ -36,21 +36,43 @@ function slugToTitle(slug) {
 function extractFirstImage(content) {
   if (!content) return null;
   // markdown image: ![alt](url)
-  const mdMatch = content.match(/!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/);
+  const mdMatch = content.match(/!\[[^\]]*\]\(([^)\s]+)\)/);
   if (mdMatch) return mdMatch[1];
   // HTML img tag
-  const htmlMatch = content.match(/<img[^>]+src=["'](https?:\/\/[^"']+)["']/i);
+  const htmlMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
   if (htmlMatch) return htmlMatch[1];
   return null;
+}
+
+function resolveImageUrl(image, origin) {
+  if (!image) return null;
+  try {
+    const resolved = new URL(image, origin).toString();
+    return resolved.includes('favicon') ? null : resolved;
+  } catch {
+    return null;
+  }
 }
 
 /**
  * Pick the best available image for the OG tag.
  * Priority: coverImage field → first image in markdown content → fallback.
  */
-function resolveImage(post) {
-  if (post.coverImage && post.coverImage.startsWith('http')) return post.coverImage;
-  const fromContent = extractFirstImage(post.content);
+function resolveImage(post, origin) {
+  const candidates = [
+    post.coverImage,
+    post.image,
+    post.thumbnail,
+    post.featuredImage,
+    post.heroImage,
+  ];
+
+  for (const candidate of candidates) {
+    const resolved = resolveImageUrl(candidate, origin);
+    if (resolved) return resolved;
+  }
+
+  const fromContent = resolveImageUrl(extractFirstImage(post.content), origin);
   if (fromContent) return fromContent;
   return FALLBACK_OG_IMAGE;
 }
@@ -58,7 +80,7 @@ function resolveImage(post) {
 function buildBlogHtml(post, slug, origin) {
   const t   = esc(`${post.title} | EMV Blog`);
   const d   = esc(post.excerpt || `Read the latest travel insights from ${SITE_NAME}.`);
-  const img = esc(resolveImage(post));
+  const img = esc(resolveImage(post, origin));
   const url = `${origin}/blog/${slug}`;
 
   return `<!DOCTYPE html>

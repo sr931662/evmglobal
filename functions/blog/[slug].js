@@ -1,6 +1,6 @@
 import {
   buildHtmlResponse, needsOgResponse, normalizeApiBase,
-  renderPreviewHtml, resolvePreviewImage, slugToTitle,
+  renderPreviewHtml, resolvePreviewPostImage, slugToTitle,
 } from '../_preview.js'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200&h=630'
@@ -35,7 +35,7 @@ export async function onRequestGet(context) {
     if (!res.ok) return fallbackHtml()
 
     const post  = await res.json()
-    const image = resolvePreviewImage(post.coverImage, pageUrl.origin)
+    const image = resolvePreviewPostImage(post, pageUrl.origin)
 
     return buildHtmlResponse(renderPreviewHtml({
       title:       `${post.title} | EMV Global Blog`,
