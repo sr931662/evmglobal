@@ -1,5 +1,5 @@
 import {
-  buildHtmlResponse, isCrawler, normalizeApiBase,
+  buildHtmlResponse, needsOgResponse, normalizeApiBase,
   renderPreviewHtml, resolvePreviewImage,
 } from '../_preview.js'
 
@@ -13,8 +13,7 @@ const CATEGORY_IMAGES = {
 const DEFAULT_IMAGE = CATEGORY_IMAGES.Domestic
 
 export async function onRequestGet(context) {
-  const userAgent = context.request.headers.get('user-agent') || ''
-  if (!isCrawler(userAgent)) return context.next()
+  if (!needsOgResponse(context.request)) return context.next()
 
   const id      = context.params.id || ''
   const pageUrl = new URL(context.request.url)

@@ -21,7 +21,22 @@ export function escapeHtml(value = '') {
     .replace(/'/g,  '&#39;')
 }
 
-/** Detects social/crawler bots that need pre-rendered OG meta */
+/**
+ * Returns true when the request should receive pre-rendered OG HTML.
+ *
+ * Strategy: modern browsers always send `Sec-Fetch-Mode: navigate` for
+ * top-level page loads (defined in the W3C Fetch Metadata spec, supported
+ * in Chrome 76+, Firefox 90+, Safari 16.4+). Social crawlers (WhatsApp,
+ * Telegram, Slack, Facebook, iMessage, Googlebot, etc.) do NOT send this
+ * header, so we serve them OG HTML regardless of their user-agent string.
+ */
+export function needsOgResponse(request) {
+  const secFetchMode = request.headers.get('sec-fetch-mode') || ''
+  if (secFetchMode === 'navigate' || secFetchMode === 'nested-navigate') return false
+  return true
+}
+
+/** @deprecated — use needsOgResponse(request) instead */
 export function isCrawler(userAgent = '') {
   return /facebookexternalhit|facebot|facebookbot|twitterbot|linkedinbot|slackbot|discordbot|whatsapp|telegrambot|skypeuripreview|googlebot|bingbot|applebot|pinterest|embedly|outbrain|vkshare|ia_archiver|rogerbot|360spider|semrushbot|ahrefsbot|mj12bot|duckduckbot|yandexbot|baiduspider|sogou|exabot|pinterestbot|bufferbot|hootsuite|brandwatch|tumblr/i.test(userAgent)
 }
@@ -83,6 +98,7 @@ export function buildHtmlResponse(html) {
     headers: {
       'content-type':  'text/html; charset=UTF-8',
       'cache-control': 'public, s-maxage=300, stale-while-revalidate=3600',
+      'vary':          'Sec-Fetch-Mode',
     },
   })
 }

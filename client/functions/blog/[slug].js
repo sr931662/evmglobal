@@ -1,13 +1,12 @@
 import {
-  buildHtmlResponse, isCrawler, normalizeApiBase,
+  buildHtmlResponse, needsOgResponse, normalizeApiBase,
   renderPreviewHtml, resolvePreviewImage, slugToTitle,
 } from '../_preview.js'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200&h=630'
 
 export async function onRequestGet(context) {
-  const userAgent = context.request.headers.get('user-agent') || ''
-  if (!isCrawler(userAgent)) return context.next()
+  if (!needsOgResponse(context.request)) return context.next()
 
   const slug     = context.params.slug || ''
   const pageUrl  = new URL(context.request.url)

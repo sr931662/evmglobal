@@ -3,7 +3,8 @@
   "include": [
     "/package-details/*",
     "/blog/*",
-    "/destination/*"
+    "/destination/*",
+    "/plan-trip"
   ],
   "exclude": [
     "/assets/*",

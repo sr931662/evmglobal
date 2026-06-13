@@ -1,5 +1,5 @@
 import {
-  buildHtmlResponse, isCrawler, normalizeApiBase,
+  buildHtmlResponse, needsOgResponse, normalizeApiBase,
   renderPreviewHtml, resolvePreviewImage,
 } from '../_preview.js'
 
@@ -13,9 +13,7 @@ export async function onRequestGet(context) {
   const shareName  = context.params.name || ''
   const redirectTo = new URL(`/packages?destination=${encodeURIComponent(shareName)}`, context.request.url).toString()
   const pageUrl    = new URL(context.request.url)
-  const userAgent  = context.request.headers.get('user-agent') || ''
-
-  if (!isCrawler(userAgent)) return Response.redirect(redirectTo, 302)
+  if (!needsOgResponse(context.request)) return Response.redirect(redirectTo, 302)
 
   const readableName = decodeURIComponent(shareName)
   const fallbackHtml = () =>
