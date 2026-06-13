@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { api } from '../../../services/api'
 import { openWhatsApp } from '../../../utils/whatsapp'
@@ -452,12 +453,13 @@ function StepQuestion({ stepKey, isMobile }) {
 
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
-export default function TravelQuizModal() {
+export default function TravelQuizModal({ standalone = false }) {
+  const navigate   = useNavigate()
   const isMobile   = useIsMobile()
   const fabIsDark  = useFabTheme()
   const fabBottom  = useFabBottom(24)
 
-  const [open,    setOpen]    = useState(false)
+  const [open,    setOpen]    = useState(standalone)
   const [step,    setStep]    = useState(0)
   const [dir,     setDir]     = useState(1)
   const [answers, setAnswers] = useState({ destination: null, season: null, travellers: null, budget: null })
@@ -488,18 +490,21 @@ export default function TravelQuizModal() {
   }, [mouseX, mouseY, isMobile])
 
   useEffect(() => {
+    if (standalone) return
     if (localStorage.getItem('emv_quiz_done') || sessionStorage.getItem('emv_quiz_seen')) return
     const t = setTimeout(() => { openModal(); sessionStorage.setItem('emv_quiz_seen', '1') }, 10000)
     return () => clearTimeout(t)
-  }, [])
+  }, [standalone])
 
   useEffect(() => {
+    if (standalone) return
     const h = () => openModal()
     window.addEventListener('open-travel-quiz', h)
     return () => window.removeEventListener('open-travel-quiz', h)
-  }, [])
+  }, [standalone])
 
   useEffect(() => {
+    if (standalone) return
     if (open) {
       document.body.style.overflow = 'hidden'
       getLenis()?.stop()
@@ -511,10 +516,10 @@ export default function TravelQuizModal() {
       document.body.style.overflow = ''
       getLenis()?.start()
     }
-  }, [open])
+  }, [open, standalone])
 
   const openModal  = () => { setOpen(true); sessionStorage.setItem('emv_quiz_seen', '1') }
-  const closeModal = () => setOpen(false)
+  const closeModal = () => { if (standalone) { navigate('/') } else { setOpen(false) } }
 
   const reset = () => {
     setStep(0); setDir(1)
@@ -579,7 +584,7 @@ export default function TravelQuizModal() {
     <>
       {/* ── Floating trigger button ── */}
       <AnimatePresence>
-        {!open && (
+        {!standalone && !open && (
           <motion.div
             key="quiz-fab"
             initial={{ opacity: 0, y: 30, scale: 0.8 }}
@@ -670,9 +675,9 @@ export default function TravelQuizModal() {
             onMouseMove={handleMouseMove}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            exit={standalone ? undefined : { opacity: 0 }}
             transition={{ duration: 0.22 }}
-            className={styles.overlay}
+            className={standalone ? styles.overlayStandalone : styles.overlay}
           >
             {/* Cinematic background */}
             <div className={styles.bgLayer}>
@@ -705,7 +710,7 @@ export default function TravelQuizModal() {
 
             {done && <ConfettiBurst />}
 
-            <div className={styles.clickCatcher} onClick={closeModal} />
+            {!standalone && <div className={styles.clickCatcher} onClick={closeModal} />}
 
             {/* Panel */}
             <motion.div
@@ -865,10 +870,10 @@ export default function TravelQuizModal() {
                         transition={{ delay: 0.65 }}
                         whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
-                        onClick={() => { reset(); closeModal() }}
+                        onClick={() => { if (standalone) { navigate('/packages') } else { reset(); closeModal() } }}
                         className={styles.closeExploreBtn}
                       >
-                        Close &amp; Explore Packages →
+                        {standalone ? 'Explore Packages →' : 'Close & Explore Packages →'}
                       </motion.button>
 
                       <div className={styles.altBtnRow}>
@@ -1083,7 +1088,7 @@ export default function TravelQuizModal() {
                           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                           </svg>
-                          {step > 0 ? 'Back' : 'Skip for now'}
+                          {step > 0 ? 'Back' : standalone ? 'Back to Home' : 'Skip for now'}
                         </motion.button>
 
                         <motion.button

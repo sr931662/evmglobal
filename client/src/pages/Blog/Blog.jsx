@@ -31,7 +31,7 @@ const LIMIT = 12
 
 export default function Blog() {
   usePageMeta(
-    'Travel Blog | Tips, Guides & Destination Inspiration | Ease My Vacations',
+    'EaseMyVacations Blogs',
     'Read travel tips, destination guides, honeymoon ideas, and insider travel advice from the Ease My Vacations team. Get inspired for your next holiday.'
   )
 

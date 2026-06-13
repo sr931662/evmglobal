@@ -104,6 +104,18 @@
 }
 @media (min-width: 768px) { .overlay { padding: 2rem; } }
 
+/* Standalone page mode — fills viewport without fixed positioning */
+.overlayStandalone {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+@media (min-width: 768px) { .overlayStandalone { padding: 2rem; } }
+
 .bgLayer { position: absolute; inset: 0; overflow: hidden; }
 .bgFill { position: absolute; inset: 0; }
 .bgDim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); }
