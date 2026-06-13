@@ -549,7 +549,7 @@ export default function TravelQuizModal({ standalone = false }) {
         ...(answers.destination  && { destination: answers.destination.label }),
         ...(answers.travellers   && { travellers: answers.travellers.label }),
         ...(answers.season       && { travelDate: `${answers.season.label} (${answers.season.sub.split('·')[0].trim()})` }),
-        message: `Budget: ${answers.budget?.label || 'N/A'} per person. Via Trip Planner Quiz.`,
+        message: `Budget: ${answers.budget?.label || 'N/A'} per person. Via ${standalone ? 'Shared Trip Planner Link' : 'Trip Planner Quiz'}.`,
         type: 'lead',
       })
       localStorage.setItem('emv_quiz_done', '1')

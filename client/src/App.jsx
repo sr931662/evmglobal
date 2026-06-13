@@ -96,7 +96,8 @@ function AnimatedRoutes() {
   const { user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
-  const isAdmin  = location.pathname.startsWith('/admin')
+  const isAdmin    = location.pathname.startsWith('/admin')
+  const isPlanTrip = location.pathname === '/plan-trip'
 
   return (
     <AnimatePresence mode="wait">
@@ -129,7 +130,7 @@ function AnimatedRoutes() {
           <Route path="/admin"                     element={<ProtectedAdmin />} />
         </Routes>
 
-        {!isAdmin && <Footer />}
+        {!isAdmin && !isPlanTrip && <Footer />}
       </motion.div>
     </AnimatePresence>
   )
@@ -137,18 +138,19 @@ function AnimatedRoutes() {
 
 function AppShell() {
   const location = useLocation()
-  const isAdmin  = location.pathname.startsWith('/admin')
-  useLenis(!isAdmin)
+  const isAdmin    = location.pathname.startsWith('/admin')
+  const isPlanTrip = location.pathname === '/plan-trip'
+  useLenis(!isAdmin && !isPlanTrip)
   useGoogleAnalytics()
 
   return (
     <div className={styles.shell}>
       <ScrollToTop />
       <CustomCursor />
-      {!isAdmin && <Navbar />}
+      {!isAdmin && !isPlanTrip && <Navbar />}
       <AnimatedRoutes />
-      {!isAdmin && <TravelQuizModal />}
-      {!isAdmin && <CookieConsent />}
+      {!isAdmin && !isPlanTrip && <TravelQuizModal />}
+      {!isAdmin && !isPlanTrip && <CookieConsent />}
     </div>
   )
 }
