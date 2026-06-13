@@ -15,6 +15,17 @@ const FALLBACK_OG_IMAGE =
 
 const SITE_NAME = 'Ease My Vacations (EMV)';
 
+function normalizeApiBase(env) {
+  const raw = (
+    env.API_URL ||
+    env.VITE_API_URL ||
+    env.NEXT_PUBLIC_API_URL ||
+    ''
+  ).replace(/\/api\/?$/, '').replace(/\/$/, '');
+
+  return raw ? `${raw}/api` : '';
+}
+
 function esc(str) {
   if (!str) return '';
   return String(str)
@@ -127,14 +138,23 @@ export default {
 
       if (blogMatch) {
         const slug    = blogMatch[1];
-        const apiBase = (env.API_URL || 'https://evmglobal-270604353720.europe-west1.run.app').replace(/\/$/, '');
+        const apiBase = normalizeApiBase(env);
+
+        if (!apiBase) {
+          return new Response(buildBlogFallbackHtml(slug, url.origin), {
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Cache-Control': 'public, max-age=300',
+            },
+          });
+        }
 
         try {
           // 8-second timeout so a cold-starting Cloud Run instance doesn't hang the worker
           const controller = new AbortController();
           const timer = setTimeout(() => controller.abort(), 8000);
 
-          const res = await fetch(`${apiBase}/api/blogs/${encodeURIComponent(slug)}`, {
+          const res = await fetch(`${apiBase}/blogs/${encodeURIComponent(slug)}`, {
             signal: controller.signal,
             headers: { Accept: 'application/json' },
             cf: { cacheTtl: 3600, cacheEverything: true },
