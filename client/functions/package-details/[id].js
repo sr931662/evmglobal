@@ -1,57 +1,65 @@
-import { buildHtmlResponse, isCrawler, normalizeApiBase, renderPreviewHtml, resolvePreviewImage } from '../_preview.js'
+import {
+  buildHtmlResponse, isCrawler, normalizeApiBase,
+  renderPreviewHtml, resolvePreviewImage,
+} from '../_preview.js'
 
-// Category-based default images for better fallback
 const CATEGORY_IMAGES = {
-  'Honeymoon': 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=1200&h=630',
-  'Family': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=1200&h=630',
-  'Luxury': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1200&h=630',
-  'Domestic': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=1200&h=630',
-  'Wellness': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=1200&h=630',
+  Honeymoon: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=1200&h=630',
+  Family:    'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=1200&h=630',
+  Luxury:    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1200&h=630',
+  Domestic:  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=1200&h=630',
+  Wellness:  'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=1200&h=630',
 }
+const DEFAULT_IMAGE = CATEGORY_IMAGES.Domestic
 
 export async function onRequestGet(context) {
   const userAgent = context.request.headers.get('user-agent') || ''
-  if (!isCrawler(userAgent)) {
-    return context.next()
-  }
+  if (!isCrawler(userAgent)) return context.next()
 
-  const apiBase = normalizeApiBase(context.env)
-  if (!apiBase) {
-    return context.next()
-  }
-
-  const id = context.params.id
+  const id      = context.params.id || ''
   const pageUrl = new URL(context.request.url)
 
+  const defaultTitle = 'Curated Holiday Package | EMV Global'
+  const defaultDesc  = 'Explore this handpicked travel package by Ease My Vacations Global. Book now for an unforgettable journey.'
+
+  const fallbackHtml = (image = DEFAULT_IMAGE) =>
+    buildHtmlResponse(renderPreviewHtml({
+      title:       defaultTitle,
+      description: defaultDesc,
+      url:         pageUrl.toString(),
+      image,
+      type:        'website',
+    }))
+
+  const apiBase = normalizeApiBase(context.env)
+  if (!apiBase) return fallbackHtml()
+
   try {
-    const response = await fetch(`${apiBase}/packages/${encodeURIComponent(id)}`, {
+    const res = await fetch(`${apiBase}/packages/${encodeURIComponent(id)}`, {
       headers: { Accept: 'application/json' },
+      signal:  AbortSignal.timeout(4000),
     })
 
-    if (!response.ok) {
-      return context.next()
-    }
+    if (!res.ok) return fallbackHtml()
 
-    const pkg = await response.json()
-    const destinations = Array.isArray(pkg.destinations) ? pkg.destinations.filter(Boolean).join(', ') : ''
-    const description = pkg.description || (destinations ? `Explore ${destinations} with EMV Global.` : 'Explore this curated journey from EMV Global.')
-    
-    // Use package image, fallback to category image, then generic travel image
+    const pkg  = await res.json()
+    const dest = Array.isArray(pkg.destinations) ? pkg.destinations.filter(Boolean).join(', ') : ''
+    const desc = pkg.description
+      || (dest ? `Explore ${dest} with Ease My Vacations Global. ${pkg.nights ? `${pkg.nights} nights` : ''} curated journey.` : defaultDesc)
+
     let image = resolvePreviewImage(pkg.image, pageUrl.origin)
     if (!image || image.includes('favicon')) {
-      image = CATEGORY_IMAGES[pkg.category] || CATEGORY_IMAGES['Domestic']
+      image = CATEGORY_IMAGES[pkg.category] || DEFAULT_IMAGE
     }
-    
-    const html = renderPreviewHtml({
-      title: `${pkg.title} | EMV Global`,
-      description,
-      url: pageUrl.toString(),
-      image,
-      type: 'website',
-    })
 
-    return buildHtmlResponse(html)
+    return buildHtmlResponse(renderPreviewHtml({
+      title:       `${pkg.title} | EMV Global`,
+      description: desc.slice(0, 200),
+      url:         pageUrl.toString(),
+      image,
+      type:        'website',
+    }))
   } catch {
-    return context.next()
+    return fallbackHtml()
   }
 }
