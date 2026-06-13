@@ -1,5 +1,5 @@
 import {
-  buildHtmlResponse, needsOgResponse, normalizeApiBase,
+  buildHtmlResponse, getPreviewApiBases, needsOgResponse,
   renderPreviewHtml, resolvePreviewPostImage, slugToTitle,
 } from '../_preview.js'
 
@@ -23,28 +23,30 @@ export async function onRequestGet(context) {
       type:        'article',
     }))
 
-  const apiBase = normalizeApiBase(context.env)
-  if (!apiBase) return fallbackHtml()
+  const apiBases = getPreviewApiBases(context.env)
+  if (!apiBases.length) return fallbackHtml()
 
-  try {
-    const res = await fetch(`${apiBase}/blogs/${encodeURIComponent(slug)}`, {
-      headers: { Accept: 'application/json' },
-      signal:  AbortSignal.timeout(4000),
-    })
+  for (const apiBase of apiBases) {
+    try {
+      const res = await fetch(`${apiBase}/blogs/${encodeURIComponent(slug)}`, {
+        headers: { Accept: 'application/json' },
+        signal:  AbortSignal.timeout(4000),
+      })
 
-    if (!res.ok) return fallbackHtml()
+      if (!res.ok) continue
 
-    const post  = await res.json()
-    const image = resolvePreviewPostImage(post, pageUrl.origin)
+      const post  = await res.json()
+      const image = resolvePreviewPostImage(post, pageUrl.origin)
 
-    return buildHtmlResponse(renderPreviewHtml({
-      title:       `${post.title} | EMV Global Blog`,
-      description: post.excerpt || defaultDesc,
-      url:         pageUrl.toString(),
-      image,
-      type:        'article',
-    }))
-  } catch {
-    return fallbackHtml()
+      return buildHtmlResponse(renderPreviewHtml({
+        title:       `${post.title} | EMV Global Blog`,
+        description: post.excerpt || defaultDesc,
+        url:         pageUrl.toString(),
+        image,
+        type:        'article',
+      }))
+    } catch {}
   }
+
+  return fallbackHtml()
 }

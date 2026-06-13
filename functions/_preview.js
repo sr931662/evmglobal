@@ -1,5 +1,6 @@
 const SITE_NAME = 'Ease My Vacations Global'
 const SITE_URL  = 'https://www.easemyvacationsglobal.com'
+const PRODUCTION_API_BASE = 'https://api.easemyvacationsglobal.com/api'
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200&h=630'
 
 export function normalizeApiBase(env) {
@@ -10,6 +11,13 @@ export function normalizeApiBase(env) {
     ''
   ).replace(/\/api\/?$/, '').replace(/\/$/, '')
   return raw ? `${raw}/api` : ''
+}
+
+export function getPreviewApiBases(env) {
+  return [...new Set([
+    normalizeApiBase(env),
+    PRODUCTION_API_BASE,
+  ].filter(Boolean))]
 }
 
 export function escapeHtml(value = '') {

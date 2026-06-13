@@ -14,6 +14,7 @@ const FALLBACK_OG_IMAGE =
   'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200&h=630';
 
 const SITE_NAME = 'Ease My Vacations (EMV)';
+const PRODUCTION_API_BASE = 'https://api.easemyvacationsglobal.com/api';
 
 function normalizeApiBase(env) {
   const raw = (
@@ -24,6 +25,13 @@ function normalizeApiBase(env) {
   ).replace(/\/api\/?$/, '').replace(/\/$/, '');
 
   return raw ? `${raw}/api` : '';
+}
+
+function getApiBases(env) {
+  return [...new Set([
+    normalizeApiBase(env),
+    PRODUCTION_API_BASE,
+  ].filter(Boolean))];
 }
 
 function esc(str) {
@@ -138,9 +146,9 @@ export default {
 
       if (blogMatch) {
         const slug    = blogMatch[1];
-        const apiBase = normalizeApiBase(env);
+        const apiBases = getApiBases(env);
 
-        if (!apiBase) {
+        if (!apiBases.length) {
           return new Response(buildBlogFallbackHtml(slug, url.origin), {
             headers: {
               'Content-Type': 'text/html; charset=utf-8',
@@ -149,19 +157,21 @@ export default {
           });
         }
 
-        try {
-          // 8-second timeout so a cold-starting Cloud Run instance doesn't hang the worker
-          const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 8000);
+        for (const apiBase of apiBases) {
+          try {
+            // 8-second timeout so a cold-starting backend doesn't hang the worker
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 8000);
 
-          const res = await fetch(`${apiBase}/blogs/${encodeURIComponent(slug)}`, {
-            signal: controller.signal,
-            headers: { Accept: 'application/json' },
-            cf: { cacheTtl: 3600, cacheEverything: true },
-          });
-          clearTimeout(timer);
+            const res = await fetch(`${apiBase}/blogs/${encodeURIComponent(slug)}`, {
+              signal: controller.signal,
+              headers: { Accept: 'application/json' },
+              cf: { cacheTtl: 3600, cacheEverything: true },
+            });
+            clearTimeout(timer);
 
-          if (res.ok) {
+            if (!res.ok) continue;
+
             const post = await res.json();
             return new Response(buildBlogHtml(post, slug, url.origin), {
               headers: {
@@ -169,9 +179,7 @@ export default {
                 'Cache-Control': 'public, max-age=3600',
               },
             });
-          }
-        } catch {
-          // timeout or network error — fall through to slug-based fallback
+          } catch {}
         }
 
         return new Response(buildBlogFallbackHtml(slug, url.origin), {
