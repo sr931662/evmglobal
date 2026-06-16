@@ -97,7 +97,7 @@ function resolveImage(post, origin) {
 }
 
 function buildBlogHtml(post, slug, origin) {
-  const t   = esc(`${post.title} | EMV Blog`);
+  const t   = esc(`${post.title} | Ease My Vacations Blog`);
   const d   = esc(post.excerpt || `Read the latest travel insights from ${SITE_NAME}.`);
   const img = esc(resolveImage(post, origin));
   const url = `${origin}/blog/${slug}`;

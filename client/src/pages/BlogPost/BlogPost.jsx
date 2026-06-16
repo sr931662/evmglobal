@@ -149,7 +149,7 @@ export default function BlogPost() {
   useEffect(() => {
     if (!post || typeof window === 'undefined') return
 
-    const title = `${post.title} | EMV Global Blog`
+    const title = `${post.title} | Ease My Vacations Blog`
     const description = post.excerpt || 'Read the latest travel story from EMV Global.'
     const url = buildShareUrl(post.slug || post.id || id)
     const image = resolveMetaImage(post)

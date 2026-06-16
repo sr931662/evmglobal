@@ -12,7 +12,7 @@ export async function onRequestGet(context) {
   const pageUrl  = new URL(context.request.url)
 
   // Derive a readable title from the slug immediately — used as fallback
-  const derivedTitle = `${slugToTitle(slug)} | EMV Global Blog`
+  const derivedTitle = `${slugToTitle(slug)} | Ease My Vacations Blog`
   const defaultDesc  = 'Read the latest travel stories, tips and destination guides from EMV Global.'
 
   const fallbackHtml = () =>
@@ -40,7 +40,7 @@ export async function onRequestGet(context) {
       const image = resolvePreviewPostImage(post, pageUrl.origin)
 
       return buildHtmlResponse(renderPreviewHtml({
-        title:       `${post.title} | EMV Global Blog`,
+        title:       `${post.title} | Ease My Vacations Blog`,
         description: post.excerpt || defaultDesc,
         url:         pageUrl.toString(),
         image,
