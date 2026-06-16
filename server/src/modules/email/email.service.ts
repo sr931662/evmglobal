@@ -1,32 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
-  private resend = new Resend(process.env.RESEND_API_KEY);
   private adminEmail = process.env.ADMIN_EMAIL;
   private logger = new Logger('EmailService');
-  private defaultFrom = 'EMV Global <noreply@easemyvacationsglobal.com>';
+  private defaultFrom = `"EMV Global" <${process.env.GMAIL_USER}>`;
   private maxRetries = 3;
 
-  constructor() {}
+  private transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
 
-  /**
-   * Sends an email using Resend with automatic retry on failure.
-   *
-   * @param {Object} options
-   * @param {string} options.to - Recipient email address
-   * @param {string} options.subject - Email subject
-   * @param {string} options.html - HTML body content
-   * @param {string} [options.from] - Sender email (defaults to configured from)
-   * @param {string} [options.text] - Plain text fallback
-   * @returns {Promise<Object>} Resend API response
-   */
   async send({ to, subject, html, from = undefined, text = undefined }: { to: string; subject: string; html: string; from?: string; text?: string }) {
     let lastError;
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        const result = await this.resend.emails.send({
+        await this.transporter.sendMail({
           from: from || this.defaultFrom,
           to,
           subject,
@@ -34,17 +28,12 @@ export class EmailService {
           text,
         });
         this.logger.log(`Email sent to ${to} (attempt ${attempt})`);
-        return result;
+        return;
       } catch (error) {
         lastError = error;
-        this.logger.warn(
-          `Email send attempt ${attempt} failed for ${to}: ${error.message}`
-        );
+        this.logger.warn(`Email send attempt ${attempt} failed for ${to}: ${error.message}`);
         if (attempt < this.maxRetries) {
-          // Wait before retrying (exponential backoff)
-          await new Promise((res) =>
-            setTimeout(res, 1000 * Math.pow(2, attempt - 1))
-          );
+          await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
         }
       }
     }
@@ -52,18 +41,6 @@ export class EmailService {
     throw lastError;
   }
 
-  /**
-   * Sends a new lead notification to the admin email.
-   * Uses a built-in HTML template.
-   *
-   * @param {Object} lead - Lead object from database
-   * @param {string} lead.name
-   * @param {string} lead.phone
-   * @param {string} [lead.email]
-   * @param {string} [lead.message]
-   * @param {string} [lead.file_url]
-   * @returns {Promise<void>}
-   */
   async sendOtpEmail(to: string, otp: string) {
     const html = `
       <!DOCTYPE html>
@@ -349,11 +326,6 @@ export class EmailService {
     `;
   }
 
-  /**
-   * Basic HTML escaping to prevent XSS in emails.
-   * @param {string} unsafe
-   * @returns {string}
-   */
   escapeHtml(unsafe) {
     return unsafe
       .replace(/&/g, "&amp;")
