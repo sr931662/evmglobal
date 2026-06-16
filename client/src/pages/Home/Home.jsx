@@ -3,6 +3,7 @@ import PartnersMarquee from '../../components/home/PartnersMarquee/PartnersMarqu
 import BentoSection from '../../components/home/BentoSection/BentoSection'
 import DestinationsFeatured from '../../components/home/DestinationsFeatured/DestinationsFeatured'
 import ProcessSection from '../../components/home/ProcessSection/ProcessSection'
+import BlogSection from '../../components/home/BlogSection/BlogSection'
 import InquirySection from '../../components/home/InquirySection/InquirySection'
 import HomeCTA from '../../components/home/HomeCTA/HomeCTA'
 import { usePageMeta } from '../../hooks/usePageMeta'
@@ -24,6 +25,7 @@ export default function Home() {
       <BentoSection />
       <DestinationsFeatured />
       <ProcessSection />
+      <BlogSection />
       <InquirySection />
       <HomeCTA />
     </main>
