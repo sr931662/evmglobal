@@ -114,10 +114,12 @@ export function buildHtmlResponse(html) {
 }
 
 export function resolvePreviewImage(image, origin) {
-  if (!image || !image.trim()) return DEFAULT_IMAGE
+  if (!image || typeof image !== 'string' || !image.trim()) return DEFAULT_IMAGE
   try {
-    const resolved = new URL(image, origin).toString()
-    return resolved.includes('favicon') ? DEFAULT_IMAGE : resolved
+    const resolved = new URL(image.trim(), origin).toString()
+    if (resolved.includes('favicon')) return DEFAULT_IMAGE
+    if (!resolved.startsWith('https://')) return DEFAULT_IMAGE
+    return resolved
   } catch {
     return DEFAULT_IMAGE
   }

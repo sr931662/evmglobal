@@ -64,10 +64,12 @@ function extractFirstImage(content) {
 }
 
 function resolveImageUrl(image, origin) {
-  if (!image) return null;
+  if (!image || typeof image !== 'string' || !image.trim()) return null;
   try {
-    const resolved = new URL(image, origin).toString();
-    return resolved.includes('favicon') ? null : resolved;
+    const resolved = new URL(image.trim(), origin).toString();
+    if (resolved.includes('favicon')) return null;
+    if (!resolved.startsWith('https://')) return null;
+    return resolved;
   } catch {
     return null;
   }
@@ -112,12 +114,18 @@ function buildBlogHtml(post, slug, origin) {
   <meta property="og:site_name"   content="${esc(SITE_NAME)}">
   <meta property="og:title"       content="${t}">
   <meta property="og:description" content="${d}">
-  <meta property="og:image"       content="${img}">
-  <meta property="og:url"         content="${url}">
+  <meta property="og:image"            content="${img}">
+  <meta property="og:image:secure_url" content="${img}">
+  <meta property="og:image:width"      content="1200">
+  <meta property="og:image:height"     content="630">
+  <meta property="og:image:type"       content="image/jpeg">
+  <meta property="og:image:alt"        content="${t}">
+  <meta property="og:url"              content="${url}">
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="${t}">
   <meta name="twitter:description" content="${d}">
   <meta name="twitter:image"       content="${img}">
+  <meta name="twitter:image:alt"   content="${t}">
   <link rel="canonical" href="${url}">
 </head>
 <body>

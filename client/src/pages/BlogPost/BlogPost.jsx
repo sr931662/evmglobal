@@ -40,8 +40,10 @@ function buildShareUrl(slug) {
   return `${window.location.origin}/blog/${slug}`
 }
 
+const META_FALLBACK_IMG = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1200&h=630'
+
 function resolveMetaImage(post) {
-  if (typeof window === 'undefined') return ''
+  if (typeof window === 'undefined') return META_FALLBACK_IMG
 
   const candidates = [
     post?.coverImage,
@@ -52,14 +54,14 @@ function resolveMetaImage(post) {
   ]
 
   for (const candidate of candidates) {
-    if (!candidate) continue
+    if (!candidate || typeof candidate !== 'string') continue
     try {
-      const resolved = new URL(candidate, window.location.origin).toString()
-      if (!resolved.includes('favicon')) return resolved
+      const resolved = new URL(candidate.trim(), window.location.origin).toString()
+      if (!resolved.includes('favicon') && resolved.startsWith('https://')) return resolved
     } catch {}
   }
 
-  return `${window.location.origin}/favicon.png`
+  return META_FALLBACK_IMG
 }
 
 const mdComponents = {
