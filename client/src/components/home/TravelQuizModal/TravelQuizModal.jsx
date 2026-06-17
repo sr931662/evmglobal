@@ -17,6 +17,15 @@ const DESTINATIONS = [
   { id: 'africa',         label: 'Africa & Safari', sub: 'Kenya · Tanzania · Zanzibar',   img: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=700&q=75&auto=format&fit=crop' },
 ]
 
+const DOMESTIC_DESTINATIONS = [
+  { id: 'rajasthan',  label: 'Rajasthan',          sub: 'Jaipur · Udaipur · Jodhpur',      img: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=700&q=75&auto=format&fit=crop' },
+  { id: 'kerala',     label: 'Kerala',             sub: 'Backwaters · Munnar · Alleppey',  img: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=700&q=75&auto=format&fit=crop' },
+  { id: 'goa',        label: 'Goa',                sub: 'Beaches · Heritage · Nightlife',  img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=700&q=75&auto=format&fit=crop' },
+  { id: 'kashmir',    label: 'Kashmir',            sub: 'Dal Lake · Gulmarg · Pahalgam',   img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=700&q=75&auto=format&fit=crop' },
+  { id: 'himachal',   label: 'Himachal Pradesh',   sub: 'Manali · Shimla · Spiti Valley',  img: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=700&q=75&auto=format&fit=crop' },
+  { id: 'andaman',    label: 'Andaman Islands',    sub: 'Havelock · Coral · Neil Island',  img: 'https://images.unsplash.com/photo-1571536802807-30451e3955d8?w=700&q=75&auto=format&fit=crop' },
+]
+
 const SEASONS = [
   { id: 'spring', label: 'Spring', sub: 'Mar – May · Bloom season',   icon: '🌸', accent: '#f472b6' },
   { id: 'summer', label: 'Summer', sub: 'Jun – Aug · Peak adventure', icon: '☀️', accent: '#fbbf24' },
@@ -46,6 +55,12 @@ const BG_MAP = {
   'middle-east':    'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1600&q=70&auto=format&fit=crop',
   americas:         'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=70&auto=format&fit=crop',
   africa:           'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1600&q=70&auto=format&fit=crop',
+  rajasthan:        'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1600&q=70&auto=format&fit=crop',
+  kerala:           'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1600&q=70&auto=format&fit=crop',
+  goa:              'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1600&q=70&auto=format&fit=crop',
+  kashmir:          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1600&q=70&auto=format&fit=crop',
+  himachal:         'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1600&q=70&auto=format&fit=crop',
+  andaman:          'https://images.unsplash.com/photo-1571536802807-30451e3955d8?w=1600&q=70&auto=format&fit=crop',
 }
 
 const STEPS = ['destination', 'season', 'travellers', 'budget', 'contact']
@@ -459,14 +474,15 @@ export default function TravelQuizModal({ standalone = false }) {
   const fabIsDark  = useFabTheme()
   const fabBottom  = useFabBottom(24)
 
-  const [open,    setOpen]    = useState(standalone)
-  const [step,    setStep]    = useState(0)
-  const [dir,     setDir]     = useState(1)
-  const [answers, setAnswers] = useState({ destination: null, season: null, travellers: null, budget: null })
-  const [contact, setContact] = useState({ name: '', phone: '', email: '' })
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState('')
-  const [done,    setDone]    = useState(false)
+  const [open,     setOpen]    = useState(standalone)
+  const [step,     setStep]    = useState(0)
+  const [dir,      setDir]     = useState(1)
+  const [answers,  setAnswers] = useState({ destination: null, season: null, travellers: null, budget: null })
+  const [contact,  setContact] = useState({ name: '', phone: '', email: '' })
+  const [loading,  setLoading] = useState(false)
+  const [error,    setError]   = useState('')
+  const [done,     setDone]    = useState(false)
+  const [destTab,  setDestTab] = useState('international')
 
   const currentStepKey = STEPS[step]
   const bgKey  = answers.destination?.id || 'default'
@@ -525,7 +541,7 @@ export default function TravelQuizModal({ standalone = false }) {
     setStep(0); setDir(1)
     setAnswers({ destination: null, season: null, travellers: null, budget: null })
     setContact({ name: '', phone: '', email: '' })
-    setError(''); setDone(false)
+    setError(''); setDone(false); setDestTab('international')
   }
 
   const select = (key, val) => setAnswers(p => ({ ...p, [key]: val }))
@@ -931,14 +947,30 @@ export default function TravelQuizModal({ standalone = false }) {
                       <StepQuestion stepKey={currentStepKey} isMobile={isMobile} />
 
                       {currentStepKey === 'destination' && (
-                        <div className={styles.gridDest}>
-                          {DESTINATIONS.map((d, i) => (
-                            <ImageCard key={d.id} option={d} index={i} isMobile={isMobile}
-                              selected={answers.destination?.id === d.id}
-                              onClick={() => select('destination', d)}
-                            />
-                          ))}
-                        </div>
+                        <>
+                          <div className={styles.destTabs}>
+                            {['domestic', 'international'].map(tab => (
+                              <button
+                                key={tab}
+                                className={`${styles.destTab} ${destTab === tab ? styles.destTabActive : ''}`}
+                                onClick={() => {
+                                  setDestTab(tab)
+                                  setAnswers(p => ({ ...p, destination: null }))
+                                }}
+                              >
+                                {tab === 'domestic' ? '🇮🇳 Domestic' : '🌍 International'}
+                              </button>
+                            ))}
+                          </div>
+                          <div className={styles.gridDest}>
+                            {(destTab === 'domestic' ? DOMESTIC_DESTINATIONS : DESTINATIONS).map((d, i) => (
+                              <ImageCard key={d.id} option={d} index={i} isMobile={isMobile}
+                                selected={answers.destination?.id === d.id}
+                                onClick={() => select('destination', d)}
+                              />
+                            ))}
+                          </div>
+                        </>
                       )}
 
                       {currentStepKey === 'season' && (

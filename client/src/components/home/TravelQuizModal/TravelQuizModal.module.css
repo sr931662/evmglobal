@@ -395,6 +395,41 @@
   animation: spin 1s linear infinite;
 }
 
+/* ── Destination tabs ── */
+.destTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 9999px;
+  padding: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.destTab {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.destTab:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.destTabActive {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(229, 57, 53, 0.4);
+}
+
 /* ── Inputs ── */
 .quizInput::placeholder { color: rgba(255, 255, 255, 0.38) !important; }
 .quizInput:-webkit-autofill,
