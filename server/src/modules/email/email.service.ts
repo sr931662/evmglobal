@@ -5,7 +5,7 @@ import { Resend } from 'resend';
 export class EmailService {
   private adminEmail = process.env.ADMIN_EMAIL;
   private logger = new Logger('EmailService');
-  private defaultFrom = 'EMV Global <noreply@easemyvacationsglobal.com>';
+  private defaultFrom = process.env.MAIL_FROM || 'EMV Global <onboarding@resend.dev>';
   private resend = new Resend(process.env.RESEND_API_KEY);
 
   async send({ to, subject, html, from = undefined }: { to: string; subject: string; html: string; from?: string }) {
@@ -99,11 +99,11 @@ export class EmailService {
               <div class="feature"><span class="feature-icon">💬</span><div class="feature-text"><strong>Dedicated concierge support</strong> — our team is always a WhatsApp away</div></div>
             </div>
             <p>Ready to start planning? Browse our packages or use the Trip Planner to tell us your dream destination.</p>
-            <a class="cta" href="https://easemyvacationsglobal.com/plan-trip">Plan My Trip →</a>
+            <a href="https://easemyvacationsglobal.com/plan-trip" style="display:inline-block;margin:28px auto 0;background:#E53935;color:#ffffff !important;text-decoration:none;padding:14px 32px;border-radius:50px;font-weight:700;font-size:14px;text-align:center;">Plan My Trip →</a>
           </div>
           <div class="footer">
             EMV Global · Bespoke International Holidays<br>
-            <a href="https://easemyvacationsglobal.com" style="color:#E53935">easemyvacationsglobal.com</a><br><br>
+            <a href="https://easemyvacationsglobal.com" style="color:#E53935 !important;text-decoration:none;">easemyvacationsglobal.com</a><br><br>
             You're receiving this because you created an account with us. Do not reply to this email.
           </div>
         </div>
@@ -293,13 +293,13 @@ export class EmailService {
               In the meantime, feel free to browse our <a href="https://easemyvacationsglobal.com/packages" style="color:#E53935;font-weight:700">featured packages</a> or <a href="https://easemyvacationsglobal.com/destinations" style="color:#E53935;font-weight:700">explore destinations</a> for inspiration.
             </p>
 
-            <a class="cta" href="https://wa.me/917070595907?text=Hi%2C%20I%20just%20submitted%20a%20trip%20request%20on%20your%20website">
+            <a href="https://wa.me/917070595907?text=Hi%2C%20I%20just%20submitted%20a%20trip%20request%20on%20your%20website" style="display:inline-block;margin:28px auto 0;background:#25D366;color:#ffffff !important;text-decoration:none;padding:14px 32px;border-radius:50px;font-weight:700;font-size:14px;text-align:center;">
               💬 Chat with us on WhatsApp
             </a>
           </div>
           <div class="footer">
             EMV Global · Bespoke International Holidays<br>
-            <a href="https://easemyvacationsglobal.com" style="color:#E53935">easemyvacationsglobal.com</a>
+            <a href="https://easemyvacationsglobal.com" style="color:#E53935 !important;text-decoration:none;">easemyvacationsglobal.com</a>
           </div>
         </div>
       </body>
