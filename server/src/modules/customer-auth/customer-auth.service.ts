@@ -128,7 +128,7 @@ export class CustomerAuthService {
       await this.emailService.sendCustomerOtpEmail(key, otp, customer.name);
     } catch (err) {
       this.otpStore.delete(key);
-      throw new BadRequestException('Failed to send OTP. Please try again.');
+      throw new BadRequestException(`OTP email failed: ${err.message}`);
     }
 
     return { message: 'If that email is registered, an OTP has been sent.' };
