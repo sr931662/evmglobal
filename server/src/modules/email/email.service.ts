@@ -5,16 +5,14 @@ import * as nodemailer from 'nodemailer';
 export class EmailService {
   private adminEmail = process.env.ADMIN_EMAIL;
   private logger = new Logger('EmailService');
-  private defaultFrom = process.env.MAIL_FROM || '"EMV Global" <noreply@easemyvacationsglobal.com>';
+  private defaultFrom = `"EMV Global" <${process.env.GMAIL_USER}>`;
   private maxRetries = 3;
 
   private transporter = nodemailer.createTransport({
-    host: 'smtp.resend.com',
-    port: 465,
-    secure: true,
+    service: 'gmail',
     auth: {
-      user: 'resend',
-      pass: process.env.RESEND_API_KEY,
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
     },
   });
 
