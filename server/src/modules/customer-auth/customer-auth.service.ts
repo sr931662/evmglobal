@@ -45,10 +45,12 @@ export class CustomerAuthService {
     }
     const customer = await this.customersService.create(data);
     this.logger.log(`New customer registered: ${data.email}`);
-    // Fire-and-forget welcome email — never block registration on email failure
-    this.emailService.sendCustomerWelcomeEmail(data.email, data.name).catch(err =>
-      this.logger.warn(`Welcome email failed for ${data.email}: ${err.message}`)
-    );
+    try {
+      await this.emailService.sendCustomerWelcomeEmail(data.email, data.name);
+      this.logger.log(`Welcome email sent to ${data.email}`);
+    } catch (err) {
+      this.logger.error(`Welcome email FAILED for ${data.email} — code: ${err.code} | message: ${err.message} | response: ${err.response || ''}`);
+    }
     return { customer, ...this.issueTokens(customer) };
   }
 

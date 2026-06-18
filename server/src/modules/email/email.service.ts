@@ -1,44 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class EmailService {
   private adminEmail = process.env.ADMIN_EMAIL;
   private logger = new Logger('EmailService');
-  private defaultFrom = `"EMV Global" <${process.env.GMAIL_USER}>`;
-  private maxRetries = 3;
+  private defaultFrom = 'EMV Global <noreply@easemyvacationsglobal.com>';
+  private resend = new Resend(process.env.RESEND_API_KEY);
 
-  private transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  });
-
-  async send({ to, subject, html, from = undefined, text = undefined }: { to: string; subject: string; html: string; from?: string; text?: string }) {
-    let lastError;
-    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      try {
-        await this.transporter.sendMail({
-          from: from || this.defaultFrom,
-          to,
-          subject,
-          html,
-          text,
-        });
-        this.logger.log(`Email sent to ${to} (attempt ${attempt})`);
-        return;
-      } catch (error) {
-        lastError = error;
-        this.logger.warn(`Email send attempt ${attempt} failed for ${to}: ${error.message}`);
-        if (attempt < this.maxRetries) {
-          await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
-        }
-      }
+  async send({ to, subject, html, from = undefined }: { to: string; subject: string; html: string; from?: string }) {
+    const { data, error } = await this.resend.emails.send({
+      from: from || this.defaultFrom,
+      to,
+      subject,
+      html,
+    });
+    if (error) {
+      this.logger.error(`Resend error for ${to}: ${JSON.stringify(error)}`);
+      throw new Error(error.message);
     }
-    this.logger.error(`Failed to send email to ${to} after ${this.maxRetries} attempts`);
-    throw lastError;
+    this.logger.log(`Email sent to ${to} — id: ${data?.id}`);
   }
 
   async sendOtpEmail(to: string, otp: string) {
