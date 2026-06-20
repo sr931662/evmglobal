@@ -1,25 +1,38 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Resend } from 'resend';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 @Injectable()
 export class EmailService {
   private adminEmail = process.env.ADMIN_EMAIL;
   private logger = new Logger('EmailService');
-  private defaultFrom = process.env.MAIL_FROM || 'EMV Global <onboarding@resend.dev>';
-  private resend = new Resend(process.env.RESEND_API_KEY);
+  private defaultFrom = process.env.MAIL_FROM || 'EMV Global <noreply@easemyvacationsglobal.com>';
+
+  private ses = new SESClient({
+    region: process.env.AWS_SES_REGION || 'ap-south-1',
+    ...(process.env.AWS_ACCESS_KEY_ID && {
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    }),
+  });
 
   async send({ to, subject, html, from = undefined }: { to: string; subject: string; html: string; from?: string }) {
-    const { data, error } = await this.resend.emails.send({
-      from: from || this.defaultFrom,
-      to,
-      subject,
-      html,
+    const command = new SendEmailCommand({
+      Source: from || this.defaultFrom,
+      Destination: { ToAddresses: [to] },
+      Message: {
+        Subject: { Data: subject, Charset: 'UTF-8' },
+        Body: { Html: { Data: html, Charset: 'UTF-8' } },
+      },
     });
-    if (error) {
-      this.logger.error(`Resend error for ${to}: ${JSON.stringify(error)}`);
-      throw new Error(error.message);
+    try {
+      const result = await this.ses.send(command);
+      this.logger.log(`Email sent to ${to} — MessageId: ${result.MessageId}`);
+    } catch (err) {
+      this.logger.error(`SES error for ${to}: ${err.message}`);
+      throw err;
     }
-    this.logger.log(`Email sent to ${to} — id: ${data?.id}`);
   }
 
   async sendOtpEmail(to: string, otp: string) {

@@ -107,7 +107,7 @@ export function buildHtmlResponse(html) {
   return new Response(html, {
     headers: {
       'content-type':  'text/html; charset=UTF-8',
-      'cache-control': 'public, s-maxage=300, stale-while-revalidate=3600',
+      'cache-control': 'public, s-maxage=60, stale-while-revalidate=300',
       'vary':          'Sec-Fetch-Mode',
     },
   })
