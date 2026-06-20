@@ -64,6 +64,33 @@ function resolveMetaImage(post) {
   return META_FALLBACK_IMG
 }
 
+function isImageUrl(url) {
+  if (!url) return false
+  try {
+    const u = new URL(url)
+    if (/\.(jpg|jpeg|png|gif|webp|avif|svg|bmp)(\?|$)/i.test(u.pathname)) return true
+    if (/\.(jpg|jpeg|png|gif|webp|avif|svg|bmp)$/i.test(u.href.split('?')[0])) return true
+    const host = u.hostname.toLowerCase()
+    if (
+      host.includes('unsplash.com') ||
+      host.includes('pexels.com') ||
+      host.includes('pixabay.com') ||
+      host.includes('cloudinary.com') ||
+      host.includes('imgix.net') ||
+      host.includes('googleusercontent.com') ||
+      host.includes('amazonaws.com') ||
+      host.includes('cdn.') ||
+      host.startsWith('img.') ||
+      host.startsWith('images.')
+    ) return true
+    const p = u.searchParams
+    if (p.has('auto') || p.has('fit') || p.has('ixid') || (p.has('w') && p.has('q'))) return true
+    return false
+  } catch {
+    return false
+  }
+}
+
 const mdComponents = {
   h1: ({ children }) => <h2 className={styles.mdH1}>{children}</h2>,
   h2: ({ children }) => <h3 className={styles.mdH2}>{children}</h3>,
@@ -79,7 +106,13 @@ const mdComponents = {
     ? <code className={styles.mdInlineCode}>{children}</code>
     : <pre className={styles.mdPre}><code className={styles.mdCode}>{children}</code></pre>,
   hr: () => <hr className={styles.mdHr} />,
-  a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className={styles.mdLink}>{children}</a>,
+  a: ({ href, children }) => {
+    const childText = typeof children === 'string' ? children : (Array.isArray(children) ? children.join('') : String(children ?? ''))
+    if (isImageUrl(href) && childText === href) {
+      return <img src={href} alt="" className={styles.mdImg} />
+    }
+    return <a href={href} target="_blank" rel="noopener noreferrer" className={styles.mdLink}>{children}</a>
+  },
   table: ({ children }) => <div className={styles.mdTableWrap}><table className={styles.mdTable}>{children}</table></div>,
   th: ({ children }) => <th className={styles.mdTh}>{children}</th>,
   td: ({ children }) => <td className={styles.mdTd}>{children}</td>,
