@@ -121,7 +121,7 @@ export default function PrivacyPolicy() {
       <Highlight>
         <Strong>Data Protection Officer</Strong><br />
         Global Ease My Vacations (OPC) Private Limited<br />
-        CIN: U72900WB2022PTC254985 · GST: 19AAHCE1058Q2Z2<br />
+        CIN: U79110HR2026OPC146794 · GST: 06AANCG1457H1Z1<br />
         Enkay Tower, Cyber City, Phase V, Udyog Vihar, Sector 19, Gurugram, Haryana – 122016<br />
         Email: <Strong>info@easemyvacationsglobal.com</Strong>
       </Highlight>

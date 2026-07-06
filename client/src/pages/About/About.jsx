@@ -258,12 +258,12 @@ export default function About() {
           >
             <span className={styles.legalBadge}>
               <span className={styles.legalBadgeLabel}>CIN</span>
-              U72900WB2022PTC254985
+              U79110HR2026OPC146794
             </span>
             <span className={styles.legalDivider} />
             <span className={styles.legalBadge}>
               <span className={styles.legalBadgeLabel}>GST</span>
-              19AAHCE1058Q2Z2
+              06AANCG1457H1Z1
             </span>
             <span className={styles.legalDivider} />
             <span className={styles.legalNote}>Global Ease My Vacations (OPC) Private Limited · Registered in India</span>
