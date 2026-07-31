@@ -243,7 +243,7 @@
 .qvHeaderBar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
@@ -331,30 +331,36 @@
 .qvLabelRed   { color: #dc2626; }
 .qvLabelAmber { color: #b45309; }
 
+/* Two rails: labels flow on the left, every amount right-aligned on the same edge */
 .costRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
   font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 .costRowLabel { color: #4b5563; }
-.costRowAmt { font-weight: 700; color: var(--dark); }
+.costRowMeta { display: block; color: #9ca3af; font-size: 0.75rem; margin-top: 0.125rem; }
+.costRowAmt { font-weight: 700; color: var(--dark); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .costRowTax { color: #9ca3af; }
-.costRowTaxAmt { color: #9ca3af; }
+.costRowTaxAmt { color: #9ca3af; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.costRowSub { border-top: 1px solid #e5e7eb; padding-top: 0.625rem; margin-top: 0.25rem; }
+.costRowDiscount { color: #15803d; font-weight: 700; }
+.costRowDiscountAmt { color: #15803d; font-weight: 700; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .costDivider { border: none; border-top: 1px solid #f3f4f6; margin: 0.5rem 0; }
 .costTotal {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
   align-items: center;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 .costTotalLabel { font-size: 0.875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dark); }
-.costTotalAmt { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--brand); }
+.costTotalAmt { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--brand); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .costValidity { font-size: 0.75rem; color: #9ca3af; margin-top: 0.75rem; }
-.costRowMeta { color: #9ca3af; font-size: 0.8125rem; }
 
 /* Markdown blocks (inclusions / exclusions / notes / policy) */
 .qvMd { font-size: 0.875rem; line-height: 1.7; color: #4b5563; }
@@ -399,6 +405,30 @@
 
 .hotelGrid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
 @media (min-width: 640px) { .hotelGrid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Hotel option / category groups */
+.hotelOptionBlock { margin-bottom: 1.25rem; }
+.hotelOptionBlock:last-of-type { margin-bottom: 0; }
+.hotelOptionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.625rem;
+}
+.hotelOptionTag {
+  font-size: 0.6875rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--brand-light);
+  color: var(--brand);
+  padding: 0.3rem 0.625rem;
+  border-radius: 0.5rem;
+}
+.hotelOptionNote { font-size: 0.75rem; color: #6b7280; }
+.hotelOptionFoot { font-size: 0.75rem; color: #9ca3af; margin-top: 0.875rem; }
 .hotelBox { border: 1px solid #e5e7eb; border-radius: 1rem; padding: 1rem; }
 .hotelBoxHeader { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; }
 .hotelName { font-weight: 700; color: var(--dark); font-size: 0.875rem; }
@@ -423,8 +453,9 @@
   width: 1px;
   background: #e5e7eb;
 }
-.itinList { display: flex; flex-direction: column; gap: 1.5rem; }
-.itinItem { display: flex; gap: 1.25rem; }
+.itinList { display: flex; flex-direction: column; gap: 0; }
+.itinItem { display: flex; gap: 1.25rem; padding: 1.125rem 0; border-top: 1px solid #f3f4f6; }
+.itinItem:first-child { border-top: none; padding-top: 0; }
 .itinDot {
   width: 2rem;
   height: 2rem;
@@ -440,9 +471,10 @@
   position: relative;
   z-index: 1;
 }
-.itinContent { flex: 1; padding-bottom: 0.5rem; }
-.itinTitle { font-weight: 700; color: var(--dark); margin-bottom: 0.25rem; }
-.itinDesc { font-size: 0.875rem; color: #6b7280; line-height: 1.6; }
+.itinContent { flex: 1; min-width: 0; }
+.itinTitle { font-weight: 700; color: var(--dark); margin-bottom: 0.375rem; }
+/* pre-line keeps the line breaks the agent typed, so long days stay readable */
+.itinDesc { font-size: 0.875rem; color: #6b7280; line-height: 1.75; white-space: pre-line; }
 
 .inclExclGrid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
 @media (min-width: 640px) { .inclExclGrid { grid-template-columns: repeat(2, 1fr); } }

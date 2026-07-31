@@ -39,6 +39,18 @@ const HotelSchema = new Schema(
   { _id: false }
 );
 
+/** A hotel category the client can choose between — "Option 1 · 4★", "Option 2 · 5★" … */
+const HotelOptionSchema = new Schema(
+  {
+    label:               { type: String, default: '' },
+    category:            { type: String, default: '' },
+    supplementPerAdult:  { type: Number, default: 0 },
+    supplementPerChild:  { type: Number, default: 0 },
+    hotels:              { type: [HotelSchema], default: [] },
+  },
+  { _id: false }
+);
+
 const ItineraryDaySchema = new Schema(
   {
     day:         { type: Number },
@@ -70,9 +82,15 @@ export const QuoteSchema = new Schema(
     taxes:        { type: [TaxSchema], default: [] },
     // Legacy single-rate tax, kept so quotes created before named taxes still price correctly.
     taxPercent:   { type: Number, default: 0 },
+    // Discount comes off the post-tax total
+    discountLabel: { type: String, default: '' },
+    discountType:  { type: String, default: 'flat', enum: ['flat', 'percent'] },
+    discountValue: { type: Number, default: 0 },
     currency:     { type: String, default: 'INR' },
     flights:      { type: [FlightSchema], default: [] },
     itinerary:    { type: [ItineraryDaySchema], default: [] },
+    hotelOptions: { type: [HotelOptionSchema], default: [] },
+    // Legacy flat hotel list, still read when no options are defined.
     hotels:       { type: [HotelSchema], default: [] },
     // Markdown note boxes (current format)
     inclusionsMd: { type: String, default: '' },

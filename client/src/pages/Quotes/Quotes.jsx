@@ -7,7 +7,7 @@ import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
 import QuotePrintDocument from '../../components/quote/QuotePrintDocument'
 import {
-  COMPANY, LOGO_URL, computeQuote, quoteMarkdown,
+  COMPANY, LOGO_URL, computeQuote, quoteMarkdown, hotelGroups,
   fmt, nightsLabel, durationLabel, openQuotePrintWindow,
 } from '../../utils/quote'
 import styles from './Quotes.module.css'
@@ -44,6 +44,7 @@ function QuoteView({ quote }) {
   const cur      = calc.currency
   const outbound = quote.flights?.find(f => f.type === 'outbound')
   const ret      = quote.flights?.find(f => f.type === 'return')
+  const stayOpts = hotelGroups(quote)
   const sc       = statusColors[quote.status] || statusColors.Sent
 
   const handlePrint = () => {
@@ -120,7 +121,7 @@ function QuoteView({ quote }) {
             </div>
           ))}
 
-          <div className={styles.costRow}>
+          <div className={`${styles.costRow} ${styles.costRowSub}`}>
             <span className={styles.costRowLabel}><strong>Subtotal</strong></span>
             <span className={styles.costRowAmt}>{cur} {fmt(calc.subtotal)}</span>
           </div>
@@ -131,6 +132,16 @@ function QuoteView({ quote }) {
               <span className={styles.costRowTaxAmt}>{cur} {fmt(t.amount)}</span>
             </div>
           ))}
+
+          {calc.discount.amount > 0 && (
+            <div className={styles.costRow}>
+              <span className={styles.costRowDiscount}>
+                {calc.discount.label}
+                {calc.discount.type === 'percent' && <span className={styles.costRowMeta}> {calc.discount.value}% off</span>}
+              </span>
+              <span className={styles.costRowDiscountAmt}>− {cur} {fmt(calc.discount.amount)}</span>
+            </div>
+          )}
 
           <div className={styles.costTotal}>
             <span className={styles.costTotalLabel}>Total Payable ({calc.pax} Pax)</span>
@@ -184,28 +195,51 @@ function QuoteView({ quote }) {
           </div>
         )}
 
-        {/* Hotels */}
-        {quote.hotels?.filter(h => h.name).length > 0 && (
+        {/* Accommodation — one block per hotel option/category */}
+        {stayOpts.length > 0 && (
           <div className={styles.qvSection}>
             <p className={styles.qvSectionLabel}>Accommodation</p>
-            <div className={styles.hotelGrid}>
-              {quote.hotels.filter(h => h.name).map((h, i) => (
-                <div key={i} className={styles.hotelBox}>
-                  <div className={styles.hotelBoxHeader}>
-                    <div>
-                      <p className={styles.hotelName}>{h.name}</p>
-                      {h.stars > 0 && <p className={styles.hotelStars}>{'★'.repeat(Math.min(h.stars, 5))}</p>}
-                    </div>
-                    {h.roomCategory && <span className={styles.hotelMealPlan}>{h.roomCategory}</span>}
-                  </div>
-                  {h.address && (
-                    <div className={styles.hotelMeta}>
-                      <span>📍 {h.address}</span>
+            {stayOpts.map((opt, oi) => {
+              const heading = [opt.label, opt.category].filter(Boolean).join(' · ')
+              const supp = opt.supplementPerAdult > 0
+              return (
+                <div key={oi} className={styles.hotelOptionBlock}>
+                  {heading && (
+                    <div className={styles.hotelOptionHead}>
+                      <span className={styles.hotelOptionTag}>{heading}</span>
+                      <span className={styles.hotelOptionNote}>
+                        {supp
+                          ? `Upgrade: +${cur} ${fmt(opt.supplementPerAdult)} per adult`
+                          : oi === 0 ? 'Included in quoted price' : ''}
+                      </span>
                     </div>
                   )}
+                  <div className={styles.hotelGrid}>
+                    {opt.hotels.map((h, i) => (
+                      <div key={i} className={styles.hotelBox}>
+                        <div className={styles.hotelBoxHeader}>
+                          <div>
+                            <p className={styles.hotelName}>{h.name}</p>
+                            {h.stars > 0 && <p className={styles.hotelStars}>{'★'.repeat(Math.min(h.stars, 5))}</p>}
+                          </div>
+                          {h.roomCategory && <span className={styles.hotelMealPlan}>{h.roomCategory}</span>}
+                        </div>
+                        {h.address && (
+                          <div className={styles.hotelMeta}>
+                            <span>📍 {h.address}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              )
+            })}
+            {stayOpts.length > 1 && (
+              <p className={styles.hotelOptionFoot}>
+                Same itinerary throughout — only the hotel category changes between options.
+              </p>
+            )}
           </div>
         )}
 

@@ -7,7 +7,7 @@ import { useScrollLock } from '../../../hooks/useScrollLock'
 import QuotePrintDocument from '../../../components/quote/QuotePrintDocument'
 import {
   DEFAULT_TAXES, TAX_PRESETS,
-  computeQuote, quoteMarkdown, fmt, num, nightsLabel, tripDays,
+  computeQuote, quoteMarkdown, hotelGroups, fmt, num, nightsLabel, tripDays,
   openQuotePrintWindow,
 } from '../../../utils/quote'
 import styles from './AdminQuotesPage.module.css'
@@ -21,6 +21,11 @@ const emptyFlight = () => ({
 const emptyHotel = () => ({
   name: '', stars: 3, location: '', nights: 2,
   roomCategory: '', mealPlan: 'BB', address: '',
+})
+
+const emptyHotelOption = (n = 1) => ({
+  label: `Option ${n}`, category: '', supplementPerAdult: 0, supplementPerChild: 0,
+  hotels: [emptyHotel()],
 })
 
 const emptyDay = (day) => ({ day, title: '', description: '' })
@@ -66,8 +71,9 @@ const emptyForm = () => ({
   tripType: 'International', currency: 'INR',
   taxes: DEFAULT_TAXES.map(t => ({ ...t })),
   taxPercent: 0,
+  discountLabel: '', discountType: 'flat', discountValue: 0,
   costItems: [],
-  flights: [], hotels: [emptyHotel()],
+  flights: [], hotelOptions: [emptyHotelOption(1)],
   itinerary: [emptyDay(1)],
   inclusionsMd: defaultInclusionsMd,
   exclusionsMd: defaultExclusionsMd,
@@ -91,6 +97,17 @@ function quoteToForm(quote) {
     costItems: quote.costItems?.length ? quote.costItems : [],
     taxes: calc.taxes.length ? calc.taxes.map(t => ({ name: t.name, percent: t.percent })) : [],
     taxPercent: 0,
+    discountLabel: quote.discountLabel || '',
+    discountType:  quote.discountType === 'percent' ? 'percent' : 'flat',
+    discountValue: num(quote.discountValue),
+    // Legacy flat hotel lists become Option 1
+    hotelOptions: hotelGroups(quote).map((g, i) => ({
+      label:              g.label || `Option ${i + 1}`,
+      category:           g.category,
+      supplementPerAdult: g.supplementPerAdult,
+      supplementPerChild: g.supplementPerChild,
+      hotels:             g.hotels,
+    })),
     inclusionsMd: md.inclusions,
     exclusionsMd: md.exclusions,
     notesMd:      md.notes,
@@ -203,6 +220,33 @@ function QuoteModal({ quote, onSave, onClose }) {
   const addNested    = (key, factory) => setForm(f => ({ ...f, [key]: [...(f[key] || []), factory()] }))
   const removeNested = (key, idx)     => setForm(f => ({ ...f, [key]: f[key].filter((_, i) => i !== idx) }))
 
+  // ── Hotel options: quote → option → hotel ──
+  const setOption = (oi, field, val) => setForm(f => {
+    const opts = [...f.hotelOptions]
+    opts[oi] = { ...opts[oi], [field]: val }
+    return { ...f, hotelOptions: opts }
+  })
+
+  const setOptionHotel = (oi, hi, field, val) => setForm(f => {
+    const opts   = [...f.hotelOptions]
+    const hotels = [...opts[oi].hotels]
+    hotels[hi]   = { ...hotels[hi], [field]: val }
+    opts[oi]     = { ...opts[oi], hotels }
+    return { ...f, hotelOptions: opts }
+  })
+
+  const addOptionHotel = (oi) => setForm(f => {
+    const opts = [...f.hotelOptions]
+    opts[oi] = { ...opts[oi], hotels: [...opts[oi].hotels, emptyHotel()] }
+    return { ...f, hotelOptions: opts }
+  })
+
+  const removeOptionHotel = (oi, hi) => setForm(f => {
+    const opts = [...f.hotelOptions]
+    opts[oi] = { ...opts[oi], hotels: opts[oi].hotels.filter((_, i) => i !== hi) }
+    return { ...f, hotelOptions: opts }
+  })
+
   const nights = Math.max(num(form.nights), 0)
   const days   = tripDays(nights)          // N nights → N+1 days
 
@@ -239,10 +283,20 @@ function QuoteModal({ quote, onSave, onClose }) {
         costItems:    form.costItems.filter(i => i.description).map(i => ({ ...i, amount: num(i.amount) })),
         taxes:        form.taxes.filter(t => t.name?.trim()).map(t => ({ name: t.name.trim(), percent: num(t.percent) })),
         taxPercent:   0,
+        discountValue: num(form.discountValue),
         // Legacy list fields are superseded by the markdown boxes
         inclusions: [], exclusions: [], notes: [], terms: [],
         itinerary:    form.itinerary.filter(d => d.title || d.description),
-        hotels:       form.hotels.filter(h => h.name),
+        hotelOptions: form.hotelOptions
+          .map(o => ({
+            label:              (o.label || '').trim(),
+            category:           (o.category || '').trim(),
+            supplementPerAdult: num(o.supplementPerAdult),
+            supplementPerChild: num(o.supplementPerChild),
+            hotels:             o.hotels.filter(h => h.name).map(h => ({ ...h, nights: num(h.nights), stars: num(h.stars, 3) })),
+          }))
+          .filter(o => o.hotels.length),
+        hotels:       [],   // superseded by hotelOptions
         flights:      form.flights.filter(f => f.airline || f.flightNumber),
       }
       await onSave(payload)
@@ -448,6 +502,36 @@ function QuoteModal({ quote, onSave, onClose }) {
                   </datalist>
                 </div>
 
+                {/* Discount — applied after taxes, on the total above */}
+                <div className={styles.blockHeadRowSm} style={{ marginTop: '1.25rem' }}>
+                  <p className={styles.blockLabel}>Discount <span className={styles.normalHint}>(applied on the total, after taxes)</span></p>
+                </div>
+                <div className={styles.discountRow}>
+                  <input
+                    className={`${styles.inp} ${styles.flex1}`}
+                    placeholder="Discount name — e.g. Early Bird Offer"
+                    value={form.discountLabel}
+                    onChange={e => set('discountLabel', e.target.value)}
+                  />
+                  <select
+                    className={`${styles.inp} ${styles.sel} ${styles.discountType}`}
+                    value={form.discountType}
+                    onChange={e => set('discountType', e.target.value)}
+                  >
+                    <option value="flat">₹ Flat</option>
+                    <option value="percent">% Percent</option>
+                  </select>
+                  <div className={styles.amountGroup}>
+                    <span className={styles.amountPrefix}>{form.discountType === 'percent' ? '%' : '₹'}</span>
+                    <input
+                      type="number" min="0" className={styles.amountInput} placeholder="0"
+                      value={form.discountValue}
+                      onChange={e => set('discountValue', e.target.value)}
+                    />
+                  </div>
+                  <span className={styles.discountAmt}>− ₹{fmt(calc.discount.amount)}</span>
+                </div>
+
                 {/* Summary row */}
                 <div className={styles.summary}>
                   <div>
@@ -457,6 +541,10 @@ function QuoteModal({ quote, onSave, onClose }) {
                   <div>
                     <div className={styles.summaryLabel}>Taxes</div>
                     <div className={styles.summaryVal}>₹{fmt(calc.taxTotal)}</div>
+                  </div>
+                  <div>
+                    <div className={styles.summaryLabel}>Discount</div>
+                    <div className={styles.summaryValGreen}>− ₹{fmt(calc.discount.amount)}</div>
                   </div>
                   <div>
                     <div className={styles.summaryLabel}>Per person</div>
@@ -515,40 +603,88 @@ function QuoteModal({ quote, onSave, onClose }) {
           {tab === 2 && (
             <div className={styles.section}>
 
-              {/* Hotels */}
+              {/* Hotels — grouped into options so one itinerary can offer
+                  several hotel categories (Option 1 · 4★, Option 2 · 5★ …) */}
               <div>
                 <div className={styles.blockHeadRowSm}>
-                  <p className={styles.blockLabel}>Hotels &amp; Accommodation</p>
-                  <button onClick={() => addNested('hotels', emptyHotel)} className={styles.addLink}>+ Add hotel</button>
+                  <p className={styles.blockLabel}>
+                    Accommodation Options
+                    <span className={styles.normalHint}> same itinerary, different hotel categories</span>
+                  </p>
+                  <button
+                    onClick={() => addNested('hotelOptions', () => emptyHotelOption(form.hotelOptions.length + 1))}
+                    className={styles.addLink}
+                  >
+                    + Add option
+                  </button>
                 </div>
-                {form.hotels.map((h, i) => (
-                  <div key={i} className={styles.subCard}>
-                    <div className={styles.subHead}>
-                      <div className={styles.subHeadLeft}>
-                        <div className={styles.hotelTag}>H{i+1}</div>
-                        <span className={styles.hotelName}>{h.name || `Hotel ${i + 1}`}</span>
-                        {h.stars > 0 && <span className={styles.stars}>{'★'.repeat(h.stars)}</span>}
+
+                {form.hotelOptions.map((opt, oi) => (
+                  <div key={oi} className={styles.optionCard}>
+                    <div className={styles.optionHead}>
+                      <div className={styles.optionTag}>{opt.label || `Option ${oi + 1}`}</div>
+                      {form.hotelOptions.length > 1 && (
+                        <button onClick={() => removeNested('hotelOptions', oi)} className={styles.removeLink}>Remove option</button>
+                      )}
+                    </div>
+
+                    <div className={styles.optionMeta}>
+                      <Input label="Option Label" value={opt.label} onChange={e => setOption(oi, 'label', e.target.value)} placeholder="Option 1" />
+                      <Input label="Category" value={opt.category} onChange={e => setOption(oi, 'category', e.target.value)} placeholder="4★ Hotels" />
+                      <Field label="Upgrade / adult">
+                        <div className={styles.amountGroup}>
+                          <span className={styles.amountPrefix}>₹</span>
+                          <input type="number" min="0" className={styles.amountInput} placeholder="0"
+                            value={opt.supplementPerAdult} onChange={e => setOption(oi, 'supplementPerAdult', e.target.value)} />
+                        </div>
+                      </Field>
+                      <Field label="Upgrade / child">
+                        <div className={styles.amountGroup}>
+                          <span className={styles.amountPrefix}>₹</span>
+                          <input type="number" min="0" className={styles.amountInput} placeholder="0"
+                            value={opt.supplementPerChild} onChange={e => setOption(oi, 'supplementPerChild', e.target.value)} />
+                        </div>
+                      </Field>
+                    </div>
+                    <p className={styles.optionHint}>
+                      {oi === 0
+                        ? 'Option 1 is the quoted price. Leave the upgrade fields at 0.'
+                        : 'Upgrade amounts are shown to the client as an add-on; they are not added to the total.'}
+                    </p>
+
+                    {opt.hotels.map((h, i) => (
+                      <div key={i} className={styles.subCard}>
+                        <div className={styles.subHead}>
+                          <div className={styles.subHeadLeft}>
+                            <div className={styles.hotelTag}>H{i+1}</div>
+                            <span className={styles.hotelName}>{h.name || `Hotel ${i + 1}`}</span>
+                            {h.stars > 0 && <span className={styles.stars}>{'★'.repeat(num(h.stars, 3))}</span>}
+                          </div>
+                          {opt.hotels.length > 1 && (
+                            <button onClick={() => removeOptionHotel(oi, i)} className={styles.removeLink}>Remove</button>
+                          )}
+                        </div>
+                        <div className={styles.grid23}>
+                          <Input label="Hotel Name" value={h.name} onChange={e => setOptionHotel(oi,i,'name',e.target.value)} placeholder="Atlantis The Palm" className={styles.span2} />
+                          <Select label="Stars" value={h.stars} onChange={e => setOptionHotel(oi,i,'stars',Number(e.target.value))}>
+                            {[1,2,3,4,5].map(s=><option key={s} value={s}>{s} ★</option>)}
+                          </Select>
+                          <Input label="City / Location" value={h.location} onChange={e => setOptionHotel(oi,i,'location',e.target.value)} placeholder="Dubai" />
+                          <Input label="No. of Nights" type="number" min="1" value={h.nights} onChange={e => setOptionHotel(oi,i,'nights',e.target.value)} />
+                          <Input label="Room Category" value={h.roomCategory} onChange={e => setOptionHotel(oi,i,'roomCategory',e.target.value)} placeholder="Deluxe Room" />
+                          <Select label="Meal Plan" value={h.mealPlan} onChange={e => setOptionHotel(oi,i,'mealPlan',e.target.value)}>
+                            <option value="EP">EP — Room Only</option>
+                            <option value="CP">CP — Breakfast</option>
+                            <option value="BB">BB — Bed &amp; Breakfast</option>
+                            <option value="MAP">MAP — Half Board</option>
+                            <option value="AP">AP — Full Board</option>
+                            <option value="AI">All Inclusive</option>
+                          </Select>
+                          <Input label="Address" value={h.address} onChange={e => setOptionHotel(oi,i,'address',e.target.value)} placeholder="Full address" className={styles.span2} />
+                        </div>
                       </div>
-                      <button onClick={() => removeNested('hotels', i)} className={styles.removeLink}>Remove</button>
-                    </div>
-                    <div className={styles.grid23}>
-                      <Input label="Hotel Name" value={h.name} onChange={e => setNested('hotels',i,'name',e.target.value)} placeholder="Atlantis The Palm" className={styles.span2} />
-                      <Select label="Stars" value={h.stars} onChange={e => setNested('hotels',i,'stars',Number(e.target.value))}>
-                        {[1,2,3,4,5].map(s=><option key={s} value={s}>{s} ★</option>)}
-                      </Select>
-                      <Input label="City / Location" value={h.location} onChange={e => setNested('hotels',i,'location',e.target.value)} placeholder="Dubai" />
-                      <Input label="No. of Nights" type="number" min="1" value={h.nights} onChange={e => setNested('hotels',i,'nights',e.target.value)} />
-                      <Input label="Room Category" value={h.roomCategory} onChange={e => setNested('hotels',i,'roomCategory',e.target.value)} placeholder="Deluxe Room" />
-                      <Select label="Meal Plan" value={h.mealPlan} onChange={e => setNested('hotels',i,'mealPlan',e.target.value)}>
-                        <option value="EP">EP — Room Only</option>
-                        <option value="CP">CP — Breakfast</option>
-                        <option value="BB">BB — Bed &amp; Breakfast</option>
-                        <option value="MAP">MAP — Half Board</option>
-                        <option value="AP">AP — Full Board</option>
-                        <option value="AI">All Inclusive</option>
-                      </Select>
-                      <Input label="Address" value={h.address} onChange={e => setNested('hotels',i,'address',e.target.value)} placeholder="Full address" className={styles.span2} />
-                    </div>
+                    ))}
+                    <button onClick={() => addOptionHotel(oi)} className={styles.addLink}>+ Add hotel to this option</button>
                   </div>
                 ))}
               </div>
@@ -557,7 +693,7 @@ function QuoteModal({ quote, onSave, onClose }) {
               <div>
                 <p className={styles.blockLabelMb}>
                   Day-wise Itinerary — {nightsLabel(nights)}
-                  <span className={styles.normalHint}> {days} days auto-synced with {nights} nights</span>
+                  <span className={styles.normalHint}> {days} days auto-synced with {nights} nights · line breaks are kept in the PDF</span>
                 </p>
                 <div className={styles.listStack}>
                   {form.itinerary.map((day, i) => (
@@ -574,9 +710,9 @@ function QuoteModal({ quote, onSave, onClose }) {
                         />
                       </div>
                       <textarea
-                        className={`${styles.inp} ${styles.resizeNone}`}
-                        rows={3}
-                        placeholder="Describe activities, sightseeing, meals, transfers for this day..."
+                        className={styles.inp}
+                        rows={5}
+                        placeholder={'Describe the day — put each block on its own line, e.g.\n07:30 Hotel pick-up in Hanoi\n09:30 Hoa Lu Ancient Capital\n16:00 Return to Hanoi · Overnight in Hanoi'}
                         value={day.description}
                         onChange={e => setNested('itinerary', i, 'description', e.target.value)}
                       />

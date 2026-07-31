@@ -64,6 +64,39 @@ export function normalizeTaxes(quote = {}) {
   return legacy > 0 ? [{ name: 'Tax', percent: legacy }] : []
 }
 
+// ─── Discount ─────────────────────────────────────────────────────────────────
+/** Discount is applied to the post-tax total — everything above, then discount. */
+export function normalizeDiscount(quote = {}) {
+  return {
+    label: (quote.discountLabel || '').trim() || 'Discount',
+    type:  quote.discountType === 'percent' ? 'percent' : 'flat',
+    value: Math.max(num(quote.discountValue), 0),
+  }
+}
+
+// ─── Hotel options ────────────────────────────────────────────────────────────
+/**
+ * Hotel categories the client can pick between (Option 1 · 4★, Option 2 · 5★ …).
+ * Quotes written before options existed carry one flat `hotels` list.
+ */
+export function hotelGroups(quote = {}) {
+  const groups = (Array.isArray(quote.hotelOptions) ? quote.hotelOptions : [])
+    .map(o => ({
+      label:              (o.label || '').trim(),
+      category:           (o.category || '').trim(),
+      supplementPerAdult: num(o.supplementPerAdult),
+      supplementPerChild: num(o.supplementPerChild),
+      hotels:             (o.hotels || []).filter(h => h.name),
+    }))
+    .filter(g => g.hotels.length)
+  if (groups.length) return groups
+
+  const legacy = (quote.hotels || []).filter(h => h.name)
+  return legacy.length
+    ? [{ label: '', category: '', supplementPerAdult: 0, supplementPerChild: 0, hotels: legacy }]
+    : []
+}
+
 // ─── Totals ───────────────────────────────────────────────────────────────────
 /**
  * Per-person pricing → subtotal → named taxes → grand total.
@@ -91,6 +124,15 @@ export function computeQuote(quote = {}) {
   }))
   const taxTotal = taxes.reduce((s, t) => s + t.amount, 0)
 
+  // Everything above, then the discount
+  const grossTotal = subtotal + taxTotal
+  const disc = normalizeDiscount(quote)
+  const discountAmount = Math.min(
+    disc.type === 'percent' ? Math.round(grossTotal * disc.value / 100) : Math.round(disc.value),
+    grossTotal
+  )
+  const total = grossTotal - discountAmount
+
   const pax = adults + children || Math.max(num(quote.pax), 0)
 
   return {
@@ -100,8 +142,10 @@ export function computeQuote(quote = {}) {
     extraItems, extras,
     subtotal,
     taxes, taxTotal,
-    total: subtotal + taxTotal,
-    perPerson: pax > 0 ? Math.round((subtotal + taxTotal) / pax) : 0,
+    grossTotal,
+    discount: { ...disc, amount: discountAmount },
+    total,
+    perPerson: pax > 0 ? Math.round(total / pax) : 0,
     currency: quote.currency || 'INR',
   }
 }
