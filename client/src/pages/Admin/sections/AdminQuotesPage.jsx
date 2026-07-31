@@ -1,7 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import QuotePrintDocument from '../../../components/quote/QuotePrintDocument'
+import {
+  DEFAULT_TAXES, TAX_PRESETS,
+  computeQuote, quoteMarkdown, fmt, num, nightsLabel, tripDays,
+  openQuotePrintWindow,
+} from '../../../utils/quote'
 import styles from './AdminQuotesPage.module.css'
 
 // ─── Default data factories ───────────────────────────────────────────────────
@@ -17,69 +25,77 @@ const emptyHotel = () => ({
 
 const emptyDay = (day) => ({ day, title: '', description: '' })
 
-const defaultInclusions = [
-  'Return airfare (as specified)',
-  'Accommodation as per itinerary',
-  'Daily breakfast at hotel',
-  'Airport transfers (SIC basis)',
-  'Sightseeing as per itinerary',
-  'GST & service charges',
-]
+const emptyTax = () => ({ name: 'GST', percent: 5 })
 
-const defaultExclusions = [
-  'Visa fees & processing charges',
-  'Travel insurance (recommended)',
-  'Personal expenses & tips',
-  'Meals unless specified',
-  'Camera/entry fees at monuments',
-  'Anything not mentioned in inclusions',
-]
+const defaultInclusionsMd = [
+  '- Return airfare (as specified)',
+  '- Accommodation as per itinerary',
+  '- Daily breakfast at hotel',
+  '- Airport transfers (SIC basis)',
+  '- Sightseeing as per itinerary',
+].join('\n')
 
-const defaultNotes = [
-  'Rates are subject to availability at time of confirmation.',
-  'Check-in time is typically 14:00 and check-out at 12:00.',
-  'Valid passport required for all international travel.',
-  'EMV is not liable for delays due to weather, strikes, or force majeure.',
-]
+const defaultExclusionsMd = [
+  '- Visa fees & processing charges',
+  '- Travel insurance (recommended)',
+  '- Personal expenses & tips',
+  '- Meals unless specified',
+  '- Camera/entry fees at monuments',
+  '- Anything not mentioned in inclusions',
+].join('\n')
 
-const defaultTerms = [
-  'Advance payment of 25% required to confirm booking.',
-  'Balance payment due 30 days prior to departure.',
-  'Cancellation charges apply as per supplier policy.',
-  'EMV reserves the right to modify itinerary due to operational reasons.',
-]
+const defaultNotesMd = [
+  '- Rates are subject to availability at time of confirmation.',
+  '- Check-in time is typically **14:00** and check-out at **12:00**.',
+  '- Valid passport required for all international travel.',
+  '- EMV is not liable for delays due to weather, strikes, or force majeure.',
+].join('\n')
+
+const defaultTermsMd = [
+  '- Advance payment of **25%** required to confirm booking.',
+  '- Balance payment due **30 days** prior to departure.',
+  '- Cancellation charges apply as per supplier policy.',
+  '- EMV reserves the right to modify itinerary due to operational reasons.',
+].join('\n')
 
 const emptyForm = () => ({
   clientName: '', clientEmail: '', clientPhone: '',
   agentName: 'EMV Team', validUntil: '', tripTitle: '',
-  destinations: [''], startDate: '', nights: 5, pax: 2,
-  tripType: 'International', taxPercent: 5, currency: 'INR',
-  costItems: [{ description: 'Land Package', amount: 0 }],
+  destinations: [''], startDate: '', nights: 5,
+  adults: 2, children: 0, perAdult: 0, perChild: 0,
+  tripType: 'International', currency: 'INR',
+  taxes: DEFAULT_TAXES.map(t => ({ ...t })),
+  taxPercent: 0,
+  costItems: [],
   flights: [], hotels: [emptyHotel()],
   itinerary: [emptyDay(1)],
-  inclusions: [...defaultInclusions],
-  exclusions: [...defaultExclusions],
-  notes: [...defaultNotes],
-  terms: [...defaultTerms],
+  inclusionsMd: defaultInclusionsMd,
+  exclusionsMd: defaultExclusionsMd,
+  notesMd:      defaultNotesMd,
+  termsMd:      defaultTermsMd,
   status: 'Draft',
 })
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function computeSubtotal(costItems) {
-  return costItems.reduce((s, i) => s + (Number(i.amount) || 0), 0)
-}
-
-function computeTotal(costItems, taxPercent) {
-  const sub = computeSubtotal(costItems)
-  return Math.round(sub + sub * (Number(taxPercent) || 0) / 100)
-}
-
-function fmt(n) {
-  return Number(n || 0).toLocaleString('en-IN')
-}
-
-function nightsLabel(n) {
-  return `${n}N${n + 1}D`
+/** Existing quote → form state, migrating legacy list/tax fields forward. */
+function quoteToForm(quote) {
+  const base = emptyForm()
+  const md   = quoteMarkdown(quote)
+  const calc = computeQuote(quote)
+  return {
+    ...base,
+    ...quote,
+    adults:   calc.adults,
+    children: calc.children,
+    perAdult: calc.perAdult,
+    perChild: calc.perChild,
+    costItems: quote.costItems?.length ? quote.costItems : [],
+    taxes: calc.taxes.length ? calc.taxes.map(t => ({ name: t.name, percent: t.percent })) : [],
+    taxPercent: 0,
+    inclusionsMd: md.inclusions,
+    exclusionsMd: md.exclusions,
+    notesMd:      md.notes,
+    termsMd:      md.terms,
+  }
 }
 
 // ─── Field components ─────────────────────────────────────────────────────────
@@ -100,227 +116,75 @@ function Select({ label, className = '', children, ...props }) {
   return <Field label={label} className={className}><select className={`${styles.inp} ${styles.sel}`} {...props}>{children}</select></Field>
 }
 
-// ─── List editor (inclusions / exclusions / notes / terms) ────────────────────
-function ListEditor({ items, onChange, placeholder = 'Add item...' }) {
-  const update = (i, val) => { const a = [...items]; a[i] = val; onChange(a) }
-  const add    = () => onChange([...items, ''])
-  const remove = (i) => onChange(items.filter((_, idx) => idx !== i))
+// ─── Markdown note box (inclusions / exclusions / notes / policy) ─────────────
+const MD_SNIPPETS = [
+  { icon: '•',  title: 'Bullet list',  wrap: (s) => `- ${s || 'item'}` },
+  { icon: '1.', title: 'Numbered list', wrap: (s) => `1. ${s || 'item'}` },
+  { icon: 'B',  title: 'Bold',          wrap: (s) => `**${s || 'bold'}**` },
+  { icon: 'I',  title: 'Italic',        wrap: (s) => `_${s || 'italic'}_` },
+  { icon: 'H',  title: 'Heading',       wrap: (s) => `### ${s || 'Heading'}` },
+]
+
+function MarkdownBox({ label, value, onChange, placeholder, rows = 8, accent = '' }) {
+  const [preview, setPreview] = useState(false)
+  const taRef = useRef(null)
+
+  function apply(snippet) {
+    const ta = taRef.current
+    if (!ta) return
+    const start = ta.selectionStart
+    const end   = ta.selectionEnd
+    const text  = value || ''
+    const inserted = snippet.wrap(text.slice(start, end))
+    const next = text.slice(0, start) + inserted + text.slice(end)
+    onChange(next)
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(start + inserted.length, start + inserted.length) }, 0)
+  }
 
   return (
-    <div className={styles.listStack}>
-      {items.map((item, i) => (
-        <div key={i} className={styles.listItemRow}>
-          <input
-            className={`${styles.inp} ${styles.flex1}`}
-            value={item}
-            placeholder={placeholder}
-            onChange={e => update(i, e.target.value)}
-          />
-          <button onClick={() => remove(i)} className={styles.removeBtn}>×</button>
+    <div className={`${styles.incBlock} ${accent}`}>
+      <div className={styles.mdHead}>
+        <p className={styles.mdLabel}>{label}</p>
+        <div className={styles.mdTools}>
+          {!preview && MD_SNIPPETS.map(sn => (
+            <button key={sn.title} type="button" title={sn.title} onClick={() => apply(sn)} className={styles.mdToolBtn}>
+              {sn.icon}
+            </button>
+          ))}
+          <button type="button" onClick={() => setPreview(p => !p)} className={styles.mdPreviewToggle}>
+            {preview ? '✏ Edit' : '👁 Preview'}
+          </button>
         </div>
-      ))}
-      <button onClick={add} className={styles.addLink}>+ Add item</button>
+      </div>
+
+      {preview ? (
+        <div className={styles.mdPreview}>
+          {value?.trim()
+            ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+            : <p className={styles.mdPreviewEmpty}>Nothing to preview yet…</p>}
+        </div>
+      ) : (
+        <textarea
+          ref={taRef}
+          className={`${styles.inp} ${styles.mdTextarea}`}
+          rows={rows}
+          value={value || ''}
+          placeholder={placeholder}
+          onChange={e => onChange(e.target.value)}
+        />
+      )}
+      <p className={styles.mdHint}>Markdown supported — <code>- bullet</code>, <code>**bold**</code>, <code>### heading</code></p>
     </div>
   )
 }
 
-// ─── Print/PDF template ───────────────────────────────────────────────────────
-function QuotePrint({ quote }) {
-  const subtotal = computeSubtotal(quote.costItems)
-  const tax      = Math.round(subtotal * (quote.taxPercent || 0) / 100)
-  const total    = subtotal + tax
-
-  const outbound = quote.flights?.find(f => f.type === 'outbound')
-  const ret      = quote.flights?.find(f => f.type === 'return')
-
-  return (
-    <div id="quote-print" style={{ fontFamily: 'Georgia, serif', color: '#111', background: '#fff', maxWidth: 860, margin: '0 auto', padding: '40px 48px' }}>
-
-      {/* Header */}
-      <table width="100%" style={{ borderBottom: '3px solid #c9a96e', paddingBottom: 24, marginBottom: 28 }}>
-        <tbody><tr>
-          <td>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 28, fontWeight: 900, letterSpacing: 2, color: '#111' }}>EMV</div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 4, color: '#888', marginTop: 2 }}>GLOBAL</div>
-          </td>
-          <td style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 22, fontWeight: 700, color: '#111' }}>TRAVEL QUOTE</div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, color: '#666', marginTop: 4 }}>Ref: <strong>{quote.refNumber}</strong></div>
-            {quote.validUntil && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, color: '#666' }}>Valid until: {quote.validUntil}</div>}
-          </td>
-        </tr></tbody>
-      </table>
-
-      {/* Client + Trip */}
-      <table width="100%" style={{ marginBottom: 28 }}>
-        <tbody><tr>
-          <td width="50%" style={{ verticalAlign: 'top' }}>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>PREPARED FOR</div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{quote.clientName}</div>
-            {quote.clientPhone && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 4 }}>{quote.clientPhone}</div>}
-            {quote.clientEmail && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555' }}>{quote.clientEmail}</div>}
-          </td>
-          <td width="50%" style={{ verticalAlign: 'top' }}>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>TRIP DETAILS</div>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>{quote.tripTitle}</div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 4 }}>
-              {[quote.destinations?.join(' · '), nightsLabel(quote.nights), `${quote.pax} Pax`, quote.tripType].filter(Boolean).join(' | ')}
-            </div>
-            {quote.startDate && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555' }}>Departure: {quote.startDate}</div>}
-          </td>
-        </tr></tbody>
-      </table>
-
-      {/* Cost breakdown */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 10 }}>COST BREAKDOWN</div>
-        <table width="100%" style={{ borderCollapse: 'collapse' }}>
-          <tbody>
-            {quote.costItems?.map((item, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 13, padding: '8px 0' }}>{item.description}</td>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 13, fontWeight: 700, textAlign: 'right', padding: '8px 0' }}>
-                  {quote.currency} {fmt(item.amount)}
-                </td>
-              </tr>
-            ))}
-            {quote.taxPercent > 0 && (
-              <tr style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 13, color: '#777', padding: '8px 0' }}>Tax &amp; Markup ({quote.taxPercent}%)</td>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 13, color: '#777', textAlign: 'right', padding: '8px 0' }}>{quote.currency} {fmt(tax)}</td>
-              </tr>
-            )}
-            <tr style={{ background: '#f9f5ee' }}>
-              <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 15, fontWeight: 900, padding: '12px 8px' }}>TOTAL ({quote.pax} Pax)</td>
-              <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 15, fontWeight: 900, textAlign: 'right', padding: '12px 8px', color: '#c9a96e' }}>
-                {quote.currency} {fmt(total)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Flights */}
-      {(outbound || ret) && (
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 10 }}>FLIGHT DETAILS</div>
-          {[outbound, ret].filter(Boolean).map((fl, i) => (
-            <div key={i} style={{ background: '#f9f9f9', borderRadius: 6, padding: '12px 16px', marginBottom: 8 }}>
-              <div style={{ fontFamily: 'Arial, sans-serif', display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#888', letterSpacing: 1 }}>{fl.type === 'outbound' ? 'OUTBOUND' : 'RETURN'}</span>
-                <span style={{ fontSize: 12, fontWeight: 700 }}>{fl.airline} {fl.flightNumber}</span>
-              </div>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 13 }}>
-                <strong>{fl.from}</strong> {fl.departure} → <strong>{fl.to}</strong> {fl.arrival}
-                {fl.duration && <span style={{ color: '#777' }}> · {fl.duration}</span>}
-                {fl.class && <span style={{ color: '#777' }}> · {fl.class}</span>}
-                {fl.baggage && <span style={{ color: '#777' }}> · Baggage: {fl.baggage}</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Hotels */}
-      {quote.hotels?.length > 0 && (
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 10 }}>ACCOMMODATION</div>
-          {quote.hotels.map((h, i) => (
-            <div key={i} style={{ borderLeft: '3px solid #c9a96e', paddingLeft: 14, marginBottom: 12 }}>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontWeight: 700, fontSize: 14 }}>
-                {h.name} {'★'.repeat(h.stars || 3)}
-              </div>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 3 }}>
-                {[h.location, `${h.nights}N`, h.roomCategory, h.mealPlan].filter(Boolean).join(' · ')}
-              </div>
-              {h.address && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, color: '#888', marginTop: 2 }}>{h.address}</div>}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Itinerary */}
-      {quote.itinerary?.length > 0 && (
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 10 }}>ITINERARY</div>
-          {quote.itinerary.map((day) => (
-            <div key={day.day} style={{ marginBottom: 10 }}>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontWeight: 700, fontSize: 13, marginBottom: 3 }}>
-                Day {day.day}{day.title ? ` — ${day.title}` : ''}
-              </div>
-              {day.description && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#444', lineHeight: 1.7 }}>{day.description}</div>}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Inclusions / Exclusions */}
-      {(quote.inclusions?.length > 0 || quote.exclusions?.length > 0) && (
-        <table width="100%" style={{ marginBottom: 28, verticalAlign: 'top' }}>
-          <tbody><tr>
-            {quote.inclusions?.length > 0 && (
-              <td width="50%" style={{ verticalAlign: 'top', paddingRight: 20 }}>
-                <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>INCLUSIONS</div>
-                {quote.inclusions.map((item, i) => (
-                  <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, marginBottom: 5, display: 'flex', gap: 8 }}>
-                    <span style={{ color: '#2e7d32', fontWeight: 700 }}>✓</span> {item}
-                  </div>
-                ))}
-              </td>
-            )}
-            {quote.exclusions?.length > 0 && (
-              <td width="50%" style={{ verticalAlign: 'top' }}>
-                <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>EXCLUSIONS</div>
-                {quote.exclusions.map((item, i) => (
-                  <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, marginBottom: 5, display: 'flex', gap: 8 }}>
-                    <span style={{ color: '#c62828', fontWeight: 700 }}>✗</span> {item}
-                  </div>
-                ))}
-              </td>
-            )}
-          </tr></tbody>
-        </table>
-      )}
-
-      {/* Important Notes */}
-      {quote.notes?.filter(Boolean).length > 0 && (
-        <div style={{ marginBottom: 24, background: '#fffdf7', border: '1px solid #e8d9b5', borderRadius: 6, padding: '16px 20px' }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>IMPORTANT NOTES</div>
-          {quote.notes.filter(Boolean).map((n, i) => (
-            <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, marginBottom: 5, color: '#333' }}>• {n}</div>
-          ))}
-        </div>
-      )}
-
-      {/* Terms */}
-      {quote.terms?.filter(Boolean).length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>TERMS &amp; CONDITIONS</div>
-          {quote.terms.filter(Boolean).map((t, i) => (
-            <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, marginBottom: 4, color: '#555' }}>{i + 1}. {t}</div>
-          ))}
-        </div>
-      )}
-
-      {/* Footer */}
-      <div style={{ borderTop: '2px solid #c9a96e', paddingTop: 16, marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, color: '#888' }}>
-          Generated by EMV CRM · Confidential · Ease My Vacations · {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
-        </div>
-        <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, fontWeight: 700, color: '#555' }}>
-          Agent: {quote.agentName || 'EMV Team'}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ─── Quote Builder Modal ───────────────────────────────────────────────────────
 const TABS = ['Client & Trip', 'Costs & Flights', 'Hotels & Itinerary', 'Inclusions & Notes']
 
 function QuoteModal({ quote, onSave, onClose }) {
   useScrollLock()
-  const [form, setForm]     = useState(() => quote ? { ...emptyForm(), ...quote } : emptyForm())
+  const [form, setForm]     = useState(() => quote ? quoteToForm(quote) : emptyForm())
   const [tab, setTab]       = useState(0)
   const [saving, setSaving] = useState(false)
   const [err, setErr]       = useState(null)
@@ -339,20 +203,21 @@ function QuoteModal({ quote, onSave, onClose }) {
   const addNested    = (key, factory) => setForm(f => ({ ...f, [key]: [...(f[key] || []), factory()] }))
   const removeNested = (key, idx)     => setForm(f => ({ ...f, [key]: f[key].filter((_, i) => i !== idx) }))
 
-  const nights = Number(form.nights) || 1
+  const nights = Math.max(num(form.nights), 0)
+  const days   = tripDays(nights)          // N nights → N+1 days
 
-  // Keep itinerary length in sync with nights
+  // Keep the itinerary one entry per travel day (nights + 1)
   useEffect(() => {
     setForm(f => {
       const cur = f.itinerary || []
-      if (cur.length === nights) return f
-      if (cur.length < nights) {
-        const added = Array.from({ length: nights - cur.length }, (_, i) => emptyDay(cur.length + i + 1))
+      if (cur.length === days) return f
+      if (cur.length < days) {
+        const added = Array.from({ length: days - cur.length }, (_, i) => emptyDay(cur.length + i + 1))
         return { ...f, itinerary: [...cur, ...added] }
       }
-      return { ...f, itinerary: cur.slice(0, nights) }
+      return { ...f, itinerary: cur.slice(0, days) }
     })
-  }, [nights])
+  }, [days])
 
   async function handleSave() {
     if (!form.clientName.trim() || !form.tripTitle.trim()) {
@@ -364,12 +229,18 @@ function QuoteModal({ quote, onSave, onClose }) {
     try {
       const payload = {
         ...form,
+        nights:       num(form.nights),
+        adults:       num(form.adults),
+        children:     num(form.children),
+        perAdult:     num(form.perAdult),
+        perChild:     num(form.perChild),
+        pax:          num(form.adults) + num(form.children),
         destinations: form.destinations.filter(Boolean),
-        costItems:    form.costItems.filter(i => i.description),
-        inclusions:   form.inclusions.filter(Boolean),
-        exclusions:   form.exclusions.filter(Boolean),
-        notes:        form.notes.filter(Boolean),
-        terms:        form.terms.filter(Boolean),
+        costItems:    form.costItems.filter(i => i.description).map(i => ({ ...i, amount: num(i.amount) })),
+        taxes:        form.taxes.filter(t => t.name?.trim()).map(t => ({ name: t.name.trim(), percent: num(t.percent) })),
+        taxPercent:   0,
+        // Legacy list fields are superseded by the markdown boxes
+        inclusions: [], exclusions: [], notes: [], terms: [],
         itinerary:    form.itinerary.filter(d => d.title || d.description),
         hotels:       form.hotels.filter(h => h.name),
         flights:      form.flights.filter(f => f.airline || f.flightNumber),
@@ -382,19 +253,10 @@ function QuoteModal({ quote, onSave, onClose }) {
   }
 
   function handlePrint() {
-    const printContent = printRef.current?.innerHTML
-    if (!printContent) return
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${form.refNumber || 'Quote'}</title>
-      <style>@page{size:A4;margin:20mm}*{box-sizing:border-box}body{margin:0;background:#fff}</style>
-    </head><body>${printContent}</body></html>`
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-    const url  = URL.createObjectURL(blob)
-    const w    = window.open(url, '_blank')
-    w?.addEventListener('load', () => { w.print(); URL.revokeObjectURL(url) })
+    openQuotePrintWindow(printRef.current?.innerHTML, quote?.refNumber || 'Quote')
   }
 
-  const subtotal = computeSubtotal(form.costItems)
-  const total    = computeTotal(form.costItems, form.taxPercent)
+  const calc = computeQuote(form)
 
   return (
     /* Overlay — this element scrolls, not the inner card */
@@ -473,8 +335,12 @@ function QuoteModal({ quote, onSave, onClose }) {
                 <div className={styles.gridDates}>
                   <Input label="Start Date" type="text" value={form.startDate} onChange={e => set('startDate', e.target.value)} placeholder="15 Jun 2026" className={styles.span2} />
                   <Input label="Valid Until" type="text" value={form.validUntil} onChange={e => set('validUntil', e.target.value)} placeholder="31 May 2026" className={styles.span2} />
-                  <Input label="Nights" type="number" min="1" value={form.nights} onChange={e => set('nights', e.target.value)} />
-                  <Input label="Pax" type="number" min="1" value={form.pax} onChange={e => set('pax', e.target.value)} />
+                  <Input label="Nights" type="number" min="0" value={form.nights} onChange={e => set('nights', e.target.value)} />
+                  <Field label="Duration">
+                    <div className={styles.durationPill}>{nightsLabel(nights)}</div>
+                  </Field>
+                  <Input label="Adults" type="number" min="0" value={form.adults} onChange={e => set('adults', e.target.value)} />
+                  <Input label="Children" type="number" min="0" value={form.children} onChange={e => set('children', e.target.value)} />
                   <Select label="Trip Type" value={form.tripType} onChange={e => set('tripType', e.target.value)}>
                     <option>International</option>
                     <option>Domestic</option>
@@ -494,16 +360,53 @@ function QuoteModal({ quote, onSave, onClose }) {
           {tab === 1 && (
             <div className={styles.section}>
 
-              {/* Cost items */}
+              {/* Per-person pricing */}
               <div className={styles.block}>
                 <div className={styles.blockHeadRow}>
-                  <p className={styles.blockLabel}>Cost Breakdown</p>
-                  <button onClick={() => addNested('costItems', () => ({ description: '', amount: 0 }))} className={styles.addLink}>+ Add item</button>
+                  <p className={styles.blockLabel}>Pricing — per person</p>
+                  <span className={styles.normalHint}>Adults &amp; children are priced separately, then totalled</span>
+                </div>
+
+                <div className={styles.paxPriceGrid}>
+                  <div className={styles.paxPriceCard}>
+                    <p className={styles.paxPriceTitle}>Adults</p>
+                    <div className={styles.paxPriceRow}>
+                      <Input label="Count" type="number" min="0" value={form.adults} onChange={e => set('adults', e.target.value)} />
+                      <Field label="Cost per adult">
+                        <div className={styles.amountGroup}>
+                          <span className={styles.amountPrefix}>₹</span>
+                          <input type="number" min="0" className={styles.amountInput} placeholder="0" value={form.perAdult} onChange={e => set('perAdult', e.target.value)} />
+                        </div>
+                      </Field>
+                    </div>
+                    <p className={styles.paxPriceTotal}>{calc.adults} × ₹{fmt(calc.perAdult)} = <strong>₹{fmt(calc.adultTotal)}</strong></p>
+                  </div>
+
+                  <div className={styles.paxPriceCard}>
+                    <p className={styles.paxPriceTitle}>Children</p>
+                    <div className={styles.paxPriceRow}>
+                      <Input label="Count" type="number" min="0" value={form.children} onChange={e => set('children', e.target.value)} />
+                      <Field label="Cost per child">
+                        <div className={styles.amountGroup}>
+                          <span className={styles.amountPrefix}>₹</span>
+                          <input type="number" min="0" className={styles.amountInput} placeholder="0" value={form.perChild} onChange={e => set('perChild', e.target.value)} />
+                        </div>
+                      </Field>
+                    </div>
+                    <p className={styles.paxPriceTotal}>{calc.children} × ₹{fmt(calc.perChild)} = <strong>₹{fmt(calc.childTotal)}</strong></p>
+                  </div>
+                </div>
+
+                {/* Additional charges */}
+                <div className={styles.blockHeadRowSm} style={{ marginTop: '1.25rem' }}>
+                  <p className={styles.blockLabel}>Additional charges <span className={styles.normalHint}>(optional — visa, upgrades, etc.)</span></p>
+                  <button onClick={() => addNested('costItems', () => ({ description: '', amount: 0 }))} className={styles.addLink}>+ Add charge</button>
                 </div>
                 <div className={styles.listStack}>
+                  {form.costItems.length === 0 && <p className={styles.emptyHint}>No additional charges</p>}
                   {form.costItems.map((item, i) => (
                     <div key={i} className={styles.costRow}>
-                      <input className={`${styles.inp} ${styles.flex1}`} placeholder="e.g. Land Package" value={item.description} onChange={e => setNested('costItems', i, 'description', e.target.value)} />
+                      <input className={`${styles.inp} ${styles.flex1}`} placeholder="e.g. Visa fees" value={item.description} onChange={e => setNested('costItems', i, 'description', e.target.value)} />
                       <div className={styles.amountGroup}>
                         <span className={styles.amountPrefix}>₹</span>
                         <input type="number" className={styles.amountInput} placeholder="0" value={item.amount} onChange={e => setNested('costItems', i, 'amount', e.target.value)} />
@@ -513,22 +416,55 @@ function QuoteModal({ quote, onSave, onClose }) {
                   ))}
                 </div>
 
+                {/* Taxes — any number of named rates (GST, TCS, …) */}
+                <div className={styles.blockHeadRowSm} style={{ marginTop: '1.25rem' }}>
+                  <p className={styles.blockLabel}>Taxes <span className={styles.normalHint}>(applied on subtotal)</span></p>
+                  <button onClick={() => addNested('taxes', emptyTax)} className={styles.addLink}>+ Add tax</button>
+                </div>
+                <div className={styles.listStack}>
+                  {form.taxes.length === 0 && <p className={styles.emptyHint}>No taxes applied</p>}
+                  {form.taxes.map((t, i) => {
+                    const amount = Math.round(calc.subtotal * num(t.percent) / 100)
+                    return (
+                      <div key={i} className={styles.costRow}>
+                        <input
+                          className={`${styles.inp} ${styles.flex1}`}
+                          list="tax-presets"
+                          placeholder="Tax name — e.g. GST"
+                          value={t.name}
+                          onChange={e => setNested('taxes', i, 'name', e.target.value)}
+                        />
+                        <div className={styles.taxBox}>
+                          <input type="number" min="0" step="0.01" className={styles.taxInput} value={t.percent} onChange={e => setNested('taxes', i, 'percent', e.target.value)} />
+                          <span className={styles.taxSuffix}>%</span>
+                        </div>
+                        <span className={styles.taxAmount}>₹{fmt(amount)}</span>
+                        <button onClick={() => removeNested('taxes', i)} className={styles.removeBtn}>×</button>
+                      </div>
+                    )
+                  })}
+                  <datalist id="tax-presets">
+                    {TAX_PRESETS.map(p => <option key={p} value={p} />)}
+                  </datalist>
+                </div>
+
                 {/* Summary row */}
                 <div className={styles.summary}>
                   <div>
                     <div className={styles.summaryLabel}>Subtotal</div>
-                    <div className={styles.summaryVal}>₹{fmt(subtotal)}</div>
+                    <div className={styles.summaryVal}>₹{fmt(calc.subtotal)}</div>
                   </div>
-                  <div className={styles.taxGroup}>
-                    <div className={styles.summaryLabel}>Tax / Markup</div>
-                    <div className={styles.taxBox}>
-                      <input type="number" className={styles.taxInput} value={form.taxPercent} onChange={e => set('taxPercent', e.target.value)} />
-                      <span className={styles.taxSuffix}>%</span>
-                    </div>
+                  <div>
+                    <div className={styles.summaryLabel}>Taxes</div>
+                    <div className={styles.summaryVal}>₹{fmt(calc.taxTotal)}</div>
+                  </div>
+                  <div>
+                    <div className={styles.summaryLabel}>Per person</div>
+                    <div className={styles.summaryVal}>₹{fmt(calc.perPerson)}</div>
                   </div>
                   <div className={styles.toRight}>
-                    <div className={styles.summaryLabel}>Grand Total</div>
-                    <div className={styles.summaryTotal}>₹{fmt(total)}</div>
+                    <div className={styles.summaryLabel}>Grand Total ({calc.pax} pax)</div>
+                    <div className={styles.summaryTotal}>₹{fmt(calc.total)}</div>
                   </div>
                 </div>
               </div>
@@ -621,7 +557,7 @@ function QuoteModal({ quote, onSave, onClose }) {
               <div>
                 <p className={styles.blockLabelMb}>
                   Day-wise Itinerary — {nightsLabel(nights)}
-                  <span className={styles.normalHint}> auto-synced with nights</span>
+                  <span className={styles.normalHint}> {days} days auto-synced with {nights} nights</span>
                 </p>
                 <div className={styles.listStack}>
                   {form.itinerary.map((day, i) => (
@@ -655,24 +591,36 @@ function QuoteModal({ quote, onSave, onClose }) {
           {tab === 3 && (
             <div className={styles.section}>
               <div className={styles.grid2}>
-                <div className={`${styles.incBlock} ${styles.incGreen}`}>
-                  <p className={styles.incLabelGreen}>✓ Inclusions</p>
-                  <ListEditor items={form.inclusions} onChange={v => set('inclusions', v)} placeholder="e.g. Return airfare" />
-                </div>
-                <div className={`${styles.incBlock} ${styles.incRed}`}>
-                  <p className={styles.incLabelRed}>✗ Exclusions</p>
-                  <ListEditor items={form.exclusions} onChange={v => set('exclusions', v)} placeholder="e.g. Visa fees" />
-                </div>
+                <MarkdownBox
+                  label="✓ Inclusions"
+                  accent={styles.incGreen}
+                  value={form.inclusionsMd}
+                  onChange={v => set('inclusionsMd', v)}
+                  placeholder={'- Return airfare\n- Daily breakfast'}
+                />
+                <MarkdownBox
+                  label="✗ Exclusions"
+                  accent={styles.incRed}
+                  value={form.exclusionsMd}
+                  onChange={v => set('exclusionsMd', v)}
+                  placeholder={'- Visa fees\n- Travel insurance'}
+                />
               </div>
               <div className={styles.grid2}>
-                <div className={`${styles.incBlock} ${styles.incAmber}`}>
-                  <p className={styles.incLabelAmber}>⚠ Important Notes</p>
-                  <ListEditor items={form.notes} onChange={v => set('notes', v)} placeholder="e.g. Tourism dirham fee charged at hotel" />
-                </div>
-                <div className={`${styles.incBlock} ${styles.incGray}`}>
-                  <p className={styles.incLabelGray}>§ Terms &amp; Conditions</p>
-                  <ListEditor items={form.terms} onChange={v => set('terms', v)} placeholder="e.g. 25% advance required to confirm" />
-                </div>
+                <MarkdownBox
+                  label="⚠ Important Notes"
+                  accent={styles.incAmber}
+                  value={form.notesMd}
+                  onChange={v => set('notesMd', v)}
+                  placeholder={'- Tourism dirham fee charged at hotel'}
+                />
+                <MarkdownBox
+                  label="§ Policy & Terms"
+                  accent={styles.incGray}
+                  value={form.termsMd}
+                  onChange={v => set('termsMd', v)}
+                  placeholder={'- 25% advance required to confirm'}
+                />
               </div>
             </div>
           )}
@@ -684,8 +632,8 @@ function QuoteModal({ quote, onSave, onClose }) {
             {err
               ? <p className={styles.footErr}>{err}</p>
               : <div className={styles.footSummary}>
-                  <span className={styles.footTotal}>₹{fmt(total)}</span>
-                  <span className={styles.footMuted}> · {form.pax} pax · {nightsLabel(nights)} · {form.tripType}</span>
+                  <span className={styles.footTotal}>₹{fmt(calc.total)}</span>
+                  <span className={styles.footMuted}> · {calc.pax} pax · {nightsLabel(nights)} · {form.tripType}</span>
                 </div>
             }
           </div>
@@ -702,7 +650,7 @@ function QuoteModal({ quote, onSave, onClose }) {
 
       {/* Hidden print template */}
       <div ref={printRef} style={{ display: 'none' }}>
-        <QuotePrint quote={{ ...form, refNumber: quote?.refNumber || 'DRAFT' }} />
+        <QuotePrintDocument quote={{ ...form, refNumber: quote?.refNumber || 'DRAFT' }} />
       </div>
     </div>
   )
@@ -734,18 +682,16 @@ export default function AdminQuotesPage({ navState }) {
   useEffect(() => {
     if (!navState?.prefillLead) return
     const lead = navState.prefillLead
-    const pax = [
-      lead.numAdults   ? Number(lead.numAdults)   : null,
-      lead.numChildren ? Number(lead.numChildren) : null,
-      lead.numInfants  ? Number(lead.numInfants)  : null,
-    ].filter(Boolean).reduce((a, b) => a + b, 0)
+    const adults   = num(lead.numAdults)
+    const children = num(lead.numChildren) + num(lead.numInfants)
     const prefilled = {
       ...emptyForm(),
       clientName:  lead.name        || '',
       clientPhone: lead.phone       || '',
       clientEmail: lead.email       || '',
       destinations: lead.destination ? [lead.destination] : [''],
-      pax:          pax || 2,
+      adults:       adults || 2,
+      children,
       tripTitle:    lead.destination ? `${lead.destination} Trip` : '',
       startDate:    lead.travelDate  || '',
     }
@@ -798,15 +744,7 @@ export default function AdminQuotesPage({ navState }) {
   function handlePrint(q) {
     setPrintQuote(q)
     setTimeout(() => {
-      const content = printRef.current?.innerHTML
-      if (!content) return
-      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${q.refNumber}</title>
-        <style>@page{size:A4;margin:20mm}*{box-sizing:border-box}body{margin:0;background:#fff}</style>
-      </head><body>${content}</body></html>`
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-      const url  = URL.createObjectURL(blob)
-      const w    = window.open(url, '_blank')
-      w?.addEventListener('load', () => { w.print(); URL.revokeObjectURL(url) })
+      openQuotePrintWindow(printRef.current?.innerHTML, q.refNumber)
       setPrintQuote(null)
     }, 150)
   }
@@ -886,7 +824,7 @@ export default function AdminQuotesPage({ navState }) {
               </thead>
               <tbody>
                 {quotes.map(q => {
-                  const total = computeTotal(q.costItems || [], q.taxPercent || 5)
+                  const qc = computeQuote(q)
                   return (
                     <tr key={q.id} className={styles.row}>
                       <td className={styles.td}>
@@ -900,8 +838,8 @@ export default function AdminQuotesPage({ navState }) {
                         <div className={styles.tripTitle}>{q.tripTitle}</div>
                         <div className={styles.subText}>{q.destinations?.join(', ')} · {nightsLabel(q.nights || 1)}</div>
                       </td>
-                      <td className={styles.tdMuted}>{q.pax}</td>
-                      <td className={styles.tdStrong}>₹{fmt(total)}</td>
+                      <td className={styles.tdMuted}>{qc.pax}</td>
+                      <td className={styles.tdStrong}>₹{fmt(qc.total)}</td>
                       <td className={styles.td}>
                         <span className={`${styles.statusBadge} ${statusColors[q.status] || statusColors.Draft}`}>
                           {q.status}
@@ -963,7 +901,7 @@ export default function AdminQuotesPage({ navState }) {
 
       {/* Hidden print node for list-view print */}
       <div ref={printRef} style={{ display: 'none' }}>
-        {printQuote && <QuotePrint quote={printQuote} />}
+        {printQuote && <QuotePrintDocument quote={printQuote} />}
       </div>
     </div>
   )

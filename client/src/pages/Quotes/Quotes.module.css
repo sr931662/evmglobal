@@ -261,7 +261,11 @@
   letter-spacing: 0.1em;
 }
 .qvStatusDot { width: 0.375rem; height: 0.375rem; border-radius: 9999px; }
-.qvRefRow { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; }
+.qvRefRow { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; flex-wrap: wrap; }
+.qvRefLabel { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #9ca3af; }
+.qvBrandRow { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.75rem; }
+.qvLogo { width: 2.25rem; height: 2.25rem; object-fit: contain; }
+.qvBrandName { font-family: var(--font-serif); font-size: 1.0625rem; font-weight: 700; color: var(--dark); letter-spacing: 0.01em; }
 .qvTitle { font-family: var(--font-serif); font-size: clamp(1.5rem, 3vw, 1.875rem); font-weight: 700; color: var(--dark); }
 .qvMeta { color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; }
 
@@ -350,6 +354,24 @@
 .costTotalLabel { font-size: 0.875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dark); }
 .costTotalAmt { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; color: var(--brand); }
 .costValidity { font-size: 0.75rem; color: #9ca3af; margin-top: 0.75rem; }
+.costRowMeta { color: #9ca3af; font-size: 0.8125rem; }
+
+/* Markdown blocks (inclusions / exclusions / notes / policy) */
+.qvMd { font-size: 0.875rem; line-height: 1.7; color: #4b5563; }
+.qvMd > :first-child { margin-top: 0; }
+.qvMd > :last-child { margin-bottom: 0; }
+.qvMd p { margin: 0 0 0.5rem; }
+.qvMd ul, .qvMd ol { margin: 0 0 0.5rem; padding-left: 1.25rem; }
+.qvMd li { margin-bottom: 0.375rem; }
+.qvMd li::marker { color: var(--brand); }
+.qvMd h1, .qvMd h2, .qvMd h3, .qvMd h4 { font-size: 0.9375rem; font-weight: 800; color: var(--dark); margin: 0.875rem 0 0.375rem; }
+.qvMd strong { font-weight: 700; color: var(--dark); }
+.qvMd a { color: var(--brand); text-decoration: none; }
+.qvMd blockquote { margin: 0 0 0.5rem; padding-left: 0.75rem; border-left: 3px solid var(--brand-light); color: #6b7280; }
+.qvMd code { background: #f3f4f6; border-radius: 0.25rem; padding: 0.05rem 0.3rem; font-size: 0.8125rem; }
+.qvMd table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; margin-bottom: 0.5rem; }
+.qvMd th, .qvMd td { border: 1px solid #e5e7eb; padding: 0.375rem 0.5rem; text-align: left; }
+.qvMd hr { border: none; border-top: 1px solid #e5e7eb; margin: 0.75rem 0; }
 
 .flightGrid { display: flex; flex-direction: column; gap: 0.75rem; }
 .flightBox { background: #f9fafb; border-radius: 1rem; padding: 1rem; }

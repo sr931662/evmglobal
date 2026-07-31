@@ -177,6 +177,54 @@
 .taxInput { width: 3.5rem; padding: 0.375rem 0.5rem; font-size: 0.875rem; font-weight: 700; text-align: center; border: none; outline: none; }
 .taxSuffix { padding: 0 0.5rem; font-size: 0.75rem; color: #9ca3af; font-weight: 700; border-left: 1px solid #e5e7eb; padding-top: 0.375rem; padding-bottom: 0.375rem; }
 .toRight { margin-left: auto; text-align: right; }
+.taxAmount { font-size: 0.875rem; font-weight: 700; color: var(--dark); min-width: 6rem; text-align: right; }
+.emptyHint { font-size: 0.8125rem; color: #9ca3af; padding: 0.5rem 0; }
+
+/* Per-person pricing */
+.paxPriceGrid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 640px) { .paxPriceGrid { grid-template-columns: repeat(2, 1fr); } }
+.paxPriceCard { border: 1px solid #e5e7eb; border-radius: 1rem; padding: 1rem; background: #fafafa; }
+.paxPriceTitle { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--brand); margin-bottom: 0.75rem; }
+.paxPriceRow { display: grid; grid-template-columns: 5rem 1fr; gap: 0.75rem; align-items: end; }
+.paxPriceTotal { margin-top: 0.75rem; font-size: 0.8125rem; color: #6b7280; }
+.paxPriceTotal strong { color: var(--dark); }
+.durationPill {
+  display: flex; align-items: center; justify-content: center;
+  height: 2.6rem; border-radius: 0.75rem; background: var(--brand-light);
+  color: var(--brand); font-weight: 800; font-size: 0.875rem; letter-spacing: 0.05em;
+}
+
+/* Markdown note boxes */
+.mdHead { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.mdLabel { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #4b5563; }
+.mdTools { display: flex; align-items: center; gap: 0.25rem; }
+.mdToolBtn {
+  min-width: 1.75rem; height: 1.75rem; padding: 0 0.375rem;
+  border: 1px solid #e5e7eb; border-radius: 0.5rem; background: #fff;
+  font-size: 0.75rem; font-weight: 800; color: #4b5563; cursor: pointer;
+}
+.mdToolBtn:hover { border-color: var(--brand); color: var(--brand); }
+.mdPreviewToggle {
+  height: 1.75rem; padding: 0 0.625rem; margin-left: 0.25rem;
+  border: 1px solid #e5e7eb; border-radius: 0.5rem; background: #f9fafb;
+  font-size: 0.6875rem; font-weight: 800; color: #4b5563; cursor: pointer; white-space: nowrap;
+}
+.mdPreviewToggle:hover { border-color: var(--brand); color: var(--brand); }
+.mdTextarea { font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: 0.8125rem; line-height: 1.6; resize: vertical; }
+.mdPreview {
+  border: 1px dashed #d1d5db; border-radius: 0.75rem; padding: 0.875rem 1rem;
+  background: #fff; font-size: 0.875rem; line-height: 1.65; color: #374151; min-height: 10rem;
+}
+.mdPreview ul, .mdPreview ol { padding-left: 1.25rem; margin: 0 0 0.5rem; }
+.mdPreview li { margin-bottom: 0.25rem; }
+.mdPreview p { margin: 0 0 0.5rem; }
+.mdPreview h1, .mdPreview h2, .mdPreview h3, .mdPreview h4 { font-size: 0.9375rem; font-weight: 800; margin: 0.75rem 0 0.375rem; }
+.mdPreview strong { font-weight: 700; color: var(--dark); }
+.mdPreview table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.mdPreview th, .mdPreview td { border: 1px solid #e5e7eb; padding: 0.25rem 0.5rem; text-align: left; }
+.mdPreviewEmpty { color: #9ca3af; font-style: italic; }
+.mdHint { margin-top: 0.5rem; font-size: 0.6875rem; color: #9ca3af; }
+.mdHint code { background: #f3f4f6; border-radius: 0.25rem; padding: 0.05rem 0.25rem; }
 
 /* Flights / hotels */
 .emptyBox { font-size: 0.875rem; color: #6b7280; text-align: center; padding: 2rem 0; border: 2px dashed #d1d5db; border-radius: 1rem; background: #fff; }

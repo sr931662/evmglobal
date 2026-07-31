@@ -125,7 +125,10 @@ export class QuotesService {
 
     return docs.map((d) => {
       const norm = this.normalize(d) as any;
-      const { agentName, costItems, taxPercent, notes, clientName, clientEmail, clientPhone, ...safe } = norm;
+      const {
+        agentName, costItems, taxPercent, taxes, perAdult, perChild,
+        notes, notesMd, clientName, clientEmail, clientPhone, ...safe
+      } = norm;
       return safe;
     });
   }

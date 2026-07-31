@@ -5,6 +5,11 @@ const CostItemSchema = new Schema(
   { _id: false }
 );
 
+const TaxSchema = new Schema(
+  { name: { type: String, default: 'GST' }, percent: { type: Number, default: 0 } },
+  { _id: false }
+);
+
 const FlightSchema = new Schema(
   {
     type:         { type: String, default: 'outbound', enum: ['outbound', 'return'] },
@@ -56,13 +61,25 @@ export const QuoteSchema = new Schema(
     startDate:    { type: String, default: '' },
     nights:       { type: Number, default: 1 },
     pax:          { type: Number, default: 2 },
+    adults:       { type: Number, default: 2 },
+    children:     { type: Number, default: 0 },
+    perAdult:     { type: Number, default: 0 },
+    perChild:     { type: Number, default: 0 },
     tripType:     { type: String, default: 'Domestic', enum: ['Domestic', 'International'] },
     costItems:    { type: [CostItemSchema], default: [] },
-    taxPercent:   { type: Number, default: 5 },
+    taxes:        { type: [TaxSchema], default: [] },
+    // Legacy single-rate tax, kept so quotes created before named taxes still price correctly.
+    taxPercent:   { type: Number, default: 0 },
     currency:     { type: String, default: 'INR' },
     flights:      { type: [FlightSchema], default: [] },
     itinerary:    { type: [ItineraryDaySchema], default: [] },
     hotels:       { type: [HotelSchema], default: [] },
+    // Markdown note boxes (current format)
+    inclusionsMd: { type: String, default: '' },
+    exclusionsMd: { type: String, default: '' },
+    notesMd:      { type: String, default: '' },
+    termsMd:      { type: String, default: '' },
+    // Legacy line-item lists, still read when the markdown field is empty.
     inclusions:   [{ type: String }],
     exclusions:   [{ type: String }],
     notes:        [{ type: String }],

@@ -1,37 +1,22 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
+import QuotePrintDocument from '../../components/quote/QuotePrintDocument'
+import {
+  COMPANY, LOGO_URL, computeQuote, quoteMarkdown,
+  fmt, nightsLabel, durationLabel, openQuotePrintWindow,
+} from '../../utils/quote'
 import styles from './Quotes.module.css'
-
-function fmt(n) { return Number(n || 0).toLocaleString('en-IN') }
-function nightsLabel(n) { return `${n || 0}N${(n || 0) + 1}D` }
-
-function computeTotal(costItems = [], taxPercent = 5) {
-  const sub = costItems.reduce((s, i) => s + (Number(i.amount) || 0), 0)
-  return { subtotal: sub, tax: Math.round(sub * taxPercent / 100), total: Math.round(sub + sub * taxPercent / 100) }
-}
 
 const statusColors = {
   Sent:     { background: '#eff6ff', color: '#1d4ed8', dot: '#3b82f6' },
   Accepted: { background: '#f0fdf4', color: '#15803d', dot: '#22c55e' },
   Draft:    { background: '#f3f4f6', color: '#4b5563', dot: '#9ca3af' },
   Rejected: { background: '#fef2f2', color: '#dc2626', dot: '#f87171' },
-}
-
-function printQuoteHTML(html, ref) {
-  const full = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${ref}</title>
-    <style>
-      @page { size: A4; margin: 18mm; }
-      * { box-sizing: border-box; }
-      body { margin: 0; background: #fff; font-family: Georgia, serif; color: #111; }
-    </style>
-  </head><body>${html}</body></html>`
-  const blob = new Blob([full], { type: 'text/html;charset=utf-8' })
-  const url  = URL.createObjectURL(blob)
-  const w    = window.open(url, '_blank')
-  w?.addEventListener('load', () => { w.print(); URL.revokeObjectURL(url) })
 }
 
 function WaIcon({ className }) {
@@ -43,16 +28,26 @@ function WaIcon({ className }) {
   )
 }
 
+function MdBlock({ children }) {
+  if (!children?.trim()) return null
+  return (
+    <div className={styles.qvMd}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+    </div>
+  )
+}
+
 function QuoteView({ quote }) {
   const printRef = useRef(null)
-  const { subtotal, tax, total } = computeTotal(quote.costItems, quote.taxPercent)
+  const calc     = computeQuote(quote)
+  const md       = quoteMarkdown(quote)
+  const cur      = calc.currency
   const outbound = quote.flights?.find(f => f.type === 'outbound')
   const ret      = quote.flights?.find(f => f.type === 'return')
   const sc       = statusColors[quote.status] || statusColors.Sent
 
   const handlePrint = () => {
-    if (!printRef.current) return
-    printQuoteHTML(printRef.current.innerHTML, quote.refNumber)
+    openQuotePrintWindow(printRef.current?.innerHTML, quote.refNumber)
   }
 
   return (
@@ -64,7 +59,12 @@ function QuoteView({ quote }) {
     >
       <div className={styles.qvHeaderBar}>
         <div>
+          <div className={styles.qvBrandRow}>
+            <img src={LOGO_URL} alt="EMV" className={styles.qvLogo} />
+            <span className={styles.qvBrandName}>{COMPANY.name}</span>
+          </div>
           <div className={styles.qvRefRow}>
+            <span className={styles.qvRefLabel}>Quote No.</span>
             <span className={styles.qvRef}>{quote.refNumber}</span>
             <span className={styles.qvStatusPill} style={{ background: sc.background, color: sc.color }}>
               <span className={styles.qvStatusDot} style={{ background: sc.dot }} />
@@ -73,7 +73,7 @@ function QuoteView({ quote }) {
           </div>
           <h2 className={styles.qvTitle}>{quote.tripTitle}</h2>
           <p className={styles.qvMeta}>
-            {quote.destinations?.join(' · ')} · {nightsLabel(quote.nights)} · {quote.pax} Pax · {quote.tripType}
+            {quote.destinations?.filter(Boolean).join(' · ')} · {durationLabel(quote.nights)} ({nightsLabel(quote.nights)}) · {calc.pax} Pax · {quote.tripType}
             {quote.startDate && ` · Departure: ${quote.startDate}`}
           </p>
         </div>
@@ -91,25 +91,56 @@ function QuoteView({ quote }) {
       </div>
 
       <div className={styles.qvCard}>
-        {/* Cost breakdown */}
+        {/* Price breakdown */}
         <div className={styles.qvSection}>
-          <p className={styles.qvSectionLabel}>Cost Breakdown</p>
-          {quote.costItems?.map((item, i) => (
-            <div key={i} className={styles.costRow}>
-              <span className={styles.costRowLabel}>{item.description}</span>
-              <span className={styles.costRowAmt}>{quote.currency || 'INR'} {fmt(item.amount)}</span>
-            </div>
-          ))}
-          {quote.taxPercent > 0 && (
+          <p className={styles.qvSectionLabel}>Price Breakdown</p>
+
+          {calc.adults > 0 && calc.perAdult > 0 && (
             <div className={styles.costRow}>
-              <span className={styles.costRowTax}>Tax &amp; Markup ({quote.taxPercent}%)</span>
-              <span className={styles.costRowTaxAmt}>{quote.currency || 'INR'} {fmt(tax)}</span>
+              <span className={styles.costRowLabel}>
+                Adult{calc.adults === 1 ? '' : 's'}
+                <span className={styles.costRowMeta}> {calc.adults} × {cur} {fmt(calc.perAdult)} per person</span>
+              </span>
+              <span className={styles.costRowAmt}>{cur} {fmt(calc.adultTotal)}</span>
             </div>
           )}
-          <div className={styles.costTotal}>
-            <span className={styles.costTotalLabel}>Total ({quote.pax} Pax)</span>
-            <span className={styles.costTotalAmt}>{quote.currency || 'INR'} {fmt(total)}</span>
+          {calc.children > 0 && calc.perChild > 0 && (
+            <div className={styles.costRow}>
+              <span className={styles.costRowLabel}>
+                Child{calc.children === 1 ? '' : 'ren'}
+                <span className={styles.costRowMeta}> {calc.children} × {cur} {fmt(calc.perChild)} per child</span>
+              </span>
+              <span className={styles.costRowAmt}>{cur} {fmt(calc.childTotal)}</span>
+            </div>
+          )}
+          {calc.extraItems.filter(i => i.description).map((item, i) => (
+            <div key={i} className={styles.costRow}>
+              <span className={styles.costRowLabel}>{item.description}</span>
+              <span className={styles.costRowAmt}>{cur} {fmt(item.amount)}</span>
+            </div>
+          ))}
+
+          <div className={styles.costRow}>
+            <span className={styles.costRowLabel}><strong>Subtotal</strong></span>
+            <span className={styles.costRowAmt}>{cur} {fmt(calc.subtotal)}</span>
           </div>
+
+          {calc.taxes.map((t, i) => (
+            <div key={i} className={styles.costRow}>
+              <span className={styles.costRowTax}>{t.name} @ {t.percent}%</span>
+              <span className={styles.costRowTaxAmt}>{cur} {fmt(t.amount)}</span>
+            </div>
+          ))}
+
+          <div className={styles.costTotal}>
+            <span className={styles.costTotalLabel}>Total Payable ({calc.pax} Pax)</span>
+            <span className={styles.costTotalAmt}>{cur} {fmt(calc.total)}</span>
+          </div>
+          {calc.pax > 0 && (
+            <p className={styles.costValidity}>
+              {cur} {fmt(calc.perPerson)} per person, inclusive of taxes
+            </p>
+          )}
           {quote.validUntil && (
             <p className={styles.costValidity}>Quote valid until: <strong>{quote.validUntil}</strong></p>
           )}
@@ -200,60 +231,38 @@ function QuoteView({ quote }) {
         )}
 
         {/* Inclusions / Exclusions */}
-        {(quote.inclusions?.filter(Boolean).length > 0 || quote.exclusions?.filter(Boolean).length > 0) && (
+        {(md.inclusions.trim() || md.exclusions.trim()) && (
           <div className={styles.qvSection}>
             <div className={styles.inclExclGrid}>
-              {quote.inclusions?.filter(Boolean).length > 0 && (
+              {md.inclusions.trim() && (
                 <div>
                   <p className={styles.inclLabel}>✓ What's Included</p>
-                  <ul className={styles.inclList}>
-                    {quote.inclusions.filter(Boolean).map((item, i) => (
-                      <li key={i} className={styles.inclItem}>
-                        <span className={styles.inclCheck}>✓</span> {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <MdBlock>{md.inclusions}</MdBlock>
                 </div>
               )}
-              {quote.exclusions?.filter(Boolean).length > 0 && (
+              {md.exclusions.trim() && (
                 <div>
                   <p className={styles.exclLabel}>✗ Not Included</p>
-                  <ul className={styles.inclList}>
-                    {quote.exclusions.filter(Boolean).map((item, i) => (
-                      <li key={i} className={styles.inclItem}>
-                        <span className={styles.exclCheck}>✗</span> {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <MdBlock>{md.exclusions}</MdBlock>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* Notes */}
-        {quote.notes?.filter(Boolean).length > 0 && (
+        {/* Important notes */}
+        {md.notes.trim() && (
           <div className={`${styles.qvSection} ${styles.notesSection}`}>
             <p className={`${styles.qvSectionLabel} ${styles.qvLabelAmber}`}>⚠ Important Notes</p>
-            <ul className={styles.notesList}>
-              {quote.notes.filter(Boolean).map((note, i) => (
-                <li key={i} className={styles.noteItem}>
-                  <span className={styles.noteDot}>•</span> {note}
-                </li>
-              ))}
-            </ul>
+            <MdBlock>{md.notes}</MdBlock>
           </div>
         )}
 
-        {/* Terms */}
-        {quote.terms?.filter(Boolean).length > 0 && (
+        {/* Policy & terms */}
+        {md.terms.trim() && (
           <div className={styles.qvSection}>
-            <p className={styles.qvSectionLabel}>Terms &amp; Conditions</p>
-            <ol className={styles.termsList}>
-              {quote.terms.filter(Boolean).map((term, i) => (
-                <li key={i} className={styles.termItem}>{i + 1}. {term}</li>
-              ))}
-            </ol>
+            <p className={styles.qvSectionLabel}>Policy &amp; Terms</p>
+            <MdBlock>{md.terms}</MdBlock>
           </div>
         )}
       </div>
@@ -273,170 +282,16 @@ function QuoteView({ quote }) {
       </div>
 
       <p className={styles.qvFootNote}>
-        Generated by EMV CRM · Global Ease My Vacations (OPC) Private Limited · CIN: U79110HR2026OPC146794 · GST: 06AANCG1457H1Z1 · Prepared by {quote.agentName || 'EMV Team'}
+        {COMPANY.legal} · CIN: {COMPANY.cin} · GST: {COMPANY.gst} · Prepared by {quote.agentName || 'EMV Team'}
       </p>
 
       <div ref={printRef} style={{ display: 'none' }}>
-        <QuotePrintTemplate quote={quote} subtotal={subtotal} tax={tax} total={total} outbound={outbound} ret={ret} />
+        <QuotePrintDocument quote={quote} />
       </div>
     </motion.div>
   )
 }
 
-function QuotePrintTemplate({ quote, subtotal, tax, total, outbound, ret }) {
-  return (
-    <div style={{ fontFamily: 'Georgia, serif', color: '#111', background: '#fff', maxWidth: 860, margin: '0 auto' }}>
-      <table width="100%" style={{ borderBottom: '3px solid #c9a96e', paddingBottom: 20, marginBottom: 24 }}>
-        <tbody><tr>
-          <td>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 28, fontWeight: 900, letterSpacing: 2 }}>EMV</div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 4, color: '#888', marginTop: 2 }}>GLOBAL</div>
-          </td>
-          <td style={{ textAlign: 'right' }}>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 20, fontWeight: 700 }}>TRAVEL QUOTE</div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, color: '#666', marginTop: 4 }}>Ref: <strong>{quote.refNumber}</strong></div>
-            {quote.validUntil && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, color: '#666' }}>Valid: {quote.validUntil}</div>}
-          </td>
-        </tr></tbody>
-      </table>
-
-      <table width="100%" style={{ marginBottom: 24 }}>
-        <tbody><tr>
-          <td width="50%" style={{ verticalAlign: 'top' }}>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 6 }}>PREPARED FOR</div>
-            <div style={{ fontSize: 17, fontWeight: 700 }}>{quote.clientName}</div>
-            {quote.clientPhone && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 3 }}>{quote.clientPhone}</div>}
-          </td>
-          <td width="50%" style={{ verticalAlign: 'top' }}>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 6 }}>TRIP DETAILS</div>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>{quote.tripTitle}</div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 3 }}>
-              {[quote.destinations?.join(' · '), nightsLabel(quote.nights), `${quote.pax} Pax`].filter(Boolean).join(' | ')}
-            </div>
-          </td>
-        </tr></tbody>
-      </table>
-
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>COST BREAKDOWN</div>
-        <table width="100%" style={{ borderCollapse: 'collapse' }}>
-          <tbody>
-            {quote.costItems?.map((item, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 13, padding: '7px 0' }}>{item.description}</td>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 13, fontWeight: 700, textAlign: 'right', padding: '7px 0' }}>{quote.currency || 'INR'} {fmt(item.amount)}</td>
-              </tr>
-            ))}
-            {quote.taxPercent > 0 && (
-              <tr style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#777', padding: '7px 0' }}>Tax & Markup ({quote.taxPercent}%)</td>
-                <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#777', textAlign: 'right', padding: '7px 0' }}>{quote.currency || 'INR'} {fmt(tax)}</td>
-              </tr>
-            )}
-            <tr style={{ background: '#f9f5ee' }}>
-              <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 14, fontWeight: 900, padding: '10px 8px' }}>TOTAL ({quote.pax} Pax)</td>
-              <td style={{ fontFamily: 'Arial, sans-serif', fontSize: 14, fontWeight: 900, textAlign: 'right', padding: '10px 8px', color: '#c9a96e' }}>{quote.currency || 'INR'} {fmt(total)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {(outbound || ret) && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>FLIGHT DETAILS</div>
-          {[outbound, ret].filter(Boolean).map((fl, i) => (
-            <div key={i} style={{ background: '#f9f9f9', borderRadius: 6, padding: '10px 14px', marginBottom: 6 }}>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, fontWeight: 700, color: '#888', marginBottom: 4 }}>{fl.type === 'outbound' ? 'OUTBOUND' : 'RETURN'} · {fl.airline} {fl.flightNumber}</div>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 13 }}>
-                <strong>{fl.from}</strong> {fl.departure} → <strong>{fl.to}</strong> {fl.arrival}
-                {fl.duration && <span style={{ color: '#777' }}> · {fl.duration}</span>}
-                {fl.class && <span style={{ color: '#777' }}> · {fl.class}</span>}
-                {fl.baggage && <span style={{ color: '#777' }}> · {fl.baggage}</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {quote.hotels?.filter(h => h.name).length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>ACCOMMODATION</div>
-          {quote.hotels.filter(h => h.name).map((h, i) => (
-            <div key={i} style={{ borderLeft: '3px solid #c9a96e', paddingLeft: 12, marginBottom: 10 }}>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontWeight: 700, fontSize: 13 }}>
-                {h.name}{h.stars > 0 ? ` ${'★'.repeat(Math.min(h.stars, 5))}` : ''}
-                {h.roomCategory ? <span style={{ fontWeight: 400, color: '#777', marginLeft: 8 }}>{h.roomCategory}</span> : null}
-              </div>
-              {h.address && (
-                <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#555', marginTop: 2 }}>
-                  📍 {h.address}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {quote.itinerary?.filter(d => d.title || d.description).length > 0 && (
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 8 }}>ITINERARY</div>
-          {quote.itinerary.filter(d => d.title || d.description).map(day => (
-            <div key={day.day} style={{ marginBottom: 8 }}>
-              <div style={{ fontFamily: 'Arial, sans-serif', fontWeight: 700, fontSize: 13 }}>Day {day.day}{day.title ? ` — ${day.title}` : ''}</div>
-              {day.description && <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, color: '#444', lineHeight: 1.6, marginTop: 2 }}>{day.description}</div>}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {(quote.inclusions?.filter(Boolean).length > 0 || quote.exclusions?.filter(Boolean).length > 0) && (
-        <table width="100%" style={{ marginBottom: 24 }}>
-          <tbody><tr>
-            {quote.inclusions?.filter(Boolean).length > 0 && (
-              <td width="50%" style={{ verticalAlign: 'top', paddingRight: 16 }}>
-                <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 6 }}>INCLUSIONS</div>
-                {quote.inclusions.filter(Boolean).map((item, i) => (
-                  <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, marginBottom: 4 }}><span style={{ color: '#2e7d32', fontWeight: 700 }}>✓</span> {item}</div>
-                ))}
-              </td>
-            )}
-            {quote.exclusions?.filter(Boolean).length > 0 && (
-              <td width="50%" style={{ verticalAlign: 'top' }}>
-                <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 6 }}>EXCLUSIONS</div>
-                {quote.exclusions.filter(Boolean).map((item, i) => (
-                  <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, marginBottom: 4 }}><span style={{ color: '#c62828', fontWeight: 700 }}>✗</span> {item}</div>
-                ))}
-              </td>
-            )}
-          </tr></tbody>
-        </table>
-      )}
-
-      {quote.notes?.filter(Boolean).length > 0 && (
-        <div style={{ marginBottom: 20, background: '#fffdf7', border: '1px solid #e8d9b5', borderRadius: 6, padding: '14px 18px' }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 6 }}>IMPORTANT NOTES</div>
-          {quote.notes.filter(Boolean).map((n, i) => (
-            <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, marginBottom: 4, color: '#333' }}>• {n}</div>
-          ))}
-        </div>
-      )}
-
-      {quote.terms?.filter(Boolean).length > 0 && (
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#c9a96e', marginBottom: 6 }}>TERMS & CONDITIONS</div>
-          {quote.terms.filter(Boolean).map((t, i) => (
-            <div key={i} style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, marginBottom: 4, color: '#555' }}>{i + 1}. {t}</div>
-          ))}
-        </div>
-      )}
-
-      <div style={{ borderTop: '2px solid #c9a96e', paddingTop: 14, marginTop: 14, display: 'flex', justifyContent: 'space-between' }}>
-        <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, color: '#888' }}>Global Ease My Vacations (OPC) Private Limited · CIN: U79110HR2026OPC146794 · GST: 06AANCG1457H1Z1</div>
-        <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 11, fontWeight: 700, color: '#555' }}>Agent: {quote.agentName || 'EMV Team'}</div>
-      </div>
-    </div>
-  )
-}
 
 export default function QuotesPage() {
   const [ref,     setRef]     = useState('')
