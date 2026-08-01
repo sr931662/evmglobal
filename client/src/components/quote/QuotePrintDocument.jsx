@@ -34,7 +34,7 @@ export default function QuotePrintDocument({ quote }) {
   const outbound = quote.flights?.find(f => f.type === 'outbound')
   const ret      = quote.flights?.find(f => f.type === 'return')
   const stayOpts = hotelGroups(quote)
-  const days     = (quote.itinerary || []).filter(d => d.title || d.description)
+  const days     = (quote.itinerary || []).filter(d => d.title || d.description || d.note || d.image)
 
   const priceRow = (label, meta, amount, key) => (
     <tr key={key} style={{ borderBottom: `1px solid ${BRAND.line}` }}>
@@ -299,6 +299,13 @@ export default function QuotePrintDocument({ quote }) {
                       </div>
                     </td>
                     <td style={cell}>
+                      {day.image && (
+                        <img
+                          src={day.image}
+                          alt={day.title || `Day ${day.day}`}
+                          style={{ display: 'block', width: '100%', maxHeight: 140, objectFit: 'cover', borderRadius: 4, marginBottom: 6 }}
+                        />
+                      )}
                       {day.title && (
                         <div style={{ ...S.sans, fontWeight: 700, fontSize: 13, color: BRAND.ink, marginBottom: 4 }}>
                           {day.title}
@@ -308,6 +315,11 @@ export default function QuotePrintDocument({ quote }) {
                         /* pre-line keeps the line breaks the agent typed */
                         <div style={{ ...S.sans, fontSize: 12, color: '#444', lineHeight: 1.75, whiteSpace: 'pre-line' }}>
                           {day.description}
+                        </div>
+                      )}
+                      {day.note && (
+                        <div style={{ ...S.sans, fontSize: 11, color: '#92400e', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 4, padding: '6px 10px', marginTop: 6, lineHeight: 1.6 }}>
+                          <strong>Note:</strong> {day.note}
                         </div>
                       )}
                     </td>

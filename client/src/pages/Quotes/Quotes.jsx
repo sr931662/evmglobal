@@ -244,18 +244,26 @@ function QuoteView({ quote }) {
         )}
 
         {/* Itinerary */}
-        {quote.itinerary?.filter(d => d.title || d.description).length > 0 && (
+        {quote.itinerary?.filter(d => d.title || d.description || d.note || d.image).length > 0 && (
           <div className={styles.qvSection}>
             <p className={styles.qvSectionLabel}>Day-wise Itinerary</p>
             <div className={styles.itinTimeline}>
               <div className={styles.itinLine} />
               <div className={styles.itinList}>
-                {quote.itinerary.filter(d => d.title || d.description).map((day) => (
+                {quote.itinerary.filter(d => d.title || d.description || d.note || d.image).map((day) => (
                   <div key={day.day} className={styles.itinItem}>
                     <div className={styles.itinDot}>{day.day}</div>
                     <div className={styles.itinContent}>
+                      {day.image && (
+                        <img src={day.image} alt={day.title || `Day ${day.day}`} className={styles.itinImage} onError={e => { e.target.style.display = 'none' }} />
+                      )}
                       {day.title && <p className={styles.itinTitle}>{day.title}</p>}
                       {day.description && <p className={styles.itinDesc}>{day.description}</p>}
+                      {day.note && (
+                        <div className={styles.itinNote}>
+                          <span className={styles.itinNoteLabel}>📝 Note</span> {day.note}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -28,7 +28,7 @@ const emptyHotelOption = (n = 1) => ({
   hotels: [emptyHotel()],
 })
 
-const emptyDay = (day) => ({ day, title: '', description: '' })
+const emptyDay = (day) => ({ day, title: '', description: '', note: '', image: '' })
 
 const emptyTax = () => ({ name: 'GST', percent: 5 })
 
@@ -286,7 +286,7 @@ function QuoteModal({ quote, onSave, onClose }) {
         discountValue: num(form.discountValue),
         // Legacy list fields are superseded by the markdown boxes
         inclusions: [], exclusions: [], notes: [], terms: [],
-        itinerary:    form.itinerary.filter(d => d.title || d.description),
+        itinerary:    form.itinerary.filter(d => d.title || d.description || d.note || d.image),
         hotelOptions: form.hotelOptions
           .map(o => ({
             label:              (o.label || '').trim(),
@@ -716,6 +716,35 @@ function QuoteModal({ quote, onSave, onClose }) {
                         value={day.description}
                         onChange={e => setNested('itinerary', i, 'description', e.target.value)}
                       />
+                      <div className={styles.dayExtraGrid}>
+                        <Field label="Day Image URL">
+                          <input
+                            className={styles.inp}
+                            placeholder="https://images.unsplash.com/..."
+                            value={day.image || ''}
+                            onChange={e => setNested('itinerary', i, 'image', e.target.value)}
+                          />
+                          {day.image && (
+                            <div className={styles.dayImagePreviewWrap}>
+                              <img
+                                src={day.image}
+                                alt={`Day ${day.day} preview`}
+                                className={styles.dayImagePreview}
+                                onError={e => { e.target.style.display = 'none' }}
+                              />
+                            </div>
+                          )}
+                        </Field>
+                        <Field label="Day Note (optional)">
+                          <textarea
+                            className={`${styles.inp} ${styles.dayNoteInput}`}
+                            rows={3}
+                            placeholder="Special instructions, tips, or notes for this day…"
+                            value={day.note || ''}
+                            onChange={e => setNested('itinerary', i, 'note', e.target.value)}
+                          />
+                        </Field>
+                      </div>
                     </div>
                   ))}
                 </div>

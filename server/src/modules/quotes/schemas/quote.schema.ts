@@ -56,6 +56,8 @@ const ItineraryDaySchema = new Schema(
     day:         { type: Number },
     title:       { type: String, default: '' },
     description: { type: String, default: '' },
+    note:        { type: String, default: '' },
+    image:       { type: String, default: '' },
   },
   { _id: false }
 );
