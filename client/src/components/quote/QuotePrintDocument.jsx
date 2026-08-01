@@ -10,7 +10,7 @@ import {
 const S = {
   page:      { fontFamily: 'Georgia, serif', color: BRAND.ink, background: '#fff', maxWidth: 860, margin: '0 auto', padding: '28px 32px' },
   sans:      { fontFamily: 'Arial, Helvetica, sans-serif' },
-  label:     { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 3, color: BRAND.red, marginBottom: 8, textTransform: 'uppercase' },
+  label:     { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 20, fontWeight: 700, letterSpacing: 3, color: BRAND.red, marginBottom: 12, textTransform: 'uppercase' },
   section:   { marginBottom: 24 },
   cellSm:    { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 12, color: '#555', lineHeight: 1.6 },
   // Layout tables must not re-flow their columns around content length
@@ -276,7 +276,7 @@ export default function QuotePrintDocument({ quote }) {
               the day-wise plan starts, distinct from the Accommodation block above. */}
           <div style={{
             ...S.sans, background: BRAND.red, color: '#fff', borderRadius: 4,
-            padding: '9px 14px', marginBottom: 14, fontSize: 12, fontWeight: 900,
+            padding: '12px 16px', marginBottom: 16, fontSize: 24, fontWeight: 900,
             letterSpacing: 2, textTransform: 'uppercase',
           }}>
             ✈ Day-wise Itinerary · {nightsLabel(quote.nights)}

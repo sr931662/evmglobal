@@ -320,7 +320,7 @@
 .qvSection:last-child { border-bottom: none; }
 
 .qvSectionLabel {
-  font-size: 0.625rem;
+  font-size: 1.25rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -449,9 +449,9 @@
   background: var(--brand);
   color: #fff;
   border-radius: 0.5rem;
-  padding: 0.625rem 0.875rem;
+  padding: 0.75rem 1rem;
   margin-bottom: 1.25rem;
-  font-size: 0.75rem;
+  font-size: 1.5rem;
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -493,8 +493,8 @@
 .inclExclGrid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
 @media (min-width: 640px) { .inclExclGrid { grid-template-columns: repeat(2, 1fr); } }
 
-.inclLabel { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #15803d; margin-bottom: 0.75rem; }
-.exclLabel { font-size: 0.625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #dc2626; margin-bottom: 0.75rem; }
+.inclLabel { font-size: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #15803d; margin-bottom: 0.75rem; }
+.exclLabel { font-size: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #dc2626; margin-bottom: 0.75rem; }
 .inclList { display: flex; flex-direction: column; gap: 0.5rem; }
 .inclItem { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem; color: #4b5563; }
 .inclCheck { color: #22c55e; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
