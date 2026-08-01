@@ -271,8 +271,16 @@ export default function QuotePrintDocument({ quote }) {
 
       {/* ── Itinerary ── */}
       {days.length > 0 && (
-        <div style={S.section}>
-          <div style={S.label}>Day-wise Itinerary · {nightsLabel(quote.nights)}</div>
+        <div className="avoid-break" style={{ ...S.section, marginTop: 28 }}>
+          {/* Solid banner (not just a small label) so it's unmistakable where
+              the day-wise plan starts, distinct from the Accommodation block above. */}
+          <div style={{
+            ...S.sans, background: BRAND.red, color: '#fff', borderRadius: 4,
+            padding: '9px 14px', marginBottom: 14, fontSize: 12, fontWeight: 900,
+            letterSpacing: 2, textTransform: 'uppercase',
+          }}>
+            ✈ Day-wise Itinerary · {nightsLabel(quote.nights)}
+          </div>
           {/* Day labels share one rail; each day is ruled off from the next so a
               long description never runs into the following day. */}
           <table style={S.layout}>
@@ -284,8 +292,8 @@ export default function QuotePrintDocument({ quote }) {
               {days.map((day, i) => {
                 const cell = {
                   verticalAlign: 'top',
-                  paddingTop: i === 0 ? 0 : 12,
-                  paddingBottom: 12,
+                  paddingTop: i === 0 ? 0 : 16,
+                  paddingBottom: 16,
                   borderTop: i === 0 ? 'none' : `1px solid ${BRAND.line}`,
                 }
                 return (

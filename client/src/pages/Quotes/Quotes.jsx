@@ -246,7 +246,7 @@ function QuoteView({ quote }) {
         {/* Itinerary */}
         {quote.itinerary?.filter(d => d.title || d.description || d.note || d.image).length > 0 && (
           <div className={styles.qvSection}>
-            <p className={styles.qvSectionLabel}>Day-wise Itinerary</p>
+            <div className={styles.itinBanner}>✈ Day-wise Itinerary · {nightsLabel(quote.nights)}</div>
             <div className={styles.itinTimeline}>
               <div className={styles.itinLine} />
               <div className={styles.itinList}>

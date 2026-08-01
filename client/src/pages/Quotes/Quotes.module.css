@@ -445,6 +445,17 @@
 }
 .hotelMeta { font-size: 0.75rem; color: #6b7280; display: flex; flex-direction: column; gap: 0.125rem; }
 
+.itinBanner {
+  background: var(--brand);
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 .itinTimeline { position: relative; }
 .itinLine {
   position: absolute;
