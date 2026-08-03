@@ -1,0 +1,105 @@
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+jspm_packages/
+
+# ── Build output ──────────────────────────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.output/
+
+# ── Temp / cache / scratch ────────────────────────────────────────────────────
+temp/
+tmp/
+.tmp/
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+.vite/
+node-compile-cache/
+*.tsbuildinfo
+
+# ── Secrets & environment ─────────────────────────────────────────────────────
+# Never commit real credentials. Only *.env.example templates belong in git.
+.env
+.env.*
+!.env.example
+!*.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.keystore
+*.jks
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.env.local
+secrets.json
+credentials.json
+service-account*.json
+gha-creds-*.json
+.aws/
+.npmrc
+.yarnrc
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+startup.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ── Local databases / dumps ───────────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+dump.rdb
+*.bak
+*.sql.gz
+
+# ── Tooling / agent scratch ───────────────────────────────────────────────────
+.claude/settings.local.json
+.claude/projects/
+.claude/memory/
+.claude/todos/
+.claude/shell-snapshots/
+.claude/statsig/
+.claude/history.jsonl
+.claude-flow/
+.cursor/
+.aider*
+.wrangler/
+.vercel/
+.serverless/
+.gcloudignore
+
+# ── Test / coverage ───────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ── Editors & OS ──────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+desktop.ini
