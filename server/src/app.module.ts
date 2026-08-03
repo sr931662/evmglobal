@@ -15,6 +15,7 @@ import { QuotesModule } from './modules/quotes/quotes.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
 import { CareersModule } from './modules/careers/careers.module';
 import { TeamModule } from './modules/team/team.module';
+import { HomeContentModule } from './modules/home-content/home-content.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module';
 
@@ -35,6 +36,7 @@ import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module
     BlogsModule,
     CareersModule,
     TeamModule,
+    HomeContentModule,
     CustomersModule,
     CustomerAuthModule,
   ],

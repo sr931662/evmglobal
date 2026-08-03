@@ -1,9 +1,12 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { api } from '../../../services/api'
 import styles from './TestimonialsSection.module.css'
 
 const AVATAR_COLORS = ['#E53935', '#0a0a0a', '#C62828', '#1a1a1a', '#E53935', '#0a0a0a']
 
-const TESTIMONIALS = [
+// Rendered until the API responds, and kept if it fails — the section never goes blank.
+const FALLBACK = [
   {
     name: 'Ananya Sharma',
     trip: 'Maldives · Honeymoon',
@@ -43,7 +46,15 @@ const TESTIMONIALS = [
 ]
 
 function initials(name) {
-  return name.replace('The ', '').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+  // Admin-entered names can be blank or oddly spaced — never let this throw.
+  return (name || '')
+    .replace('The ', '')
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || '?'
 }
 
 function Stars({ count }) {
@@ -59,6 +70,22 @@ function Stars({ count }) {
 }
 
 export default function TestimonialsSection() {
+  const [testimonials, setTestimonials] = useState(FALLBACK)
+
+  useEffect(() => {
+    api.getHomeContent({ section: 'testimonial', status: 'active' })
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) return
+        setTestimonials(data.map(item => ({
+          name:   item.name,
+          trip:   item.trip,
+          rating: item.rating ?? 5,
+          quote:  item.quote,
+        })))
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <section className={styles.section}>
       <div className={styles.inner}>
@@ -76,9 +103,9 @@ export default function TestimonialsSection() {
         </motion.div>
 
         <div className={styles.grid}>
-          {TESTIMONIALS.map((t, i) => (
+          {testimonials.map((t, i) => (
             <motion.div
-              key={t.name}
+              key={t.name || i}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}

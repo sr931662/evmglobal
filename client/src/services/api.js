@@ -293,6 +293,28 @@ export const api = {
   deleteCareer: (id) =>
     request(`/careers/${id}`, { method: 'DELETE' }),
 
+  // ─── Home Content (trust / gallery / testimonial / faq) ────────────────────
+  getHomeContent: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+    ).toString()
+    return request(`/home-content${qs ? `?${qs}` : ''}`)
+  },
+
+  getHomeContentGrouped: () => request('/home-content/grouped'),
+
+  createHomeContent: (data) =>
+    request('/home-content', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateHomeContent: (id, data) =>
+    request(`/home-content/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteHomeContent: (id) =>
+    request(`/home-content/${id}`, { method: 'DELETE' }),
+
+  reorderHomeContent: (items) =>
+    request('/home-content/reorder', { method: 'PUT', body: JSON.stringify({ items }) }),
+
   // ─── Team ──────────────────────────────────────────────────────────────────
   getTeam: (params = {}) => {
     const qs = new URLSearchParams(

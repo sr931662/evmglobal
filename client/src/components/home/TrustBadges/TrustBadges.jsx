@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { api } from '../../../services/api'
 import styles from './TrustBadges.module.css'
 
 const ICONS = {
@@ -10,7 +12,8 @@ const ICONS = {
   headset:<><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></>,
 }
 
-const BADGES = [
+// Rendered until the API responds, and kept if it fails — the section never goes blank.
+const FALLBACK = [
   { icon: 'shield',  title: 'IATA Accredited',        sub: 'Certified travel partner' },
   { icon: 'lock',    title: '100% Secure Payments',   sub: 'SSL encrypted checkout' },
   { icon: 'check',   title: 'No Hidden Charges',      sub: 'Transparent pricing, always' },
@@ -20,6 +23,21 @@ const BADGES = [
 ]
 
 export default function TrustBadges() {
+  const [badges, setBadges] = useState(FALLBACK)
+
+  useEffect(() => {
+    api.getHomeContent({ section: 'trust', status: 'active' })
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) return
+        setBadges(data.map(item => ({
+          icon:  item.icon || 'shield',
+          title: item.title,
+          sub:   item.subtitle,
+        })))
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <section className={styles.section}>
       <div className={styles.inner}>
@@ -37,9 +55,9 @@ export default function TrustBadges() {
         </motion.div>
 
         <div className={styles.grid}>
-          {BADGES.map((b, i) => (
+          {badges.map((b, i) => (
             <motion.div
-              key={b.title}
+              key={b.title || i}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
@@ -48,7 +66,7 @@ export default function TrustBadges() {
             >
               <div className={styles.iconWrap}>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {ICONS[b.icon]}
+                  {ICONS[b.icon] || ICONS.shield}
                 </svg>
               </div>
               <p className={styles.badgeTitle}>{b.title}</p>

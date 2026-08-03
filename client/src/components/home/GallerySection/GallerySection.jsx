@@ -1,7 +1,10 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { api } from '../../../services/api'
 import styles from './GallerySection.module.css'
 
-const GALLERY = [
+// Rendered until the API responds, and kept if it fails — the section never goes blank.
+const FALLBACK = [
   { src: 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&q=80&w=1200', caption: 'Santorini, Greece',       span: 'wide' },
   { src: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800',  caption: 'Kyoto, Japan' },
   { src: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&q=80&w=800',  caption: 'Maldives',              span: 'tall' },
@@ -12,6 +15,19 @@ const GALLERY = [
 ]
 
 export default function GallerySection() {
+  const [gallery, setGallery] = useState(FALLBACK)
+
+  useEffect(() => {
+    api.getHomeContent({ section: 'gallery', status: 'active' })
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) return
+        setGallery(data
+          .filter(item => item.image)
+          .map(item => ({ src: item.image, caption: item.caption, span: item.span })))
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <section className={styles.section}>
       <div className={styles.inner}>
@@ -30,9 +46,9 @@ export default function GallerySection() {
         </motion.div>
 
         <div className={styles.grid}>
-          {GALLERY.map((g, i) => (
+          {gallery.map((g, i) => (
             <motion.div
-              key={g.caption}
+              key={g.caption || i}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
