@@ -241,7 +241,7 @@ export default function AdminHomeContentPage() {
       ) : items.length === 0 ? (
         <div className={c.emptyCard}>Nothing here yet. Add the first item to this section.</div>
       ) : (
-        <div className={c.listStack}>
+        <div className={styles.list}>
           {items.map((item, i) => {
             const id = byId(item)
             const hidden = item.status === 'hidden'
@@ -294,19 +294,23 @@ export default function AdminHomeContentPage() {
                     onClick={() => toggleStatus(item)}
                     disabled={busyId === id}
                     className={`${styles.statusBtn} ${hidden ? styles.statusHidden : styles.statusActive}`}
-                    title={hidden ? 'Hidden — click to show' : 'Visible — click to hide'}
+                    title={hidden ? 'Hidden — click to show on the site' : 'Visible — click to hide from the site'}
                   >
                     {hidden ? 'Hidden' : 'Visible'}
                   </button>
-                  <button onClick={() => openEdit(item)} className={c.iconBtnEdit} title="Edit">Edit</button>
-                  <button
-                    onClick={() => handleDelete(item)}
-                    disabled={busyId === id}
-                    className={c.iconBtnDelete}
-                    title="Delete"
-                  >
-                    {busyId === id ? '…' : 'Delete'}
-                  </button>
+                  <div className={c.actionsInline}>
+                    <button
+                      onClick={() => openEdit(item)}
+                      className={`${c.iconBtn} ${c.iconBtnEdit}`}
+                      title="Edit"
+                    >✏</button>
+                    <button
+                      onClick={() => handleDelete(item)}
+                      disabled={busyId === id}
+                      className={`${c.iconBtn} ${c.iconBtnDelete}`}
+                      title="Delete"
+                    >{busyId === id ? '…' : '🗑'}</button>
+                  </div>
                 </div>
               </motion.div>
             )
