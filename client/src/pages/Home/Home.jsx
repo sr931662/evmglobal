@@ -1,11 +1,14 @@
 import HeroSection from '../../components/home/HeroSection/HeroSection'
 import PartnersMarquee from '../../components/home/PartnersMarquee/PartnersMarquee'
-import BentoSection from '../../components/home/BentoSection/BentoSection'
-import DestinationsFeatured from '../../components/home/DestinationsFeatured/DestinationsFeatured'
+import TrustBadges from '../../components/home/TrustBadges/TrustBadges'
+import TrendingDestinations from '../../components/home/TrendingDestinations/TrendingDestinations'
+import RegionPackages from '../../components/home/RegionPackages/RegionPackages'
 import ProcessSection from '../../components/home/ProcessSection/ProcessSection'
+import GallerySection from '../../components/home/GallerySection/GallerySection'
 import BlogSection from '../../components/home/BlogSection/BlogSection'
-import InquirySection from '../../components/home/InquirySection/InquirySection'
-import HomeCTA from '../../components/home/HomeCTA/HomeCTA'
+import TestimonialsSection from '../../components/home/TestimonialsSection/TestimonialsSection'
+import FAQSection from '../../components/home/FAQSection/FAQSection'
+import LeadForm from '../../components/home/LeadForm/LeadForm'
 import { usePageMeta } from '../../hooks/usePageMeta'
 
 export default function Home() {
@@ -22,12 +25,15 @@ export default function Home() {
     <main>
       <HeroSection />
       <PartnersMarquee />
-      <BentoSection />
-      <DestinationsFeatured />
+      <TrustBadges />
+      <TrendingDestinations />
+      <RegionPackages />
       <ProcessSection />
+      <GallerySection />
       <BlogSection />
-      <InquirySection />
-      <HomeCTA />
+      <TestimonialsSection />
+      <FAQSection />
+      <LeadForm />
     </main>
   )
 }

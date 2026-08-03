@@ -11,7 +11,7 @@ import styles from './MobileMenu.module.css'
 const links = [
   ['Home', '/'],
   ['Destinations', '/destinations'],
-  ['Journeys', '/packages'],
+  ['Holidays', '/packages'],
   ['Quotes', '/quotes'],
   ['Our Ethos', '/about'],
   ['Contact', '/contact'],

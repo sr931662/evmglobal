@@ -49,6 +49,54 @@ const ARROW = (
   </svg>
 )
 
+const TYPED_PLACEHOLDERS = [
+  'Planning for Andaman',
+  'Planning for Thailand',
+  'Planning for Kashmir',
+  'Planning for Vietnam',
+  'Planning for Dubai',
+  'Planning for Bali',
+]
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+// Cycles the search placeholder with a type-in / type-out effect.
+function useTypedPlaceholder(phrases, active = true) {
+  const [text, setText] = useState(() => (prefersReducedMotion() ? phrases[0] : ''))
+
+  useEffect(() => {
+    if (!active || prefersReducedMotion()) return
+
+    let phraseIndex = 0
+    let charIndex = 0
+    let deleting = false
+    let timer
+
+    const tick = () => {
+      const phrase = phrases[phraseIndex]
+      charIndex += deleting ? -1 : 1
+      setText(phrase.slice(0, charIndex))
+
+      let delay = deleting ? 40 : 85
+      if (!deleting && charIndex === phrase.length) {
+        deleting = true
+        delay = 1600
+      } else if (deleting && charIndex === 0) {
+        deleting = false
+        phraseIndex = (phraseIndex + 1) % phrases.length
+        delay = 350
+      }
+      timer = setTimeout(tick, delay)
+    }
+
+    timer = setTimeout(tick, 600)
+    return () => clearTimeout(timer)
+  }, [phrases, active])
+
+  return text
+}
+
 export default function HeroSection() {
   const navigate  = useNavigate()
   const heroRef   = useRef(null)
@@ -63,6 +111,9 @@ export default function HeroSection() {
   const [mobileDestInput, setMobileDestInput] = useState('')
   const [showMobileDropdown, setShowMobileDropdown] = useState(false)
   const dropdownRef = useRef(null)
+
+  const typedPlaceholder       = useTypedPlaceholder(TYPED_PLACEHOLDERS, !destInput)
+  const typedMobilePlaceholder = useTypedPlaceholder(TYPED_PLACEHOLDERS, !mobileDestInput)
 
   useEffect(() => {
     api.getDestinations({})
@@ -178,7 +229,7 @@ export default function HeroSection() {
                 <span className={styles.searchFieldLabel}>Destination</span>
                 <input
                   type="text"
-                  placeholder="Where to?"
+                  placeholder={`${typedMobilePlaceholder}|`}
                   className={styles.searchFieldInput}
                   value={mobileDestInput}
                   onChange={e => { setMobileDestInput(e.target.value); setShowMobileDropdown(true) }}
@@ -191,7 +242,7 @@ export default function HeroSection() {
               </button>
             </div>
             <button onClick={handleMobileSearch} className={styles.searchMobileExplore}>
-              Explore Journeys →
+              Explore Holidays →
             </button>
             {showMobileDropdown && filteredMobileDests.length > 0 && (
               <div className={styles.dropdownMobile}>
@@ -218,7 +269,7 @@ export default function HeroSection() {
             <label className={styles.searchFieldLabel2}>Destination</label>
             <input
               type="text"
-              placeholder="Where to?"
+              placeholder={`${typedPlaceholder}|`}
               className={styles.searchInput}
               value={destInput}
               onChange={e => { setDestInput(e.target.value); setShowDropdown(true) }}

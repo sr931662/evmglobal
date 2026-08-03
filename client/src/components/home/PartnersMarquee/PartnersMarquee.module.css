@@ -1,5 +1,5 @@
 .section {
-  padding: 4rem 0;
+  padding: 2rem 0;
   background: #fff;
   border-bottom: 1px solid #f3f4f6;
   overflow: hidden;
@@ -9,7 +9,7 @@
 
 .label {
   max-width: 95rem;
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 1.25rem;
   padding: 0 1.5rem;
   text-align: center;
   font-size: 0.625rem;

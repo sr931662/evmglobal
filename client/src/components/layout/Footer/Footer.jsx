@@ -37,7 +37,7 @@ export default function Footer() {
             <div>
               <h5 className={styles.colHead}>Discover</h5>
               <ul className={styles.colList}>
-                {[['Destinations','/destinations'],['Journeys','/packages'],['About Us','/about'],['Contact Us','/contact']].map(([l,p]) => (
+                {[['Destinations','/destinations'],['Holidays','/packages'],['About Us','/about'],['Contact Us','/contact']].map(([l,p]) => (
                   <li key={p}><Link to={p} className={styles.colLink}>{l}</Link></li>
                 ))}
               </ul>
@@ -69,7 +69,6 @@ export default function Footer() {
 
         <div className={styles.bottom}>
           <p className={styles.copy}>© {new Date().getFullYear()} Global Ease My Vacations (OPC) Private Limited. All rights reserved.</p>
-          <p className={styles.craft}>Crafted with precision. Delivered with passion.</p>
         </div>
       </div>
     </footer>
