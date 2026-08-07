@@ -39,6 +39,9 @@ export class CustomerAuthService {
   }
 
   async register(data: { name: string; email: string; password: string; phone?: string; city?: string }) {
+    if (!data.phone?.trim() || !data.city?.trim()) {
+      throw new BadRequestException('Phone and city are required.');
+    }
     const existing = await this.customersService.findByEmail(data.email);
     if (existing) {
       throw new ConflictException('An account with this email already exists. Please log in instead.');

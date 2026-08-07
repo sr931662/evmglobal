@@ -42,8 +42,8 @@ export default function CustomerLogin() {
 
   const handleRegister = async (e) => {
     e.preventDefault()
-    if (!reg.name.trim() || !reg.email.trim() || !reg.password) {
-      setError('Name, email and password are required.'); return
+    if (!reg.name.trim() || !reg.email.trim() || !reg.password || !reg.phone.trim() || !reg.city.trim()) {
+      setError('Name, email, password, phone and city are required.'); return
     }
     if (!/\S+@\S+\.\S+/.test(reg.email)) {
       setError('Please enter a valid email address.'); return
@@ -219,12 +219,12 @@ export default function CustomerLogin() {
 
                       <div className={styles.fieldRow}>
                         <div className={styles.fieldGroup}>
-                          <label className={styles.label}>Phone <span className={styles.optionalTag}>(optional)</span></label>
-                          <input type="tel" className={styles.input} placeholder="+91 70705 95907" value={reg.phone} onChange={e => r('phone', e.target.value)} autoComplete="tel" />
+                          <label className={styles.label}>Phone *</label>
+                          <input type="tel" className={styles.input} placeholder="+91 70705 95907" value={reg.phone} onChange={e => r('phone', e.target.value)} autoComplete="tel" required />
                         </div>
                         <div className={styles.fieldGroup}>
-                          <label className={styles.label}>City <span className={styles.optionalTag}>(optional)</span></label>
-                          <input type="text" className={styles.input} placeholder="e.g. Mumbai" value={reg.city} onChange={e => r('city', e.target.value)} autoComplete="address-level2" />
+                          <label className={styles.label}>City *</label>
+                          <input type="text" className={styles.input} placeholder="e.g. Mumbai" value={reg.city} onChange={e => r('city', e.target.value)} autoComplete="address-level2" required />
                         </div>
                       </div>
 
