@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../services/api'
+import { formatPrice } from '../../../utils/currency'
 import styles from './RegionPackages.module.css'
 
 const REGIONS = [
@@ -139,9 +140,9 @@ export default function RegionPackages() {
                           : region.label}
                       </p>
                       <h4 className={styles.cardTitle}>{pkg.title}</h4>
-                      {pkg.price && (
+                      {formatPrice(pkg.priceValue, pkg.price) && (
                         <p className={styles.cardPrice}>
-                          <span className={styles.cardPriceLabel}>From</span> {pkg.price}
+                          <span className={styles.cardPriceLabel}>From</span> {formatPrice(pkg.priceValue, pkg.price)}
                         </p>
                       )}
                     </div>

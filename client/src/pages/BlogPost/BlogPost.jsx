@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { api } from '../../services/api'
+import { formatPrice } from '../../utils/currency'
 import styles from './BlogPost.module.css'
 
 const categoryStyle = {
@@ -398,7 +399,7 @@ export default function BlogPost() {
                       <div className={styles.recFooter}>
                         <div>
                           <span className={styles.recPriceLabel}>Per Adult</span>
-                          <span className={styles.recPrice}>{pkg.price}</span>
+                          <span className={styles.recPrice}>{formatPrice(pkg.priceValue, pkg.price)}</span>
                         </div>
                         <button
                           className={styles.recBtn}

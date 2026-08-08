@@ -6,6 +6,7 @@ import {
   Tooltip, ResponsiveContainer,
 } from 'recharts'
 import { api } from '../../../services/api'
+import { formatPrice } from '../../../utils/currency'
 import styles from './AdminAnalytics.module.css'
 
 const STATUS_COLORS = {
@@ -298,7 +299,7 @@ export default function AdminAnalytics() {
                 <div key={pkg.id || pkg._id} className={styles.topRow}>
                   <div className={styles.topInfo}>
                     <p className={styles.topTitle}>{pkg.title}</p>
-                    <p className={styles.topMeta}>{pkg.category} · {pkg.nights}N · {pkg.price}</p>
+                    <p className={styles.topMeta}>{pkg.category} · {pkg.nights}N · {formatPrice(pkg.priceValue, pkg.price)}</p>
                   </div>
                   <span className={styles.topBkg}>{pkg.bookings ?? 0} bkg</span>
                 </div>

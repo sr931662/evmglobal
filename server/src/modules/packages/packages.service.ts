@@ -1,6 +1,16 @@
 import { Injectable, NotFoundException, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { formatINR } from '../../common/currency';
+
+// A numeric priceValue is the source of truth for the display string, so a
+// hand-typed "price" field (e.g. missing the ₹ symbol or comma grouping)
+// can never reach the API response.
+function normalizePrice(data: any) {
+  const formatted = formatINR(data.priceValue);
+  if (formatted) data.price = formatted;
+  return data;
+}
 
 function slugify(text: string): string {
   return text
@@ -97,6 +107,7 @@ export class PackagesService implements OnModuleInit {
   }
 
   async create(data: any) {
+    normalizePrice(data);
     const base = slugify(data.title || 'package');
     let slug = base;
     let suffix = 1;
@@ -109,6 +120,7 @@ export class PackagesService implements OnModuleInit {
   }
 
   async update(id: string, data: any) {
+    normalizePrice(data);
     const pkg = await this.packageModel
       .findByIdAndUpdate(id, data, { new: true })
       .lean()

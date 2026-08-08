@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { formatPriceCompact } from '../../../utils/currency'
 import styles from './DestinationCard.module.css'
 
 const ARROW = (
@@ -14,21 +15,12 @@ function buildShareUrl(name) {
   return `${window.location.origin}/destination/${encodeURIComponent(name)}`
 }
 
-function formatPrice(val) {
-  if (!val && val !== 0) return null
-  const n = Number(val)
-  if (isNaN(n) || n <= 0) return null
-  if (n >= 100000) return `₹${(n / 100000).toFixed(n % 100000 === 0 ? 0 : 1)}L`
-  if (n >= 1000)   return `₹${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 0)}k`
-  return `₹${n}`
-}
-
 export default function DestinationCard({ dest, index, priceMin, priceMax, packageCount }) {
   const navigate  = useNavigate()
   const [hovered, setHovered] = useState(false)
 
-  const minFmt = formatPrice(priceMin ?? dest.startingPrice)
-  const maxFmt = formatPrice(priceMax)
+  const minFmt = formatPriceCompact(priceMin, dest.startingPrice)
+  const maxFmt = formatPriceCompact(priceMax)
 
   const hasPricing = !!minFmt
 

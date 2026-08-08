@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../services/api'
+import { formatPriceCompact } from '../../../utils/currency'
 import styles from './DestinationsFeatured.module.css'
 
 const FALLBACK = [
@@ -46,11 +47,6 @@ export default function DestinationsFeatured() {
             if (!priceMap[name] || price < priceMap[name]) priceMap[name] = price
           })
         })
-        const formatPrice = (v) => {
-          if (v >= 100000) return `₹${(v / 100000).toFixed(v % 100000 === 0 ? 0 : 1)}L`
-          if (v >= 1000)   return `₹${Math.round(v / 1000)}k`
-          return `₹${v}`
-        }
         const shuffled = shuffle(dests)
         setFeatured(shuffled.slice(0, 4).map(d => ({
           id:            d.id || d._id,
@@ -58,7 +54,7 @@ export default function DestinationsFeatured() {
           region:        d.region,
           image:         d.image,
           // Admin-set price takes priority; fall back to lowest package price
-          startingPrice: d.startingPrice || (priceMap[d.name] ? formatPrice(priceMap[d.name]) : null),
+          startingPrice: d.startingPrice || formatPriceCompact(priceMap[d.name]),
         })))
       })
       .catch(() => {})

@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion'
 import { openWhatsApp } from '../../../utils/whatsapp'
+import { formatPrice } from '../../../utils/currency'
 import styles from './PricingWidget.module.css'
 
 export default function PricingWidget({ pkg }) {
-  const price = pkg?.price || '—'
+  const price = formatPrice(pkg?.priceValue, pkg?.price) || '—'
   const title = pkg?.title || 'Package'
   const hasFlights = Array.isArray(pkg?.flights) && pkg.flights.length > 0
 

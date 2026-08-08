@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
 import PackageCard from '../../components/packages/PackageCard/PackageCard'
 import { api } from '../../services/api'
+import { formatPrice } from '../../utils/currency'
 import styles from './Packages.module.css'
 import { usePageMeta } from '../../hooks/usePageMeta'
 
@@ -78,7 +79,7 @@ function adaptPackage(pkg) {
     location:      Array.isArray(pkg.destinations) && pkg.destinations.length
                      ? pkg.destinations.join(', ')
                      : pkg.category,
-    pricePerAdult: pkg.price,
+    pricePerAdult: formatPrice(pkg.priceValue, pkg.price) || '—',
     priceLabel:    'Per Adult',
     description:   pkg.description || '',
     amenities:     Array.isArray(pkg.highlights) && pkg.highlights.length

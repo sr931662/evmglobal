@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm'
 import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import { formatPrice } from '../../../utils/currency'
 import s from './AdminPackagesPage.module.css'
 
 const cx = (...values) => values.filter(Boolean).join(' ')
@@ -705,7 +706,7 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
     })
   }, [form.nights]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const canSave = form.title.trim() && form.price.trim() && form.nights
+  const canSave = form.title.trim() && Number(form.priceValue) > 0 && form.nights
 
   return (
     <div className={s.modalOverlay} onClick={onClose}>
@@ -742,8 +743,21 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
             <div className={s.basicInfoStack}>
               <Field label="Package Title" value={form.title} onChange={v => f('title', v)} placeholder="e.g. Romantic Bali Escape" />
               <div className={s.basicInfoGrid2}>
-                <Field label="Price Display" value={form.price} onChange={v => f('price', v)} placeholder="e.g. ₹85,000" />
-                <Field label="Price (numeric)" value={form.priceValue} onChange={v => f('priceValue', v)} placeholder="e.g. 85000" />
+                <div className={s.fieldWrap}>
+                  <label className={s.fieldLabel}>Price (per adult)</label>
+                  <input
+                    type="number" min="0" value={form.priceValue}
+                    onChange={e => f('priceValue', e.target.value)}
+                    placeholder="e.g. 85000"
+                    className={s.fieldInput}
+                  />
+                  <p className={s.fieldHelp}>Enter the numeric amount only — no ₹ or commas</p>
+                </div>
+                <div className={s.fieldWrap}>
+                  <label className={s.fieldLabel}>Displayed as</label>
+                  <input type="text" disabled value={formatPrice(form.priceValue) || '—'} className={s.fieldInput} />
+                  <p className={s.fieldHelp}>Generated automatically, always in sync</p>
+                </div>
               </div>
               <div className={s.basicInfoGrid2}>
                 <div>
@@ -992,15 +1006,16 @@ export default function AdminPackagesPage() {
   const closeModal = () => { setShowModal(false); setEditPkg(null); setForm(emptyForm()) }
 
   const handleSave = async () => {
-    if (!form.title.trim() || !form.price.trim()) return
+    const priceValue = parseFloat(form.priceValue) || 0
+    if (!form.title.trim() || !priceValue) return
     setSaving(true)
     try {
       const payload = {
         title:        form.title.trim(),
         category:     form.category,
         nights:       parseInt(form.nights)     || 0,
-        price:        form.price.trim(),
-        priceValue:   parseFloat(form.priceValue) || 0,
+        price:        formatPrice(priceValue),
+        priceValue,
         description:  form.description,
         destinations: form.destinations,
         highlights:   form.highlights.split(',').map(s => s.trim()).filter(Boolean),
@@ -1193,7 +1208,7 @@ export default function AdminPackagesPage() {
                           {hasDays ? `${pkg.itinerary.length}d` : 'None'}
                         </span>
                       </td>
-                      <td className={cx(s.cell, s.cellRight, s.priceCell)}>{pkg.price || '—'}</td>
+                      <td className={cx(s.cell, s.cellRight, s.priceCell)}>{formatPrice(pkg.priceValue, pkg.price) || '—'}</td>
                       <td className={cx(s.cell, s.cellCenter)}>
                         <div className={s.bookingsWrap}>
                           <span className={s.bookingsValue}>{pkg.bookings ?? 0}</span>
