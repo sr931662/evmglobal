@@ -18,6 +18,7 @@ import { TeamModule } from './modules/team/team.module';
 import { HomeContentModule } from './modules/home-content/home-content.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module';
+import { AdsModule } from './modules/ads/ads.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module
     HomeContentModule,
     CustomersModule,
     CustomerAuthModule,
+    AdsModule,
   ],
   providers: [
     {

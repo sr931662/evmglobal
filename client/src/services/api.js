@@ -293,6 +293,25 @@ export const api = {
   deleteCareer: (id) =>
     request(`/careers/${id}`, { method: 'DELETE' }),
 
+  // ─── Ads (banner slots) ─────────────────────────────────────────────────────
+  getAds: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''))
+    ).toString()
+    return request(`/ads${qs ? `?${qs}` : ''}`)
+  },
+
+  getActiveAds: (placement) => request(`/ads/active/${placement}`),
+
+  createAd: (data) =>
+    request('/ads', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateAd: (id, data) =>
+    request(`/ads/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteAd: (id) =>
+    request(`/ads/${id}`, { method: 'DELETE' }),
+
   // ─── Home Content (trust / gallery / testimonial / faq) ────────────────────
   getHomeContent: (params = {}) => {
     const qs = new URLSearchParams(

@@ -15,6 +15,7 @@ const AdminBlogsPage         = lazy(() => import('./sections/AdminBlogsPage'))
 const AdminCareersPage       = lazy(() => import('./sections/AdminCareersPage'))
 const AdminTeamPage          = lazy(() => import('./sections/AdminTeamPage'))
 const AdminHomeContentPage   = lazy(() => import('./sections/AdminHomeContentPage'))
+const AdminAdsPage           = lazy(() => import('./sections/AdminAdsPage'))
 const AdminSettings          = lazy(() => import('./sections/AdminSettings'))
 const AdminUsersPage         = lazy(() => import('./sections/AdminUsersPage'))
 const AdminAccessPage        = lazy(() => import('./sections/AdminAccessPage'))
@@ -38,6 +39,7 @@ const sections = {
   careers:      AdminCareersPage,
   team:         AdminTeamPage,
   homeContent:  AdminHomeContentPage,
+  ads:          AdminAdsPage,
   users:        AdminUsersPage,
   access:       AdminAccessPage,
   settings:     AdminSettings,

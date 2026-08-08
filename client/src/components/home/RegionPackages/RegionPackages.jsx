@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../services/api'
 import { formatPrice } from '../../../utils/currency'
+import AdBanner from '../../common/AdBanner/AdBanner'
 import styles from './RegionPackages.module.css'
 
 const REGIONS = [
@@ -150,11 +151,9 @@ export default function RegionPackages() {
                 ))}
               </div>
 
-              {/* Advertisement slot — one banner after the first region row */}
+              {/* Admin-managed ad banner — one slot after the first region row */}
               {rowIndex === 0 && (
-                <div className={styles.adSlot} data-ad-slot="home-region-packages">
-                  <span className={styles.adLabel}>Advertisement</span>
-                </div>
+                <AdBanner placement="home-region-packages" className={styles.adSlot} />
               )}
             </div>
           ))
