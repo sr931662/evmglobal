@@ -41,9 +41,10 @@ export const createLeadSchema = Joi.object({
   budget:              Joi.string().max(100).allow('', null).optional(),
   tripType:            Joi.string().max(100).allow('', null).optional(),
   travelMonth:         Joi.string().max(100).allow('', null).optional(),
-  numAdults:           Joi.number().min(0).max(99).allow(null).optional(),
-  numChildren:         Joi.number().min(0).max(99).allow(null).optional(),
-  numInfants:          Joi.number().min(0).max(99).allow(null).optional(),
+  // `.empty('')` treats a blank form field as "not provided" instead of a bad number
+  numAdults:           Joi.number().integer().min(0).max(99).empty('').allow(null).optional(),
+  numChildren:         Joi.number().integer().min(0).max(99).empty('').allow(null).optional(),
+  numInfants:          Joi.number().integer().min(0).max(99).empty('').allow(null).optional(),
   departureCity:       Joi.string().max(100).allow('', null).optional(),
   accommodation:       Joi.string().max(100).allow('', null).optional(),
   tripDuration:        Joi.string().max(100).allow('', null).optional(),
@@ -51,5 +52,9 @@ export const createLeadSchema = Joi.object({
   preferredContact:    Joi.string().max(50).allow('', null).optional(),
   occasion:            Joi.string().max(100).allow('', null).optional(),
   specialRequirements: Joi.string().max(2000).allow('', null).optional(),
+  status: Joi.string()
+    .valid('new', 'contacted', 'qualified', 'converted', 'rejected', 'duplicate', 'not_interested')
+    .default('new')
+    .optional(),
   // file is handled by multer separately
 });

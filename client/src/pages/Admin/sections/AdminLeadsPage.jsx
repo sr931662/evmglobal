@@ -153,7 +153,12 @@ function LeadModal({ lead, onClose, onSave }) {
   const handleSubmit = async () => {
     if (!form.name.trim() || !form.phone.trim()) { setErr('Name and phone are required.'); setTab(0); return }
     setSaving(true); setErr('')
-    try { await onSave({ ...form, type }); onClose() }
+    const payload = { ...form, type }
+    // Blank number inputs come through as '' — send null so the API treats them as "not given"
+    for (const k of ['numAdults', 'numChildren', 'numInfants']) {
+      if (payload[k] === '') payload[k] = null
+    }
+    try { await onSave(payload); onClose() }
     catch (e) { setErr(e.message) }
     finally { setSaving(false) }
   }

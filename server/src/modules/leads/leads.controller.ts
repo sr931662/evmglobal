@@ -129,9 +129,20 @@ export class LeadsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   async updateLead(@Param('id') id: string, @Body() body: any) {
-    const allowed = ['name', 'phone', 'email', 'message', 'city', 'status', 'destination', 'travelDate', 'travellers'];
+    const allowed = [
+      'name', 'phone', 'email', 'message', 'city', 'status',
+      'destination', 'travelDate', 'travellers',
+      'budget', 'tripType', 'travelMonth', 'numAdults', 'numChildren', 'numInfants',
+      'departureCity', 'accommodation', 'tripDuration', 'howHeard',
+      'preferredContact', 'occasion', 'specialRequirements',
+    ];
+    const numeric = ['numAdults', 'numChildren', 'numInfants'];
     const data: any = {};
-    allowed.forEach(k => { if (body[k] !== undefined) data[k] = body[k]; });
+    allowed.forEach(k => {
+      if (body[k] === undefined) return;
+      // A cleared numeric field arrives as '' — store null rather than letting Mongoose cast-fail
+      data[k] = numeric.includes(k) && body[k] === '' ? null : body[k];
+    });
     const lead = await this.leadsService.updateLead(id, data);
     if (!lead) throw new NotFoundException('Lead not found');
     return lead;

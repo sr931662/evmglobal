@@ -69,7 +69,14 @@ async function request(path, opts = {}, retry = true) {
 
   const text = await res.text()
   const data = text ? JSON.parse(text) : {}
-  if (!res.ok) throw new Error(data.message || `Request failed (${res.status})`)
+  if (!res.ok) {
+    // Validation responses carry per-field details — surface them instead of a bare "Validation failed"
+    const details = Array.isArray(data.errors)
+      ? data.errors.map(e => (e.field ? `${e.field}: ${e.message}` : e.message)).join(', ')
+      : ''
+    const base = data.message || `Request failed (${res.status})`
+    throw new Error(details ? `${base} — ${details}` : base)
+  }
   return data
 }
 

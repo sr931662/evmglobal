@@ -51,7 +51,7 @@ export class LeadsService {
     return this.leadModel.findById(id).lean().exec();
   }
 
-  async updateLead(id: string, data: { name?: string; phone?: string; email?: string; message?: string; status?: string; destination?: string; travelDate?: string; travellers?: string }) {
+  async updateLead(id: string, data: Record<string, any>) {
     const lead = await this.leadModel
       .findByIdAndUpdate(id, data, { new: true })
       .lean()
