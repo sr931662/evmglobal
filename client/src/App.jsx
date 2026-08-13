@@ -15,6 +15,8 @@ import Footer from './components/layout/Footer/Footer'
 import Loader from './components/layout/Loader/Loader'
 import CustomCursor from './components/layout/CustomCursor/CustomCursor'
 import WhatsAppButton from './components/layout/WhatsAppButton/WhatsAppButton'
+import DestinationFinder from './components/destinations/DestinationFinder/DestinationFinder'
+import { useSiteSchema } from './hooks/useSiteSchema'
 import TravelQuizModal from './components/home/TravelQuizModal/TravelQuizModal'
 import CookieConsent from './components/layout/CookieConsent/CookieConsent'
 import styles from './App.module.css'
@@ -143,6 +145,7 @@ function AppShell() {
   const isPlanTrip = location.pathname === '/plan-trip'
   useLenis(!isAdmin && !isPlanTrip)
   useGoogleAnalytics()
+  useSiteSchema(!isAdmin)
 
   return (
     <div className={styles.shell}>
@@ -151,6 +154,7 @@ function AppShell() {
       {!isAdmin && !isPlanTrip && <Navbar />}
       <AnimatedRoutes />
       {!isAdmin && !isPlanTrip && <WhatsAppButton />}
+      {!isAdmin && !isPlanTrip && <DestinationFinder />}
       {!isAdmin && !isPlanTrip && <TravelQuizModal />}
       {!isAdmin && !isPlanTrip && <CookieConsent />}
     </div>

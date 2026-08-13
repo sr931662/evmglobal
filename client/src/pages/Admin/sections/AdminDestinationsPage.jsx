@@ -17,10 +17,30 @@ const regionColors = {
 
 const FALLBACK = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=400'
 
+const SCORE_FIELDS = [
+  { key: 'beach',     label: 'Beach' },
+  { key: 'family',    label: 'Family' },
+  { key: 'honeymoon', label: 'Honeymoon' },
+  { key: 'adventure', label: 'Adventure' },
+  { key: 'culture',   label: 'Culture' },
+  { key: 'nightlife', label: 'Nightlife' },
+]
+
+const COLLECTION_OPTIONS = [
+  'Honeymoon Escapes', 'Family Adventures', 'Beach Holidays',
+  'Mountain Escapes', 'Luxury Getaways', 'City Breaks',
+]
+
+const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+const emptyScores = () =>
+  SCORE_FIELDS.reduce((acc, field) => ({ ...acc, [field.key]: 0 }), {})
+
 const empty = {
   name: '', country: '', region: 'Europe', image: '',
   blurb: '', highlights: '',
   visaInfo: '', currency: '', bestTime: '',
+  scores: emptyScores(), budgetLevel: 0, bestMonths: [], collections: [],
 }
 
 // `highlights` is stored as an array but edited as one-per-line text.
@@ -78,6 +98,10 @@ export default function AdminDestinationsPage() {
       visaInfo:   dest.visaInfo || '',
       currency:   dest.currency || '',
       bestTime:   dest.bestTime || '',
+      scores:      { ...emptyScores(), ...(dest.scores || {}) },
+      budgetLevel: Number(dest.budgetLevel) || 0,
+      bestMonths:  Array.isArray(dest.bestMonths) ? dest.bestMonths.map(Number) : [],
+      collections: Array.isArray(dest.collections) ? dest.collections : [],
     })
     setShowModal(true)
   }
@@ -119,6 +143,15 @@ export default function AdminDestinationsPage() {
   }
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  const setScore = (key, value) =>
+    setForm(p => ({ ...p, scores: { ...p.scores, [key]: value } }))
+
+  const toggleInList = (key, value) =>
+    setForm(p => ({
+      ...p,
+      [key]: p[key].includes(value) ? p[key].filter(v => v !== value) : [...p[key], value],
+    }))
 
   const regionCounts = destinations.reduce((acc, d) => {
     acc[d.region] = (acc[d.region] || 0) + 1
@@ -308,6 +341,89 @@ export default function AdminDestinationsPage() {
                   />
                 </div>
               ))}
+
+              {/* Powers "Help Me Choose". A destination with every score at 0
+                  is never recommended, so leave these blank rather than guess. */}
+              <div>
+                <label className={c.label}>How well does this suit each trip type?</label>
+                <p className={styles.fieldHint}>
+                  0 = not suitable, 5 = one of the best in the world for it. Only scored
+                  destinations appear in the recommender.
+                </p>
+                <div className={styles.scoreGrid}>
+                  {SCORE_FIELDS.map(field => (
+                    <div key={field.key} className={styles.scoreField}>
+                      <span className={styles.scoreName}>{field.label}</span>
+                      <div className={styles.scoreBtns}>
+                        {[0, 1, 2, 3, 4, 5].map(n => (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() => setScore(field.key, n)}
+                            className={`${styles.scoreBtn} ${Number(form.scores[field.key]) === n ? styles.scoreBtnOn : ''}`}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className={c.label}>Relative cost</label>
+                <div className={styles.scoreBtns}>
+                  {[
+                    { level: 0, label: 'Not set' },
+                    { level: 1, label: '₹ Under ₹1L' },
+                    { level: 2, label: '₹₹ ₹1L–₹2L' },
+                    { level: 3, label: '₹₹₹ ₹2L+' },
+                  ].map(band => (
+                    <button
+                      key={band.level}
+                      type="button"
+                      onClick={() => f('budgetLevel', band.level)}
+                      className={`${styles.bandBtn} ${Number(form.budgetLevel) === band.level ? styles.scoreBtnOn : ''}`}
+                    >
+                      {band.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className={c.label}>Best months to visit</label>
+                <p className={styles.fieldHint}>Drives the &ldquo;Travel by Month&rdquo; browser.</p>
+                <div className={styles.monthGrid}>
+                  {MONTH_LABELS.map((label, i) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => toggleInList('bestMonths', i + 1)}
+                      className={`${styles.scoreBtn} ${form.bestMonths.includes(i + 1) ? styles.scoreBtnOn : ''}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className={c.label}>Holiday collections</label>
+                <div className={styles.collectionRow}>
+                  {COLLECTION_OPTIONS.map(name => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => toggleInList('collections', name)}
+                      className={`${styles.bandBtn} ${form.collections.includes(name) ? styles.scoreBtnOn : ''}`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className={c.modalActions}>

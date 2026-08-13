@@ -18,6 +18,29 @@ export const DestinationSchema = new Schema(
     visaInfo: { type: String, default: '' },
     currency: { type: String, default: '' },
     bestTime: { type: String, default: '' },
+
+    // How well this destination suits each kind of trip, 0–5. Drives the
+    // "Help Me Choose" recommender and the at-a-glance score bars. A
+    // destination with every score at 0 is simply never recommended — we'd
+    // rather return nothing than rank on data nobody has entered.
+    scores: {
+      beach:     { type: Number, default: 0, min: 0, max: 5 },
+      family:    { type: Number, default: 0, min: 0, max: 5 },
+      honeymoon: { type: Number, default: 0, min: 0, max: 5 },
+      adventure: { type: Number, default: 0, min: 0, max: 5 },
+      culture:   { type: Number, default: 0, min: 0, max: 5 },
+      nightlife: { type: Number, default: 0, min: 0, max: 5 },
+    },
+
+    // 1 = ₹, 2 = ₹₹, 3 = ₹₹₹ — a rough relative cost band, not a price.
+    budgetLevel: { type: Number, default: 0, min: 0, max: 3 },
+
+    // Month numbers (1–12) this destination is genuinely good to visit,
+    // powering the "Travel by Month" browse.
+    bestMonths: [{ type: Number, min: 1, max: 12 }],
+
+    // Curated groupings, e.g. ['Honeymoon Escapes', 'Beach Holidays'].
+    collections: [{ type: String, trim: true }],
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

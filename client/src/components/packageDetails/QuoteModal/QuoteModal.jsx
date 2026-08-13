@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 import { openWhatsApp } from '../../../utils/whatsapp'
+import { trackFunnel } from '../../../utils/analytics'
 import { getLenis } from '../../../hooks/useLenis'
 import styles from './QuoteModal.module.css'
 
@@ -86,6 +87,7 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
         message:     `${leadSummary()}\nSource: Package page quote form.`,
         type: 'lead',
       })
+      trackFunnel('lead', { package: pkg?.title, destination: destinations[0] })
       setSuccess(true)
       setForm(EMPTY)
     } catch (err) {

@@ -67,3 +67,21 @@ export function trackInitiateCheckout(params = {}) {
   trackGA('begin_checkout', params)
   trackFB('InitiateCheckout', params)
 }
+
+// ── Funnel stages ────────────────────────────────────────────────────────────
+// Page views alone can't tell you that a Thailand article led to a Thailand
+// package led to a quote. These name each step of that journey so the path
+// through the site is reportable, not just the traffic to it.
+
+export const FUNNEL_STAGES = {
+  discovery:     'funnel_discovery',      // destination page / finder opened
+  consideration: 'funnel_consideration',  // package viewed, results shown
+  intent:        'funnel_intent',         // "Get Quote" clicked
+  lead:          'funnel_lead',           // enquiry form submitted
+}
+
+export function trackFunnel(stage, params = {}) {
+  const eventName = FUNNEL_STAGES[stage]
+  if (!eventName) return
+  trackGA(eventName, { funnel_stage: stage, ...params })
+}

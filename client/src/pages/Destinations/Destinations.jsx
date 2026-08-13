@@ -1,8 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import DestinationCard from '../../components/destinations/DestinationCard/DestinationCard'
+import {
+  NotSureBanner, HolidayCollections, TravelByMonth,
+} from '../../components/destinations/DiscoverTools/DiscoverTools'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
+import { trackFunnel } from '../../utils/analytics'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import styles from './Destinations.module.css'
 
@@ -29,9 +33,13 @@ export default function Destinations() {
   const [error,           setError]           = useState('')
   const [intlRegion,      setIntlRegion]      = useState('All')
 
+  // Landing on Destinations is the top of the funnel — the moment a traveller
+  // starts looking rather than just browsing.
+  useEffect(() => { trackFunnel('discovery', { page: 'destinations' }) }, [])
+
   usePageMeta(
-    'Global Destinations | Ease My Vacations',
-    'Explore premium travel destinations handpicked by our concierge team. Discover unique experiences across Europe, Asia, Middle East, Africa, and Oceania.',
+    'Travel Destinations | Ease My Vacations',
+    'Explore destinations across India, Asia, the Gulf and Europe. Compare where to go by trip type, month and budget — or let a travel expert recommend the right destination for you.',
     {
       image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=2800',
       url: typeof window !== 'undefined' ? `${window.location.origin}/destinations` : '',
@@ -103,11 +111,14 @@ export default function Destinations() {
       <div className={styles.pageHeader}>
         <div className={styles.headerInner}>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.33,1,0.68,1] }}>
-            <span className={styles.eyebrow}>Portfolio</span>
-            <h1 className={styles.h1}>Global Canvas</h1>
+            <span className={styles.eyebrow}>Where Will You Go?</span>
+            <h1 className={styles.h1}>Destinations</h1>
           </motion.div>
         </div>
       </div>
+
+      {/* The traveller who doesn't yet know where they want to go */}
+      <NotSureBanner />
 
       {loading ? (
         <div className={styles.spinnerWrap}><div className={styles.spinnerCircle} /></div>
@@ -182,6 +193,9 @@ export default function Destinations() {
               )}
             </div>
           </section>
+          {/* Other ways in: by kind of trip, and by when you can travel */}
+          <HolidayCollections destinations={allDestinations} />
+          <TravelByMonth destinations={allDestinations} />
         </>
       )}
 

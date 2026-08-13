@@ -17,6 +17,7 @@ import ItineraryDay from '../../components/packageDetails/ItineraryDay/Itinerary
 import sectionStyles from '../../components/packageDetails/PackageSections/PackageSections.module.css'
 import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
+import { trackFunnel } from '../../utils/analytics'
 import { formatPrice } from '../../utils/currency'
 import { splitTitle, tagline, tripLabel, packageFaqs } from '../../utils/packageContent'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
@@ -51,8 +52,35 @@ export default function PackageDetails() {
   const [quoteOpen, setQuoteOpen] = useState(false)
   const [destRecords, setDestRecords] = useState([])
 
+  const [shared, setShared] = useState(false)
+
   const itinUnlocked = !!customer
-  const openQuote = () => setQuoteOpen(true)
+
+  const openQuote = () => {
+    setQuoteOpen(true)
+    trackFunnel('intent', { package: pkg?.title, destination: pkg?.destinations?.[0] })
+  }
+
+  // Family trips get decided in a group chat, so sharing has to be one tap.
+  const shareTrip = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : ''
+    const text = `${pkg?.title || 'This holiday'} — Ease My Vacations`
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: pkg?.title, text, url })
+        return
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return
+    }
+    try {
+      await navigator.clipboard?.writeText(url)
+      setShared(true)
+      setTimeout(() => setShared(false), 2000)
+    } catch {
+      window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`, '_blank', 'noopener,noreferrer')
+    }
+  }
 
   useEffect(() => {
     if (!id) { navigate('/packages', { replace: true }); return }
@@ -90,6 +118,12 @@ export default function PackageDetails() {
     () => (Array.isArray(pkg?.destinations) ? pkg.destinations.filter(Boolean) : []),
     [pkg]
   )
+
+  // Viewing a package is the consideration step of the funnel.
+  const pkgTitle = pkg?.title
+  useEffect(() => {
+    if (pkgTitle) trackFunnel('consideration', { package: pkgTitle })
+  }, [pkgTitle])
   const faqs = useMemo(() => (pkg ? packageFaqs(pkg) : []), [pkg])
 
   const { name: pkgName, route: pkgRoute } = pkg ? splitTitle(pkg) : { name: '', route: '' }
@@ -576,7 +610,7 @@ export default function PackageDetails() {
 
           {/* Sticky enquiry panel (desktop) */}
           <div className={styles.right}>
-            <PricingWidget pkg={pkg} onRequestQuote={openQuote} />
+            <PricingWidget pkg={pkg} onRequestQuote={openQuote} onShare={shareTrip} shared={shared} />
           </div>
         </div>
       </div>
