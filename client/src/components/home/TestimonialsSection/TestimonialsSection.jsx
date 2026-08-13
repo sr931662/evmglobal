@@ -9,41 +9,43 @@ const AVATAR_COLORS = ['#E53935', '#0a0a0a', '#C62828', '#1a1a1a', '#E53935', '#
 const FALLBACK = [
   {
     name: 'Ananya Sharma',
-    trip: 'Maldives · Honeymoon',
+    trip: 'Maldives Holiday · 2025',
     rating: 5,
-    quote: "EMV planned every last detail of our honeymoon — the overwater villa, the sunset cruise, all of it. We didn't have to think about a single thing.",
+    quote: "Ease My Vacations planned every last detail of our honeymoon — the overwater villa, the sunset cruise, all of it. We didn't have to think about a single thing. The one point of contact made the whole thing effortless, and everything we were promised was exactly what we got.",
   },
   {
     name: 'Rohan Mehta',
-    trip: 'Switzerland · Family Trip',
+    trip: 'Switzerland Holiday · 2025',
     rating: 5,
-    quote: 'Travelling with two kids can be stressful, but our concierge had backup plans for everything. The itinerary felt tailor-made for our family.',
+    quote: 'Travelling with two kids can be stressful, but our travel expert had backup plans for everything. The itinerary felt tailor-made for our family, right down to the pace of each day and where we stopped to eat.',
   },
   {
     name: 'Priya & Karan',
-    trip: 'Bali · Anniversary',
+    trip: 'Bali Holiday · 2025',
     rating: 5,
-    quote: 'From the private villa to the hidden waterfall tour nobody else knew about — this was the most thoughtfully curated trip we have ever taken.',
+    quote: 'From the private villa to the hidden waterfall tour nobody else knew about — this was the most thoughtfully curated trip we have ever taken. We have already asked them to plan the next one.',
   },
   {
     name: 'Vikram Singh',
-    trip: 'Dubai · Business + Leisure',
+    trip: 'Dubai Holiday · 2025',
     rating: 4,
-    quote: 'Seamless coordination between my meetings and leisure days. The 24/7 support genuinely came through when my flight got rescheduled.',
+    quote: 'Seamless coordination between my meetings and leisure days. The on-trip assistance genuinely came through when my flight got rescheduled at midnight and a new transfer was waiting for me.',
   },
   {
     name: 'Neha Kapoor',
-    trip: 'Vietnam · Solo Trip',
+    trip: 'Vietnam Holiday · 2024',
     rating: 5,
-    quote: 'As a solo traveller, safety and flexibility mattered most. EMV built a route that felt personal, not like a packaged tour at all.',
+    quote: 'As a solo traveller, safety and flexibility mattered most. Ease My Vacations built a route that felt personal, not like a packaged tour at all, and someone checked in on me at every city.',
   },
   {
     name: 'The Malhotra Family',
-    trip: 'Europe · Group Tour',
+    trip: 'Europe Holiday · 2024',
     rating: 5,
-    quote: 'Coordinating 12 of us across 4 countries sounded impossible until EMV took over. Transparent pricing, zero surprises, unforgettable trip.',
+    quote: 'Coordinating 12 of us across 4 countries sounded impossible until Ease My Vacations took over. Transparent pricing, zero surprises, unforgettable trip — and one number to call the whole way through.',
   },
 ]
+
+const CLAMP_LENGTH = 150
 
 function initials(name) {
   // Admin-entered names can be blank or oddly spaced — never let this throw.
@@ -69,6 +71,25 @@ function Stars({ count }) {
   )
 }
 
+// Long quotes are truncated so the grid stays scannable — the visitor opts in
+// to the full story rather than being handed a wall of text.
+function Quote({ text }) {
+  const [expanded, setExpanded] = useState(false)
+  const full = text || ''
+  const needsClamp = full.length > CLAMP_LENGTH
+
+  if (!needsClamp) return <p className={styles.quote}>{full}</p>
+
+  return (
+    <p className={styles.quote}>
+      {expanded ? full : `${full.slice(0, CLAMP_LENGTH).trimEnd()}… `}
+      <button type="button" onClick={() => setExpanded(v => !v)} className={styles.readMore}>
+        {expanded ? 'Read less' : 'Read more'}
+      </button>
+    </p>
+  )
+}
+
 export default function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState(FALLBACK)
 
@@ -81,6 +102,7 @@ export default function TestimonialsSection() {
           trip:   item.trip,
           rating: item.rating ?? 5,
           quote:  item.quote,
+          photo:  item.image || item.photo,
         })))
       })
       .catch(() => {})
@@ -99,7 +121,7 @@ export default function TestimonialsSection() {
           <span className={styles.eyebrow}>
             <span className={styles.eyebrowLine} /> Traveller Stories
           </span>
-          <h2 className={styles.heading}>Loved by explorers everywhere.</h2>
+          <h2 className={styles.heading}>In their own words.</h2>
         </motion.div>
 
         <div className={styles.grid}>
@@ -117,12 +139,16 @@ export default function TestimonialsSection() {
               </svg>
 
               <Stars count={t.rating} />
-              <p className={styles.quote}>{t.quote}</p>
+              <Quote text={t.quote} />
 
               <div className={styles.person}>
-                <div className={styles.avatar} style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
-                  {initials(t.name)}
-                </div>
+                {t.photo ? (
+                  <img src={t.photo} alt={t.name} loading="lazy" className={styles.avatarPhoto} />
+                ) : (
+                  <div className={styles.avatar} style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+                    {initials(t.name)}
+                  </div>
+                )}
                 <div>
                   <p className={styles.name}>{t.name}</p>
                   <p className={styles.trip}>{t.trip}</p>

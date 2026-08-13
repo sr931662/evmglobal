@@ -7,13 +7,13 @@ export default function PrivacyPolicy() {
       subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Introduction" />
-      <P>Global Ease My Vacations (OPC) Private Limited ("EMV", "Ease My Vacations", "Company", "we", "our", or "us") values the privacy of its users and is committed to protecting personal information shared with us through our website, mobile applications, customer support channels, offices, call centers, and partner platforms ("Platform").</P>
+      <P>Global Ease My Vacations (OPC) Private Limited ("Ease My Vacations", "Company", "we", "our", or "us") values the privacy of its users and is committed to protecting personal information shared with us through our website, mobile applications, customer support channels, offices, call centers, and partner platforms ("Platform").</P>
       <P>This Privacy Policy explains how we collect, use, process, store, disclose, and protect your personal information when you access or use our travel-related services including flights, hotels, holiday packages, visa services, travel insurance, transportation bookings, and other related offerings.</P>
 
       <Section title="2. Applicability" />
       <P>This Privacy Policy applies to all users who:</P>
       <Ul items={[
-        'Visit or use the EMV Platform',
+        'Visit or use the Ease My Vacations Platform',
         'Make inquiries or bookings',
         'Contact customer support',
         'Subscribe to promotional communications',
@@ -74,7 +74,7 @@ export default function PrivacyPolicy() {
       <P><Strong>We do not sell your personal data to third parties.</Strong></P>
 
       <Section title="6. International Data Transfers" />
-      <P>Your information may be processed or stored outside India where our partners or service providers operate. EMV ensures that appropriate contractual and technical safeguards are implemented for such transfers.</P>
+      <P>Your information may be processed or stored outside India where our partners or service providers operate. Ease My Vacations ensures that appropriate contractual and technical safeguards are implemented for such transfers.</P>
 
       <Section title="7. Data Retention" />
       <P>We retain personal information only for as long as necessary for:</P>
@@ -106,16 +106,16 @@ export default function PrivacyPolicy() {
       <P>Requests may be sent to: <Strong>privacy@easemyvacations.in</Strong></P>
 
       <Section title="10. Marketing Communications" />
-      <P>Users may opt out of promotional emails and notifications at any time using unsubscribe links or by contacting EMV support.</P>
+      <P>Users may opt out of promotional emails and notifications at any time using unsubscribe links or by contacting Ease My Vacations support.</P>
 
       <Section title="11. Children's Privacy" />
       <P>Our services are not directed toward minors below 18 years unless bookings are made by parents or guardians.</P>
 
       <Section title="12. Cookies & Tracking" />
-      <P>EMV uses cookies and similar technologies to enhance user experience, personalize services, and analyze traffic. Please review our Cookie Policy for more details.</P>
+      <P>Ease My Vacations uses cookies and similar technologies to enhance user experience, personalize services, and analyze traffic. Please review our Cookie Policy for more details.</P>
 
       <Section title="13. Changes to Policy" />
-      <P>EMV may revise this Privacy Policy periodically. Updated versions will be posted on the Platform with revised effective dates.</P>
+      <P>Ease My Vacations may revise this Privacy Policy periodically. Updated versions will be posted on the Platform with revised effective dates.</P>
 
       <Section title="14. Contact Information" />
       <Highlight>

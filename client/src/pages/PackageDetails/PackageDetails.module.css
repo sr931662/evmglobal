@@ -1,319 +1,568 @@
-.page { background: #f9fafb; min-height: 100vh; }
+.page { background: var(--surface-soft); min-height: 100vh; padding-bottom: 5.5rem; }
+@media (min-width: 1024px) { .page { padding-bottom: 0; } }
 
-/* Hero */
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+/* Sized so the title, summary bar, price and CTAs all land above the fold —
+   the visitor can enquire without scrolling. */
 .hero {
   position: relative;
-  height: 75vh;
-  min-height: 600px;
   width: 100%;
+  min-height: 660px;
+  display: flex;
+  align-items: flex-end;
+  padding-top: 7rem;
+  padding-bottom: 2.5rem;
   overflow: hidden;
 }
+@media (min-width: 768px) { .hero { min-height: 88vh; padding-bottom: 3.5rem; } }
+
 .heroBg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.heroImg { width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); }
+.heroImg { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, #f9fafb 0%, rgba(10,10,10,0.4) 40%, rgba(10,10,10,0.5) 100%);
+  background: linear-gradient(to top,
+    var(--surface-soft) 0%,
+    rgba(26,20,20,0.55) 32%,
+    rgba(26,20,20,0.35) 70%,
+    rgba(26,20,20,0.45) 100%);
 }
-.heroContent {
-  position: absolute;
-  bottom: 4rem;
-  width: 100%;
-  z-index: 10;
-}
+
+.heroContent { position: relative; width: 100%; z-index: 10; }
 .heroInner {
   max-width: 95rem;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1.25rem;
 }
 @media (min-width: 640px)  { .heroInner { padding: 0 2rem; } }
 @media (min-width: 1024px) { .heroInner { padding: 0 3rem; } }
 
 .backBtn {
-  color: #fff;
+  color: rgba(255,255,255,0.9);
   display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  font-size: 1rem;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
   font-weight: 700;
-  margin-bottom: 3rem;
-  padding: 1rem 2rem;
-  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.5rem;
+  padding: 0;
+  background: none;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: color 0.2s;
 }
-.backBtn:hover { background: rgba(255,255,255,0.2); }
-.backBtn svg { width: 1rem; height: 1rem; transition: transform 0.2s; }
-.backBtn:hover svg { transform: translateX(-4px); }
+.backBtn:hover { color: #fff; }
+.backBtn svg { width: 0.875rem; height: 0.875rem; transition: transform 0.2s; }
+.backBtn:hover svg { transform: translateX(-3px); }
 
-.heroBadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  align-items: center;
-  margin-bottom: 2rem;
-}
 .catBadge {
+  display: inline-block;
   background: var(--brand);
   color: #fff;
-  padding: 0.625rem 1.5rem;
+  padding: 0.4375rem 1rem;
   border-radius: 9999px;
   font-size: 0.625rem;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.25em;
   box-shadow: var(--shadow-glow);
+  margin-bottom: 1rem;
 }
-.heroBadgePill {
-  color: rgba(255,255,255,0.9);
-  font-size: 0.875rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.heroDivider { color: rgba(255,255,255,0.4); }
 
 .heroTitle {
   font-family: var(--font-serif);
   font-weight: 700;
   color: #fff;
-  line-height: 1.1;
+  line-height: 1.08;
   letter-spacing: -0.025em;
-  max-width: 64rem;
-  font-size: clamp(2.25rem, 7vw, 5rem);
+  max-width: 60rem;
+  font-size: clamp(2rem, 5.5vw, 4rem);
+  text-shadow: 0 2px 24px rgba(0,0,0,0.35);
 }
 
-/* Content */
+.heroRoute {
+  color: #FFD6D6;
+  font-size: clamp(0.9375rem, 2vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-top: 0.625rem;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.4);
+}
+
+.heroTagline {
+  color: rgba(255,255,255,0.92);
+  font-size: clamp(0.9375rem, 1.6vw, 1.125rem);
+  font-weight: 300;
+  line-height: 1.6;
+  max-width: 42rem;
+  margin-top: 0.75rem;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.45);
+}
+
+/* Summary bar */
+.summaryBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.summaryChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  background: rgba(255,255,255,0.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+/* Price + CTA block */
+.heroActions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+  margin-top: 1.75rem;
+  background: rgba(255,255,255,0.97);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 1.125rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-float);
+  max-width: 52rem;
+}
+@media (min-width: 640px) {
+  .heroActions { flex-direction: row; align-items: center; flex-wrap: wrap; padding: 1.375rem 1.75rem; gap: 1.25rem 2rem; }
+}
+
+.heroPrice { display: flex; flex-direction: column; gap: 0.125rem; flex-shrink: 0; }
+.heroPriceLabel {
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink-muted);
+}
+.heroPriceAmt {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.heroPricePer { font-size: 0.9375rem; color: var(--ink-soft); font-weight: 600; font-family: var(--font-sans); }
+.heroPriceBasis { font-size: 0.75rem; color: var(--ink-muted); font-style: italic; white-space: nowrap; }
+
+.heroBtns { display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+@media (min-width: 480px) { .heroBtns { flex-direction: row; } }
+@media (min-width: 640px) { .heroBtns { margin-left: auto; } }
+
+.heroPrimaryBtn,
+.heroGhostBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.875rem 1.5rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+.heroPrimaryBtn {
+  background: var(--brand);
+  color: #fff;
+  border: 1px solid var(--brand);
+  box-shadow: var(--shadow-glow);
+}
+.heroPrimaryBtn:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+.heroGhostBtn {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.heroGhostBtn:hover { border-color: var(--brand); color: var(--brand); }
+
+/* ── Content layout ────────────────────────────────────────────────────── */
 .content {
   max-width: 95rem;
   margin: 0 auto;
-  padding: 5rem 1.5rem;
+  padding: 2.5rem 1.25rem 4rem;
 }
-@media (min-width: 640px)  { .content { padding: 5rem 2rem; } }
-@media (min-width: 1024px) { .content { padding: 5rem 3rem; } }
+@media (min-width: 640px)  { .content { padding: 3rem 2rem 5rem; } }
+@media (min-width: 1024px) { .content { padding: 3.5rem 3rem 6rem; } }
 
 .contentGrid {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 2rem;
   align-items: flex-start;
 }
-@media (min-width: 1024px) { .contentGrid { flex-direction: row; gap: 4rem; } }
+@media (min-width: 1024px) { .contentGrid { flex-direction: row; gap: 2.5rem; } }
 
-.left {
-  width: 100%;
-}
-@media (min-width: 1024px) { .left { width: 65%; } }
-@media (min-width: 1280px) { .left { width: 70%; } }
+.left { width: 100%; display: flex; flex-direction: column; gap: 1.25rem; }
+@media (min-width: 1024px) { .left { width: 64%; gap: 1.75rem; } }
+@media (min-width: 1280px) { .left { width: 68%; } }
 
-.right {
-  width: 100%;
-}
-@media (min-width: 1024px) { .right { width: 35%; } }
-@media (min-width: 1280px) { .right { width: 30%; } }
+.right { width: 100%; }
+@media (min-width: 1024px) { .right { width: 36%; } }
+@media (min-width: 1280px) { .right { width: 32%; } }
 
-.sideStack { display: flex; flex-direction: column; gap: 1.5rem; }
-
-/* Cards */
-.card {
-  background: #fff;
-  border-radius: 3rem;
-  padding: 3rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: var(--shadow-glass);
-}
-@media (min-width: 768px) { .card { padding: 4rem; } }
-.card + .card { margin-top: 3rem; }
-
-.cardTitle {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  color: var(--dark);
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.025em;
-  font-size: 1.875rem;
-}
-.cardTitleLg {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  color: var(--dark);
-  margin-bottom: 3rem;
-  letter-spacing: -0.025em;
-  font-size: clamp(1.875rem, 4vw, 3rem);
-}
-.cardDesc {
-  color: #4b5563;
-  font-size: 1.125rem;
+.overviewText {
+  color: var(--ink-soft);
+  font-size: 1rem;
   line-height: 1.75;
   font-weight: 300;
 }
 
-/* Inclusions grid */
-.inclGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 4rem;
-}
-@media (min-width: 768px) { .inclGrid { grid-template-columns: repeat(2, 1fr); } }
+/* ── Itinerary timeline ────────────────────────────────────────────────── */
+.timeline { display: flex; flex-direction: column; }
 
-.inclBox {
-  border-radius: 2.5rem;
-  padding: 2.5rem;
-  border: 1px solid;
-  position: relative;
-  overflow: hidden;
-}
-.inclBox::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 10rem; height: 10rem;
-  border-bottom-left-radius: 6.25rem;
-  pointer-events: none;
-}
-.inclBoxGreen { background: rgba(240,253,244,0.3); border-color: #dcfce7; }
-.inclBoxGreen::before { background: rgba(34,197,94,0.05); }
-.inclBoxRed   { background: rgba(254,242,242,0.3); border-color: #fee2e2; }
-.inclBoxRed::before   { background: rgba(239,68,68,0.05); }
-
-.inclTitle {
-  font-weight: 700;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 1.5rem;
-}
-.inclTitleGreen { color: #15803d; }
-.inclTitleRed   { color: var(--brand); }
-
-.inclList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.5rem; }
-.inclItem { display: flex; align-items: flex-start; gap: 1rem; color: #374151; font-weight: 500; font-size: 1.125rem; }
-.inclCheck { margin-top: 6px; flex-shrink: 0; }
-.inclCheckGreen { color: #22c55e; }
-.inclCheckRed   { color: var(--brand); font-size: 1.25rem; }
-
-/* Itinerary */
-.itineraryList { display: flex; flex-direction: column; gap: 1.5rem; }
 .dayAccordion {
-  border: 1px solid #f3f4f6;
-  border-radius: 2rem;
-  overflow: hidden;
+  border-left: 2px solid var(--line);
+  padding-left: 1.25rem;
+  padding-bottom: 0.5rem;
+  position: relative;
 }
+.dayAccordion:last-child { border-left-color: transparent; }
+
 .daySummary {
   display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 1.5rem 2rem;
+  align-items: flex-start;
+  gap: 0.875rem;
   cursor: pointer;
+  padding: 0.875rem 0;
   list-style: none;
-  background: rgba(249,250,251,0.6);
-  transition: background-color 0.2s;
 }
-.daySummary:hover { background: #f9fafb; }
+.daySummary::-webkit-details-marker { display: none; }
+
 .dayNum {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--dark);
-  color: #fff;
-  border-radius: 1rem;
-  font-size: 0.875rem;
+  position: absolute;
+  left: -1.0625rem;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: var(--brand-light);
+  border: 1px solid rgba(229,57,53,0.3);
+  color: var(--brand);
+  font-size: 0.75rem;
   font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
-.dayTitle { font-weight: 700; color: var(--dark); font-size: 1.125rem; flex: 1; }
+.dayAccordion[open] .dayNum { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+.dayHead { flex: 1; min-width: 0; padding-left: 1rem; }
+.dayTitle {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+.dayPreview {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  font-weight: 300;
+  line-height: 1.5;
+  margin-top: 0.25rem;
+}
+.dayAccordion[open] .dayPreview { display: none; }
+
+.dayChips { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.5rem; }
+.dayChip {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
 .dayChevron {
-  width: 1rem;
-  height: 1rem;
-  color: #9ca3af;
-  transition: transform 0.3s;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--ink-muted);
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+  transition: transform 0.25s;
 }
-details[open] .dayChevron { transform: rotate(180deg); }
+.dayAccordion[open] .dayChevron { transform: rotate(180deg); }
 
 .dayBody {
-  padding: 1.5rem 2rem;
+  padding: 0 0 1.25rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  border-top: 1px solid #f3f4f6;
+  gap: 0.75rem;
 }
-.activity { display: flex; align-items: flex-start; gap: 1rem; }
-.actIcon { font-size: 1.25rem; flex-shrink: 0; margin-top: 2px; }
+
+.activity { display: flex; align-items: flex-start; gap: 0.625rem; }
+.actIcon { font-size: 0.9375rem; flex-shrink: 0; line-height: 1.5; }
 .actTime {
-  font-size: 0.625rem;
+  display: block;
+  font-size: 0.6875rem;
   font-weight: 900;
   color: var(--brand);
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  margin-right: 0.75rem;
+  letter-spacing: 0.12em;
 }
-.actDesc { color: #374151; font-weight: 500; font-size: 1rem; }
+.actDesc { color: var(--ink-soft); font-size: 0.9375rem; line-height: 1.6; font-weight: 300; }
 
-/* Right sidebar */
-.inquiryCard {
-  background: var(--dark);
-  border-radius: 2.5rem;
-  padding: 2rem;
-  color: #fff;
-  text-align: center;
+.dayHotel {
+  display: flex;
+  gap: 0.75rem;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  padding: 0.875rem;
 }
-.inquiryEmoji { font-size: 1.875rem; margin-bottom: 1rem; display: block; }
-.inquiryTitle { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
-.inquiryDesc { color: #9ca3af; font-size: 0.875rem; font-weight: 300; margin-bottom: 1.5rem; line-height: 1.6; }
-.inquiryBtn {
+.dayHotelIcon { font-size: 1.125rem; flex-shrink: 0; }
+.dayHotelInfo { flex: 1; min-width: 0; }
+.dayHotelRow { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.dayHotelName { font-weight: 700; color: var(--ink); font-size: 0.9375rem; }
+.dayHotelStars { color: #fbbf24; font-size: 0.75rem; }
+.dayHotelBadges { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.375rem; }
+.dayHotelBadge,
+.dayHotelBadgeMeal,
+.dayHotelBadgeNights {
+  border-radius: 9999px;
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+.dayHotelBadgeMeal { background: #ECFDF5; border-color: #A7F3D0; color: #047857; }
+.dayHotelAddress { color: var(--ink-muted); font-size: 0.75rem; margin-top: 0.375rem; }
+
+.dayNote {
+  display: flex;
+  gap: 0.625rem;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 0.875rem;
+  padding: 0.75rem 0.875rem;
+}
+.dayNoteIcon { flex-shrink: 0; font-size: 0.9375rem; }
+.dayNoteText { color: #92400E; font-size: 0.8125rem; line-height: 1.6; }
+
+/* Itinerary sign-in lock */
+.itinLock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.itinLockCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-float);
+  padding: 1.75rem;
+  max-width: 22rem;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+}
+.itinLockIcon { font-size: 1.75rem; }
+.itinLockTitle { font-family: var(--font-serif); font-weight: 700; color: var(--ink); font-size: 1.125rem; }
+.itinLockDesc { color: var(--ink-soft); font-size: 0.875rem; line-height: 1.6; margin-bottom: 0.5rem; }
+.itinLockBtn {
   display: block;
   width: 100%;
   background: var(--brand);
   color: #fff;
-  padding: 1rem;
   border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
+  padding: 0.8125rem 1.25rem;
   font-size: 0.875rem;
-  box-shadow: var(--shadow-glow);
+  font-weight: 700;
   text-decoration: none;
   text-align: center;
-  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-glow);
   transition: background-color 0.2s;
 }
-.inquiryBtn:hover { background: var(--brand-hover); }
-.inquiryWaBtn {
-  display: block;
-  width: 100%;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
-  padding: 0.875rem;
-  border-radius: 9999px;
+.itinLockBtn:hover { background: var(--brand-hover); }
+.itinLockAlt {
+  background: none;
+  border: none;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 0.875rem;
-  text-align: center;
-  transition: background-color 0.2s;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
-.inquiryWaBtn:hover { background: rgba(255,255,255,0.2); }
+.itinLockAlt:hover { color: var(--brand); }
 
-/* States */
-.loadingPage {
-  min-height: 100vh;
+/* ── Inclusions / exclusions ───────────────────────────────────────────── */
+.inclGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.625rem;
+}
+@media (min-width: 640px) { .inclGrid { grid-template-columns: repeat(2, 1fr); } }
+
+.inclItem,
+.exclItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+  font-weight: 500;
+  line-height: 1.55;
+}
+.inclCheck { color: #1a9c53; font-weight: 900; flex-shrink: 0; }
+.exclCross { color: var(--brand); font-weight: 900; flex-shrink: 0; }
+
+/* ── Accommodation ─────────────────────────────────────────────────────── */
+.hotelsList { display: flex; flex-direction: column; gap: 0.875rem; }
+.hotelCard {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1.125rem;
+}
+.hotelTop { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+.hotelCity {
+  font-size: 0.6875rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--brand);
+  margin-bottom: 0.25rem;
+}
+.hotelName { font-weight: 700; color: var(--ink); font-size: 1.0625rem; }
+.hotelStars { color: #fbbf24; font-size: 0.8125rem; margin-top: 0.1875rem; }
+.hotelStarEmpty { color: var(--line); }
+.hotelStarLabel { color: var(--ink-muted); font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem; }
+.hotelRoomBadge {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.hotelMeta { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 0.75rem; }
+.hotelMetaItem { font-size: 0.8125rem; color: var(--ink-soft); font-weight: 500; }
+.hotelAmenities { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.75rem; }
+.hotelAmenityTag {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  border-radius: 9999px;
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+/* ── Flights ───────────────────────────────────────────────────────────── */
+.flightsList { display: flex; flex-direction: column; gap: 0.875rem; }
+.flightCard {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1.125rem;
+  background: var(--surface-soft);
+}
+.flightType {
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--brand);
+  margin-bottom: 0.75rem;
+}
+.flightRow { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 0.625rem; }
+.flightCity { display: flex; flex-direction: column; gap: 0.125rem; }
+.flightCityCode { font-size: 1.0625rem; font-weight: 900; color: var(--ink); letter-spacing: 0.04em; }
+.flightCityLabel {
+  font-size: 0.625rem;
+  color: var(--ink-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.flightArrow { color: var(--ink-muted); flex-shrink: 0; }
+.flightMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.flightClass {
+  background: var(--brand-light);
+  color: var(--brand);
+  border-radius: 9999px;
+  padding: 0.1em 0.6em;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ── Important notes ───────────────────────────────────────────────────── */
+.notesCard {
+  background: #FFFBEB;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  border: 1px solid #FDE68A;
+}
+@media (min-width: 768px) { .notesCard { padding: 2.5rem; } }
+.notesTitle {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: #92400E;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.25rem, 2.5vw, 1.625rem);
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.625rem;
 }
-.spinnerCircle {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 2px solid var(--brand);
-  border-top-color: transparent;
-  border-radius: 9999px;
-  animation: spin 0.7s linear infinite;
+.notesList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+.notesItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: #78350F;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.6;
 }
+.notesBullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #D97706;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+/* ── Loading / error ───────────────────────────────────────────────────── */
+.loadingPage,
 .errorPage {
   min-height: 100vh;
   display: flex;
@@ -321,345 +570,26 @@ details[open] .dayChevron { transform: rotate(180deg); }
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
+  background: var(--surface-soft);
 }
-.errorMsg { color: #6b7280; font-weight: 700; font-size: 1.25rem; }
+.spinnerCircle {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid var(--line);
+  border-top-color: var(--brand);
+  border-radius: 9999px;
+  animation: spin 0.8s linear infinite;
+}
+.errorMsg { color: var(--ink-soft); font-size: 1.125rem; font-weight: 500; }
 .errorBtn {
   background: var(--brand);
   color: #fff;
-  padding: 0.75rem 2rem;
-  border-radius: 9999px;
   border: none;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-/* Itinerary lock overlay */
-.itinLock {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.92) 40%);
-  border-radius: 1.5rem;
-  z-index: 2;
-}
-.itinLockCard {
-  text-align: center;
-  padding: 2.5rem 2rem;
-  max-width: 22rem;
-}
-.itinLockIcon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-.itinLockTitle {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--dark);
-  margin-bottom: 0.625rem;
-}
-.itinLockDesc {
-  color: #6b7280;
+  border-radius: 9999px;
+  padding: 0.875rem 1.75rem;
+  font-family: inherit;
   font-size: 0.9375rem;
-  font-weight: 400;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-}
-.itinLockBtn {
-  background: var(--brand);
-  color: #fff;
-  padding: 0.875rem 2rem;
-  border-radius: 9999px;
-  border: none;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 0.9375rem;
-  box-shadow: 0 8px 24px -4px rgba(229,57,53,0.45);
-  transition: background-color 0.2s;
 }
-.itinLockBtn:hover { background: #c62828; }
-
-/* Day note box */
-.dayNote {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 1rem;
-  padding: 0.875rem 1.25rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.625rem;
-  margin-top: 0.5rem;
-}
-.dayNoteIcon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
-.dayNoteText { color: #92400e; font-size: 0.9375rem; font-weight: 500; line-height: 1.55; }
-
-/* Hotel strip inside day accordion */
-.dayHotel {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
-  margin-top: 0.5rem;
-}
-.dayHotelIcon { font-size: 1.25rem; flex-shrink: 0; margin-top: 2px; }
-.dayHotelInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
-.dayHotelRow { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.dayHotelName { font-weight: 800; color: #0c4a6e; font-size: 1rem; line-height: 1.3; }
-.dayHotelStars { color: #f59e0b; font-size: 0.75rem; letter-spacing: 0.05em; }
-.dayHotelBadges { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-.dayHotelBadge {
-  background: #0c4a6e;
-  color: #fff;
-  border-radius: 9999px;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
-.dayHotelBadgeMeal {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
-  border-radius: 9999px;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-}
-.dayHotelBadgeNights {
-  background: #1e293b;
-  color: #fff;
-  border-radius: 9999px;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-}
-.dayHotelAddress { color: #0369a1; font-size: 0.8125rem; font-weight: 500; }
-.dayHotelMeta { color: #0369a1; font-size: 0.8125rem; font-weight: 500; }
-
-/* Hotel section */
-.hotelSectionHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.75rem;
-}
-.hotelSectionSub {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-  margin-top: 0.25rem;
-}
-.hotelSectionBadge {
-  background: #0c4a6e;
-  color: #fff;
-  border-radius: 9999px;
-  padding: 0.3rem 1rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-top: 0.25rem;
-}
-.hotelsList { display: flex; flex-direction: column; gap: 1.25rem; }
-.hotelCard {
-  border: 1.5px solid #bae6fd;
-  border-radius: 1.5rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  overflow: hidden;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-.hotelCard:hover {
-  box-shadow: 0 8px 32px rgba(12,74,110,0.12);
-  transform: translateY(-2px);
-}
-.hotelCardInner {
-  display: flex;
-  gap: 1.25rem;
-  padding: 1.5rem;
-}
-.hotelIconWrap {
-  position: relative;
-  flex-shrink: 0;
-  width: 3.5rem;
-  height: 3.5rem;
-  background: #fff;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid #bae6fd;
-  box-shadow: 0 2px 8px rgba(12,74,110,0.08);
-}
-.hotelIconEmoji { font-size: 1.5rem; }
-.hotelIndexBadge {
-  position: absolute;
-  top: -0.35rem;
-  right: -0.35rem;
-  background: #0c4a6e;
-  color: #fff;
-  font-size: 0.625rem;
-  font-weight: 900;
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hotelDetails { flex: 1; min-width: 0; }
-.hotelHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-.hotelNameWrap { flex: 1; min-width: 0; }
-.hotelName { font-weight: 800; color: #0c4a6e; font-size: 1.125rem; line-height: 1.3; }
-.hotelStars { color: #f59e0b; font-size: 0.8125rem; letter-spacing: 0.05em; margin-top: 3px; display: flex; align-items: center; gap: 0.4rem; }
-.hotelStarEmpty { color: #d1d5db; }
-.hotelStarLabel { color: #6b7280; font-size: 0.75rem; font-weight: 700; letter-spacing: 0; }
-.hotelRoomBadge {
-  background: #0c4a6e;
-  color: #fff;
-  border-radius: 9999px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.7rem;
-  font-weight: 800;
-  white-space: nowrap;
-  flex-shrink: 0;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.hotelMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  margin-bottom: 0.75rem;
-}
-.hotelMetaItem {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.8125rem;
-  color: #0369a1;
-  font-weight: 500;
-}
-.hotelMetaIcon { font-size: 0.875rem; }
-.hotelNightsBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: #0c4a6e;
-  color: #fff;
-  border-radius: 9999px;
-  padding: 0.2rem 0.65rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-.hotelAmenities {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  margin-top: 0.5rem;
-}
-.hotelAmenityTag {
-  background: #fff;
-  border: 1px solid #bae6fd;
-  color: #0369a1;
-  border-radius: 9999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-.hotelAddress { color: #0369a1; font-size: 0.875rem; font-weight: 500; }
-
-/* Flight details */
-.flightsList { display: flex; flex-direction: column; gap: 1rem; }
-.flightCard {
-  border: 1.5px solid #e5e7eb;
-  border-radius: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  background: #f9fafb;
-}
-.flightType {
-  font-size: 0.6875rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--brand);
-  margin-bottom: 0.875rem;
-}
-.flightRow {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  margin-bottom: 0.75rem;
-}
-.flightCity { display: flex; flex-direction: column; gap: 0.2rem; }
-.flightCityCode { font-size: 1.125rem; font-weight: 900; color: var(--dark); letter-spacing: 0.05em; }
-.flightCityLabel { font-size: 0.6875rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
-.flightArrow { color: #9ca3af; flex-shrink: 0; }
-.flightMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: #6b7280;
-}
-.flightClass {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border-radius: 9999px;
-  padding: 0.1em 0.6em;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-/* Important notes section */
-.notesCard {
-  background: #fffbeb;
-  border-radius: 3rem;
-  padding: 3rem;
-  border: 1px solid #fde68a;
-  box-shadow: var(--shadow-glass);
-  margin-top: 3rem;
-}
-@media (min-width: 768px) { .notesCard { padding: 4rem; } }
-.notesTitle {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  color: #92400e;
-  margin-bottom: 2rem;
-  letter-spacing: -0.025em;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-}
-.notesList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.25rem; }
-.notesItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  color: #78350f;
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-.notesBullet {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #d97706;
-  flex-shrink: 0;
-  margin-top: 8px;
-}
+.errorBtn:hover { background: var(--brand-hover); }

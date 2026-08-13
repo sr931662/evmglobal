@@ -7,7 +7,7 @@ export default function TermsOfService() {
       subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Scope" />
-      <P>These Terms of Service govern the use of all EMV digital platforms, services, APIs, and associated travel services.</P>
+      <P>These Terms of Service govern the use of all Ease My Vacations digital platforms, services, APIs, and associated travel services.</P>
 
       <Section title="2. Eligibility" />
       <P>Users must be legally competent to enter into binding contracts under applicable law.</P>
@@ -32,16 +32,16 @@ export default function TermsOfService() {
       <P>Displayed prices may include taxes and fees where applicable. Final payable amounts shall be shown clearly during checkout.</P>
 
       <Section title="7. Force Majeure" />
-      <P>EMV shall not be liable for delays or failures caused by circumstances beyond reasonable control including pandemics, natural disasters, war, or government actions.</P>
+      <P>Ease My Vacations shall not be liable for delays or failures caused by circumstances beyond reasonable control including pandemics, natural disasters, war, or government actions.</P>
 
       <Section title="8. Service Modifications" />
-      <P>EMV reserves the right to modify or discontinue services without prior notice.</P>
+      <P>Ease My Vacations reserves the right to modify or discontinue services without prior notice.</P>
 
       <Section title="9. Dispute Resolution" />
       <P>Users agree to attempt amicable resolution before initiating formal legal proceedings.</P>
 
       <Section title="10. Entire Agreement" />
-      <P>These Terms, together with the Privacy Policy, Cookie Policy, and related policies, constitute the complete agreement between users and EMV.</P>
+      <P>These Terms, together with the Privacy Policy, Cookie Policy, and related policies, constitute the complete agreement between users and Ease My Vacations.</P>
     </LegalLayout>
   )
 }

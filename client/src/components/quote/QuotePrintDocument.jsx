@@ -59,7 +59,7 @@ export default function QuotePrintDocument({ quote }) {
           <td style={{ verticalAlign: 'bottom', paddingBottom: 16, borderBottom: `3px solid ${BRAND.red}` }}>
             <table style={{ tableLayout: 'auto' }}><tbody><tr>
               <td style={{ verticalAlign: 'middle', paddingRight: 12, width: 56 }}>
-                <img src={LOGO_URL} alt="EMV" width="56" height="56" style={{ display: 'block', width: 56, height: 56, objectFit: 'contain' }} />
+                <img src={LOGO_URL} alt="Ease My Vacations" width="56" height="56" style={{ display: 'block', width: 56, height: 56, objectFit: 'contain' }} />
               </td>
               <td style={{ verticalAlign: 'middle' }}>
                 <div style={{ ...S.sans, fontSize: 20, fontWeight: 900, letterSpacing: 0.5, color: BRAND.ink }}>{COMPANY.name}</div>
@@ -383,7 +383,7 @@ export default function QuotePrintDocument({ quote }) {
             <div style={{ ...S.sans, fontSize: 10, color: '#888', marginTop: 2 }}>CIN: {COMPANY.cin} · GST: {COMPANY.gst}</div>
           </td>
           <td style={{ paddingTop: 12, textAlign: 'right', verticalAlign: 'top', borderTop: `2px solid ${BRAND.red}` }}>
-            <div style={{ ...S.sans, fontSize: 11, fontWeight: 700, color: '#555' }}>Prepared by: {quote.agentName || 'EMV Team'}</div>
+            <div style={{ ...S.sans, fontSize: 11, fontWeight: 700, color: '#555' }}>Prepared by: {quote.agentName || 'Ease My Vacations Team'}</div>
             <div style={{ ...S.sans, fontSize: 10, color: '#888', marginTop: 2 }}>
               {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>

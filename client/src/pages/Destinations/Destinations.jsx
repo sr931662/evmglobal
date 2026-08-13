@@ -30,7 +30,7 @@ export default function Destinations() {
   const [intlRegion,      setIntlRegion]      = useState('All')
 
   usePageMeta(
-    'Global Destinations | EMV Global',
+    'Global Destinations | Ease My Vacations',
     'Explore premium travel destinations handpicked by our concierge team. Discover unique experiences across Europe, Asia, Middle East, Africa, and Oceania.',
     {
       image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=2800',

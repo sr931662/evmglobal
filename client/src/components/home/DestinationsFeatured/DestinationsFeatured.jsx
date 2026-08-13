@@ -6,10 +6,12 @@ import { formatPriceCompact } from '../../../utils/currency'
 import styles from './DestinationsFeatured.module.css'
 
 const FALLBACK = [
-  { id: 1, name: 'Maldives',    startingPrice: '₹85k',  region: 'Asia',        image: 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?auto=format&fit=crop&q=80&w=800' },
-  { id: 2, name: 'Switzerland', startingPrice: '₹1.2L', region: 'Europe',      image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&q=80&w=800' },
-  { id: 3, name: 'Bali',        startingPrice: '₹45k',  region: 'Asia',        image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=800' },
-  { id: 4, name: 'Dubai',       startingPrice: '₹65k',  region: 'Middle East', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800' },
+  { id: 1, name: 'Thailand',    startingPrice: '₹38k',  region: 'Asia',        image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&q=80&w=800' },
+  { id: 2, name: 'Dubai',       startingPrice: '₹65k',  region: 'Middle East', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800' },
+  { id: 3, name: 'Vietnam',     startingPrice: '₹42k',  region: 'Asia',        image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=800' },
+  { id: 4, name: 'Europe',      startingPrice: '₹1.2L', region: 'Europe',      image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=800' },
+  { id: 5, name: 'Bali',        startingPrice: '₹45k',  region: 'Asia',        image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=800' },
+  { id: 6, name: 'Maldives',    startingPrice: '₹85k',  region: 'Asia',        image: 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?auto=format&fit=crop&q=80&w=800' },
 ]
 
 const ARROW = (
@@ -48,7 +50,7 @@ export default function DestinationsFeatured() {
           })
         })
         const shuffled = shuffle(dests)
-        setFeatured(shuffled.slice(0, 4).map(d => ({
+        setFeatured(shuffled.slice(0, 6).map(d => ({
           id:            d.id || d._id,
           name:          d.name,
           region:        d.region,
@@ -72,14 +74,14 @@ export default function DestinationsFeatured() {
         >
           <div>
             <span className={styles.eyebrow}>
-              <span className={styles.eyebrowLine} /> Popular Escapes
+              <span className={styles.eyebrowLine} /> Destinations
             </span>
             <h2 className={styles.heading}>
-              Where will you<br />go next?
+              Where Will You<br />Go Next?
             </h2>
           </div>
           <button onClick={() => navigate('/destinations')} className={styles.allBtn}>
-            All Destinations {ARROW}
+            Explore All Destinations {ARROW}
           </button>
         </motion.div>
 

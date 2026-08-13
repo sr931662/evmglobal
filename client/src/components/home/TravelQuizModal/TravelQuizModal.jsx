@@ -63,14 +63,22 @@ const BG_MAP = {
   andaman:          'https://images.unsplash.com/photo-1571536802807-30451e3955d8?w=1600&q=70&auto=format&fit=crop',
 }
 
-const STEPS = ['destination', 'season', 'travellers', 'budget', 'contact']
+const HOLIDAY_TYPES = [
+  { id: 'beach',     label: 'Beach Escape',   sub: 'Sand, sea and slow mornings',    icon: '🏝', accent: '#38bdf8' },
+  { id: 'honeymoon', label: 'Honeymoon',      sub: 'Romantic stays, made private',   icon: '💑', accent: '#f43f5e' },
+  { id: 'family',    label: 'Family Holiday', sub: 'Paced for every age group',      icon: '👨‍👩‍👧', accent: '#34d399' },
+  { id: 'adventure', label: 'Adventure',      sub: 'Trekking, wildlife and more',    icon: '🏔', accent: '#fbbf24' },
+]
+
+const STEPS = ['destination', 'season', 'travellers', 'budget', 'holidayType', 'contact']
 
 const STEP_META = {
-  destination: { emoji: '🌍', q: 'Where do you dream of going?',    sub: 'Your world is waiting — pick your paradise' },
-  season:      { emoji: '🗓️', q: 'When do you want to escape?',      sub: 'Every season holds a different kind of magic' },
-  travellers:  { emoji: '✈️', q: "Who's coming with you?",           sub: 'Every adventure is better with the right company' },
-  budget:      { emoji: '💰', q: "What's your budget range?",        sub: 'We craft extraordinary experiences at every level' },
-  contact:     { emoji: '🚀', q: 'Ready for takeoff?',               sub: 'Your dream itinerary is just moments away' },
+  destination: { emoji: '🌍', q: 'Where do you want to go?',         sub: 'Your world is waiting — pick your paradise' },
+  season:      { emoji: '🗓️', q: 'When are you travelling?',          sub: 'Every season holds a different kind of magic' },
+  travellers:  { emoji: '✈️', q: 'How many travellers?',              sub: 'Every adventure is better with the right company' },
+  budget:      { emoji: '💰', q: "What's your approximate budget?",   sub: 'We craft extraordinary experiences at every level' },
+  holidayType: { emoji: '✨', q: 'What type of holiday do you prefer?', sub: 'This helps us shape the itinerary around you' },
+  contact:     { emoji: '🚀', q: 'Ready for takeoff?',               sub: 'Your personalised quote is just moments away' },
 }
 
 const DEST_ORIGINS = [
@@ -91,14 +99,21 @@ function useFabTheme() {
       // Sample the pixel behind the FAB (bottom-right corner)
       const x = window.innerWidth  - 80
       const y = window.innerHeight - 60
-      const el = document.elementFromPoint(x, y)
-      if (!el) return
-      const bg = window.getComputedStyle(el).backgroundColor
-      const m  = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-      if (m) {
+      // Skip the FAB's own layers (it would otherwise sample itself and stay
+      // dark forever) and skip fully transparent wrappers, which report
+      // rgba(0,0,0,0) and would read as black.
+      const stack = document.elementsFromPoint(x, y)
+      for (const el of stack) {
+        if (el.closest('[data-fab]')) continue
+        const bg = window.getComputedStyle(el).backgroundColor
+        const m  = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/)
+        if (!m) continue
+        if (m[4] !== undefined && +m[4] <= 0.1) continue
         const luma = 0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3]
         setDark(luma < 160)
+        return
       }
+      setDark(false)
     }
     check()
     window.addEventListener('scroll', check, { passive: true })
@@ -477,7 +492,7 @@ export default function TravelQuizModal({ standalone = false }) {
   const [open,     setOpen]    = useState(standalone)
   const [step,     setStep]    = useState(0)
   const [dir,      setDir]     = useState(1)
-  const [answers,  setAnswers] = useState({ destination: null, season: null, travellers: null, budget: null })
+  const [answers,  setAnswers] = useState({ destination: null, season: null, travellers: null, budget: null, holidayType: null })
   const [contact,  setContact] = useState({ name: '', phone: '', email: '' })
   const [loading,  setLoading] = useState(false)
   const [error,    setError]   = useState('')
@@ -505,6 +520,38 @@ export default function TravelQuizModal({ standalone = false }) {
     mouseY.set((e.clientY - r.top)  / r.height)
   }, [mouseX, mouseY, isMobile])
 
+  const openModal  = () => { setOpen(true); sessionStorage.setItem('emv_quiz_seen', '1') }
+  const closeModal = () => { if (standalone) { navigate('/') } else { setOpen(false) } }
+
+  // Carries the hero search box's answers into the planner so the visitor never
+  // has to type the same thing twice. Anything we can't map is simply ignored.
+  const applyPrefill = (prefill) => {
+    if (!prefill) return
+
+    const destination = (prefill.destination || '').trim()
+    const matchedDest = destination
+      ? [...DESTINATIONS, ...DOMESTIC_DESTINATIONS].find(d =>
+          d.label.toLowerCase() === destination.toLowerCase() ||
+          d.sub.toLowerCase().includes(destination.toLowerCase()))
+      : null
+
+    const season     = SEASONS.find(s => s.id === prefill.season) || null
+    const travellers = TRAVELLERS.find(t => t.id === prefill.travellers) || null
+
+    if (!matchedDest && !season && !travellers) return
+
+    setAnswers(p => ({
+      ...p,
+      ...(matchedDest && { destination: matchedDest }),
+      ...(season     && { season }),
+      ...(travellers && { travellers }),
+    }))
+
+    if (matchedDest && DOMESTIC_DESTINATIONS.some(d => d.id === matchedDest.id)) {
+      setDestTab('domestic')
+    }
+  }
+
   useEffect(() => {
     if (standalone) return
     if (localStorage.getItem('emv_quiz_done') || sessionStorage.getItem('emv_quiz_seen')) return
@@ -514,7 +561,7 @@ export default function TravelQuizModal({ standalone = false }) {
 
   useEffect(() => {
     if (standalone) return
-    const h = () => openModal()
+    const h = (e) => { applyPrefill(e.detail); openModal() }
     window.addEventListener('open-travel-quiz', h)
     return () => window.removeEventListener('open-travel-quiz', h)
   }, [standalone])
@@ -534,12 +581,9 @@ export default function TravelQuizModal({ standalone = false }) {
     }
   }, [open, standalone])
 
-  const openModal  = () => { setOpen(true); sessionStorage.setItem('emv_quiz_seen', '1') }
-  const closeModal = () => { if (standalone) { navigate('/') } else { setOpen(false) } }
-
   const reset = () => {
     setStep(0); setDir(1)
-    setAnswers({ destination: null, season: null, travellers: null, budget: null })
+    setAnswers({ destination: null, season: null, travellers: null, budget: null, holidayType: null })
     setContact({ name: '', phone: '', email: '' })
     setError(''); setDone(false); setDestTab('international')
   }
@@ -565,7 +609,11 @@ export default function TravelQuizModal({ standalone = false }) {
         ...(answers.destination  && { destination: answers.destination.label }),
         ...(answers.travellers   && { travellers: answers.travellers.label }),
         ...(answers.season       && { travelDate: `${answers.season.label} (${answers.season.sub.split('·')[0].trim()})` }),
-        message: `Budget: ${answers.budget?.label || 'N/A'} per person. Via ${standalone ? 'Shared Trip Planner Link' : 'Trip Planner Quiz'}.`,
+        message: [
+          `Budget: ${answers.budget?.label || 'N/A'} per person.`,
+          answers.holidayType && `Holiday type: ${answers.holidayType.label}.`,
+          `Via ${standalone ? 'Shared Trip Planner Link' : 'Holiday Planner'}.`,
+        ].filter(Boolean).join(' '),
         type: 'lead',
       })
       localStorage.setItem('emv_quiz_done', '1')
@@ -603,6 +651,7 @@ export default function TravelQuizModal({ standalone = false }) {
         {!standalone && !open && (
           <motion.div
             key="quiz-fab"
+            data-fab=""
             initial={{ opacity: 0, y: 30, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -667,7 +716,7 @@ export default function TravelQuizModal({ standalone = false }) {
                 <span style={{ position: 'relative', width: 10, height: 10, borderRadius: '50%', background: '#E53935', display: 'inline-flex' }} />
               </span>
 
-              <span style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.02em' }}>Plan My Trip</span>
+              <span style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.02em' }}>💬 Plan My Trip</span>
 
               <motion.svg
                 style={{ width: 14, height: 14, color: '#E53935', flexShrink: 0 }}
@@ -861,6 +910,7 @@ export default function TravelQuizModal({ standalone = false }) {
                             { icon: '📅', key: 'Season',      val: answers.season?.label },
                             { icon: '👥', key: 'Travellers',  val: answers.travellers?.label },
                             { icon: '💰', key: 'Budget',      val: answers.budget?.label },
+                            { icon: '✨', key: 'Holiday Type', val: answers.holidayType?.label },
                           ].filter(x => x.val).map((x, i) => (
                             <motion.div
                               key={x.key}
@@ -886,10 +936,18 @@ export default function TravelQuizModal({ standalone = false }) {
                         transition={{ delay: 0.65 }}
                         whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.96 }}
-                        onClick={() => { if (standalone) { navigate('/packages') } else { reset(); closeModal() } }}
+                        onClick={() => {
+                          // Land the visitor on the packages that match what they just told us.
+                          const dest = answers.destination?.label
+                          const to = dest ? `/packages?destination=${encodeURIComponent(dest)}` : '/packages'
+                          if (!standalone) { reset(); closeModal() }
+                          navigate(to)
+                        }}
                         className={styles.closeExploreBtn}
                       >
-                        {standalone ? 'Explore Packages →' : 'Close & Explore Packages →'}
+                        {answers.destination
+                          ? `See ${answers.destination.label} Packages →`
+                          : 'Explore Packages →'}
                       </motion.button>
 
                       <div className={styles.altBtnRow}>
@@ -1006,6 +1064,17 @@ export default function TravelQuizModal({ standalone = false }) {
                         </div>
                       )}
 
+                      {currentStepKey === 'holidayType' && (
+                        <div className={styles.gridTwo}>
+                          {HOLIDAY_TYPES.map((h, i) => (
+                            <IconCard key={h.id} option={h} index={i} isMobile={isMobile}
+                              selected={answers.holidayType?.id === h.id}
+                              onClick={() => select('holidayType', h)}
+                            />
+                          ))}
+                        </div>
+                      )}
+
                       {/* Contact form */}
                       {currentStepKey === 'contact' && (
                         <motion.div
@@ -1021,6 +1090,7 @@ export default function TravelQuizModal({ standalone = false }) {
                               answers.season      && { icon: '📅', val: answers.season.label },
                               answers.travellers  && { icon: '👥', val: answers.travellers.label },
                               answers.budget      && { icon: '💰', val: answers.budget.label },
+                              answers.holidayType && { icon: '✨', val: answers.holidayType.label },
                             ].filter(Boolean).map((x, i) => (
                               <motion.span
                                 key={x.val}
@@ -1145,7 +1215,7 @@ export default function TravelQuizModal({ standalone = false }) {
                                 Building your dream…
                               </>
                             ) : currentStepKey === 'contact' ? (
-                              <>🚀 Launch My Itinerary</>
+                              <>Get My Personalised Quote</>
                             ) : (
                               <>
                                 Continue

@@ -61,7 +61,7 @@ function QuoteView({ quote }) {
       <div className={styles.qvHeaderBar}>
         <div>
           <div className={styles.qvBrandRow}>
-            <img src={LOGO_URL} alt="EMV" className={styles.qvLogo} />
+            <img src={LOGO_URL} alt="Ease My Vacations" className={styles.qvLogo} />
             <span className={styles.qvBrandName}>{COMPANY.name}</span>
           </div>
           <div className={styles.qvRefRow}>
@@ -324,7 +324,7 @@ function QuoteView({ quote }) {
       </div>
 
       <p className={styles.qvFootNote}>
-        {COMPANY.legal} · CIN: {COMPANY.cin} · GST: {COMPANY.gst} · Prepared by {quote.agentName || 'EMV Team'}
+        {COMPANY.legal} · CIN: {COMPANY.cin} · GST: {COMPANY.gst} · Prepared by {quote.agentName || 'Ease My Vacations Team'}
       </p>
 
       <div ref={printRef} style={{ display: 'none' }}>

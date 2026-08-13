@@ -3,9 +3,10 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import styles from './ProcessSection.module.css'
 
 const steps = [
-  { num: '01', title: 'Connect', desc: 'Share your travel dreams with our dedicated concierge. A 15-minute consultation — phone or WhatsApp.' },
-  { num: '02', title: 'Curate',  desc: 'We design a bespoke itinerary with handpicked stays, experiences and logistics tailored to you.' },
-  { num: '03', title: 'Depart', desc: 'Travel with confidence. Your concierge is available 24/7 throughout the journey.' },
+  { num: '01', title: 'Tell Us Your Dream',    desc: 'Share your destination, dates, travellers and preferences.' },
+  { num: '02', title: 'We Build Your Journey', desc: 'Our travel experts curate an itinerary around you.' },
+  { num: '03', title: 'Refine & Confirm',      desc: 'Make changes until everything feels right.' },
+  { num: '04', title: 'Travel With Confidence',desc: 'Enjoy dedicated assistance throughout your journey.' },
 ]
 
 export default function ProcessSection() {
@@ -24,7 +25,7 @@ export default function ProcessSection() {
           className={styles.header}
         >
           <span className={styles.eyebrow}>How It Works</span>
-          <h2 className={styles.heading}>The EMV Journey.</h2>
+          <h2 className={styles.heading}>Your Holiday. Your Way.</h2>
         </motion.div>
 
         <div className={styles.relative}>
@@ -49,6 +50,24 @@ export default function ProcessSection() {
             ))}
           </div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
+          className={styles.ctaRow}
+        >
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
+            className={styles.ctaBtn}
+          >
+            Start Planning
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </motion.div>
       </div>
     </section>
   )

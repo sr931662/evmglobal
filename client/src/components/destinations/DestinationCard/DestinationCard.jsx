@@ -27,7 +27,7 @@ export default function DestinationCard({ dest, index, priceMin, priceMax, packa
   async function handleShare(event) {
     event.stopPropagation()
     const shareUrl  = buildShareUrl(dest.name)
-    const shareText = `Explore ${dest.name}, ${dest.country} with EMV Global`
+    const shareText = `Explore ${dest.name}, ${dest.country} with Ease My Vacations`
     try {
       if (navigator.share) {
         await navigator.share({ title: dest.name, text: shareText, url: shareUrl })

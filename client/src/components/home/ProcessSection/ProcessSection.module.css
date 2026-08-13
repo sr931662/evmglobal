@@ -1,9 +1,9 @@
 .section {
-  padding: 2rem 0;
-  background: #f9fafb;
+  padding: 3rem 0;
+  background: var(--surface-soft);
   overflow: hidden;
 }
-@media (min-width: 768px) { .section { padding: 3rem 0; } }
+@media (min-width: 768px) { .section { padding: 5rem 0; } }
 
 .inner {
   max-width: 95rem;
@@ -28,7 +28,7 @@
 .heading {
   font-family: var(--font-serif);
   font-weight: 700;
-  color: var(--dark);
+  color: var(--ink);
   letter-spacing: -0.025em;
   font-size: clamp(1.875rem, 5vw, 3.75rem);
 }
@@ -46,7 +46,7 @@
   border-radius: 9999px;
   overflow: hidden;
 }
-@media (min-width: 768px) { .progressLine { display: block; } }
+@media (min-width: 1024px) { .progressLine { display: block; } }
 .progressFill {
   height: 100%;
   background: var(--brand);
@@ -60,7 +60,8 @@
   gap: 2rem 2.5rem;
   position: relative;
 }
-@media (min-width: 768px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 640px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
 .step {
   display: flex;
@@ -101,17 +102,43 @@
 .stepTitle {
   font-family: var(--font-serif);
   font-weight: 700;
-  color: var(--dark);
+  color: var(--ink);
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
 }
 @media (min-width: 768px) { .stepTitle { font-size: 1.5rem; margin-bottom: 0.75rem; } }
 
 .stepDesc {
-  color: #6b7280;
+  color: var(--ink-soft);
   font-weight: 300;
   font-size: 0.875rem;
   max-width: 18rem;
   line-height: 1.7;
 }
 @media (min-width: 768px) { .stepDesc { font-size: 1rem; } }
+
+.ctaRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+@media (min-width: 768px) { .ctaRow { margin-top: 3.5rem; } }
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.9375rem 2rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: background-color 0.25s;
+}
+.ctaBtn:hover { background: var(--brand-hover); }
+.ctaBtn svg { width: 1rem; height: 1rem; transition: transform 0.2s; }
+.ctaBtn:hover svg { transform: translateX(3px); }

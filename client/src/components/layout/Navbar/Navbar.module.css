@@ -65,13 +65,12 @@
 .globalText {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 1.125rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-size: clamp(0.875rem, 1.1vw, 1.125rem);
+  letter-spacing: 0.02em;
   white-space: nowrap;
   transition: color 0.3s ease;
 }
-.globalTextDark  { color: var(--dark); }
+.globalTextDark  { color: var(--ink); }
 .globalTextLight { color: #fff; }
 
 /* ── Desktop nav pill ── */
@@ -131,6 +130,28 @@
 .workspaceDark  { color: var(--dark); }
 .workspaceLight { color: #fff; }
 .workspaceLink:hover { color: var(--brand); }
+
+/* Highlighted conversion CTA — always the loudest thing in the header. */
+.planTripBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: clamp(0.5625rem, 0.7vw, 0.8125rem) clamp(1rem, 1.2vw, 1.5rem);
+  font-size: clamp(0.8125rem, 0.82vw, 0.9375rem);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-glow);
+  transition: background-color 0.2s;
+}
+.planTripBtn:hover { background: var(--brand-hover); }
+.planTripBtn svg { width: 0.875rem; height: 0.875rem; transition: transform 0.2s; }
+.planTripBtn:hover svg { transform: translateX(3px); }
 
 .planBtn {
   background: #fff;

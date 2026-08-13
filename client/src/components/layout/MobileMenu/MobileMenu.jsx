@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FaTimes } from 'react-icons/fa'
 import { openWhatsApp } from '../../../utils/whatsapp'
@@ -12,10 +12,11 @@ const links = [
   ['Home', '/'],
   ['Destinations', '/destinations'],
   ['Holidays', '/packages'],
+  ['Travel Styles', '/#travel-styles'],
   ['Quotes', '/quotes'],
   ['Our Ethos', '/about'],
   ['Contact', '/contact'],
-  ['Blog', '/blog'],
+  ['Travel Journal', '/blog'],
   ['Careers', '/careers'],
 ]
 
@@ -29,6 +30,18 @@ const WA_ICON = (
 export default function MobileMenu({ open, onClose }) {
   const { customer, logoutCustomer } = useCustomerAuth()
   const { user: adminUser, logout: adminLogout } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Home-page sections (e.g. Travel Styles) aren't routes — close the menu,
+  // go home if needed, then scroll to the section.
+  const goToSection = (hash) => {
+    const id = hash.replace('/#', '')
+    onClose()
+    const scroll = () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    if (location.pathname === '/') setTimeout(scroll, 350)
+    else { navigate('/'); setTimeout(scroll, 500) }
+  }
 
   useEffect(() => {
     if (open) {
@@ -63,22 +76,38 @@ export default function MobileMenu({ open, onClose }) {
           <nav className={styles.nav}>
             {links.map(([label, path], i) => (
               <motion.div
-                key={path}
+                key={label}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
               >
-                <Link to={path} onClick={onClose} className={styles.navLink}>
-                  {label}
-                </Link>
+                {path.startsWith('/#') ? (
+                  <button
+                    onClick={() => goToSection(path)}
+                    className={styles.navLink}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                  >
+                    {label}
+                  </button>
+                ) : (
+                  <Link to={path} onClick={onClose} className={styles.navLink}>
+                    {label}
+                  </Link>
+                )}
               </motion.div>
             ))}
           </nav>
 
           <div className={styles.footer}>
+            <button
+              onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('open-travel-quiz')) }}
+              className={styles.planTripBtn}
+            >
+              Plan My Trip →
+            </button>
             <button onClick={() => { openWhatsApp(); onClose() }} className={styles.whatsappBtn}>
               <span className={styles.waIcon}>{WA_ICON}</span>
-              Chat on WhatsApp
+              WhatsApp a Travel Expert
             </button>
             {customer ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>

@@ -50,12 +50,12 @@ const ARROW = (
 )
 
 const TYPED_PLACEHOLDERS = [
-  'Planning for Andaman',
-  'Planning for Thailand',
-  'Planning for Kashmir',
-  'Planning for Vietnam',
-  'Planning for Dubai',
-  'Planning for Bali',
+  'Thailand',
+  'Andaman',
+  'Kashmir',
+  'Vietnam',
+  'Dubai',
+  'Bali',
 ]
 
 const prefersReducedMotion = () =>
@@ -97,6 +97,12 @@ function useTypedPlaceholder(phrases, active = true) {
   return text
 }
 
+// Opens the 30-second holiday planner instead of dropping the visitor straight
+// into the package list — the enquiry is worth more than the search result.
+function openPlanner(prefill) {
+  window.dispatchEvent(new CustomEvent('open-travel-quiz', { detail: prefill }))
+}
+
 export default function HeroSection() {
   const navigate  = useNavigate()
   const heroRef   = useRef(null)
@@ -130,14 +136,16 @@ export default function HeroSection() {
     : allDests.slice(0, 6)
 
   const handleSearch = () => {
-    const params = new URLSearchParams()
-    if (destInput.trim()) params.set('destination', destInput.trim())
-    navigate(params.toString() ? `/packages?${params}` : '/packages')
+    openPlanner({ destination: destInput.trim(), season: duration, travellers: travelers })
   }
 
   const handleMobileSearch = () => {
+    openPlanner({ destination: mobileDestInput.trim() })
+  }
+
+  const browsePackages = (name) => {
     const params = new URLSearchParams()
-    if (mobileDestInput.trim()) params.set('destination', mobileDestInput.trim())
+    if (name.trim()) params.set('destination', name.trim())
     navigate(params.toString() ? `/packages?${params}` : '/packages')
   }
 
@@ -169,9 +177,7 @@ export default function HeroSection() {
 
         {/* Headline */}
         <h1 className={styles.headline}>
-          <SplitTitle text="Crafting Your" />
-          {' '}
-          <SplitTitle text="Perfect" />
+          <SplitTitle text="Your Journey." />
           {' '}
           <span className={styles.accentWrap}>
             <span className={styles.splitParent}>
@@ -179,24 +185,24 @@ export default function HeroSection() {
                 className={styles.splitChild}
                 style={{ color: '#FFD6D6', fontStyle: 'italic', fontWeight: 400, padding: '0 4px' }}
                 variants={wordVariants}
-                custom={4}
+                custom={2}
                 initial="hidden"
                 animate="visible"
               >
-                Escape.
+                Our Expertise.
               </motion.span>
             </span>
           </span>
         </h1>
 
-        {/* Subtitle */}
+        {/* Tagline */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.4, ease: [0.33, 1, 0.68, 1] }}
           className={styles.subtitle}
         >
-          Bespoke international holidays curated entirely around your pace and preferences.
+          Serving Memories since 2022
         </motion.p>
 
         {/* Quiz CTA */}
@@ -206,11 +212,11 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 1.55, ease: [0.33, 1, 0.68, 1] }}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
-          className={`${styles.quizBtn} glass-dark`}
+          onClick={() => openPlanner()}
+          className={styles.quizBtn}
         >
           <PingDot />
-          <span>Plan My Perfect Trip</span>
+          <span>Get My Holiday Quote</span>
           <svg className={styles.quizArrow} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>
@@ -226,7 +232,7 @@ export default function HeroSection() {
           <div className={styles.searchMobileCard} style={{ position: 'relative' }}>
             <div className={styles.searchMobileRow}>
               <div className={styles.searchMobileField}>
-                <span className={styles.searchFieldLabel}>Destination</span>
+                <span className={styles.searchFieldLabel}>Where do you want to go?</span>
                 <input
                   type="text"
                   placeholder={`${typedMobilePlaceholder}|`}
@@ -242,7 +248,10 @@ export default function HeroSection() {
               </button>
             </div>
             <button onClick={handleMobileSearch} className={styles.searchMobileExplore}>
-              Explore Holidays →
+              Plan My Holiday →
+            </button>
+            <button onClick={() => browsePackages(mobileDestInput)} className={styles.searchMobileBrowse}>
+              or browse holiday packages
             </button>
             {showMobileDropdown && filteredMobileDests.length > 0 && (
               <div className={styles.dropdownMobile}>
@@ -266,7 +275,7 @@ export default function HeroSection() {
           ref={dropdownRef}
         >
           <div className={styles.searchField}>
-            <label className={styles.searchFieldLabel2}>Destination</label>
+            <label className={styles.searchFieldLabel2}>Where do you want to go?</label>
             <input
               type="text"
               placeholder={`${typedPlaceholder}|`}
@@ -280,19 +289,21 @@ export default function HeroSection() {
           </div>
           <div className={styles.searchDivider} />
           <div className={styles.searchField}>
-            <label className={styles.searchFieldLabel2}>Duration</label>
+            <label className={styles.searchFieldLabel2}>When?</label>
             <select className={styles.searchSelect} value={duration} onChange={e => setDuration(e.target.value)}>
-              <option value="">Any length</option>
-              <option value="3-5">3 – 5 Days</option>
-              <option value="6-9">6 – 9 Days</option>
-              <option value="10+">10+ Days</option>
+              <option value="">Travel dates / Flexible</option>
+              <option value="spring">Spring · Mar – May</option>
+              <option value="summer">Summer · Jun – Aug</option>
+              <option value="autumn">Autumn · Sep – Nov</option>
+              <option value="winter">Winter · Dec – Feb</option>
             </select>
           </div>
           <div className={styles.searchDivider} />
           <div className={styles.searchField}>
-            <label className={styles.searchFieldLabel2}>Travelers</label>
+            <label className={styles.searchFieldLabel2}>Who's travelling?</label>
             <select className={styles.searchSelect} value={travelers} onChange={e => setTravelers(e.target.value)}>
-              <option value="">Who's going?</option>
+              <option value="">2 Adults, 1 Child</option>
+              <option value="solo">Solo</option>
               <option value="couple">Couple</option>
               <option value="family">Family</option>
               <option value="group">Group</option>
@@ -312,6 +323,16 @@ export default function HeroSection() {
             </div>
           )}
         </motion.div>
+
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.9 }}
+          onClick={() => browsePackages(destInput)}
+          className={styles.browseLink}
+        >
+          or browse holiday packages →
+        </motion.button>
       </div>
 
       {/* Scroll indicator */}

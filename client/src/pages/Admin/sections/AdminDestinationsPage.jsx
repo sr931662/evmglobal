@@ -17,7 +17,15 @@ const regionColors = {
 
 const FALLBACK = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=400'
 
-const empty = { name: '', country: '', region: 'Europe', image: '' }
+const empty = {
+  name: '', country: '', region: 'Europe', image: '',
+  blurb: '', highlights: '',
+  visaInfo: '', currency: '', bestTime: '',
+}
+
+// `highlights` is stored as an array but edited as one-per-line text.
+const linesToArray = (text) => text.split('\n').map(s => s.trim()).filter(Boolean)
+const arrayToLines = (arr) => (Array.isArray(arr) ? arr.join('\n') : '')
 
 export default function AdminDestinationsPage() {
   const [destinations, setDestinations] = useState([])
@@ -61,10 +69,15 @@ export default function AdminDestinationsPage() {
   const openEdit = (dest) => {
     setEditId(dest.id || dest._id)
     setForm({
-      name:    dest.name    || '',
-      country: dest.country || '',
-      region:  dest.region  || 'Europe',
-      image:   dest.image   || '',
+      name:       dest.name    || '',
+      country:    dest.country || '',
+      region:     dest.region  || 'Europe',
+      image:      dest.image   || '',
+      blurb:      dest.blurb   || '',
+      highlights: arrayToLines(dest.highlights),
+      visaInfo:   dest.visaInfo || '',
+      currency:   dest.currency || '',
+      bestTime:   dest.bestTime || '',
     })
     setShowModal(true)
   }
@@ -74,12 +87,13 @@ export default function AdminDestinationsPage() {
   const handleSave = async () => {
     if (!form.name.trim() || !form.country.trim()) return
     setSaving(true)
+    const payload = { ...form, highlights: linesToArray(form.highlights) }
     try {
       if (editId) {
-        const updated = await api.updateDestination(editId, form)
+        const updated = await api.updateDestination(editId, payload)
         setDestinations(prev => prev.map(d => (d.id || d._id) === editId ? { ...d, ...updated } : d))
       } else {
-        const created = await api.createDestination(form)
+        const created = await api.createDestination(payload)
         setDestinations(prev => [created, ...prev])
       }
       closeModal()
@@ -254,6 +268,46 @@ export default function AdminDestinationsPage() {
                   {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
+
+              {/* Shown on package pages that visit this destination */}
+              <div>
+                <label className={c.label}>Short blurb</label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Limestone cliffs, longtail boats and some of Thailand's best beaches."
+                  value={form.blurb}
+                  onChange={e => f('blurb', e.target.value)}
+                  className={c.input}
+                />
+              </div>
+
+              <div>
+                <label className={c.label}>Highlights &mdash; one per line</label>
+                <textarea
+                  rows={4}
+                  placeholder={'Island experiences\nLimestone cliffs\nBeaches & sunsets'}
+                  value={form.highlights}
+                  onChange={e => f('highlights', e.target.value)}
+                  className={c.input}
+                />
+              </div>
+
+              {[
+                { label: 'Visa guidance',   key: 'visaInfo', placeholder: 'e.g. Visa on arrival for Indian passport holders; 15-day stay.' },
+                { label: 'Currency',        key: 'currency', placeholder: 'e.g. Thai Baht (THB)' },
+                { label: 'Best time to travel', key: 'bestTime', placeholder: 'e.g. November to April for dry, sunny weather.' },
+              ].map(field => (
+                <div key={field.key}>
+                  <label className={c.label}>{field.label}</label>
+                  <input
+                    type="text"
+                    placeholder={field.placeholder}
+                    value={form[field.key]}
+                    onChange={e => f(field.key, e.target.value)}
+                    className={c.input}
+                  />
+                </div>
+              ))}
             </div>
 
             <div className={c.modalActions}>

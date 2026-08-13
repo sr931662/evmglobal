@@ -53,14 +53,14 @@ export default function BlogSection() {
         >
           <div>
             <span className={styles.eyebrow}>
-              <span className={styles.eyebrowLine} /> From Our Blog
+              <span className={styles.eyebrowLine} /> Travel Inspiration
             </span>
             <h2 className={styles.heading}>
-              Travel stories &amp;<br />insider guides.
+              Travel Better.<br />Travel Informed.
             </h2>
           </div>
           <button onClick={() => navigate('/blog')} className={styles.allBtn}>
-            All Articles {ARROW}
+            Explore Travel Guides {ARROW}
           </button>
         </motion.div>
 

@@ -64,6 +64,17 @@ const PackageHotelSchema = new Schema(
 export const PackageSchema = new Schema(
   {
     title:        { type: String, required: true, trim: true },
+
+    // Customer-facing headline overrides. `title` stays the internal/SEO name;
+    // these drive the package page hero when set:
+    //   displayTitle -> "South Thailand Escape"
+    //   subtitle     -> "Krabi • Koh Samui • Phuket"
+    //   tagline      -> "A tropical journey through Thailand's islands."
+    // When blank the page derives them by splitting `title`.
+    displayTitle: { type: String, default: '' },
+    subtitle:     { type: String, default: '' },
+    tagline:      { type: String, default: '' },
+
     slug:         { type: String, unique: true, lowercase: true, sparse: true },
     category:     { type: String, required: true, enum: ['Honeymoon', 'Family', 'Luxury', 'Domestic', 'Wellness'] },
     nights:       { type: Number, required: true, min: 1 },

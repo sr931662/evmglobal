@@ -7,12 +7,37 @@ import { useScrollLock } from '../../../hooks/useScrollLock'
 import c from './adminCommon.module.css'
 import styles from './AdminBlogsPage.module.css'
 
-const CATEGORIES = ['Travel Tips', 'Destinations', 'Behind the Scenes', 'News', 'Culture']
+const CATEGORIES = [
+  'Travel Tips', 'Destinations', 'Travel Guides', 'Visa & Entry',
+  'Honeymoon', 'Family Travel', 'Luxury Travel', 'Wellness',
+  'Behind the Scenes', 'News', 'Culture',
+]
 const STATUS_OPTIONS = ['All', 'draft', 'published']
 
 const emptyForm = {
   title: '', excerpt: '', content: '', category: 'Travel Tips',
-  coverImage: '', author: 'EMV Global', tags: '', status: 'draft',
+  coverImage: '', coverAlt: '', author: 'Ease My Vacations', tags: '', status: 'draft',
+  destination: '', featured: false, editorsPick: false, faqs: '',
+}
+
+// FAQs are stored as [{ q, a }] but edited as "Question | Answer" lines —
+// keeps the editor simple without needing a repeater UI.
+function linesToFaqs(text) {
+  return (text || '')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const [q, ...rest] = line.split('|')
+      return { q: (q || '').trim(), a: rest.join('|').trim() }
+    })
+    .filter(faq => faq.q && faq.a)
+}
+
+function faqsToLines(faqs) {
+  return (Array.isArray(faqs) ? faqs : [])
+    .map(faq => `${faq.q} | ${faq.a}`)
+    .join('\n')
 }
 
 function formatDate(iso) {
@@ -114,9 +139,14 @@ function BlogModal({ blog, onClose, onSave }) {
     content:    blog.content    || '',
     category:   blog.category   || 'Travel Tips',
     coverImage: blog.coverImage || '',
-    author:     blog.author     || 'EMV Global',
+    coverAlt:   blog.coverAlt   || '',
+    author:     blog.author     || 'Ease My Vacations',
     tags:       Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags || ''),
     status:     blog.status     || 'draft',
+    destination: blog.destination || '',
+    featured:    !!blog.featured,
+    editorsPick: !!blog.editorsPick,
+    faqs:        faqsToLines(blog.faqs),
   } : { ...emptyForm })
   const [saving,    setSaving]    = useState(false)
   const [err,       setErr]       = useState('')
@@ -167,6 +197,7 @@ function BlogModal({ blog, onClose, onSave }) {
       const payload = {
         ...form,
         tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+        faqs: linesToFaqs(form.faqs),
       }
       await onSave(payload)
       onClose()
@@ -217,6 +248,32 @@ function BlogModal({ blog, onClose, onSave }) {
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                 </select>
+              </div>
+            </div>
+
+            {/* Drives the destination-specific CTA and the matching holidays
+                shown inside the article. */}
+            <div className={c.grid2}>
+              <div>
+                <label className={c.label}>Destination</label>
+                <input type="text" value={form.destination} onChange={e => f('destination', e.target.value)}
+                  placeholder="e.g. Thailand"
+                  className={c.input} />
+              </div>
+              <div>
+                <label className={c.label}>Show on the journal landing page</label>
+                <div className={styles.flagRow}>
+                  <label className={styles.flag}>
+                    <input type="checkbox" checked={form.featured}
+                      onChange={e => f('featured', e.target.checked)} />
+                    Featured guide
+                  </label>
+                  <label className={styles.flag}>
+                    <input type="checkbox" checked={form.editorsPick}
+                      onChange={e => f('editorsPick', e.target.checked)} />
+                    Editor&rsquo;s pick
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -409,11 +466,33 @@ function BlogModal({ blog, onClose, onSave }) {
                 className={c.input} />
             </div>
 
+            <div>
+              <label className={c.label}>Cover image alt text</label>
+              <input type="text" value={form.coverAlt} onChange={e => f('coverAlt', e.target.value)}
+                placeholder="e.g. Longtail boats on Railay beach, Krabi"
+                className={c.input} />
+              <p className={styles.fieldHint}>
+                Describe what the photo actually shows. Don&rsquo;t stuff keywords &mdash; screen readers and
+                search engines both read this.
+              </p>
+            </div>
+
+            <div>
+              <label className={c.label}>Article FAQs</label>
+              <textarea rows={5} value={form.faqs} onChange={e => f('faqs', e.target.value)}
+                placeholder={'Do Indians need a visa for Thailand? | Visa on arrival is available…\nHow many days are enough for Thailand? | Seven to ten days covers…'}
+                className={c.input} />
+              <p className={styles.fieldHint}>
+                One per line, as <code>Question | Answer</code>. These render as an accordion at the
+                bottom of the article and as Google FAQ rich-result markup.
+              </p>
+            </div>
+
             <div className={c.grid2}>
               <div>
                 <label className={c.label}>Author</label>
                 <input type="text" value={form.author} onChange={e => f('author', e.target.value)}
-                  placeholder="EMV Global"
+                  placeholder="Ease My Vacations"
                   className={c.input} />
               </div>
               <div>

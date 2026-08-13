@@ -18,7 +18,7 @@ export default function WhatsAppButton() {
       <svg viewBox="0 0 24 24" fill="currentColor" className={styles.icon}>
         <path d={WA_PATH} />
       </svg>
-      <span className={styles.label}>Concierge</span>
+      <span className={styles.label}>WhatsApp a Travel Expert</span>
     </motion.button>
   )
 }

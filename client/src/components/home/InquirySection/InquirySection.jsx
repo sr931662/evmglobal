@@ -175,7 +175,7 @@ export default function InquirySection({
                   Visa, stays, transfers and concierge bundled neatly.
                 </div>
                 <div className={`${styles.floatingNote} ${styles.noteBottom}`}>
-                  <span className={styles.noteBadge}>EMV</span>
+                  <span className={styles.noteBadge}>Ease My Vacations</span>
                   Built around your pace, budget and travel style.
                 </div>
               </div>

@@ -89,7 +89,8 @@ const emptyFlight   = () => ({
 })
 const emptyDay = (n) => ({ day: n, title: '', note: '', activities: [emptyActivity()], transport: '', mealsIncluded: [] })
 const emptyForm = () => ({
-  title: '', category: 'Honeymoon', nights: '', price: '', priceValue: '',
+  title: '', displayTitle: '', subtitle: '', tagline: '',
+  category: 'Honeymoon', nights: '', price: '', priceValue: '',
   description: '', destinations: [], highlights: '', image: '', status: 'Active',
   contentMarkdown: CONTENT_MD_TEMPLATE,
   itinerary: [], flights: [], hotels: [],
@@ -742,6 +743,34 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
           {tab === 0 && (
             <div className={s.basicInfoStack}>
               <Field label="Package Title" value={form.title} onChange={v => f('title', v)} placeholder="e.g. Romantic Bali Escape" />
+              <p className={s.fieldHelp}>Used for the page title, SEO and admin listings.</p>
+
+              {/* Customer-facing hero copy. Blank fields fall back to splitting
+                  the package title, so existing packages keep working. */}
+              <div className={s.basicInfoGrid2}>
+                <Field
+                  label="Display Title (optional)"
+                  value={form.displayTitle}
+                  onChange={v => f('displayTitle', v)}
+                  placeholder="e.g. South Thailand Escape"
+                />
+                <Field
+                  label="Subtitle / Route (optional)"
+                  value={form.subtitle}
+                  onChange={v => f('subtitle', v)}
+                  placeholder="e.g. Krabi • Koh Samui • Phuket"
+                />
+              </div>
+              <Field
+                label="Tagline (optional)"
+                value={form.tagline}
+                onChange={v => f('tagline', v)}
+                placeholder="e.g. A tropical journey through Thailand's most beautiful islands."
+              />
+              <p className={s.fieldHelp}>
+                These three drive the big headline on the package page. Leave blank to auto-derive them from the title.
+              </p>
+
               <div className={s.basicInfoGrid2}>
                 <div className={s.fieldWrap}>
                   <label className={s.fieldLabel}>Price (per adult)</label>
@@ -944,6 +973,9 @@ export default function AdminPackagesPage() {
     setEditPkg(pkg._id || pkg.id)
     setForm({
       title:        pkg.title        || '',
+      displayTitle: pkg.displayTitle || '',
+      subtitle:     pkg.subtitle     || '',
+      tagline:      pkg.tagline      || '',
       category:     pkg.category     || 'Honeymoon',
       nights:       pkg.nights?.toString() || '',
       price:        pkg.price        || '',
@@ -1012,6 +1044,9 @@ export default function AdminPackagesPage() {
     try {
       const payload = {
         title:        form.title.trim(),
+        displayTitle: (form.displayTitle || '').trim(),
+        subtitle:     (form.subtitle     || '').trim(),
+        tagline:      (form.tagline      || '').trim(),
         category:     form.category,
         nights:       parseInt(form.nights)     || 0,
         price:        formatPrice(priceValue),

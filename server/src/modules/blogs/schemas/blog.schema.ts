@@ -1,5 +1,11 @@
 import { Schema } from 'mongoose';
 
+// Per-article FAQ, rendered as an accordion and as FAQ rich-result markup.
+const BlogFaqSchema = new Schema(
+  { q: { type: String, default: '' }, a: { type: String, default: '' } },
+  { _id: false }
+);
+
 export const BlogSchema = new Schema(
   {
     title:       { type: String, required: true, trim: true },
@@ -8,10 +14,25 @@ export const BlogSchema = new Schema(
     content:     { type: String, default: '' },
     category:    { type: String, default: 'Travel Tips', trim: true },
     coverImage:  { type: String, default: '' },
-    author:      { type: String, default: 'EMV Global', trim: true },
+    coverAlt:    { type: String, default: '', trim: true },
+    author:      { type: String, default: 'Ease My Vacations Travel Team', trim: true },
     tags:        [{ type: String, trim: true }],
     status:      { type: String, enum: ['draft', 'published'], default: 'draft' },
     publishedAt: { type: Date, default: null },
+
+    // Editorial curation for the journal landing page.
+    featured:    { type: Boolean, default: false },  // the one large hero article
+    editorsPick: { type: Boolean, default: false },  // the curated "Editor's Picks" rail
+
+    // Read count, incremented when an article is opened. "Trending" is ranked
+    // on this rather than on recency, so the label stays truthful.
+    views:       { type: Number, default: 0 },
+
+    // Which destination this article sells, so the article can show a
+    // destination-specific CTA and the matching holidays.
+    destination: { type: String, default: '', trim: true },
+
+    faqs:        { type: [BlogFaqSchema], default: [] },
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

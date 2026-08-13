@@ -1,6 +1,8 @@
+/* Shorter on phones so the enquiry form and first packages are one swipe away
+   rather than behind a full-screen cinematic hero. */
 .section {
   position: relative;
-  height: 100svh;
+  height: 88svh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -16,6 +18,7 @@
   padding-bottom: clamp(2rem, 5svh, 4rem);
   box-sizing: border-box;
 }
+@media (min-width: 768px) { .section { height: 100svh; } }
 
 .bgWrap {
   position: absolute;
@@ -28,7 +31,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.8;
+  opacity: 0.95;
   transform: scale(1.15);
   will-change: transform;
 }
@@ -84,7 +87,8 @@
   line-height: 1.25;
   margin-bottom: 1.25rem;
   letter-spacing: -0.025em;
-  font-size: clamp(2.5rem, 8vw, 9.5rem);
+  font-size: clamp(2.25rem, 6.5vw, 6.5rem);
+  text-shadow: 0 2px 24px rgba(0,0,0,0.3);
 }
 @media (min-width: 768px) { .headline { margin-bottom: 2rem; } }
 
@@ -92,40 +96,62 @@
 .splitParent { overflow: hidden; display: inline-flex; vertical-align: top; }
 .splitChild  { display: inline-block; }
 
-/* ── Subtitle ── */
+/* ── Tagline ── */
 .subtitle {
   color: #fff;
   margin-bottom: 1.25rem;
-  font-weight: 300;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
   max-width: 20rem;
-  line-height: 1.7;
+  line-height: 1.6;
   padding: 0 0.5rem;
-  font-size: 1rem;
+  font-size: 1.0625rem;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.35);
 }
-@media (min-width: 640px) { .subtitle { max-width: 30rem; padding: 0; font-size: 1.125rem; margin-bottom: 2rem; } }
+@media (min-width: 640px) { .subtitle { max-width: 30rem; padding: 0; font-size: 1.25rem; margin-bottom: 2rem; } }
 @media (min-width: 768px) { .subtitle { max-width: 48rem; font-size: 1.5rem; margin-bottom: 2rem; } }
 
-/* ── Quiz CTA button ── */
+/* ── Quote CTA button ── */
 .quizBtn {
   margin-bottom: 1.75rem;
   display: flex;
   align-items: center;
   gap: 0.625rem;
   color: #fff;
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 1.75rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: none;
+  border: 1px solid transparent;
+  background: var(--brand);
   cursor: pointer;
-  transition: border-color 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
+  box-shadow: var(--shadow-glow);
   font-weight: 700;
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
+  font-size: 0.9375rem;
+  letter-spacing: 0.03em;
 }
 @media (min-width: 768px) { .quizBtn { margin-bottom: 2.5rem; } }
-.quizBtn:hover { border-color: rgba(229,57,53,0.6); }
-.quizArrow { width: 1rem; height: 1rem; color: var(--brand); transition: transform 0.2s; }
+.quizBtn:hover { background: var(--brand-hover); }
+.quizArrow { width: 1rem; height: 1rem; color: #fff; transition: transform 0.2s; }
 .quizBtn:hover .quizArrow { transform: translateX(2px); }
+
+/* ── Secondary "just browsing" escape hatch ── */
+.browseLink {
+  display: none;
+  margin-top: 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.85);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+  transition: color 0.2s;
+}
+@media (min-width: 768px) { .browseLink { display: block; } }
+.browseLink:hover { color: #fff; }
 
 /* ── Mobile search ── */
 .searchMobile {
@@ -197,6 +223,19 @@
   transition: background-color 0.2s;
 }
 .searchMobileExplore:hover { background: var(--brand-hover); }
+.searchMobileBrowse {
+  width: 100%;
+  background: #fff;
+  color: var(--ink-soft);
+  padding: 0.6875rem;
+  border: none;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+.searchMobileBrowse:hover { color: var(--brand); }
 
 /* ── Desktop search ── */
 .searchDesktop {

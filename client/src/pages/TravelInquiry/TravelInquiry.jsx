@@ -11,14 +11,14 @@ export default function TravelInquiry() {
 
   usePageMeta(
     'Travel Inquiry Form | Ease My Vacations Global',
-    'Share this EMV inquiry page on social media, WhatsApp, or with partners so leads come directly into your EMV dashboard.',
+    'Share this Ease My Vacations inquiry page on social media, WhatsApp, or with partners so leads come directly into your Ease My Vacations dashboard.',
     { image: OG_IMAGE, url: PAGE_URL, type: 'website' }
   )
 
   async function handleShare() {
     const shareData = {
-      title: 'EMV Travel Inquiry Form',
-      text: 'Share your travel requirement with EMV and get a personalised itinerary.',
+      title: 'Ease My Vacations Travel Inquiry Form',
+      text: 'Share your travel requirement with Ease My Vacations and get a personalised itinerary.',
       url: PAGE_URL,
     }
 
@@ -60,11 +60,11 @@ export default function TravelInquiry() {
       <InquirySection
         eyebrow="Direct Lead Capture"
         heading={<>Collect travel leads from<br />any channel.</>}
-        description="Use this dedicated page in Instagram bio, ad creatives, WhatsApp outreach, or partner referrals. The submitted trip brief appears automatically in the same EMV leads dashboard."
+        description="Use this dedicated page in Instagram bio, ad creatives, WhatsApp outreach, or partner referrals. The submitted trip brief appears automatically in the same Ease My Vacations leads dashboard."
         formTitle="Share Your Travel Plan"
         formSub="Ideal for social media, referral, and campaign traffic."
         successTitle="Lead Captured Successfully!"
-        successMessage="Thanks for sharing your requirement. The EMV team will receive this lead directly in the dashboard and follow up shortly."
+        successMessage="Thanks for sharing your requirement. The Ease My Vacations team will receive this lead directly in the dashboard and follow up shortly."
         submitLabel="Submit Travel Requirement"
         defaultSource="Shared Lead Page"
         showSourceField={false}

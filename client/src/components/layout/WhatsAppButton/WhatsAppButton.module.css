@@ -1,31 +1,31 @@
+/* Sits bottom-left so it never collides with the "Plan My Trip" FAB
+   on the bottom-right. */
 .btn {
   position: fixed;
-  bottom: 2.5rem;
-  right: 2.5rem;
-  z-index: 50;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 40;
   background: var(--whatsapp);
   color: #fff;
-  padding: 1.25rem 1.5rem;
+  padding: 0.75rem 1rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.25);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  box-shadow: 0 20px 40px -10px rgba(37,211,102,0.8);
+  gap: 0.625rem;
+  box-shadow: 0 10px 28px -8px rgba(37,211,102,0.75);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, background-color 0.2s;
 }
-.btn:hover { transform: scale(1.05); }
+.btn:hover { background: #1eb958; }
 
-.icon { width: 2rem; height: 2rem; transition: transform 0.2s; }
-.btn:hover .icon { transform: scale(1.1); }
+.icon { width: 1.375rem; height: 1.375rem; flex-shrink: 0; }
 
 .label {
   display: none;
   font-weight: 700;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  padding-right: 0.5rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 @media (min-width: 768px) { .label { display: block; } }

@@ -164,7 +164,7 @@ export default function CustomerLogin() {
           {/* Mobile logo */}
           <div className={styles.mobileLogoStrip}>
             <div className={styles.mobileLogoMark}>E</div>
-            <span className={styles.mobileWordmark}>EMV Global</span>
+            <span className={styles.mobileWordmark}>Ease My Vacations</span>
           </div>
 
           <button onClick={() => step !== 'main' ? go('main') : navigate(-1)} className={styles.backBtn}>
@@ -184,7 +184,7 @@ export default function CustomerLogin() {
                 <p className={styles.subheading}>
                   {mode === 'login'
                     ? 'Sign in to access your itineraries and trip history.'
-                    : 'Join EMV Global to unlock full itineraries and personalised quotes.'}
+                    : 'Join Ease My Vacations to unlock full itineraries and personalised quotes.'}
                 </p>
 
                 {/* Tabs */}

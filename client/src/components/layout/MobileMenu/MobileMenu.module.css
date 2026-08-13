@@ -61,6 +61,21 @@
   gap: clamp(0.75rem, 2vh, 1.5rem);
   flex-shrink: 0;
 }
+.planTripBtn {
+  width: 100%;
+  background: var(--brand);
+  color: #fff;
+  padding: 1.25rem 1.5rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  box-shadow: var(--shadow-glow);
+  transition: background-color 0.2s;
+}
+.planTripBtn:hover { background: var(--brand-hover); }
+
 .whatsappBtn {
   width: 100%;
   background: var(--dark);

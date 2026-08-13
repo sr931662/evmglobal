@@ -39,10 +39,12 @@ export default function GallerySection() {
           className={styles.header}
         >
           <span className={styles.eyebrow}>
-            <span className={styles.eyebrowLine} /> The Gallery
+            <span className={styles.eyebrowLine} /> Real Customer Experiences
           </span>
-          <h2 className={styles.heading}>Moments worth chasing.</h2>
-          <p className={styles.subtitle}>A glimpse of the journeys we've helped bring to life.</p>
+          <h2 className={styles.heading}>Memories We&rsquo;ve Helped Create</h2>
+          <p className={styles.subtitle}>
+            Real trips, real travellers — a glimpse of the journeys we&rsquo;ve helped bring to life since 2022.
+          </p>
         </motion.div>
 
         <div className={styles.grid}>

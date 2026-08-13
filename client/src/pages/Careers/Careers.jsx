@@ -90,7 +90,7 @@ export default function Careers() {
   }, [])
 
   const applyEmail = (role) => {
-    const url = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(CAREERS_EMAIL)}&su=${encodeURIComponent(`Application for ${role} — EMV Global`)}&body=${encodeURIComponent(`Hi,\n\nI would like to apply for the ${role} position at EMV Global.\n\nPlease find my details below:\n\n`)}`
+    const url = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(CAREERS_EMAIL)}&su=${encodeURIComponent(`Application for ${role} — Ease My Vacations`)}&body=${encodeURIComponent(`Hi,\n\nI would like to apply for the ${role} position at Ease My Vacations.\n\nPlease find my details below:\n\n`)}`
     window.open(url, '_blank')
   }
 
@@ -139,7 +139,7 @@ export default function Careers() {
             transition={{ duration: 0.7 }}
             className={styles.sectionHead}
           >
-            <h2 className={styles.sectionHeading}>Why EMV Global?</h2>
+            <h2 className={styles.sectionHeading}>Why Ease My Vacations?</h2>
           </motion.div>
           <div className={styles.valuesGrid}>
             {values.map((v, i) => (
@@ -284,7 +284,7 @@ export default function Careers() {
             <h2 className={styles.ctaHeading}>Don't see your role?</h2>
             <p className={styles.ctaDesc}>We are always looking for talented people. Send us your CV and tell us how you can contribute.</p>
             <button
-              onClick={() => { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(CAREERS_EMAIL)}&su=${encodeURIComponent('Career Enquiry — EMV Global')}&body=${encodeURIComponent('Hi,\n\nI would like to explore career opportunities at EMV Global.\n\n')}`, '_blank') }}
+              onClick={() => { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(CAREERS_EMAIL)}&su=${encodeURIComponent('Career Enquiry — Ease My Vacations')}&body=${encodeURIComponent('Hi,\n\nI would like to explore career opportunities at Ease My Vacations.\n\n')}`, '_blank') }}
               className={styles.ctaBtn}
             >
               Get in Touch

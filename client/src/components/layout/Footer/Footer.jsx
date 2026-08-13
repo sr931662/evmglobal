@@ -11,6 +11,44 @@ const socials = [
   { label: 'LinkedIn', href: 'https://www.linkedin.com/company/easemyvacationsofficial',   icon: <svg viewBox="0 0 24 24" fill="currentColor" style={{width:'1rem',height:'1rem'}}><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg> },
 ]
 
+const EXPLORE = [
+  ['Destinations',           '/destinations'],
+  ['International Holidays', '/packages'],
+  ['Domestic Holidays',      '/packages?category=Domestic'],
+  ['Honeymoon',              '/packages?category=Honeymoon'],
+  ['Family Holidays',        '/packages?category=Family'],
+  ['Adventure Holidays',     '/packages?q=trek'],
+]
+
+const SERVICES = [
+  ['Holiday Packages',  '/packages'],
+  ['Visa Assistance',   '/contact'],
+  ['Travel Insurance',  '/contact'],
+  ['Cruises',           '/packages?q=cruise'],
+  ['MICE & Corporate',  '/contact'],
+  ['Trekking',          '/packages?q=trek'],
+]
+
+const POPULAR_DESTINATIONS = [
+  'Thailand', 'Dubai', 'Vietnam', 'Bali',
+  'Europe', 'Maldives', 'Singapore', 'Georgia',
+]
+
+const COMPANY = [
+  ['About Us',            '/about'],
+  ['Contact Us',          '/contact'],
+  ['Quotes',              '/quotes'],
+  ['Travel Journal',      '/blog'],
+  ['Careers',             '/careers'],
+  ['Terms of Service',    '/terms-of-service'],
+  ['Privacy Policy',      '/privacy-policy'],
+  ['Cancellation Policy', '/cancellation-policy'],
+  ['Cookie Policy',       '/cookie-policy'],
+]
+
+const PHONE = '+91 70705 95907'
+const EMAIL = 'info@easemyvacations.com'
+
 export default function Footer() {
   return (
     <footer className={styles.footer}>
@@ -18,11 +56,12 @@ export default function Footer() {
         <div className={styles.grid}>
           <div className={styles.brand}>
             <Link to="/" className={styles.brandLogo}>
-              <img src={logo} alt="EMV" className={styles.brandLogoImg} />
-              <span className={styles.brandGlobal}>GLOBAL</span>
+              <img src={logo} alt="Ease My Vacations" className={styles.brandLogoImg} />
+              <span className={styles.brandGlobal}>Ease My Vacations</span>
             </Link>
             <p className={styles.desc}>
-              Your premium travel concierge. We craft bespoke journeys and unforgettable memories, providing high-touch service from inspiration to return.
+              Personalised holidays planned by real travel experts — one point of contact,
+              transparent pricing, and support before and during every journey.
             </p>
             <div className={styles.socials}>
               {socials.map(s => (
@@ -35,40 +74,63 @@ export default function Footer() {
 
           <div className={styles.linkCols}>
             <div>
-              <h5 className={styles.colHead}>Discover</h5>
+              <h5 className={styles.colHead}>Explore</h5>
               <ul className={styles.colList}>
-                {[['Destinations','/destinations'],['Holidays','/packages'],['About Us','/about'],['Contact Us','/contact']].map(([l,p]) => (
-                  <li key={p}><Link to={p} className={styles.colLink}>{l}</Link></li>
+                {EXPLORE.map(([label, path]) => (
+                  <li key={label}><Link to={path} className={styles.colLink}>{label}</Link></li>
                 ))}
               </ul>
             </div>
+
+            <div>
+              <h5 className={styles.colHead}>Services</h5>
+              <ul className={styles.colList}>
+                {SERVICES.map(([label, path]) => (
+                  <li key={label}><Link to={path} className={styles.colLink}>{label}</Link></li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h5 className={styles.colHead}>Popular Destinations</h5>
+              <ul className={styles.colList}>
+                {POPULAR_DESTINATIONS.map(name => (
+                  <li key={name}>
+                    <Link to={`/packages?destination=${encodeURIComponent(name)}`} className={styles.colLink}>{name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <div>
               <h5 className={styles.colHead}>Company</h5>
               <ul className={styles.colList}>
-                {[['Blog','/blog'],['Careers','/careers'],['Quotes','/quotes'],['Cancellation Policy','/cancellation-policy']].map(([l,p]) => (
-                  <li key={p}><Link to={p} className={styles.colLink}>{l}</Link></li>
+                {COMPANY.map(([label, path]) => (
+                  <li key={label}><Link to={path} className={styles.colLink}>{label}</Link></li>
                 ))}
               </ul>
             </div>
+
             <div>
-              <h5 className={styles.colHead}>Legal</h5>
+              <h5 className={styles.colHead}>Contact</h5>
               <ul className={styles.colList}>
-                {[
-                  ['Privacy Policy','/privacy-policy'],
-                  ['Cookie Policy','/cookie-policy'],
-                  ['Terms of Service','/terms-of-service'],
-                  ['User Agreement','/user-agreement'],
-                  ['Data Processing','/data-processing-agreement'],
-                ].map(([l,p]) => (
-                  <li key={p}><Link to={p} className={styles.colLink}>{l}</Link></li>
-                ))}
+                <li className={styles.contactName}>Ease My Vacations</li>
+                <li><a href={`tel:${PHONE.replace(/\s/g, '')}`} className={styles.colLink}>📞 {PHONE}</a></li>
+                <li><a href={`mailto:${EMAIL}`} className={styles.colLink}>✉ {EMAIL}</a></li>
+                <li className={styles.colText}>📍 Gurugram, India</li>
               </ul>
+              <p className={styles.tagline}>Serving Memories since 2022</p>
             </div>
           </div>
         </div>
 
         <div className={styles.bottom}>
           <p className={styles.copy}>© {new Date().getFullYear()} Global Ease My Vacations (OPC) Private Limited. All rights reserved.</p>
+          <p className={styles.copy}>
+            <Link to="/user-agreement" className={styles.bottomLink}>User Agreement</Link>
+            {' · '}
+            <Link to="/data-processing-agreement" className={styles.bottomLink}>Data Processing</Link>
+          </p>
         </div>
       </div>
     </footer>

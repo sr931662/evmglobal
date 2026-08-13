@@ -46,6 +46,16 @@ img, video { max-width: 100%; height: auto; }
   --dark-elevated: #1a1a1a;
   --whatsapp:      #25D366;
 
+  /* Light travel palette — drawn from the logo. Public pages sit on these,
+     the --dark tokens above are now only for the admin workspace. */
+  --surface:       #ffffff;
+  --surface-soft:  #FFF9F7;
+  --surface-tint:  #FDF1F0;
+  --ink:           #1A1414;
+  --ink-soft:      #5F5555;
+  --ink-muted:     #8A7F7F;
+  --line:          #EFE6E4;
+
   --shadow-glass:      0 8px 32px 0 rgba(0,0,0,0.05);
   --shadow-glass-dark: 0 8px 32px 0 rgba(0,0,0,0.4);
   --shadow-premium:    0 20px 40px -10px rgba(0,0,0,0.1);
@@ -75,7 +85,7 @@ html.lenis { height: auto; }
 svg { display: inline-block; max-width: 100%; height: auto; }
 
 body {
-  background-color: #fafafa;
+  background-color: var(--surface-soft);
   overflow-x: hidden;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -101,9 +111,11 @@ body {
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+/* Kept light enough that the hero reads as a bright travel photograph while
+   the headline still clears WCAG contrast. */
 .hero-vignette {
-  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.45) 100%),
-              linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.6) 75%, rgba(0,0,0,0.88) 100%);
+  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.25) 100%),
+              linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.22) 45%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.45) 100%);
 }
 .card-vignette {
   background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);

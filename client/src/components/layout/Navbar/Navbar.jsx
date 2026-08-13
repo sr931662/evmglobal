@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaBars } from 'react-icons/fa6'
 import MobileMenu from '../MobileMenu/MobileMenu'
 import { useCustomerAuth } from '../../../context/CustomerAuthContext'
@@ -10,7 +10,7 @@ import logo from '../../../assets/logo.png'
 const NAV_LINKS = [
   ['Destinations', '/destinations'],
   ['Holidays', '/packages'],
-  ['Quotes', '/quotes'],
+  ['Travel Styles', '/#travel-styles'],
 ]
 
 export default function Navbar() {
@@ -21,6 +21,7 @@ export default function Navbar() {
   const dropdownRef = useRef(null)
   const adminDropdownRef = useRef(null)
   const location = useLocation()
+  const navigate = useNavigate()
   const { customer, logoutCustomer } = useCustomerAuth()
   const { user: adminUser, logout: adminLogout } = useAuth()
 
@@ -33,7 +34,10 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const isDarkHero = ['/', '/quotes'].includes(location.pathname)
+  // Pages that open on a full-bleed photo need white header text — but only
+  // until the visitor scrolls off the hero, after which the bar goes light
+  // like the rest of the page.
+  const hasPhotoHero = ['/', '/quotes'].includes(location.pathname)
     || location.pathname.startsWith('/package-details')
 
   useEffect(() => {
@@ -46,17 +50,33 @@ export default function Navbar() {
     setScrolled(false)
   }, [location.pathname])
 
+  const isDarkHero = hasPhotoHero && !scrolled
+
   const navClass = [
     styles.navbar,
     scrolled ? styles.scrolled : '',
-    scrolled && !isDarkHero ? styles.scrolledLight : '',
+    scrolled ? styles.scrolledLight : '',
   ].filter(Boolean).join(' ')
 
-  const scrolledBg = isDarkHero ? 'rgba(10,10,10,0.85)' : 'rgba(255,255,255,0.97)'
+  const scrolledBg = 'rgba(255,255,255,0.97)'
 
-  const hamburgerStyle = isDarkHero && !scrolled
+  const hamburgerStyle = isDarkHero
     ? { color: '#fff', background: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.2)' }
     : {}
+
+  // "Travel Styles" is a home-page section, not a route — go home first when
+  // we're elsewhere, then scroll once the section has mounted.
+  const goToSection = (e, hash) => {
+    e.preventDefault()
+    const id = hash.replace('/#', '')
+    const scroll = () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    if (location.pathname === '/') {
+      scroll()
+    } else {
+      navigate('/')
+      setTimeout(scroll, 400)
+    }
+  }
 
   return (
     <>
@@ -67,15 +87,17 @@ export default function Navbar() {
       >
         <div className={styles.inner}>
           <Link to="/" className={styles.logo}>
-            <img src={logo} alt="EMV" className={styles.logoImg} />
+            <img src={logo} alt="Ease My Vacations" className={styles.logoImg} />
             <span className={`${styles.globalText} ${isDarkHero ? styles.globalTextLight : styles.globalTextDark}`}>
-              GLOBAL
+              Ease My Vacations
             </span>
           </Link>
 
           <nav className={styles.navPill} aria-label="Main navigation">
             {NAV_LINKS.map(([label, path]) => (
-              <Link key={path} to={path} className={styles.navLink}>{label}</Link>
+              path.startsWith('/#')
+                ? <a key={path} href={path} onClick={e => goToSection(e, path)} className={styles.navLink}>{label}</a>
+                : <Link key={path} to={path} className={styles.navLink}>{label}</Link>
             ))}
           </nav>
 
@@ -169,6 +191,16 @@ export default function Navbar() {
                 )}
               </div>
             ) : null}
+
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
+              className={styles.planTripBtn}
+            >
+              Plan My Trip
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </button>
           </div>
 
           <button

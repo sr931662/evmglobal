@@ -101,7 +101,7 @@ const PAGE_META = {
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=2800',
   },
   All: {
-    title: 'International Holiday Packages | Best Overseas Tours by EMV',
+    title: 'International Holiday Packages | Best Overseas Tours by Ease My Vacations',
     desc:  'Explore international holiday packages to Bali, Dubai, Thailand, Maldives, Europe, Vietnam, Singapore, and more. Book affordable overseas vacations with Ease My Vacations.',
     image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2800',
   },
@@ -141,16 +141,30 @@ function sortPackages(pkgs, sortBy) {
 export default function Packages() {
   const [searchParams, setSearchParams] = useSearchParams()
   const destinationFilter = searchParams.get('destination') || ''
+  // Deep links from the home page "Travel Styles" cards.
+  const categoryParam     = searchParams.get('category') || ''
+  const queryParam        = searchParams.get('q') || ''
 
-  const [active,        setActive]        = useState('All')
+  // The category tab is derived from the URL so a deep link and a tab click
+  // stay in sync without a second source of truth.
+  const active = CATEGORIES.includes(categoryParam) ? categoryParam : 'All'
+
   const [allPackages,   setAllPackages]   = useState([])
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState('')
   const [sortBy,        setSortBy]        = useState('default')
   const [nightFilter,   setNightFilter]   = useState('all')
   const [budgetFilter,  setBudgetFilter]  = useState('all')
-  const [searchQuery,   setSearchQuery]   = useState('')
+  const [searchQuery,   setSearchQuery]   = useState(queryParam)
   const [showFilters,   setShowFilters]   = useState(false)
+
+  // Re-seed the search box when a new ?q= arrives while the page is already
+  // mounted (e.g. a second Travel Styles card click from the home page).
+  const [lastQueryParam, setLastQueryParam] = useState(queryParam)
+  if (lastQueryParam !== queryParam) {
+    setLastQueryParam(queryParam)
+    setSearchQuery(queryParam)
+  }
 
   const meta = PAGE_META[active] || PAGE_META.All
   usePageMeta(meta.title, meta.desc, {
@@ -160,8 +174,7 @@ export default function Packages() {
   })
 
   const handleCategoryChange = (cat) => {
-    setActive(cat)
-    if (destinationFilter) setSearchParams({})
+    setSearchParams(cat === 'All' ? {} : { category: cat })
     resetFilters()
   }
 

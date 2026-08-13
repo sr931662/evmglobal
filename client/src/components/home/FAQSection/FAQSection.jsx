@@ -7,30 +7,38 @@ import styles from './FAQSection.module.css'
 // Rendered until the API responds, and kept if it fails — the section never goes blank.
 const FALLBACK = [
   {
-    q: 'How does the trip planning process work?',
-    a: 'Share your travel dream with us — over a call, WhatsApp, or our inquiry form. Your dedicated concierge puts together a bespoke itinerary within 24 hours, which you can refine until it feels exactly right.',
+    q: 'How does Ease My Vacations plan customised holidays?',
+    a: 'Share your destination, dates, travellers and preferences — over a call, WhatsApp, or our holiday planner. Your dedicated travel expert puts together an itinerary within 24 hours, which you can refine until it feels exactly right.',
   },
   {
-    q: 'Can I get a fully customised itinerary?',
-    a: 'Always. Every EMV trip is built from scratch around your pace, budget, and preferences — we do not sell fixed, one-size-fits-all packages.',
+    q: 'Can I customize an existing package?',
+    a: 'Always. Every package on our site is a starting point — hotels, duration, sightseeing and transfers can all be reshaped around your pace and budget.',
   },
   {
-    q: 'What is your cancellation and refund policy?',
-    a: 'Cancellation terms vary by supplier and how close to departure you cancel. Full details are on our',
+    q: 'Do you provide visa assistance?',
+    a: 'Yes — our team guides you through visa requirements, documentation, and processing timelines for your destination as part of every booking.',
+  },
+  {
+    q: 'Can I book international and domestic holidays?',
+    a: 'Both. We plan holidays across India as well as international destinations including Thailand, Dubai, Vietnam, Bali, the Maldives, Singapore, Georgia and Europe.',
+  },
+  {
+    q: 'Do you provide airport transfers?',
+    a: 'Yes. Airport pickups and drops are included in most of our packages, and can be added to any customised itinerary.',
+  },
+  {
+    q: 'Can I speak to a travel expert before booking?',
+    a: 'Of course. You get one dedicated point of contact from the first conversation onward — reachable on call or WhatsApp, before and during your trip.',
+  },
+  {
+    q: 'Do you provide travel insurance?',
+    a: 'Yes, we arrange travel insurance through our partners so your trip, health and belongings are covered while you are away.',
+  },
+  {
+    q: 'How do I request a holiday quote?',
+    a: 'Use the holiday planner on this page, message us on WhatsApp, or send an enquiry — you will get a personalised quote back within 24 hours. Cancellation terms are on our',
     linkLabel: 'Cancellation Policy',
     linkTo: '/cancellation-policy',
-  },
-  {
-    q: 'Do you help with visas and travel documentation?',
-    a: 'Yes — our concierge team guides you through visa requirements, documentation, and processing timelines for your destination as part of every booking.',
-  },
-  {
-    q: 'What payment methods do you accept?',
-    a: 'We accept all major credit/debit cards, UPI, and net banking through a secure, encrypted checkout. Payment plans are available for larger bookings.',
-  },
-  {
-    q: 'Is support really available 24/7 during my trip?',
-    a: 'Yes. From the moment you depart to the moment you return, your concierge is one call or WhatsApp message away — day or night.',
   },
 ]
 

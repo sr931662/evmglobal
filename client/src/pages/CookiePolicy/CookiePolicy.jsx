@@ -7,7 +7,7 @@ export default function CookiePolicy() {
       subtitle="Global Ease My Vacations (OPC) Private Limited · Effective Date: 11 May 2026"
     >
       <Section title="1. Introduction" />
-      <P>This Cookie Policy explains how EMV uses cookies and similar technologies across its website, applications, and digital platforms.</P>
+      <P>This Cookie Policy explains how Ease My Vacations uses cookies and similar technologies across its website, applications, and digital platforms.</P>
 
       <Section title="2. What Are Cookies?" />
       <P>Cookies are small text files stored on your device when you visit a website. They help websites remember preferences, improve functionality, and analyze usage patterns.</P>
@@ -28,7 +28,7 @@ export default function CookiePolicy() {
       <Sub title="Third-Party Cookies" />
       <P>Some cookies may be placed by analytics providers, advertisers, or integrated partners.</P>
 
-      <Section title="4. How EMV Uses Cookies" />
+      <Section title="4. How Ease My Vacations Uses Cookies" />
       <P>We use cookies to:</P>
       <Ul items={[
         'Enable booking functionality',
@@ -46,7 +46,7 @@ export default function CookiePolicy() {
       <P>Users may control or disable cookies through browser settings. Disabling certain cookies may affect website functionality.</P>
 
       <Section title="7. Third-Party Analytics" />
-      <P>EMV may use third-party tools including analytics and advertising services that collect information through cookies and tracking technologies.</P>
+      <P>Ease My Vacations may use third-party tools including analytics and advertising services that collect information through cookies and tracking technologies.</P>
 
       <Section title="8. Policy Updates" />
       <P>We may revise this Cookie Policy periodically. Updated versions will be posted on the Platform.</P>

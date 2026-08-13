@@ -2,6 +2,10 @@ import { Injectable, NotFoundException, Logger, OnModuleInit } from '@nestjs/com
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -33,17 +37,46 @@ export class BlogsService implements OnModuleInit {
     }
   }
 
-  async findAll(query: { status?: string; category?: string; page?: number; limit?: number } = {}) {
+  async findAll(query: {
+    status?: string; category?: string; destination?: string; tag?: string;
+    q?: string; featured?: string; editorsPick?: string; sort?: string;
+    page?: number; limit?: number;
+  } = {}) {
     const filter: any = {};
-    if (query.status)   filter.status   = query.status;
-    if (query.category) filter.category = query.category;
+    if (query.status)      filter.status      = query.status;
+    if (query.category)    filter.category    = query.category;
+    if (query.featured    === 'true') filter.featured    = true;
+    if (query.editorsPick === 'true') filter.editorsPick = true;
+
+    // A destination filter matches the explicit field or a tag of the same
+    // name, so older articles tagged by hand still surface in the hub.
+    if (query.destination) {
+      const dest = new RegExp(`^${escapeRegex(query.destination)}$`, 'i');
+      filter.$or = [{ destination: dest }, { tags: dest }];
+    }
+    if (query.tag) filter.tags = new RegExp(`^${escapeRegex(query.tag)}$`, 'i');
+
+    // Free-text search across the fields a reader would expect to match.
+    if (query.q && query.q.trim()) {
+      const term = new RegExp(escapeRegex(query.q.trim()), 'i');
+      const search = [
+        { title: term }, { excerpt: term }, { content: term },
+        { category: term }, { tags: term }, { destination: term },
+      ];
+      filter.$and = [...(filter.$and || []), { $or: search }];
+      if (filter.$or) { filter.$and.push({ $or: filter.$or }); delete filter.$or; }
+    }
 
     const page  = Math.max(query.page  || 1, 1);
     const limit = Math.min(query.limit || 20, 100);
     const skip  = (page - 1) * limit;
 
+    const sort: any = query.sort === 'views'
+      ? { views: -1, created_at: -1 }
+      : { created_at: -1 };
+
     const [blogs, total] = await Promise.all([
-      this.blogModel.find(filter).sort({ created_at: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.blogModel.find(filter).sort(sort).skip(skip).limit(limit).lean().exec(),
       this.blogModel.countDocuments(filter),
     ]);
 
@@ -52,9 +85,14 @@ export class BlogsService implements OnModuleInit {
 
   async findOne(idOrSlug: string) {
     const isObjectId = /^[a-f\d]{24}$/i.test(idOrSlug);
-    const blog = isObjectId
-      ? await this.blogModel.findById(idOrSlug).lean().exec()
-      : await this.blogModel.findOne({ slug: idOrSlug }).lean().exec();
+    const query = isObjectId ? { _id: idOrSlug } : { slug: idOrSlug };
+
+    // Count the read as we serve it, so "Trending" reflects real readership.
+    const blog = await this.blogModel
+      .findOneAndUpdate(query, { $inc: { views: 1 } }, { new: true })
+      .lean()
+      .exec();
+
     if (!blog) throw new NotFoundException('Blog post not found');
     return blog;
   }

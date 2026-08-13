@@ -18,22 +18,37 @@ export default function HomeCTA() {
           <div className={styles.glow} />
           <div className={styles.copy}>
             <span className={styles.eyebrow}>Begin Your Journey</span>
-            <h2 className={styles.heading}>Begin your<br />next chapter.</h2>
+            <h2 className={styles.heading}>Ready to Plan Your Next Escape?</h2>
             <p className={styles.desc}>
-              Share your dream. Our expert concierge will craft a journey unlike anything a booking platform can offer.
+              Tell us where you want to go.<br />We&rsquo;ll take care of the rest.
             </p>
           </div>
-          <motion.button
-            onClick={() => openWhatsApp()}
-            className={styles.btn}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className={styles.waIcon}>
-              <path d={WA_PATH} />
-            </svg>
-            Chat with an Expert
-          </motion.button>
+
+          <div className={styles.actions}>
+            <motion.button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}
+              className={styles.primaryBtn}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Plan My Trip
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className={styles.arrow}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </motion.button>
+
+            <motion.button
+              onClick={() => openWhatsApp()}
+              className={styles.waBtn}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className={styles.waIcon}>
+                <path d={WA_PATH} />
+              </svg>
+              WhatsApp a Travel Expert
+            </motion.button>
+          </div>
         </motion.div>
       </div>
     </section>

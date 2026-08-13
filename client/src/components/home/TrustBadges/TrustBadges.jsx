@@ -10,16 +10,17 @@ const ICONS = {
   users:  <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
   award:  <><circle cx="12" cy="8" r="7" /><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" /></>,
   headset:<><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></>,
+  route:  <><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></>,
+  tag:    <><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></>,
+  globe:  <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></>,
 }
 
 // Rendered until the API responds, and kept if it fails — the section never goes blank.
 const FALLBACK = [
-  { icon: 'shield',  title: 'IATA Accredited',        sub: 'Certified travel partner' },
-  { icon: 'lock',    title: '100% Secure Payments',   sub: 'SSL encrypted checkout' },
-  { icon: 'check',   title: 'No Hidden Charges',      sub: 'Transparent pricing, always' },
-  { icon: 'headset', title: '24/7 Concierge',         sub: 'Real humans, always reachable' },
-  { icon: 'users',   title: '15,000+ Travellers',     sub: 'Trusted since day one' },
-  { icon: 'award',   title: 'Award-Winning Service',  sub: 'Recognised for excellence' },
+  { icon: 'route',   title: 'Personalised Itineraries', sub: 'Trips designed around your preferences' },
+  { icon: 'tag',     title: 'Competitive Pricing',      sub: 'We compare options to find the right value' },
+  { icon: 'headset', title: 'Dedicated Travel Expert',  sub: 'One point of contact throughout your journey' },
+  { icon: 'globe',   title: 'On-Trip Assistance',       sub: 'Support when you need us, wherever you travel' },
 ]
 
 export default function TrustBadges() {
@@ -51,7 +52,10 @@ export default function TrustBadges() {
           <span className={styles.eyebrow}>
             <span className={styles.eyebrowLine} /> Trust &amp; Assurance
           </span>
-          <h2 className={styles.heading}>Booked with confidence.</h2>
+          <h2 className={styles.heading}>Why Travel With Ease My Vacations?</h2>
+          <p className={styles.sub}>
+            Everything a booking site can&rsquo;t give you — a real expert, a real plan, and a real person to call.
+          </p>
         </motion.div>
 
         <div className={styles.grid}>

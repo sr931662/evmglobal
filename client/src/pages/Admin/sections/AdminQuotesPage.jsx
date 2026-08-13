@@ -53,19 +53,19 @@ const defaultNotesMd = [
   '- Rates are subject to availability at time of confirmation.',
   '- Check-in time is typically **14:00** and check-out at **12:00**.',
   '- Valid passport required for all international travel.',
-  '- EMV is not liable for delays due to weather, strikes, or force majeure.',
+  '- Ease My Vacations is not liable for delays due to weather, strikes, or force majeure.',
 ].join('\n')
 
 const defaultTermsMd = [
   '- Advance payment of **25%** required to confirm booking.',
   '- Balance payment due **30 days** prior to departure.',
   '- Cancellation charges apply as per supplier policy.',
-  '- EMV reserves the right to modify itinerary due to operational reasons.',
+  '- Ease My Vacations reserves the right to modify itinerary due to operational reasons.',
 ].join('\n')
 
 const emptyForm = () => ({
   clientName: '', clientEmail: '', clientPhone: '',
-  agentName: 'EMV Team', validUntil: '', tripTitle: '',
+  agentName: 'Ease My Vacations Team', validUntil: '', tripTitle: '',
   destinations: [''], startDate: '', nights: 5,
   adults: 2, children: 0, perAdult: 0, perChild: 0,
   tripType: 'International', currency: 'INR',
