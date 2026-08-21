@@ -247,7 +247,27 @@
   border: 1px solid #f3f4f6;
 }
 .modalLg { max-width: 42rem; }
-.modalScroll { max-height: 88vh; overflow-y: auto; }
+
+/* A rounded card that scrolls itself doesn't reliably clip its own native
+   scrollbar to the border-radius — the track/thumb can visibly poke past the
+   curve, worst at the top-right corner. Splitting the shape from the scroll
+   fixes it: this element clips to the rounded corner and holds the fixed
+   height; .modalScrollBody (a plain child, no radius of its own) is the one
+   that actually scrolls, so its scrollbar renders inside a shape the outer
+   element has already clipped. */
+.modalScroll {
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  overflow: hidden;
+  padding: 0;
+}
+.modalScrollBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 2.5rem;
+}
 .modalTitle { font-size: 1.875rem; font-family: var(--font-serif); font-weight: 700; color: var(--dark); margin-bottom: 2rem; }
 .modalActions { display: flex; gap: 1rem; margin-top: 2rem; }
 

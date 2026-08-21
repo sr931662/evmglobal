@@ -267,9 +267,12 @@ export default function AdminDestinationsPage() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             onClick={e => e.stopPropagation()}
-            className={`${c.modal} ${c.modalLg} ${c.modalScroll} modal-scroll`}
-            onWheel={e => e.stopPropagation()}
+            className={`${c.modal} ${c.modalLg} ${c.modalScroll}`}
           >
+            {/* This inner div is the actual scroll container — a rounded
+                card's own scrollbar doesn't clip to its border-radius
+                reliably, which is what let it visibly poke past the corner. */}
+            <div className={`${c.modalScrollBody} modal-scroll`} onWheel={e => e.stopPropagation()}>
             <h3 className={c.modalTitle}>{editId ? 'Edit Destination' : 'New Destination'}</h3>
 
             {/* Image preview */}
@@ -441,6 +444,7 @@ export default function AdminDestinationsPage() {
               >
                 {saving ? 'Saving…' : (editId ? 'Update' : 'Add Destination')}
               </button>
+            </div>
             </div>
           </motion.div>
         </div>

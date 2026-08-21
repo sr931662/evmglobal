@@ -79,6 +79,10 @@ function InquiryModal({ inquiry, onClose, onSave }) {
         onClick={e => e.stopPropagation()}
         className={`${c.modal} ${c.modalScroll}`}
       >
+        {/* This inner div is the actual scroll container — a rounded card's
+            own scrollbar doesn't clip to its border-radius reliably, which
+            is what let it visibly poke past the corner. */}
+        <div className={c.modalScrollBody}>
         <h3 className={c.modalTitle}>
           {isEdit ? 'Edit Inquiry' : 'Add Inquiry'}
         </h3>
@@ -137,6 +141,7 @@ function InquiryModal({ inquiry, onClose, onSave }) {
           >
             {saving ? 'Saving…' : isEdit ? 'Update Inquiry' : 'Add Inquiry'}
           </button>
+        </div>
         </div>
       </motion.div>
     </div>

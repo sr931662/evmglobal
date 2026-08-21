@@ -55,8 +55,12 @@ function TeamModal({ member, onClose, onSave }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className={`${c.modal} ${c.modalLg} ${c.modalScroll} modal-scroll`}
+        className={`${c.modal} ${c.modalLg} ${c.modalScroll}`}
       >
+        {/* This inner div is the actual scroll container — a rounded card's
+            own scrollbar doesn't clip to its border-radius reliably, which
+            is what let it visibly poke past the corner. */}
+        <div className={`${c.modalScrollBody} modal-scroll`}>
         <h3 className={c.modalTitle}>
           {isEdit ? 'Edit Team Member' : 'Add Team Member'}
         </h3>
@@ -140,6 +144,7 @@ function TeamModal({ member, onClose, onSave }) {
             className={`${c.btnBrand} ${c.flex1}`}>
             {saving ? 'Saving…' : isEdit ? 'Update Member' : 'Add Member'}
           </button>
+        </div>
         </div>
       </motion.div>
     </div>

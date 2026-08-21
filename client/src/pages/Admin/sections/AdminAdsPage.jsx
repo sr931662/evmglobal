@@ -98,9 +98,12 @@ function AdModal({ ad, onClose, onSave }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
         onClick={e => e.stopPropagation()}
-        className={`${c.modal} ${c.modalLg} ${c.modalScroll} modal-scroll`}
-        onWheel={e => e.stopPropagation()}
+        className={`${c.modal} ${c.modalLg} ${c.modalScroll}`}
       >
+        {/* This inner div is the actual scroll container — see the comment on
+            .modalScroll for why the shape and the scrolling live on different
+            elements. */}
+        <div className={`${c.modalScrollBody} modal-scroll`} onWheel={e => e.stopPropagation()}>
         <h3 className={c.modalTitle}>{isEdit ? 'Edit Ad Banner' : 'New Ad Banner'}</h3>
 
         <div className={c.stack}>
@@ -273,6 +276,7 @@ function AdModal({ ad, onClose, onSave }) {
             className={`${c.btnBrand} ${c.flex1}`}>
             {saving ? 'Saving…' : isEdit ? 'Update Banner' : 'Create Banner'}
           </button>
+        </div>
         </div>
       </motion.div>
     </div>
