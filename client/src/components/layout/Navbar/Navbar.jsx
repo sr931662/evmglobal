@@ -17,18 +17,17 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [adminDropdownOpen, setAdminDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
-  const adminDropdownRef = useRef(null)
   const location = useLocation()
   const navigate = useNavigate()
   const { customer, logoutCustomer } = useCustomerAuth()
-  const { user: adminUser, logout: adminLogout } = useAuth()
+  // Admin access lives in the footer only — this is read just to hide the
+  // public "Sign In" link while an admin session is active.
+  const { user: adminUser } = useAuth()
 
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false)
-      if (adminDropdownRef.current && !adminDropdownRef.current.contains(e.target)) setAdminDropdownOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -154,42 +153,6 @@ export default function Navbar() {
               >
                 Sign In
               </Link>
-            ) : null}
-
-            {adminUser ? (
-              <div className={styles.adminMenu} ref={adminDropdownRef}>
-                <button
-                  className={`${styles.workspaceLink} ${styles.adminBtn} ${isDarkHero ? styles.workspaceLight : styles.workspaceDark}`}
-                  onClick={() => setAdminDropdownOpen(o => !o)}
-                  aria-expanded={adminDropdownOpen}
-                >
-                  Admin
-                  <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: '0.75rem', height: '0.75rem', marginLeft: '0.25rem' }}>
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.42a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {adminDropdownOpen && (
-                  <div className={styles.avatarDropdown}>
-                    <div className={styles.dropdownHeader}>
-                      <p className={styles.dropdownName}>Admin</p>
-                      <p className={styles.dropdownEmail}>{adminUser.email}</p>
-                    </div>
-                    <Link
-                      to="/admin"
-                      className={styles.dropdownItem}
-                      onClick={() => setAdminDropdownOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <button
-                      className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
-                      onClick={() => { adminLogout(); setAdminDropdownOpen(false) }}
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
             ) : null}
 
             <button

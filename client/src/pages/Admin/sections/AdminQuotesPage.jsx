@@ -9,6 +9,7 @@ import {
   DEFAULT_TAXES, TAX_PRESETS,
   computeQuote, quoteMarkdown, hotelGroups, fmt, num, nightsLabel, tripDays,
   openQuotePrintWindow, cityStays, toDateInputValue,
+  classifyAge, clampCount, MAX_ADULTS, MAX_CHILDREN,
 } from '../../../utils/quote'
 import { handleListKeyDown, toggleLinePrefix } from '../../../utils/markdownEditing'
 import styles from './AdminQuotesPage.module.css'
@@ -185,18 +186,30 @@ function ChildAges({ count, ages, onChange }) {
     <div className={styles.childAges}>
       <label className={styles.fieldLabelFaint}>Age of each child</label>
       <div className={styles.childAgeRow}>
-        {Array.from({ length: count }, (_, i) => (
-          <div key={i} className={styles.childAgeBox}>
-            <span className={styles.childAgeTag}>Child {i + 1}</span>
-            <input
-              type="number" min="0" max="17"
-              className={`${styles.inp} ${styles.childAgeInp}`}
-              placeholder="yrs"
-              value={ages?.[i] ?? ''}
-              onChange={e => setAge(i, e.target.value)}
-            />
-          </div>
-        ))}
+        {Array.from({ length: count }, (_, i) => {
+          const age = ages?.[i]
+          // Derived from the age itself, not just the box it was typed into —
+          // an entered age of 18+ is flagged rather than silently priced as
+          // a child fare.
+          const band = classifyAge(age)
+          return (
+            <div key={i} className={styles.childAgeBox}>
+              <span className={styles.childAgeTag}>Child {i + 1}</span>
+              <input
+                type="number" min="0"
+                className={`${styles.inp} ${styles.childAgeInp}`}
+                placeholder="yrs"
+                value={age ?? ''}
+                onChange={e => setAge(i, e.target.value)}
+              />
+              {band && (
+                <span className={`${styles.childAgeBand} ${band === 'Adult age' ? styles.childAgeBandWarn : ''}`}>
+                  {band}
+                </span>
+              )}
+            </div>
+          )
+        })}
       </div>
       <p className={styles.mdHint}>Used on the quote and when adding each child to the booking as a passenger.</p>
     </div>
@@ -581,8 +594,16 @@ function QuoteModal({ quote, onSave, onClose }) {
                   <Field label="Duration">
                     <div className={styles.durationPill}>{nightsLabel(nights)}</div>
                   </Field>
-                  <Input label="Adults" type="number" min="0" value={form.adults} onChange={e => set('adults', e.target.value)} />
-                  <Input label="Children" type="number" min="0" value={form.children} onChange={e => set('children', e.target.value)} />
+                  <Input
+                    label="Adults" type="number" min="0" max={MAX_ADULTS}
+                    value={form.adults}
+                    onChange={e => set('adults', clampCount(e.target.value, MAX_ADULTS))}
+                  />
+                  <Input
+                    label="Children" type="number" min="0" max={MAX_CHILDREN}
+                    value={form.children}
+                    onChange={e => set('children', clampCount(e.target.value, MAX_CHILDREN))}
+                  />
                   <Select label="Trip Type" value={form.tripType} onChange={e => set('tripType', e.target.value)}>
                     <option>International</option>
                     <option>Domestic</option>

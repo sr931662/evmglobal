@@ -138,6 +138,21 @@ export function cityStaysLabel(quote = {}) {
     .join(' · ')
 }
 
+// ─── Passenger counts ─────────────────────────────────────────────────────────
+// A number input changes its value on mouse-wheel/trackpad scroll while
+// focused — inside a scrollable form, an ordinary scroll gesture that passes
+// over the field silently mutates it (a single scroll flick can add 40+ to a
+// count). The field is blurred on wheel globally, but a sane ceiling here is
+// a second line of defence against any count driving something — like a
+// per-child age box — from ballooning to an unusable size.
+export const MAX_ADULTS = 30
+export const MAX_CHILDREN = 20
+
+export function clampCount(value, max) {
+  const n = Math.round(num(value, 0))
+  return String(Math.max(0, Math.min(n, max)))
+}
+
 // ─── Children ─────────────────────────────────────────────────────────────────
 /**
  * Ages entered per child. Airlines and hotels price a child by age, so a quote
@@ -157,6 +172,23 @@ export function childAges(quote = {}) {
 export function childAgesLabel(quote = {}) {
   const known = childAges(quote).filter(age => age !== null)
   return known.length ? `ages ${known.join(', ')}` : ''
+}
+
+// A "child" here means 17 or under — hotels and airlines split further
+// (infant/child/teen bands price differently), so this tells the agent which
+// band an entered age actually falls into rather than leaving it as a bare
+// number.
+export const CHILD_AGE_MAX = 17
+
+export function classifyAge(age) {
+  const n = num(age, -1)
+  if (n < 0) return null
+  if (n <= 1) return 'Infant'
+  if (n <= 11) return 'Child'
+  if (n <= CHILD_AGE_MAX) return 'Teen'
+  // Entered in the "children" list but is 18+ — flagged rather than silently
+  // priced as a child.
+  return 'Adult age'
 }
 
 // ─── Taxes ────────────────────────────────────────────────────────────────────

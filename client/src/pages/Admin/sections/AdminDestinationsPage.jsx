@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
+import { useScrollLock } from '../../../hooks/useScrollLock'
 import c from './adminCommon.module.css'
 import styles from './AdminDestinationsPage.module.css'
 
@@ -57,6 +58,10 @@ export default function AdminDestinationsPage() {
   const [form,         setForm]         = useState(empty)
   const [saving,       setSaving]       = useState(false)
   const [deletingId,   setDeletingId]   = useState(null)
+
+  // The form is long (scores, months, collections…) — lock the page behind
+  // it while it's open, same as every other admin modal.
+  useScrollLock(showModal)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -262,7 +267,8 @@ export default function AdminDestinationsPage() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             onClick={e => e.stopPropagation()}
-            className={c.modal}
+            className={`${c.modal} ${c.modalLg} ${c.modalScroll} modal-scroll`}
+            onWheel={e => e.stopPropagation()}
           >
             <h3 className={c.modalTitle}>{editId ? 'Edit Destination' : 'New Destination'}</h3>
 

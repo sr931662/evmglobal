@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext'
 import styles from './Footer.module.css'
 import logo from '../../../assets/logo.png'
 
@@ -50,6 +51,10 @@ const PHONE = '+91 70705 95907'
 const EMAIL = 'info@easemyvacations.com'
 
 export default function Footer() {
+  // Admin access lives only here now — not in the public nav — so this is
+  // the one place that needs to know whether a session is already active.
+  const { user: adminUser } = useAuth()
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -130,6 +135,10 @@ export default function Footer() {
             <Link to="/user-agreement" className={styles.bottomLink}>User Agreement</Link>
             {' · '}
             <Link to="/data-processing-agreement" className={styles.bottomLink}>Data Processing</Link>
+            {' · '}
+            <Link to="/admin" className={styles.bottomLink}>
+              {adminUser ? 'Admin Dashboard' : 'Admin Workspace'}
+            </Link>
           </p>
         </div>
       </div>
