@@ -154,42 +154,9 @@ export function clampCount(value, max) {
 }
 
 // ─── Children ─────────────────────────────────────────────────────────────────
-/**
- * Ages entered per child. Airlines and hotels price a child by age, so a quote
- * that records them can put each child on the booking as a passenger instead of
- * carrying them as an unpriced extra.
- */
-export function childAges(quote = {}) {
-  const count = Math.max(num(quote.children), 0)
-  const stored = Array.isArray(quote.childAges) ? quote.childAges : []
-  return Array.from({ length: count }, (_, i) => {
-    const age = num(stored[i], -1)
-    return age >= 0 ? age : null
-  })
-}
-
-/** "5, 9 yrs" — only the ages actually entered. */
-export function childAgesLabel(quote = {}) {
-  const known = childAges(quote).filter(age => age !== null)
-  return known.length ? `ages ${known.join(', ')}` : ''
-}
-
-// A "child" here means 17 or under — hotels and airlines split further
-// (infant/child/teen bands price differently), so this tells the agent which
-// band an entered age actually falls into rather than leaving it as a bare
-// number.
-export const CHILD_AGE_MAX = 17
-
-export function classifyAge(age) {
-  const n = num(age, -1)
-  if (n < 0) return null
-  if (n <= 1) return 'Infant'
-  if (n <= 11) return 'Child'
-  if (n <= CHILD_AGE_MAX) return 'Teen'
-  // Entered in the "children" list but is 18+ — flagged rather than silently
-  // priced as a child.
-  return 'Adult age'
-}
+// "Children" always means this age band — a count is all that's recorded,
+// not an age per child.
+export const CHILD_AGE_RANGE = '2–12 yrs'
 
 // ─── Taxes ────────────────────────────────────────────────────────────────────
 export const DEFAULT_TAXES = [{ name: 'GST', percent: 5 }]

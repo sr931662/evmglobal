@@ -3,7 +3,7 @@ import remarkGfm from 'remark-gfm'
 import {
   BRAND, COMPANY, LOGO_URL,
   computeQuote, quoteMarkdown, hotelGroups, fmt, num, nightsLabel, durationLabel,
-  cityStays, childAgesLabel, formatDate,
+  cityStays, CHILD_AGE_RANGE, formatDate,
 } from '../../utils/quote'
 
 /* Inline styles only — this tree is serialised to a standalone print document,
@@ -38,7 +38,6 @@ export default function QuotePrintDocument({ quote }) {
   const days     = (quote.itinerary || []).filter(d => d.title || d.description || d.note || d.image)
 
   const stays     = cityStays(quote)
-  const agesLabel = childAgesLabel(quote)
   const departure = formatDate(quote.startDate)
   const validity  = formatDate(quote.validUntil)
 
@@ -117,8 +116,7 @@ export default function QuotePrintDocument({ quote }) {
             </div>
             <div style={S.cellSm}>
               <strong>Travellers:</strong> {calc.adults} Adult{calc.adults === 1 ? '' : 's'}
-              {calc.children > 0 && ` + ${calc.children} Child${calc.children === 1 ? '' : 'ren'}`}
-              {agesLabel && ` (${agesLabel})`}
+              {calc.children > 0 && ` + ${calc.children} Child${calc.children === 1 ? '' : 'ren'} (${CHILD_AGE_RANGE})`}
             </div>
             {departure && <div style={S.cellSm}><strong>Departure:</strong> {departure}</div>}
           </td>
@@ -140,7 +138,7 @@ export default function QuotePrintDocument({ quote }) {
             {calc.children > 0 && calc.perChild > 0 &&
               priceRow(
                 `Child${calc.children === 1 ? '' : 'ren'}`,
-                `${calc.children} × ${cur} ${fmt(calc.perChild)} per child${agesLabel ? ` · ${agesLabel}` : ''}`,
+                `${calc.children} × ${cur} ${fmt(calc.perChild)} per child · ${CHILD_AGE_RANGE}`,
                 calc.childTotal,
                 'ch'
               )}

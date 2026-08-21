@@ -176,7 +176,7 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
                   </div>
 
                   <div className={styles.field}>
-                    <label htmlFor="q-children" className={styles.label}>Children</label>
+                    <label htmlFor="q-children" className={styles.label}>Children (2–12 yrs)</label>
                     <select id="q-children" value={form.children} onChange={e => f('children', e.target.value)} className={styles.input}>
                       {['0','1','2','3','4+'].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>

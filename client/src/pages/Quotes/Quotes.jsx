@@ -9,7 +9,7 @@ import QuotePrintDocument from '../../components/quote/QuotePrintDocument'
 import {
   COMPANY, LOGO_URL, computeQuote, quoteMarkdown, hotelGroups,
   fmt, nightsLabel, durationLabel, openQuotePrintWindow,
-  cityStays, childAgesLabel, formatDate,
+  cityStays, CHILD_AGE_RANGE, formatDate,
 } from '../../utils/quote'
 import styles from './Quotes.module.css'
 
@@ -49,7 +49,6 @@ function QuoteView({ quote }) {
   const sc       = statusColors[quote.status] || statusColors.Sent
 
   const stays     = cityStays(quote)
-  const agesLabel = childAgesLabel(quote)
   const departure = formatDate(quote.startDate)
   const validity  = formatDate(quote.validUntil)
 
@@ -81,7 +80,7 @@ function QuoteView({ quote }) {
           <h2 className={styles.qvTitle}>{quote.tripTitle}</h2>
           <p className={styles.qvMeta}>
             {durationLabel(quote.nights)} ({nightsLabel(quote.nights)}) · {calc.pax} Pax
-            {agesLabel && ` (children ${agesLabel})`} · {quote.tripType}
+            {calc.children > 0 && ` (children ${CHILD_AGE_RANGE})`} · {quote.tripType}
             {departure && ` · Departure: ${departure}`}
           </p>
 
@@ -130,7 +129,7 @@ function QuoteView({ quote }) {
             <div className={styles.costRow}>
               <span className={styles.costRowLabel}>
                 Child{calc.children === 1 ? '' : 'ren'}
-                <span className={styles.costRowMeta}> {calc.children} × {cur} {fmt(calc.perChild)} per child</span>
+                <span className={styles.costRowMeta}> {calc.children} × {cur} {fmt(calc.perChild)} per child · {CHILD_AGE_RANGE}</span>
               </span>
               <span className={styles.costRowAmt}>{cur} {fmt(calc.childTotal)}</span>
             </div>

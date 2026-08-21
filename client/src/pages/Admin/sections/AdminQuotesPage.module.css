@@ -457,32 +457,3 @@
 .nightsInp { width: 3.5rem; padding: 0.625rem 0.5rem; font-size: 0.875rem; font-weight: 700; text-align: center; border: none; outline: none; }
 .nightsSuffix { padding: 0 0.625rem; font-size: 0.6875rem; font-weight: 700; color: #9ca3af; border-left: 1px solid #e5e7eb; align-self: stretch; display: flex; align-items: center; }
 .nightsWarn { margin-top: 0.375rem; font-size: 0.6875rem; font-weight: 700; color: #b45309; }
-
-/* ── Child ages ──────────────────────────────────────────────────────────── */
-.childAges { margin-top: 0.25rem; }
-.childAgeRow { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.375rem; }
-.childAgeBox {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.5rem 0.375rem 0.75rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  background: #fff;
-}
-.childAgeTag { font-size: 0.6875rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
-.childAgeInp { width: 4rem; padding: 0.375rem 0.5rem; font-size: 0.875rem; font-weight: 700; text-align: center; }
-/* Derived from the age itself — Infant / Child / Teen, or a warning when an
-   entered age is actually 18+. */
-.childAgeBand {
-  font-size: 0.625rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #15803d;
-  background: #f0fdf4;
-  padding: 0.1875rem 0.5rem;
-  border-radius: 9999px;
-  white-space: nowrap;
-}
-.childAgeBandWarn { color: #b45309; background: #fffbeb; }

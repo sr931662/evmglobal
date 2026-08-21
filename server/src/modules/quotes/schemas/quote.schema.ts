@@ -86,10 +86,8 @@ export const QuoteSchema = new Schema(
     nights:       { type: Number, default: 1 },
     pax:          { type: Number, default: 2 },
     adults:       { type: Number, default: 2 },
+    // "Children" is a fixed age band (2–12 yrs) — a count, not per-child ages.
     children:     { type: Number, default: 0 },
-    // Age of each child. Hotels and airlines price by age, so this is what
-    // lets a child be added to the booking as a passenger.
-    childAges:    { type: [Number], default: [] },
     perAdult:     { type: Number, default: 0 },
     perChild:     { type: Number, default: 0 },
     tripType:     { type: String, default: 'Domestic', enum: ['Domestic', 'International'] },

@@ -293,7 +293,7 @@ function LeadModal({ lead, onClose, onSave }) {
                     <input type="number" min="0" max="20" placeholder="2" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} className={inp} />
                   </div>
                   <div>
-                    <label className={lbl}>Children (2–12)</label>
+                    <label className={lbl}>Children (2–12 yrs)</label>
                     <input type="number" min="0" max="10" placeholder="1" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} className={inp} />
                   </div>
                   <div>

@@ -271,11 +271,11 @@ export default function Contact() {
                           <div className={styles.row2}>
                             <div className={styles.fieldGroup}>
                               <label className={styles.labelSub}>Adults</label>
-                              <input type="number" min="1" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} placeholder="2" className={inpClass} />
+                              <input type="number" min="1" max="30" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} placeholder="2" className={inpClass} />
                             </div>
                             <div className={styles.fieldGroup}>
-                              <label className={styles.labelSub}>Children (2–12)</label>
-                              <input type="number" min="0" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} placeholder="0" className={inpClass} />
+                              <label className={styles.labelSub}>Children (2–12 yrs)</label>
+                              <input type="number" min="0" max="20" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} placeholder="0" className={inpClass} />
                             </div>
                             <div className={styles.fieldGroup}>
                               <label className={styles.labelSub}>Infants (&lt;2)</label>

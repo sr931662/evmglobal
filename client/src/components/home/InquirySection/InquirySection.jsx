@@ -256,11 +256,11 @@ export default function InquirySection({
                     <div className={styles.row3}>
                       <div>
                         <label className={styles.labelMini}>Adults</label>
-                        <input type="number" min="1" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} placeholder="2" className={styles.input} />
+                        <input type="number" min="1" max="30" value={form.numAdults} onChange={e => f('numAdults', e.target.value)} placeholder="2" className={styles.input} />
                       </div>
                       <div>
-                        <label className={styles.labelMini}>Children (2-12)</label>
-                        <input type="number" min="0" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} placeholder="0" className={styles.input} />
+                        <label className={styles.labelMini}>Children (2–12 yrs)</label>
+                        <input type="number" min="0" max="20" value={form.numChildren} onChange={e => f('numChildren', e.target.value)} placeholder="0" className={styles.input} />
                       </div>
                       <div>
                         <label className={styles.labelMini}>Infants (&lt;2)</label>
