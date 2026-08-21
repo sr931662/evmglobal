@@ -15,6 +15,7 @@ import BlogSection from '../../components/home/BlogSection/BlogSection'
 import FAQSection from '../../components/home/FAQSection/FAQSection'
 import LeadForm from '../../components/home/LeadForm/LeadForm'
 import HomeCTA from '../../components/home/HomeCTA/HomeCTA'
+import AdBanner from '../../components/common/AdBanner/AdBanner'
 import { usePageMeta } from '../../hooks/usePageMeta'
 
 export default function Home() {
@@ -33,10 +34,14 @@ export default function Home() {
       <HeroSection />
       {/* 02 — Trust / USP strip */}
       <TrustBadges />
+      {/* Admin-managed campaign banners. Each renders only when a banner is
+          published to that slot and is inside its schedule. */}
+      <AdBanner placement="home-top" page />
       {/* 03 — Popular holidays, with pricing and inclusions */}
       <PopularHolidays />
       {/* 04 — Destinations */}
       <DestinationsFeatured />
+      <AdBanner placement="home-region-packages" page />
       {/* 05 — Holiday styles */}
       <HolidayStyles />
       {/* 06 — The Ease My Vacations difference */}
@@ -52,10 +57,12 @@ export default function Home() {
       {/* 10 — Services beyond holidays */}
       <MoreThanHolidays />
       <PartnersMarquee />
+      <AdBanner placement="home-mid" page />
       {/* 11 — Travel inspiration */}
       <BlogSection />
       {/* 12 — FAQ */}
       <FAQSection />
+      <AdBanner placement="home-bottom" page />
       {/* 13 — Final CTA: inline enquiry, then the closing conversion block */}
       <LeadForm />
       <HomeCTA />

@@ -24,6 +24,14 @@
   margin-top: 0.25rem;
 }
 
+/* Where the trip actually goes, from the destinations set in Basic Info */
+.pkgLocation {
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-top: 0.375rem;
+}
+
 .priceSec {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);

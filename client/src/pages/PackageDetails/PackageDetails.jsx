@@ -19,7 +19,7 @@ import { api } from '../../services/api'
 import { openWhatsApp } from '../../utils/whatsapp'
 import { trackFunnel } from '../../utils/analytics'
 import { formatPrice } from '../../utils/currency'
-import { splitTitle, tagline, tripLabel, packageFaqs } from '../../utils/packageContent'
+import { splitTitle, tagline, tripLabel, packageFaqs, stayNights, packageLocation } from '../../utils/packageContent'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import { useJsonLd } from '../../hooks/useJsonLd'
@@ -137,7 +137,7 @@ export default function PackageDetails() {
       ? `${pkgName} Holiday Package${destinationList ? ` – ${destinationList}` : ''} | Ease My Vacations`
       : 'Holiday Packages | Ease My Vacations',
     pkg
-      ? `Explore ${destinationList || pkgName} with a personalised ${pkgName} holiday package — ${pkg.nights} nights, handpicked hotels, transfers and sightseeing. Get a personalised quote from Ease My Vacations.`
+      ? `Explore ${destinationList || pkgName} with a personalised ${pkgName} holiday package${stayNights(pkg) > 0 ? ` — ${stayNights(pkg)} nights` : ''}, handpicked hotels, transfers and sightseeing. Get a personalised quote from Ease My Vacations.`
       : 'Discover personalised holiday packages with Ease My Vacations.',
     {
       image: pkg?.image || FALLBACK_IMAGE,
@@ -187,7 +187,8 @@ export default function PackageDetails() {
   const notes     = Array.isArray(pkg.notes) && pkg.notes.length ? pkg.notes : []
   const heroImage = pkg.image || FALLBACK_IMAGE
   const price     = formatPrice(pkg.priceValue, pkg.price)
-  const nights    = Number(pkg.nights) || 0
+  // Derived, so packages saved without a nights value still show a duration.
+  const nights    = stayNights(pkg)
 
   // Signed-in customers see everything; everyone else gets the first couple of
   // days in full and the rest behind the sign-in gate.
@@ -198,8 +199,11 @@ export default function PackageDetails() {
     ? 'Private Transfers'
     : inclusions.find(i => /transfer/i.test(i)) ? 'Transfers Included' : null
 
+  // Location comes from the destinations set in Basic Info, not the title.
+  const location = packageLocation(pkg, destRecord)
+
   const summaryChips = [
-    destinations.length > 0 && { icon: '📍', text: destinations.join(' • ') },
+    location && { icon: '📍', text: location },
     nights > 0 && { icon: '🗓', text: `${nights} Nights / ${nights + 1} Days` },
     transferType && { icon: '🚗', text: transferType },
     { icon: '✎', text: 'Customisable' },
@@ -610,7 +614,7 @@ export default function PackageDetails() {
 
           {/* Sticky enquiry panel (desktop) */}
           <div className={styles.right}>
-            <PricingWidget pkg={pkg} onRequestQuote={openQuote} onShare={shareTrip} shared={shared} />
+            <PricingWidget pkg={pkg} destination={destRecord} onRequestQuote={openQuote} onShare={shareTrip} shared={shared} />
           </div>
         </div>
       </div>

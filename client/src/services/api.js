@@ -319,6 +319,29 @@ export const api = {
   deleteAd: (id) =>
     request(`/ads/${id}`, { method: 'DELETE' }),
 
+  // ─── Image upload ──────────────────────────────────────────────────────────
+  // FormData sets its own multipart boundary, so the JSON content-type that
+  // `request` applies has to be left off here.
+  uploadImage: async (file) => {
+    const body = new FormData()
+    body.append('file', file)
+
+    const send = () => fetch(`${BASE}/upload/image`, {
+      method: 'POST',
+      body,
+      credentials: 'include',
+      headers: _adminToken ? { Authorization: `Bearer ${_adminToken}` } : {},
+    })
+
+    let res = await send()
+    if (res.status === 401 && await tryRefresh()) res = await send()
+
+    const text = await res.text()
+    const data = text ? JSON.parse(text) : {}
+    if (!res.ok) throw new Error(data.message || `Upload failed (${res.status})`)
+    return data
+  },
+
   // ─── Home Content (trust / gallery / testimonial / faq) ────────────────────
   getHomeContent: (params = {}) => {
     const qs = new URLSearchParams(

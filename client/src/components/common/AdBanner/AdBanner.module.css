@@ -1,15 +1,33 @@
+/* Centres a banner narrower than its slot without the caller needing to know
+   what size the admin chose. */
+.slot {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .wrap {
+  width: 100%;
   border-radius: 0.875rem;
   overflow: hidden;
+  /* Contained creatives sit on a soft ground rather than a hole in the page */
+  background: var(--surface-tint, #f3f4f6);
 }
 
 .link {
   display: block;
+  height: 100%;
 }
 
 .img {
   width: 100%;
-  max-height: 220px;
-  object-fit: cover;
   display: block;
+}
+
+/* A page-level slot needs its own breathing room; a slot placed inside an
+   existing section gets its spacing from the caller's className. */
+.pageSlot {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }

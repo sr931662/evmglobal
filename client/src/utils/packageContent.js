@@ -37,6 +37,51 @@ export function tripLabel(pkg, destinationRecord) {
   return destinations.length === 1 ? destinations[0] : ''
 }
 
+/**
+ * How long the stay is, in nights.
+ *
+ * Some packages were created without the nights field filled in, which used to
+ * hide the duration from the page entirely. The itinerary and the hotel list
+ * both already say how long the trip is, so read it off those rather than
+ * showing nothing — but only ever from real data, never a guess.
+ */
+export function stayNights(pkg) {
+  const stated = Number(pkg?.nights) || 0
+  if (stated > 0) return stated
+
+  const hotelNights = (Array.isArray(pkg?.hotels) ? pkg.hotels : [])
+    .filter(h => h?.name)
+    .reduce((total, h) => total + (Number(h.nights) || 0), 0)
+  if (hotelNights > 0) return hotelNights
+
+  // A day-by-day itinerary of N days is an N-1 night trip.
+  const days = Array.isArray(pkg?.itinerary) ? pkg.itinerary.length : 0
+  return days > 1 ? days - 1 : 0
+}
+
+/** "6 Nights / 7 Days", or '' when the trip length genuinely isn't known. */
+export function durationLabel(pkg) {
+  const nights = stayNights(pkg)
+  if (nights <= 0) return ''
+  return `${nights} Night${nights === 1 ? '' : 's'} / ${nights + 1} Day${nights === 0 ? '' : 's'}`
+}
+
+/**
+ * Where the package goes, taken from the destinations chosen in Basic Info.
+ * That list is the single source of truth for the location — the title and the
+ * hotel entries are copy, and drift from it.
+ */
+export function packageLocation(pkg, destinationRecord) {
+  const destinations = Array.isArray(pkg?.destinations) ? pkg.destinations.filter(Boolean) : []
+  if (destinations.length === 0) return destinationRecord?.country || ''
+  if (destinations.length === 1) {
+    // "Krabi, Thailand" reads better than "Krabi" alone when we know the country.
+    const country = destinationRecord?.country
+    return country && country !== destinations[0] ? `${destinations[0]}, ${country}` : destinations[0]
+  }
+  return destinations.join(' • ')
+}
+
 // One-line emotional proposition under the title.
 export function tagline(pkg) {
   if (pkg?.tagline) return pkg.tagline

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { api } from '../../services/api'
 import { formatPrice } from '../../utils/currency'
 import { readingMinutes, freshness, articleDestination } from '../../utils/blogContent'
+import AdBanner from '../../components/common/AdBanner/AdBanner'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import styles from './Blog.module.css'
 
@@ -267,6 +268,9 @@ export default function Blog() {
           ))}
         </div>
       </nav>
+
+      {/* Admin-managed campaign banner */}
+      <AdBanner placement="blog-list" page />
 
       {/* ── Featured guide ──────────────────────────────────────── */}
       {featured && !isFiltered && (

@@ -6,6 +6,7 @@ import { api } from '../../../services/api'
 import Pagination from '../../../components/admin/Pagination'
 import { useScrollLock } from '../../../hooks/useScrollLock'
 import { formatPrice } from '../../../utils/currency'
+import { handleListKeyDown, toggleLinePrefix, dividerInsertion } from '../../../utils/markdownEditing'
 import s from './AdminPackagesPage.module.css'
 
 const cx = (...values) => values.filter(Boolean).join(' ')
@@ -144,7 +145,7 @@ const MD_TOOLBAR_GROUPS = [
   { label: 'Blocks', items: [
     { icon: '❝',   title: 'Blockquote',       type: 'prefix', value: '> '       },
     { icon: '⊞',   title: 'Table',            type: 'block',  value: '\n| Column 1 | Column 2 | Column 3 |\n| --- | --- | --- |\n| Value | Value | Value |\n' },
-    { icon: '——',  title: 'Divider / HR',     type: 'block',  value: '\n---\n'  },
+    { icon: '——',  title: 'Divider / HR', type: 'divider' },
     { icon: '{ }', title: 'Code Block',       type: 'block',  value: '\n```\n\n```\n', btnStyle: { fontFamily: 'monospace', fontSize: '10px' } },
   ]},
 ]
@@ -166,16 +167,14 @@ function applyMdAction(value, ta, btn) {
       cs = start + w.length; ce = cs + ph.length
     }
   } else if (btn.type === 'prefix') {
-    const ls = value.lastIndexOf('\n', start - 1) + 1
-    const p  = btn.value
-    if (value.slice(ls).startsWith(p)) {
-      nv = value.slice(0, ls) + value.slice(ls + p.length)
-      cs = Math.max(ls, start - p.length)
-      ce = Math.max(ls, end - p.length)
-    } else {
-      nv = value.slice(0, ls) + p + value.slice(ls)
-      cs = start + p.length; ce = end + p.length
-    }
+    // Toggles across every line the selection touches, not just the first.
+    const toggled = toggleLinePrefix(value, start, end, btn.value)
+    nv = toggled.value; cs = ce = toggled.cursor
+  } else if (btn.type === 'divider') {
+    // A rule needs a blank line above it, or markdown reads it as a setext
+    // heading and no divider is rendered.
+    const inserted = dividerInsertion(value, end)
+    nv = inserted.value; cs = ce = inserted.cursor
   } else if (btn.type === 'block') {
     nv = value.slice(0, start) + btn.value + value.slice(end)
     cs = ce = start + btn.value.length
@@ -200,6 +199,10 @@ function MarkdownEditor({ label, hint, value, onChange, placeholder, bgClass, bo
   }
 
   const handleKeyDown = (e) => {
+    // Enter at the end of a bullet starts the next one; Enter on an empty
+    // bullet leaves the list.
+    if (handleListKeyDown(e, value, onChange)) return
+
     if (e.ctrlKey || e.metaKey) {
       const kmap = {
         b: { type: 'wrap', value: '**', ph: 'bold text' },
@@ -793,7 +796,10 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
                   <label className={s.fieldLabel}>Nights</label>
                 <input type="number" min="1" value={form.nights} onChange={e => f('nights', e.target.value)} placeholder="e.g. 6"
                     className={s.fieldInput} />
-                  <p className={s.fieldHelp}>Auto-creates itinerary days</p>
+                  <p className={s.fieldHelp}>
+                    Auto-creates itinerary days. Left blank, the page falls back to the
+                    hotel nights or the itinerary length.
+                  </p>
                 </div>
                 <div>
                   <label className={s.fieldLabel}>Category</label>

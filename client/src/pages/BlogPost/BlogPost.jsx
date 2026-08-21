@@ -8,6 +8,7 @@ import { formatPrice } from '../../utils/currency'
 import { openWhatsApp } from '../../utils/whatsapp'
 import {
   readingMinutes, freshness, articleDestination, relatedScore, splitAtMidpoint,
+  normalizeMarkdown,
 } from '../../utils/blogContent'
 import { useJsonLd } from '../../hooks/useJsonLd'
 import styles from './BlogPost.module.css'
@@ -311,7 +312,7 @@ export default function BlogPost() {
     )
   }
 
-  const content = post.content || post.excerpt || ''
+  const content = normalizeMarkdown(post.content || post.excerpt || '')
   const [firstHalf, secondHalf] = packages.length > 0 ? splitAtMidpoint(content) : [content, '']
   const midPackage = packages[0]
 

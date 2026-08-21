@@ -51,6 +51,12 @@ const HotelOptionSchema = new Schema(
   { _id: false }
 );
 
+/** A city on the trip and how many nights are spent there. */
+const DestinationStaySchema = new Schema(
+  { city: { type: String, default: '' }, nights: { type: Number, default: 0 } },
+  { _id: false }
+);
+
 const ItineraryDaySchema = new Schema(
   {
     day:         { type: Number },
@@ -72,11 +78,18 @@ export const QuoteSchema = new Schema(
     validUntil:   { type: String, default: '' },
     tripTitle:    { type: String, required: true, trim: true },
     destinations: [{ type: String }],
+    // Nights per city, so a quote can say "Dubai — 3N · Abu Dhabi — 2N".
+    // Quotes saved before this existed fall back to the hotel list.
+    destinationStays: { type: [DestinationStaySchema], default: [] },
+    // ISO (YYYY-MM-DD) from the date picker; older quotes hold free text.
     startDate:    { type: String, default: '' },
     nights:       { type: Number, default: 1 },
     pax:          { type: Number, default: 2 },
     adults:       { type: Number, default: 2 },
     children:     { type: Number, default: 0 },
+    // Age of each child. Hotels and airlines price by age, so this is what
+    // lets a child be added to the booking as a passenger.
+    childAges:    { type: [Number], default: [] },
     perAdult:     { type: Number, default: 0 },
     perChild:     { type: Number, default: 0 },
     tripType:     { type: String, default: 'Domestic', enum: ['Domestic', 'International'] },

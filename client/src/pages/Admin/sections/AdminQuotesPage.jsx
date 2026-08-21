@@ -8,8 +8,9 @@ import QuotePrintDocument from '../../../components/quote/QuotePrintDocument'
 import {
   DEFAULT_TAXES, TAX_PRESETS,
   computeQuote, quoteMarkdown, hotelGroups, fmt, num, nightsLabel, tripDays,
-  openQuotePrintWindow,
+  openQuotePrintWindow, cityStays, toDateInputValue,
 } from '../../../utils/quote'
+import { handleListKeyDown, toggleLinePrefix } from '../../../utils/markdownEditing'
 import styles from './AdminQuotesPage.module.css'
 
 // ─── Default data factories ───────────────────────────────────────────────────
@@ -66,8 +67,8 @@ const defaultTermsMd = [
 const emptyForm = () => ({
   clientName: '', clientEmail: '', clientPhone: '',
   agentName: 'Ease My Vacations Team', validUntil: '', tripTitle: '',
-  destinations: [''], startDate: '', nights: 5,
-  adults: 2, children: 0, perAdult: 0, perChild: 0,
+  destinations: [''], destinationStays: [], startDate: '', nights: 5,
+  adults: 2, children: 0, childAges: [], perAdult: 0, perChild: 0,
   tripType: 'International', currency: 'INR',
   taxes: DEFAULT_TAXES.map(t => ({ ...t })),
   taxPercent: 0,
@@ -94,6 +95,14 @@ function quoteToForm(quote) {
     children: calc.children,
     perAdult: calc.perAdult,
     perChild: calc.perChild,
+    destinations: quote.destinations?.length ? quote.destinations : [''],
+    // Stored ages use -1 for "not recorded"; the editor shows those as blank.
+    childAges: (Array.isArray(quote.childAges) ? quote.childAges : []).map(a => (num(a, -1) < 0 ? '' : String(a))),
+    // Nights already sit on the hotel list for older quotes — surface them so
+    // the agent can adjust rather than re-enter.
+    destinationStays: quote.destinationStays?.length
+      ? quote.destinationStays
+      : cityStays(quote).filter(s => s.nights > 0),
     costItems: quote.costItems?.length ? quote.costItems : [],
     taxes: calc.taxes.length ? calc.taxes.map(t => ({ name: t.name, percent: t.percent })) : [],
     taxPercent: 0,
@@ -133,13 +142,76 @@ function Select({ label, className = '', children, ...props }) {
   return <Field label={label} className={className}><select className={`${styles.inp} ${styles.sel}`} {...props}>{children}</select></Field>
 }
 
+/**
+ * Dates are picked from the browser's calendar rather than typed. Quotes
+ * written before the picker holds free text like "15 Jun 2026"; that is
+ * converted where it parses and shown as-is where it doesn't, so nothing is
+ * silently lost.
+ */
+function DateInput({ label, value, onChange, className = '' }) {
+  const iso = toDateInputValue(value)
+  const unparsed = value && !iso
+
+  return (
+    <Field label={label} className={className}>
+      <input
+        type="date"
+        className={`${styles.inp} ${styles.dateInp}`}
+        value={iso}
+        onChange={e => onChange(e.target.value)}
+      />
+      {unparsed && (
+        <p className={styles.dateLegacy}>Currently saved as &ldquo;{value}&rdquo; — pick a date to replace it.</p>
+      )}
+    </Field>
+  )
+}
+
+/**
+ * One age box per child. Hotels and airlines price a child by age, so this is
+ * what lets a child be added to the booking as a passenger rather than tagging
+ * along unpriced.
+ */
+function ChildAges({ count, ages, onChange }) {
+  if (count <= 0) return null
+
+  const setAge = (index, value) => {
+    const next = Array.from({ length: count }, (_, i) => (ages?.[i] ?? ''))
+    next[index] = value
+    onChange(next)
+  }
+
+  return (
+    <div className={styles.childAges}>
+      <label className={styles.fieldLabelFaint}>Age of each child</label>
+      <div className={styles.childAgeRow}>
+        {Array.from({ length: count }, (_, i) => (
+          <div key={i} className={styles.childAgeBox}>
+            <span className={styles.childAgeTag}>Child {i + 1}</span>
+            <input
+              type="number" min="0" max="17"
+              className={`${styles.inp} ${styles.childAgeInp}`}
+              placeholder="yrs"
+              value={ages?.[i] ?? ''}
+              onChange={e => setAge(i, e.target.value)}
+            />
+          </div>
+        ))}
+      </div>
+      <p className={styles.mdHint}>Used on the quote and when adding each child to the booking as a passenger.</p>
+    </div>
+  )
+}
+
 // ─── Markdown note box (inclusions / exclusions / notes / policy) ─────────────
+// Line prefixes toggle across whichever lines the selection touches; wraps
+// surround the selection itself.
 const MD_SNIPPETS = [
-  { icon: '•',  title: 'Bullet list',  wrap: (s) => `- ${s || 'item'}` },
-  { icon: '1.', title: 'Numbered list', wrap: (s) => `1. ${s || 'item'}` },
+  { icon: '•',  title: 'Bullet list',   prefix: '- '   },
+  { icon: '1.', title: 'Numbered list', prefix: '1. '  },
   { icon: 'B',  title: 'Bold',          wrap: (s) => `**${s || 'bold'}**` },
   { icon: 'I',  title: 'Italic',        wrap: (s) => `_${s || 'italic'}_` },
-  { icon: 'H',  title: 'Heading',       wrap: (s) => `### ${s || 'Heading'}` },
+  { icon: 'H',  title: 'Heading',       prefix: '### ' },
 ]
 
 function MarkdownBox({ label, value, onChange, placeholder, rows = 8, accent = '' }) {
@@ -152,6 +224,14 @@ function MarkdownBox({ label, value, onChange, placeholder, rows = 8, accent = '
     const start = ta.selectionStart
     const end   = ta.selectionEnd
     const text  = value || ''
+
+    if (snippet.prefix) {
+      const { value: next, cursor } = toggleLinePrefix(text, start, end, snippet.prefix)
+      onChange(next)
+      requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(cursor, cursor) })
+      return
+    }
+
     const inserted = snippet.wrap(text.slice(start, end))
     const next = text.slice(0, start) + inserted + text.slice(end)
     onChange(next)
@@ -188,9 +268,13 @@ function MarkdownBox({ label, value, onChange, placeholder, rows = 8, accent = '
           value={value || ''}
           placeholder={placeholder}
           onChange={e => onChange(e.target.value)}
+          onKeyDown={e => handleListKeyDown(e, value || '', onChange)}
         />
       )}
-      <p className={styles.mdHint}>Markdown supported — <code>- bullet</code>, <code>**bold**</code>, <code>### heading</code></p>
+      <p className={styles.mdHint}>
+        Markdown supported — <code>- bullet</code>, <code>**bold**</code>, <code>### heading</code>.
+        Press Enter on a bullet and the next one is added for you.
+      </p>
     </div>
   )
 }
@@ -206,6 +290,28 @@ function QuoteModal({ quote, onSave, onClose }) {
   const [saving, setSaving] = useState(false)
   const [err, setErr]       = useState(null)
   const printRef            = useRef(null)
+  const bodyRef             = useRef(null)
+
+  // ── Scroll state for the up/down control ──
+  const [scrollState, setScrollState] = useState({ scrollable: false, atTop: true, atBottom: false })
+
+  const updateScrollState = useCallback(() => {
+    const el = bodyRef.current
+    if (!el) return
+    const max = el.scrollHeight - el.clientHeight
+    setScrollState({
+      scrollable: max > 8,
+      atTop:      el.scrollTop <= 4,
+      atBottom:   el.scrollTop >= max - 4,
+    })
+  }, [])
+
+  const scrollBody = (direction) => {
+    const el = bodyRef.current
+    if (!el) return
+    // Just under a screenful, so the line you were reading stays on screen.
+    el.scrollBy({ top: direction * el.clientHeight * 0.85, behavior: 'smooth' })
+  }
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
 
@@ -247,8 +353,47 @@ function QuoteModal({ quote, onSave, onClose }) {
     return { ...f, hotelOptions: opts }
   })
 
+  // ── Destinations and the nights spent in each ──
+  // `destinations` stays a plain string list (everything downstream reads it);
+  // `destinationStays` carries the night counts alongside it.
+  const stayNightsAt = (index) => {
+    const city = (form.destinations[index] || '').trim().toLowerCase()
+    const stay = (form.destinationStays || []).find(s => (s.city || '').trim().toLowerCase() === city)
+    return stay?.nights ?? ''
+  }
+
+  const writeStays = (cities, nightsByIndex) => cities
+    .map((city, i) => ({ city: (city || '').trim(), nights: num(nightsByIndex[i], 0) }))
+    .filter(s => s.city)
+
+  const currentNights = () => form.destinations.map((_, i) => stayNightsAt(i))
+
+  const setDestination = (index, value) => {
+    const nightsList = currentNights()
+    const cities = [...form.destinations]
+    cities[index] = value
+    setForm(f => ({ ...f, destinations: cities, destinationStays: writeStays(cities, nightsList) }))
+  }
+
+  const setStayNights = (index, value) => {
+    const nightsList = currentNights()
+    nightsList[index] = value
+    setForm(f => ({ ...f, destinationStays: writeStays(f.destinations, nightsList) }))
+  }
+
+  const removeDestination = (index) => {
+    const nightsList = currentNights().filter((_, i) => i !== index)
+    const cities = form.destinations.filter((_, i) => i !== index)
+    setForm(f => ({ ...f, destinations: cities, destinationStays: writeStays(cities, nightsList) }))
+  }
+
   const nights = Math.max(num(form.nights), 0)
   const days   = tripDays(nights)          // N nights → N+1 days
+
+  // Flagged, not corrected — the agent may be quoting a trip where a night is
+  // spent in transit rather than in any of the listed cities.
+  const cityNightsTotal = cityStays(form).reduce((sum, s) => sum + s.nights, 0)
+  const nightsGap = cityNightsTotal > 0 ? cityNightsTotal - nights : 0
 
   // Keep the itinerary one entry per travel day (nights + 1)
   useEffect(() => {
@@ -262,6 +407,19 @@ function QuoteModal({ quote, onSave, onClose }) {
       return { ...f, itinerary: cur.slice(0, days) }
     })
   }, [days])
+
+  // Switching tabs replaces the content, so the control has to re-measure —
+  // and a fresh tab always starts at the top.
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 })
+    updateScrollState()
+  }, [tab, updateScrollState])
+
+  useEffect(() => {
+    const onResize = () => updateScrollState()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [updateScrollState])
 
   async function handleSave() {
     if (!form.clientName.trim() || !form.tripTitle.trim()) {
@@ -280,6 +438,14 @@ function QuoteModal({ quote, onSave, onClose }) {
         perChild:     num(form.perChild),
         pax:          num(form.adults) + num(form.children),
         destinations: form.destinations.filter(Boolean),
+        destinationStays: (form.destinationStays || [])
+          .filter(s => (s.city || '').trim())
+          .map(s => ({ city: s.city.trim(), nights: num(s.nights) })),
+        // Blank age boxes stay blank rather than becoming a zero-year-old.
+        childAges: Array.from({ length: Math.max(num(form.children), 0) }, (_, i) => {
+          const age = form.childAges?.[i]
+          return age === '' || age == null ? -1 : num(age)
+        }),
         costItems:    form.costItems.filter(i => i.description).map(i => ({ ...i, amount: num(i.amount) })),
         taxes:        form.taxes.filter(t => t.name?.trim()).map(t => ({ name: t.name.trim(), percent: num(t.percent) })),
         taxPercent:   0,
@@ -313,7 +479,8 @@ function QuoteModal({ quote, onSave, onClose }) {
   const calc = computeQuote(form)
 
   return (
-    /* Overlay — this element scrolls, not the inner card */
+    /* The card is viewport-height and its body scrolls; the page behind it
+       stays put, so a long quote never has to be zoomed out to reach. */
     <div
       className={styles.overlay}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
@@ -350,8 +517,8 @@ function QuoteModal({ quote, onSave, onClose }) {
           ))}
         </div>
 
-        {/* Tab content — natural height, modal body is gray so white cards stand out */}
-        <div className={styles.tabContent}>
+        {/* Tab content — the scroll region, gray so white cards stand out */}
+        <div ref={bodyRef} onScroll={updateScrollState} className={`${styles.tabContent} modal-scroll`}>
 
           {/* ── Tab 0: Client & Trip ── */}
           {tab === 0 && (
@@ -373,22 +540,43 @@ function QuoteModal({ quote, onSave, onClose }) {
                 <p className={styles.blockLabel}>Trip Information</p>
                 <Input label="Trip Title *" value={form.tripTitle} onChange={e => set('tripTitle', e.target.value)} placeholder="Dubai 5N6D" />
 
+                {/* Each city carries its own night count, so the quote can show
+                    the split rather than just listing the places. */}
                 <div>
-                  <label className={styles.fieldLabelFaint}>Destinations</label>
+                  <label className={styles.fieldLabelFaint}>Destinations &amp; nights</label>
                   {form.destinations.map((d, i) => (
                     <div key={i} className={styles.rowMb}>
-                      <input className={`${styles.inp} ${styles.flex1}`} value={d} placeholder="e.g. Dubai" onChange={e => { const a=[...form.destinations]; a[i]=e.target.value; set('destinations',a) }} />
+                      <input
+                        className={`${styles.inp} ${styles.flex1}`}
+                        value={d}
+                        placeholder="e.g. Dubai"
+                        onChange={e => setDestination(i, e.target.value)}
+                      />
+                      <div className={styles.nightsBox}>
+                        <input
+                          type="number" min="0"
+                          className={styles.nightsInp}
+                          value={stayNightsAt(i)}
+                          onChange={e => setStayNights(i, e.target.value)}
+                        />
+                        <span className={styles.nightsSuffix}>nights</span>
+                      </div>
                       {form.destinations.length > 1 && (
-                        <button onClick={() => set('destinations', form.destinations.filter((_,idx)=>idx!==i))} className={styles.removeBtn}>×</button>
+                        <button onClick={() => removeDestination(i)} className={styles.removeBtn}>×</button>
                       )}
                     </div>
                   ))}
                   <button onClick={() => set('destinations', [...form.destinations, ''])} className={styles.addLink}>+ Add destination</button>
+                  {nightsGap !== 0 && (
+                    <p className={styles.nightsWarn}>
+                      City nights add up to {cityNightsTotal}, but the trip is {nights} nights.
+                    </p>
+                  )}
                 </div>
 
                 <div className={styles.gridDates}>
-                  <Input label="Start Date" type="text" value={form.startDate} onChange={e => set('startDate', e.target.value)} placeholder="15 Jun 2026" className={styles.span2} />
-                  <Input label="Valid Until" type="text" value={form.validUntil} onChange={e => set('validUntil', e.target.value)} placeholder="31 May 2026" className={styles.span2} />
+                  <DateInput label="Start Date" value={form.startDate} onChange={v => set('startDate', v)} className={styles.span2} />
+                  <DateInput label="Valid Until" value={form.validUntil} onChange={v => set('validUntil', v)} className={styles.span2} />
                   <Input label="Nights" type="number" min="0" value={form.nights} onChange={e => set('nights', e.target.value)} />
                   <Field label="Duration">
                     <div className={styles.durationPill}>{nightsLabel(nights)}</div>
@@ -406,6 +594,12 @@ function QuoteModal({ quote, onSave, onClose }) {
                     <option>Rejected</option>
                   </Select>
                 </div>
+
+                <ChildAges
+                  count={Math.max(num(form.children), 0)}
+                  ages={form.childAges}
+                  onChange={v => set('childAges', v)}
+                />
               </div>
             </div>
           )}
@@ -712,9 +906,10 @@ function QuoteModal({ quote, onSave, onClose }) {
                       <textarea
                         className={styles.inp}
                         rows={5}
-                        placeholder={'Describe the day — put each block on its own line, e.g.\n07:30 Hotel pick-up in Hanoi\n09:30 Hoa Lu Ancient Capital\n16:00 Return to Hanoi · Overnight in Hanoi'}
+                        placeholder={'Describe the day — put each block on its own line, e.g.\n- 07:30 Hotel pick-up in Hanoi\n- 09:30 Hoa Lu Ancient Capital\n- 16:00 Return to Hanoi · Overnight in Hanoi'}
                         value={day.description}
                         onChange={e => setNested('itinerary', i, 'description', e.target.value)}
+                        onKeyDown={e => handleListKeyDown(e, day.description || '', v => setNested('itinerary', i, 'description', v))}
                       />
                       <div className={styles.dayExtraGrid}>
                         <Field label="Day Image URL">
@@ -742,6 +937,7 @@ function QuoteModal({ quote, onSave, onClose }) {
                             placeholder="Special instructions, tips, or notes for this day…"
                             value={day.note || ''}
                             onChange={e => setNested('itinerary', i, 'note', e.target.value)}
+                            onKeyDown={e => handleListKeyDown(e, day.note || '', v => setNested('itinerary', i, 'note', v))}
                           />
                         </Field>
                       </div>
@@ -791,8 +987,35 @@ function QuoteModal({ quote, onSave, onClose }) {
           )}
         </div>
 
-        {/* Footer — sticky at bottom of viewport while scrolling */}
+        {/* Footer — pinned to the bottom of the card */}
         <div className={styles.modalFooter}>
+
+          {/* Scroll control — the tabs run long, and reaching the bottom by
+              zooming the browser out is not a workflow. */}
+          {scrollState.scrollable && (
+            <div className={styles.scrollPad}>
+              <button
+                type="button"
+                onClick={() => scrollBody(-1)}
+                disabled={scrollState.atTop}
+                className={styles.scrollBtn}
+                title="Scroll up"
+                aria-label="Scroll up"
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollBody(1)}
+                disabled={scrollState.atBottom}
+                className={styles.scrollBtn}
+                title="Scroll down"
+                aria-label="Scroll down"
+              >
+                ▼
+              </button>
+            </div>
+          )}
           <div className={styles.footInfo}>
             {err
               ? <p className={styles.footErr}>{err}</p>

@@ -3,6 +3,7 @@ import remarkGfm from 'remark-gfm'
 import {
   BRAND, COMPANY, LOGO_URL,
   computeQuote, quoteMarkdown, hotelGroups, fmt, num, nightsLabel, durationLabel,
+  cityStays, childAgesLabel, formatDate,
 } from '../../utils/quote'
 
 /* Inline styles only — this tree is serialised to a standalone print document,
@@ -36,6 +37,11 @@ export default function QuotePrintDocument({ quote }) {
   const stayOpts = hotelGroups(quote)
   const days     = (quote.itinerary || []).filter(d => d.title || d.description || d.note || d.image)
 
+  const stays     = cityStays(quote)
+  const agesLabel = childAgesLabel(quote)
+  const departure = formatDate(quote.startDate)
+  const validity  = formatDate(quote.validUntil)
+
   const priceRow = (label, meta, amount, key) => (
     <tr key={key} style={{ borderBottom: `1px solid ${BRAND.line}` }}>
       <td style={{ ...S.sans, fontSize: 13, padding: '9px 0', verticalAlign: 'top' }}>
@@ -63,14 +69,14 @@ export default function QuotePrintDocument({ quote }) {
               </td>
               <td style={{ verticalAlign: 'middle' }}>
                 <div style={{ ...S.sans, fontSize: 20, fontWeight: 900, letterSpacing: 0.5, color: BRAND.ink }}>{COMPANY.name}</div>
-                <div style={{ ...S.sans, fontSize: 9, fontWeight: 700, letterSpacing: 3, color: BRAND.red, marginTop: 3 }}>TRAVEL · TOURS · HOLIDAYS</div>
+                <div style={{ ...S.sans, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: BRAND.red, marginTop: 3, textTransform: 'uppercase' }}>{COMPANY.tagline}</div>
               </td>
             </tr></tbody></table>
           </td>
           <td style={{ textAlign: 'right', verticalAlign: 'bottom', paddingBottom: 16, borderBottom: `3px solid ${BRAND.red}` }}>
             <div style={{ ...S.sans, fontSize: 10, fontWeight: 700, letterSpacing: 3, color: BRAND.faint }}>QUOTE NO.</div>
             <div style={{ ...S.sans, fontSize: 20, fontWeight: 900, color: BRAND.red, marginTop: 2 }}>{quote.refNumber || 'DRAFT'}</div>
-            {quote.validUntil && <div style={{ ...S.sans, fontSize: 11, color: '#666', marginTop: 3 }}>Valid until: <strong>{quote.validUntil}</strong></div>}
+            {validity && <div style={{ ...S.sans, fontSize: 11, color: '#666', marginTop: 3 }}>Valid until: <strong>{validity}</strong></div>}
             {quote.status && <div style={{ ...S.sans, fontSize: 11, color: '#666' }}>Status: {quote.status}</div>}
           </td>
         </tr></tbody>
@@ -89,17 +95,32 @@ export default function QuotePrintDocument({ quote }) {
           <td width="50%" style={{ verticalAlign: 'top', textAlign: 'right' }}>
             <div style={S.label}>Trip details</div>
             <div style={{ fontSize: 16, fontWeight: 700 }}>{quote.tripTitle}</div>
+            {quote.tripType && <div style={{ ...S.cellSm, marginTop: 4 }}>{quote.tripType}</div>}
+
+            {/* Each city with the nights spent there, listed one per line so
+                the client can see how the trip is actually split up. */}
+            {stays.length > 0 && (
+              <div style={{ marginTop: 4 }}>
+                {stays.map(stay => (
+                  <div key={stay.city} style={S.cellSm}>
+                    {stay.city}
+                    {stay.nights > 0 && (
+                      <span style={{ color: BRAND.faint }}> &mdash; {stay.nights} Night{stay.nights === 1 ? '' : 's'}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div style={{ ...S.cellSm, marginTop: 4 }}>
-              {[quote.destinations?.filter(Boolean).join(' · '), quote.tripType].filter(Boolean).join(' | ')}
-            </div>
-            <div style={S.cellSm}>
               <strong>Duration:</strong> {durationLabel(quote.nights)} ({nightsLabel(quote.nights)})
             </div>
             <div style={S.cellSm}>
               <strong>Travellers:</strong> {calc.adults} Adult{calc.adults === 1 ? '' : 's'}
               {calc.children > 0 && ` + ${calc.children} Child${calc.children === 1 ? '' : 'ren'}`}
+              {agesLabel && ` (${agesLabel})`}
             </div>
-            {quote.startDate && <div style={S.cellSm}><strong>Departure:</strong> {quote.startDate}</div>}
+            {departure && <div style={S.cellSm}><strong>Departure:</strong> {departure}</div>}
           </td>
         </tr></tbody>
       </table>
@@ -117,7 +138,12 @@ export default function QuotePrintDocument({ quote }) {
             {calc.adults > 0 && calc.perAdult > 0 &&
               priceRow(`Adult${calc.adults === 1 ? '' : 's'}`, `${calc.adults} × ${cur} ${fmt(calc.perAdult)} per person`, calc.adultTotal, 'ad')}
             {calc.children > 0 && calc.perChild > 0 &&
-              priceRow(`Child${calc.children === 1 ? '' : 'ren'}`, `${calc.children} × ${cur} ${fmt(calc.perChild)} per child`, calc.childTotal, 'ch')}
+              priceRow(
+                `Child${calc.children === 1 ? '' : 'ren'}`,
+                `${calc.children} × ${cur} ${fmt(calc.perChild)} per child${agesLabel ? ` · ${agesLabel}` : ''}`,
+                calc.childTotal,
+                'ch'
+              )}
             {calc.extraItems.filter(i => i.description).map((item, i) =>
               priceRow(item.description, null, item.amount, `x${i}`))}
 
@@ -307,17 +333,19 @@ export default function QuotePrintDocument({ quote }) {
                       </div>
                     </td>
                     <td style={cell}>
+                      {/* Title first — the reader needs to know what the day is
+                          before they look at the picture of it. */}
+                      {day.title && (
+                        <div style={{ ...S.sans, fontWeight: 700, fontSize: 13, color: BRAND.ink, marginBottom: 6 }}>
+                          {day.title}
+                        </div>
+                      )}
                       {day.image && (
                         <img
                           src={day.image}
                           alt={day.title || `Day ${day.day}`}
                           style={{ display: 'block', width: '100%', maxHeight: 140, objectFit: 'cover', borderRadius: 4, marginBottom: 6 }}
                         />
-                      )}
-                      {day.title && (
-                        <div style={{ ...S.sans, fontWeight: 700, fontSize: 13, color: BRAND.ink, marginBottom: 4 }}>
-                          {day.title}
-                        </div>
                       )}
                       {day.description && (
                         /* pre-line keeps the line breaks the agent typed */

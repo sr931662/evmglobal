@@ -110,3 +110,39 @@ export function splitAtMidpoint(markdown) {
     blocks.slice(cutIndex).join('\n\n'),
   ]
 }
+
+// A "---" written straight under a line of text is a setext heading in
+// markdown, not a horizontal rule — which is why dividers inserted from the
+// editor vanished once the article was published. Editors write them fixed
+// now; this repairs the ones already stored.
+const DIVIDER_LINE = /^\s{0,3}(?:-{3,}|\*{3,}|_{3,})\s*$/
+
+export function normalizeMarkdown(markdown) {
+  const text = markdown || ''
+  if (!text.includes('---') && !text.includes('***') && !text.includes('___')) return text
+
+  const lines = text.split('\n')
+  const out   = []
+  let inFence = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    // Never touch anything inside a fenced code block.
+    if (/^\s*(?:```|~~~)/.test(line)) inFence = !inFence
+
+    const previous = out[out.length - 1]
+    if (
+      !inFence &&
+      DIVIDER_LINE.test(line) &&
+      previous !== undefined &&
+      previous.trim() !== '' &&
+      // A "---" row directly under a table header belongs to the table.
+      !previous.trim().startsWith('|')
+    ) {
+      out.push('')
+    }
+    out.push(line)
+  }
+
+  return out.join('\n')
+}

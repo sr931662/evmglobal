@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
 import PackageCard from '../../components/packages/PackageCard/PackageCard'
+import AdBanner from '../../components/common/AdBanner/AdBanner'
 import { api } from '../../services/api'
 import { formatPrice } from '../../utils/currency'
 import styles from './Packages.module.css'
@@ -350,6 +351,9 @@ export default function Packages() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Admin-managed campaign banner */}
+      <AdBanner placement="packages-list" page />
 
       <div className={styles.gridWrap}>
         {loading ? (

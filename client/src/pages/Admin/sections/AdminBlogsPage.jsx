@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { api } from '../../../services/api'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import { handleListKeyDown, toggleLinePrefix, dividerInsertion } from '../../../utils/markdownEditing'
+import { normalizeMarkdown } from '../../../utils/blogContent'
 import c from './adminCommon.module.css'
 import styles from './AdminBlogsPage.module.css'
 
@@ -88,7 +90,7 @@ const MD_GROUPS = [
   { label: 'Blocks', items: [
     { icon: '❝',   title: 'Blockquote',       type: 'prefix', value: '> '       },
     { icon: '⊞',   title: 'Table',            type: 'block',  value: '\n| Header 1 | Header 2 | Header 3 |\n| --- | --- | --- |\n| Cell | Cell | Cell |\n' },
-    { icon: '—',   title: 'Divider / HR',     type: 'block',  value: '\n---\n'  },
+    { icon: '—',   title: 'Divider / HR', type: 'divider' },
     { icon: '{ }', title: 'Code Block',       type: 'block',  value: '\n```\n\n```\n', btnStyle: { fontFamily: 'monospace', fontSize: '10px' } },
   ]},
 ]
@@ -110,16 +112,14 @@ function applyBlogAction(content, ta, btn) {
       cs = start + w.length; ce = cs + ph.length
     }
   } else if (btn.type === 'prefix') {
-    const ls = content.lastIndexOf('\n', start - 1) + 1
-    const p  = btn.value
-    if (content.slice(ls).startsWith(p)) {
-      nv = content.slice(0, ls) + content.slice(ls + p.length)
-      cs = Math.max(ls, start - p.length)
-      ce = Math.max(ls, end - p.length)
-    } else {
-      nv = content.slice(0, ls) + p + content.slice(ls)
-      cs = start + p.length; ce = end + p.length
-    }
+    // Toggles across every line the selection touches, not just the first.
+    const toggled = toggleLinePrefix(content, start, end, btn.value)
+    nv = toggled.value; cs = ce = toggled.cursor
+  } else if (btn.type === 'divider') {
+    // A rule needs a blank line above it, or markdown reads it as a setext
+    // heading and the divider never appears in the published article.
+    const inserted = dividerInsertion(content, end)
+    nv = inserted.value; cs = ce = inserted.cursor
   } else if (btn.type === 'block') {
     nv = content.slice(0, start) + btn.value + content.slice(end)
     cs = ce = start + btn.value.length
@@ -163,6 +163,10 @@ function BlogModal({ blog, onClose, onSave }) {
   }
 
   const handleEditorKeyDown = (e) => {
+    // Enter at the end of a bullet starts the next one; Enter on an empty
+    // bullet leaves the list.
+    if (handleListKeyDown(e, form.content, v => f('content', v))) return
+
     if (e.ctrlKey || e.metaKey) {
       const kmap = {
         b: { type: 'wrap', value: '**', ph: 'bold text' },
@@ -393,7 +397,7 @@ function BlogModal({ blog, onClose, onSave }) {
                       {form.content.trim() ? form.content.trim().split(/\s+/).length : 0} words · {form.content.length} chars
                     </span>
                     <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', letterSpacing: '0.05em', color: '#d1d5db' }}>
-                      Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Tab Indent
+                      Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Enter continues a list
                     </span>
                   </div>
                 </div>
@@ -426,14 +430,14 @@ function BlogModal({ blog, onClose, onSave }) {
                     />
                     <div style={{ padding: '0.875rem 1.25rem', background: '#fafafa', overflowY: 'auto', minHeight: '280px' }}>
                       {form.content.trim()
-                        ? <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdPreviewComponents}>{form.content}</ReactMarkdown>
+                        ? <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdPreviewComponents}>{normalizeMarkdown(form.content)}</ReactMarkdown>
                         : <p style={{ color: '#9ca3af', fontSize: '0.875rem', fontStyle: 'italic' }}>Start typing to see preview…</p>
                       }
                     </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.375rem 0.875rem', background: '#f9fafb', borderTop: '1px solid #e5e7eb', fontSize: '0.6875rem', color: '#9ca3af' }}>
                     <span>{form.content.trim() ? form.content.trim().split(/\s+/).length : 0} words · {form.content.length} chars</span>
-                    <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: '#d1d5db' }}>Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Tab Indent</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: '#d1d5db' }}>Ctrl+B Bold · Ctrl+I Italic · Ctrl+K Link · Enter continues a list</span>
                   </div>
                 </div>
               ) : (
@@ -450,7 +454,7 @@ function BlogModal({ blog, onClose, onSave }) {
                 }}>
                   {form.content.trim() ? (
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdPreviewComponents}>
-                      {form.content}
+                      {normalizeMarkdown(form.content)}
                     </ReactMarkdown>
                   ) : (
                     <p style={{ color: '#9ca3af', fontSize: '0.875rem', fontStyle: 'italic' }}>Nothing to preview yet. Switch to Write and add some content.</p>

@@ -12,10 +12,11 @@ export const BRAND = {
 }
 
 export const COMPANY = {
-  name:  'Ease My Vacations',
-  legal: 'Global Ease My Vacations (OPC) Private Limited',
-  cin:   'U79110HR2026OPC146794',
-  gst:   '06AANCG1457H1Z1',
+  name:    'Ease My Vacations',
+  tagline: 'Serving Memories Since 2022',
+  legal:   'Global Ease My Vacations (OPC) Private Limited',
+  cin:     'U79110HR2026OPC146794',
+  gst:     '06AANCG1457H1Z1',
 }
 
 // The print window is a blob: document, so relative asset paths do not resolve —
@@ -49,6 +50,113 @@ export function tripDays(nights) {
 export function durationLabel(nights) {
   const n = Math.max(num(nights), 0)
   return `${n} Night${n === 1 ? '' : 's'} / ${n + 1} Day${n === 0 ? '' : 's'}`
+}
+
+// ─── Dates ────────────────────────────────────────────────────────────────────
+// Dates are picked from a calendar and stored as ISO (YYYY-MM-DD), but quotes
+// written before the picker existed hold free text like "15 Jun 2026". Both
+// have to render, so anything that isn't ISO passes through untouched.
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+
+export function isIsoDate(value) {
+  return ISO_DATE.test((value || '').trim())
+}
+
+/** ISO value for <input type="date">, or '' when the stored text isn't a date. */
+export function toDateInputValue(value) {
+  const text = (value || '').trim()
+  if (isIsoDate(text)) return text
+  const parsed = new Date(text)
+  if (text && !Number.isNaN(parsed.getTime())) {
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(parsed.getDate())}`
+  }
+  return ''
+}
+
+/** "15 June 2026" for display; legacy free text is shown as the agent typed it. */
+export function formatDate(value) {
+  const text = (value || '').trim()
+  if (!isIsoDate(text)) return text
+  // Parsed as parts, not as a string — "2026-06-15" would otherwise be read
+  // as UTC midnight and shift a day backwards in western timezones.
+  const [year, month, day] = text.split('-').map(Number)
+  return new Date(year, month - 1, day)
+    .toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+// ─── Cities and nights ────────────────────────────────────────────────────────
+/**
+ * Each city on the trip with the nights spent there, so a quote reads
+ * "Dubai — 3 Nights · Abu Dhabi — 2 Nights" instead of just naming the places.
+ *
+ * Explicit per-city nights win; otherwise they're read off the hotel list,
+ * which already carries a city and a night count. When neither exists the
+ * cities are still listed, just without a night count — never a guessed one.
+ */
+export function cityStays(quote = {}) {
+  const destinations = (Array.isArray(quote.destinations) ? quote.destinations : [])
+    .map(d => (typeof d === 'string' ? d : d?.city || '').trim())
+    .filter(Boolean)
+
+  const explicit = new Map()
+  for (const stay of Array.isArray(quote.destinationStays) ? quote.destinationStays : []) {
+    const city = (stay?.city || '').trim()
+    if (city) explicit.set(city.toLowerCase(), Math.max(num(stay.nights), 0))
+  }
+
+  const fromHotels     = new Map()
+  const hotelCityNames = new Map()
+  for (const group of hotelGroups(quote)) {
+    for (const hotel of group.hotels) {
+      const city = (hotel.location || hotel.city || '').trim()
+      if (!city) continue
+      const key = city.toLowerCase()
+      if (!hotelCityNames.has(key)) hotelCityNames.set(key, city)
+      fromHotels.set(key, (fromHotels.get(key) || 0) + Math.max(num(hotel.nights), 0))
+    }
+    // Hotel options describe the same trip with different hotels — counting
+    // every option would double the nights.
+    break
+  }
+
+  // Falling back to hotel cities means falling back to their stored spelling,
+  // which the lowercased lookup key has thrown away — hence the display copy.
+  const names = destinations.length ? destinations : [...hotelCityNames.values()]
+
+  return names.map(city => {
+    const key = city.toLowerCase()
+    const nights = explicit.has(key) ? explicit.get(key) : (fromHotels.get(key) || 0)
+    return { city, nights }
+  })
+}
+
+/** "Dubai — 3 Nights · Abu Dhabi — 2 Nights", or just the cities when unknown. */
+export function cityStaysLabel(quote = {}) {
+  return cityStays(quote)
+    .map(({ city, nights }) => (nights > 0 ? `${city} — ${nights} Night${nights === 1 ? '' : 's'}` : city))
+    .join(' · ')
+}
+
+// ─── Children ─────────────────────────────────────────────────────────────────
+/**
+ * Ages entered per child. Airlines and hotels price a child by age, so a quote
+ * that records them can put each child on the booking as a passenger instead of
+ * carrying them as an unpriced extra.
+ */
+export function childAges(quote = {}) {
+  const count = Math.max(num(quote.children), 0)
+  const stored = Array.isArray(quote.childAges) ? quote.childAges : []
+  return Array.from({ length: count }, (_, i) => {
+    const age = num(stored[i], -1)
+    return age >= 0 ? age : null
+  })
+}
+
+/** "5, 9 yrs" — only the ages actually entered. */
+export function childAgesLabel(quote = {}) {
+  const known = childAges(quote).filter(age => age !== null)
+  return known.length ? `ages ${known.join(', ')}` : ''
 }
 
 // ─── Taxes ────────────────────────────────────────────────────────────────────
@@ -179,7 +287,8 @@ const PRINT_CSS = `
   .md :first-child { margin-top: 0; }
   .md :last-child { margin-bottom: 0; }
   .md p { margin: 0 0 6px; }
-  .md ul, .md ol { margin: 0 0 6px; padding-left: 18px; }
+  .md ul { list-style: disc outside;    margin: 0 0 6px; padding-left: 18px; }
+  .md ol { list-style: decimal outside; margin: 0 0 6px; padding-left: 18px; }
   .md li { margin-bottom: 4px; }
   .md h1, .md h2, .md h3, .md h4 { font-size: 13px; font-weight: 700; margin: 10px 0 4px; }
   .md strong { font-weight: 700; color: ${BRAND.ink}; }

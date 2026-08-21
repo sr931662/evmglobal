@@ -9,6 +9,7 @@ import QuotePrintDocument from '../../components/quote/QuotePrintDocument'
 import {
   COMPANY, LOGO_URL, computeQuote, quoteMarkdown, hotelGroups,
   fmt, nightsLabel, durationLabel, openQuotePrintWindow,
+  cityStays, childAgesLabel, formatDate,
 } from '../../utils/quote'
 import styles from './Quotes.module.css'
 
@@ -47,6 +48,11 @@ function QuoteView({ quote }) {
   const stayOpts = hotelGroups(quote)
   const sc       = statusColors[quote.status] || statusColors.Sent
 
+  const stays     = cityStays(quote)
+  const agesLabel = childAgesLabel(quote)
+  const departure = formatDate(quote.startDate)
+  const validity  = formatDate(quote.validUntil)
+
   const handlePrint = () => {
     openQuotePrintWindow(printRef.current?.innerHTML, quote.refNumber)
   }
@@ -74,9 +80,24 @@ function QuoteView({ quote }) {
           </div>
           <h2 className={styles.qvTitle}>{quote.tripTitle}</h2>
           <p className={styles.qvMeta}>
-            {quote.destinations?.filter(Boolean).join(' · ')} · {durationLabel(quote.nights)} ({nightsLabel(quote.nights)}) · {calc.pax} Pax · {quote.tripType}
-            {quote.startDate && ` · Departure: ${quote.startDate}`}
+            {durationLabel(quote.nights)} ({nightsLabel(quote.nights)}) · {calc.pax} Pax
+            {agesLabel && ` (children ${agesLabel})`} · {quote.tripType}
+            {departure && ` · Departure: ${departure}`}
           </p>
+
+          {/* Cities with the nights spent in each, so the split is explicit */}
+          {stays.length > 0 && (
+            <ul className={styles.qvStays}>
+              {stays.map(stay => (
+                <li key={stay.city} className={styles.qvStay}>
+                  <span className={styles.qvStayCity}>{stay.city}</span>
+                  {stay.nights > 0 && (
+                    <span className={styles.qvStayNights}>{stay.nights} Night{stay.nights === 1 ? '' : 's'}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className={styles.qvActions}>
           <button onClick={handlePrint} className={styles.qvPrintBtn}>
@@ -152,8 +173,8 @@ function QuoteView({ quote }) {
               {cur} {fmt(calc.perPerson)} per person, inclusive of taxes
             </p>
           )}
-          {quote.validUntil && (
-            <p className={styles.costValidity}>Quote valid until: <strong>{quote.validUntil}</strong></p>
+          {validity && (
+            <p className={styles.costValidity}>Quote valid until: <strong>{validity}</strong></p>
           )}
         </div>
 
@@ -224,9 +245,12 @@ function QuoteView({ quote }) {
                           </div>
                           {h.roomCategory && <span className={styles.hotelMealPlan}>{h.roomCategory}</span>}
                         </div>
-                        {h.address && (
+                        {(h.address || h.location || Number(h.nights) > 0) && (
                           <div className={styles.hotelMeta}>
-                            <span>📍 {h.address}</span>
+                            {(h.address || h.location) && <span>📍 {h.address || h.location}</span>}
+                            {Number(h.nights) > 0 && (
+                              <span>🌙 {Number(h.nights)} Night{Number(h.nights) === 1 ? '' : 's'}{h.mealPlan ? ` · ${h.mealPlan}` : ''}</span>
+                            )}
                           </div>
                         )}
                       </div>
@@ -254,10 +278,11 @@ function QuoteView({ quote }) {
                   <div key={day.day} className={styles.itinItem}>
                     <div className={styles.itinDot}>{day.day}</div>
                     <div className={styles.itinContent}>
+                      {/* Title first — the day is named before it is pictured. */}
+                      {day.title && <p className={styles.itinTitle}>{day.title}</p>}
                       {day.image && (
                         <img src={day.image} alt={day.title || `Day ${day.day}`} className={styles.itinImage} onError={e => { e.target.style.display = 'none' }} />
                       )}
-                      {day.title && <p className={styles.itinTitle}>{day.title}</p>}
                       {day.description && <p className={styles.itinDesc}>{day.description}</p>}
                       {day.note && (
                         <div className={styles.itinNote}>

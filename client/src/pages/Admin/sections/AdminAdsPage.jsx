@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 import { useScrollLock } from '../../../hooks/useScrollLock'
-import { AD_PLACEMENTS } from '../../../utils/adPlacements'
+import {
+  AD_PLACEMENTS, AD_WIDTHS, AD_RATIOS, adFrameStyle, adImageStyle,
+} from '../../../utils/adPlacements'
 import c from './adminCommon.module.css'
 import styles from './AdminAdsPage.module.css'
 
@@ -11,6 +13,7 @@ const STATUS_OPTIONS = ['All', 'Active', 'Inactive']
 const emptyForm = {
   placement: AD_PLACEMENTS[0]?.value || '',
   title: '', image: '', link: '', linkTarget: '_blank', altText: '',
+  width: 'full', aspectRatio: 'auto', objectFit: 'cover', rounded: true,
   status: 'Active', priority: '0', startDate: '', endDate: '',
 }
 
@@ -29,15 +32,39 @@ function AdModal({ ad, onClose, onSave }) {
     link:       ad.link       || '',
     linkTarget: ad.linkTarget || '_blank',
     altText:    ad.altText    || '',
+    width:      ad.width      || 'full',
+    aspectRatio: ad.aspectRatio || 'auto',
+    objectFit:  ad.objectFit  || 'cover',
+    rounded:    ad.rounded !== false,
     status:     ad.status     || 'Active',
     priority:   ad.priority   != null ? String(ad.priority) : '0',
     startDate:  toDateInput(ad.startDate),
     endDate:    toDateInput(ad.endDate),
   } : { ...emptyForm })
-  const [saving, setSaving] = useState(false)
-  const [err,    setErr]    = useState('')
+  const [saving,    setSaving]    = useState(false)
+  const [err,       setErr]       = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [dimensions, setDimensions] = useState(null)
+  const fileRef = useRef(null)
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  // Pick from disk instead of hunting for a URL. The upload goes to the same
+  // image host the rest of the site already uses.
+  const handleFile = async (file) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setErr('Please choose an image file.'); return }
+    setUploading(true); setErr('')
+    try {
+      const result = await api.uploadImage(file)
+      f('image', result.url)
+      if (result.width && result.height) setDimensions({ w: result.width, h: result.height })
+    } catch (e) {
+      setErr(e.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async () => {
     if (!form.title.trim() || !form.image.trim()) {
@@ -51,6 +78,7 @@ function AdModal({ ad, onClose, onSave }) {
         title:    form.title.trim(),
         image:    form.image.trim(),
         link:     form.link.trim(),
+        rounded:  !!form.rounded,
         priority: Number(form.priority) || 0,
         startDate: form.startDate || null,
         endDate:   form.endDate   || null,
@@ -92,12 +120,92 @@ function AdModal({ ad, onClose, onSave }) {
           </div>
 
           <div>
-            <label className={c.label}>Banner Image URL <span className={c.req}>*</span></label>
+            <label className={c.label}>Banner Image <span className={c.req}>*</span></label>
+
+            {/* Upload from disk, or paste a URL — both end up in the same field. */}
+            <div
+              className={styles.dropZone}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]) }}
+              onClick={() => fileRef.current?.click()}
+            >
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp"
+                className={styles.fileInput}
+                onChange={e => { handleFile(e.target.files?.[0]); e.target.value = '' }}
+              />
+              {uploading
+                ? <span className={styles.dropText}>Uploading…</span>
+                : <span className={styles.dropText}>
+                    <strong>Choose an image</strong> or drop one here · PNG, JPG, GIF or WebP, up to 5&nbsp;MB
+                  </span>}
+            </div>
+
             <input type="text" value={form.image} onChange={e => f('image', e.target.value)}
-              placeholder="https://…"
-              className={c.input} />
+              placeholder="…or paste an image URL"
+              className={`${c.input} ${styles.urlInput}`} />
+
+            {dimensions && (
+              <p className={c.labelHint}>Uploaded at {dimensions.w} × {dimensions.h} px.</p>
+            )}
+          </div>
+
+          {/* ── Size ── so a banner is fitted to its artwork, not stretched ── */}
+          <div>
+            <label className={c.label}>Banner Size</label>
+            <div className={c.grid2}>
+              <div>
+                <label className={c.labelHint}>Width in the slot</label>
+                <select value={form.width} onChange={e => f('width', e.target.value)}
+                  className={`${c.input} ${c.select}`}>
+                  {AD_WIDTHS.map(w => <option key={w.value} value={w.value}>{w.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={c.labelHint}>Shape</label>
+                <select value={form.aspectRatio} onChange={e => f('aspectRatio', e.target.value)}
+                  className={`${c.input} ${c.select}`}>
+                  {AD_RATIOS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div className={c.grid2}>
+              <div>
+                <label className={c.labelHint}>Fit</label>
+                <select value={form.objectFit} onChange={e => f('objectFit', e.target.value)}
+                  disabled={form.aspectRatio === 'auto'}
+                  className={`${c.input} ${c.select}`}>
+                  <option value="cover">Fill the frame (crops)</option>
+                  <option value="contain">Show the whole image</option>
+                </select>
+              </div>
+              <div className={styles.roundedRow}>
+                <label className={styles.checkLabel}>
+                  <input type="checkbox" checked={!!form.rounded}
+                    onChange={e => f('rounded', e.target.checked)} />
+                  Rounded corners
+                </label>
+              </div>
+            </div>
+
+            {/* Live preview at the chosen size, so what's set here is what the
+                page will show. */}
             {form.image && (
-              <img src={form.image} alt="" className={styles.preview} onError={e => { e.currentTarget.style.display = 'none' }} />
+              <div className={styles.previewStage}>
+                <p className={styles.previewLabel}>Preview</p>
+                <div className={styles.previewFrame} style={adFrameStyle(form)}>
+                  <img
+                    src={form.image}
+                    alt=""
+                    className={styles.previewImg}
+                    style={adImageStyle(form)}
+                    onError={e => { e.currentTarget.style.display = 'none' }}
+                  />
+                </div>
+              </div>
             )}
           </div>
 

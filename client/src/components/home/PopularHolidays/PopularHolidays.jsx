@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../../../services/api'
 import { formatPrice } from '../../../utils/currency'
 import { openWhatsApp } from '../../../utils/whatsapp'
+import { stayNights } from '../../../utils/packageContent'
 import styles from './PopularHolidays.module.css'
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1000'
@@ -20,8 +21,8 @@ const ARROW = (
   </svg>
 )
 
-function durationLabel(nights) {
-  const n = Number(nights)
+function durationLabel(pkg) {
+  const n = stayNights(pkg)
   if (!n) return null
   return `${n} Nights / ${n + 1} Days`
 }
@@ -73,7 +74,7 @@ export default function PopularHolidays() {
             {packages.map((pkg, i) => {
               const id       = pkg.slug || pkg.id || pkg._id
               const price    = formatPrice(pkg.priceValue, pkg.price)
-              const duration = durationLabel(pkg.nights)
+              const duration = durationLabel(pkg)
               const included = Array.isArray(pkg.highlights) && pkg.highlights.length
                 ? pkg.highlights.slice(0, 4)
                 : DEFAULT_INCLUSIONS

@@ -167,7 +167,10 @@
   margin-bottom: 1.25rem;
 }
 
-.mdUl, .mdOl { margin: 0 0 1.25rem; padding-left: 1.375rem; }
+/* The global reset clears list-style; markdown prose needs its markers back. */
+.mdUl { list-style: disc outside;    margin: 0 0 1.25rem; padding-left: 1.375rem; }
+.mdOl { list-style: decimal outside; margin: 0 0 1.25rem; padding-left: 1.375rem; }
+.mdUl .mdUl { list-style: circle outside; margin-bottom: 0; }
 .mdLi {
   color: var(--ink-soft);
   font-size: 1.0625rem;

@@ -46,3 +46,55 @@
   border-radius: 0.75rem;
   border: 1px solid #f3f4f6;
 }
+
+/* ── Image upload ────────────────────────────────────────────────────────── */
+.dropZone {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.875rem;
+  background: #fafafa;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.dropZone:hover { border-color: var(--brand); background: #fff; }
+.fileInput { display: none; }
+.dropText { font-size: 0.8125rem; color: #6b7280; }
+.dropText strong { color: var(--brand); font-weight: 800; }
+.urlInput { margin-top: 0.5rem; }
+
+/* ── Size preview ────────────────────────────────────────────────────────── */
+.previewStage {
+  margin-top: 0.875rem;
+  padding: 0.875rem;
+  border-radius: 0.875rem;
+  background: #f3f4f6;
+}
+.previewLabel {
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+.previewFrame {
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #fff;
+}
+.previewImg { width: 100%; display: block; }
+
+.roundedRow { display: flex; align-items: flex-end; }
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #4b5563;
+  cursor: pointer;
+  padding-bottom: 0.75rem;
+}
