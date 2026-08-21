@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaBars } from 'react-icons/fa6'
 import MobileMenu from '../MobileMenu/MobileMenu'
 import { useCustomerAuth } from '../../../context/CustomerAuthContext'
-import { useAuth } from '../../../context/AuthContext'
 import styles from './Navbar.module.css'
 import logo from '../../../assets/logo.png'
 
@@ -21,9 +20,6 @@ export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { customer, logoutCustomer } = useCustomerAuth()
-  // Admin access lives in the footer only — this is read just to hide the
-  // public "Sign In" link while an admin session is active.
-  const { user: adminUser } = useAuth()
 
   useEffect(() => {
     const handler = (e) => {
@@ -146,14 +142,14 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-            ) : !adminUser ? (
+            ) : (
               <Link
                 to="/login"
                 className={`${styles.signInLink} ${isDarkHero ? styles.signInLight : styles.signInDark}`}
               >
                 Sign In
               </Link>
-            ) : null}
+            )}
 
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('open-travel-quiz'))}

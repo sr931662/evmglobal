@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { FaTimes } from 'react-icons/fa'
 import { openWhatsApp } from '../../../utils/whatsapp'
 import { useCustomerAuth } from '../../../context/CustomerAuthContext'
-import { useAuth } from '../../../context/AuthContext'
 import { getLenis } from '../../../hooks/useLenis'
 import styles from './MobileMenu.module.css'
 
@@ -29,9 +28,6 @@ const WA_ICON = (
 
 export default function MobileMenu({ open, onClose }) {
   const { customer, logoutCustomer } = useCustomerAuth()
-  // Admin access lives in the footer only — this is read just to hide the
-  // public "Sign In" link while an admin session is active.
-  const { user: adminUser } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -124,11 +120,11 @@ export default function MobileMenu({ open, onClose }) {
                   Sign Out
                 </button>
               </div>
-            ) : !adminUser ? (
+            ) : (
               <Link to="/login" onClick={onClose} className={styles.adminLink}>
                 Sign In / Join Free
               </Link>
-            ) : null}
+            )}
           </div>
         </motion.div>
       )}
