@@ -20,6 +20,33 @@
   animation: spin 1s linear infinite;
 }
 
+.sectionError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 16rem;
+  padding: 2rem;
+  text-align: center;
+}
+.sectionErrorTitle { font-weight: 700; color: var(--dark); font-size: 1.0625rem; }
+.sectionErrorText { color: #6b7280; font-size: 0.875rem; max-width: 26rem; }
+.sectionErrorBtn {
+  margin-top: 0.5rem;
+  background: var(--brand);
+  color: #fff;
+  padding: 0.75rem 1.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: background-color 0.2s;
+}
+.sectionErrorBtn:hover { background: var(--brand-hover); }
+
 .main {
   flex: 1;
   min-width: 0;

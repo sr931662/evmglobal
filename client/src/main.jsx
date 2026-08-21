@@ -20,6 +20,22 @@ document.addEventListener('wheel', () => {
   if (el instanceof HTMLInputElement && el.type === 'number') el.blur()
 }, { passive: true })
 
+// Every deploy gives lazy-loaded chunks new hashed filenames and removes the
+// old ones. A tab left open across a deploy — or one that loaded index.html
+// just before a new build went live — still asks for a chunk hash that no
+// longer exists, and the fetch fails (some hosts even answer with the SPA's
+// index.html instead of a 404, which is what a "MIME type text/html" console
+// error on a .js request means). Vite fires this event for exactly that
+// case; a full reload fetches the current index.html and the matching
+// chunks. Guarded to once per session so a genuinely broken deploy shows the
+// section's own error state (see Admin.jsx) instead of reloading forever.
+window.addEventListener('vite:preloadError', () => {
+  const key = 'emv_reloaded_after_preload_error'
+  if (sessionStorage.getItem(key)) return
+  sessionStorage.setItem(key, '1')
+  window.location.reload()
+})
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

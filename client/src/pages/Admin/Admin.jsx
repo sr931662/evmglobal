@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useEffect } from 'react'
+import { useState, Suspense, lazy, useEffect, Component } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
 import AdminSidebar from '../../components/admin/AdminSidebar/AdminSidebar'
@@ -26,6 +26,51 @@ function SectionLoader() {
       <div className={styles.spinner} />
     </div>
   )
+}
+
+/**
+ * Without this, a lazy-loaded section that fails to fetch (most commonly a
+ * stale chunk hash right after a new deploy — see the vite:preloadError
+ * listener in main.jsx) throws during render with nothing to catch it,
+ * which unmounts the whole app to a blank page rather than just this one
+ * section. Scoped to the section so the sidebar stays usable and the admin
+ * can navigate elsewhere without a full reload.
+ */
+class SectionErrorBoundary extends Component {
+  state = { error: null }
+
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+
+  componentDidCatch(error) {
+    console.error('Admin section failed to load:', error)
+  }
+
+  // Switching sections is how an admin would "retry" without a reload —
+  // give the next section a clean slate rather than carrying the old error.
+  componentDidUpdate(prevProps) {
+    if (prevProps.sectionKey !== this.props.sectionKey && this.state.error) {
+      this.setState({ error: null })
+    }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className={styles.sectionError}>
+          <p className={styles.sectionErrorTitle}>This section didn&rsquo;t load</p>
+          <p className={styles.sectionErrorText}>
+            This can happen right after a new version is published. Reloading usually fixes it.
+          </p>
+          <button onClick={() => window.location.reload()} className={styles.sectionErrorBtn}>
+            Reload
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
 }
 
 const sections = {
@@ -98,9 +143,11 @@ export default function Admin() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
             >
-              <Suspense fallback={<SectionLoader />}>
-                <Section onNavigate={navigate} navState={navState} />
-              </Suspense>
+              <SectionErrorBoundary sectionKey={active}>
+                <Suspense fallback={<SectionLoader />}>
+                  <Section onNavigate={navigate} navState={navState} />
+                </Suspense>
+              </SectionErrorBoundary>
             </motion.div>
           </AnimatePresence>
         </div>
