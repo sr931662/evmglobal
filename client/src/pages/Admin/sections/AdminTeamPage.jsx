@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../../../services/api'
 import { useScrollLock } from '../../../hooks/useScrollLock'
@@ -29,8 +29,26 @@ function TeamModal({ member, onClose, onSave }) {
   } : { ...emptyForm })
   const [saving, setSaving] = useState(false)
   const [err,    setErr]    = useState('')
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef(null)
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  // Pick from disk instead of hunting for a URL. The upload goes to the same
+  // image host the rest of the site already uses.
+  const handleFile = async (file) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setErr('Please choose an image file.'); return }
+    setUploading(true); setErr('')
+    try {
+      const result = await api.uploadImage(file)
+      f('avatar', result.url)
+    } catch (e) {
+      setErr(e.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async () => {
     if (!form.name.trim() || !form.role.trim()) {
@@ -121,18 +139,37 @@ function TeamModal({ member, onClose, onSave }) {
               className={`${c.input} ${c.textarea}`} />
           </div>
 
-          <div className={c.grid2}>
-            <div>
-              <label className={c.label}>Avatar URL</label>
-              <input type="text" value={form.avatar} onChange={e => f('avatar', e.target.value)}
-                placeholder="https://…"
-                className={c.input} />
+          <div>
+            <label className={c.label}>Avatar</label>
+
+            {/* Upload from disk, or paste a URL — both end up in the same field. */}
+            <div
+              className={styles.dropZone}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]) }}
+              onClick={() => fileRef.current?.click()}
+            >
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp"
+                className={styles.fileInput}
+                onChange={e => { handleFile(e.target.files?.[0]); e.target.value = '' }}
+              />
+              {uploading
+                ? <span className={styles.dropText}>Uploading…</span>
+                : <span className={styles.dropText}><strong>Choose an image</strong> or drop one here</span>}
             </div>
-            <div>
-              <label className={c.label}>Joined Date</label>
-              <input type="date" value={form.joinedAt} onChange={e => f('joinedAt', e.target.value)}
-                className={c.input} />
-            </div>
+
+            <input type="text" value={form.avatar} onChange={e => f('avatar', e.target.value)}
+              placeholder="…or paste an image URL"
+              className={`${c.input} ${styles.urlInput}`} />
+          </div>
+
+          <div>
+            <label className={c.label}>Joined Date</label>
+            <input type="date" value={form.joinedAt} onChange={e => f('joinedAt', e.target.value)}
+              className={c.input} />
           </div>
         </div>
 

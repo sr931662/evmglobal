@@ -62,3 +62,19 @@
   padding: 0.05em 0.3em;
   font-size: 0.95em;
 }
+
+/* ── Image upload ────────────────────────────────────────────────────────── */
+.dropZone {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.875rem;
+  background: #fafafa;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.dropZone:hover { border-color: var(--brand); background: #fff; }
+.fileInput { display: none; }
+.dropText { font-size: 0.8125rem; color: #6b7280; }
+.dropText strong { color: var(--brand); font-weight: 800; }
+.urlInput { margin-top: 0.5rem; }

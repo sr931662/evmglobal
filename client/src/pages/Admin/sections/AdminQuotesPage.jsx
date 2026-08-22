@@ -289,6 +289,26 @@ function QuoteModal({ quote, onSave, onClose }) {
     })
   }
 
+  // Per-day itinerary image upload. Days share one handler, keyed by index,
+  // since each day's dropzone is created inside a .map() rather than its own component.
+  const dayFileRefs = useRef({})
+  const [uploadingDay, setUploadingDay] = useState(null)
+  const [dayUploadErr, setDayUploadErr] = useState('')
+
+  const handleDayFile = async (i, file) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setDayUploadErr('Please choose an image file.'); return }
+    setUploadingDay(i); setDayUploadErr('')
+    try {
+      const result = await api.uploadImage(file)
+      setNested('itinerary', i, 'image', result.url)
+    } catch (e) {
+      setDayUploadErr(e.message)
+    } finally {
+      setUploadingDay(null)
+    }
+  }
+
   const addNested    = (key, factory) => setForm(f => ({ ...f, [key]: [...(f[key] || []), factory()] }))
   const removeNested = (key, idx)     => setForm(f => ({ ...f, [key]: f[key].filter((_, i) => i !== idx) }))
 
@@ -905,13 +925,31 @@ function QuoteModal({ quote, onSave, onClose }) {
                         onKeyDown={e => handleListKeyDown(e, day.description || '', v => setNested('itinerary', i, 'description', v))}
                       />
                       <div className={styles.dayExtraGrid}>
-                        <Field label="Day Image URL">
+                        <Field label="Day Image">
+                          <div
+                            className={styles.dropZone}
+                            onDragOver={e => e.preventDefault()}
+                            onDrop={e => { e.preventDefault(); handleDayFile(i, e.dataTransfer.files?.[0]) }}
+                            onClick={() => dayFileRefs.current[i]?.click()}
+                          >
+                            <input
+                              ref={el => { dayFileRefs.current[i] = el }}
+                              type="file"
+                              accept="image/png,image/jpeg,image/gif,image/webp"
+                              className={styles.fileInput}
+                              onChange={e => { handleDayFile(i, e.target.files?.[0]); e.target.value = '' }}
+                            />
+                            {uploadingDay === i
+                              ? <span className={styles.dropText}>Uploading…</span>
+                              : <span className={styles.dropText}><strong>Choose an image</strong> or drop one here</span>}
+                          </div>
                           <input
-                            className={styles.inp}
-                            placeholder="https://images.unsplash.com/..."
+                            className={`${styles.inp} ${styles.urlInput}`}
+                            placeholder="…or paste an image URL"
                             value={day.image || ''}
                             onChange={e => setNested('itinerary', i, 'image', e.target.value)}
                           />
+                          {uploadingDay === i && dayUploadErr && <p className={styles.uploadErr}>{dayUploadErr}</p>}
                           {day.image && (
                             <div className={styles.dayImagePreviewWrap}>
                               <img

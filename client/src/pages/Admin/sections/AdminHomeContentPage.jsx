@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
 import c from './adminCommon.module.css'
@@ -35,7 +35,7 @@ const SECTIONS = [
     secondary: (it) => it.span === 'normal' ? 'Standard tile' : `${it.span} tile`,
     image: (it) => it.image,
     fields: [
-      { key: 'image',   label: 'Image URL', type: 'text', placeholder: 'https://images.unsplash.com/...', required: true },
+      { key: 'image',   label: 'Image', type: 'image', placeholder: 'https://images.unsplash.com/...', required: true },
       { key: 'caption', label: 'Caption',   type: 'text', placeholder: 'e.g. Santorini, Greece' },
       { key: 'span',    label: 'Tile size', type: 'select', options: ['normal', 'wide', 'tall'] },
     ],
@@ -84,6 +84,9 @@ export default function AdminHomeContentPage() {
   const [form,      setForm]      = useState({})
   const [saving,    setSaving]    = useState(false)
   const [busyId,    setBusyId]    = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadErr, setUploadErr] = useState('')
+  const fileRef = useRef(null)
 
   const section = SECTIONS.find(s => s.id === activeTab)
   const items   = grouped[activeTab] || []
@@ -110,6 +113,7 @@ export default function AdminHomeContentPage() {
   const openCreate = () => {
     setEditId(null)
     setForm({ ...section.empty })
+    setUploadErr('')
     setShowModal(true)
   }
 
@@ -118,10 +122,11 @@ export default function AdminHomeContentPage() {
     section.fields.forEach(f => { next[f.key] = item[f.key] ?? section.empty[f.key] ?? '' })
     setEditId(byId(item))
     setForm(next)
+    setUploadErr('')
     setShowModal(true)
   }
 
-  const closeModal = () => { setShowModal(false); setEditId(null); setForm({}) }
+  const closeModal = () => { setShowModal(false); setEditId(null); setForm({}); setUploadErr('') }
 
   const isValid = section.required.every(k => String(form[k] ?? '').trim())
 
@@ -202,6 +207,22 @@ export default function AdminHomeContentPage() {
   }
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  // Pick from disk instead of hunting for a URL. The upload goes to the same
+  // image host the rest of the site already uses.
+  const handleFile = async (key, file) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setUploadErr('Please choose an image file.'); return }
+    setUploading(true); setUploadErr('')
+    try {
+      const result = await api.uploadImage(file)
+      f(key, result.url)
+    } catch (err) {
+      setUploadErr(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const visibleCount = items.filter(it => it.status !== 'hidden').length
 
@@ -343,7 +364,36 @@ export default function AdminHomeContentPage() {
                   <label className={c.label}>
                     {field.label}{field.required && <span className={c.req}> *</span>}
                   </label>
-                  {field.type === 'select' ? (
+                  {field.type === 'image' ? (
+                    <>
+                      {/* Upload from disk, or paste a URL — both end up in the same field. */}
+                      <div
+                        className={styles.dropZone}
+                        onDragOver={e => e.preventDefault()}
+                        onDrop={e => { e.preventDefault(); handleFile(field.key, e.dataTransfer.files?.[0]) }}
+                        onClick={() => fileRef.current?.click()}
+                      >
+                        <input
+                          ref={fileRef}
+                          type="file"
+                          accept="image/png,image/jpeg,image/gif,image/webp"
+                          className={styles.fileInput}
+                          onChange={e => { handleFile(field.key, e.target.files?.[0]); e.target.value = '' }}
+                        />
+                        {uploading
+                          ? <span className={styles.dropText}>Uploading…</span>
+                          : <span className={styles.dropText}><strong>Choose an image</strong> or drop one here</span>}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="…or paste an image URL"
+                        value={form[field.key] ?? ''}
+                        onChange={e => f(field.key, e.target.value)}
+                        className={`${c.input} ${styles.urlInput}`}
+                      />
+                      {uploadErr && <p className={c.formError}>{uploadErr}</p>}
+                    </>
+                  ) : field.type === 'select' ? (
                     <select
                       value={form[field.key] ?? ''}
                       onChange={e => f(field.key, e.target.value)}

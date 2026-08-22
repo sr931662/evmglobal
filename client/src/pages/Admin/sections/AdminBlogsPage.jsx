@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -151,8 +151,26 @@ function BlogModal({ blog, onClose, onSave }) {
   const [saving,    setSaving]    = useState(false)
   const [err,       setErr]       = useState('')
   const [contentTab, setContentTab] = useState('write')
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef(null)
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  // Pick from disk instead of hunting for a URL. The upload goes to the same
+  // image host the rest of the site already uses.
+  const handleFile = async (file) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setErr('Please choose an image file.'); return }
+    setUploading(true); setErr('')
+    try {
+      const result = await api.uploadImage(file)
+      f('coverImage', result.url)
+    } catch (e) {
+      setErr(e.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const insertMarkdown = (btn) => {
     const ta = document.getElementById('blog-content-editor')
@@ -464,10 +482,30 @@ function BlogModal({ blog, onClose, onSave }) {
             </div>
 
             <div>
-              <label className={c.label}>Cover Image URL</label>
+              <label className={c.label}>Cover Image</label>
+
+              {/* Upload from disk, or paste a URL — both end up in the same field. */}
+              <div
+                className={styles.dropZone}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]) }}
+                onClick={() => fileRef.current?.click()}
+              >
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
+                  className={styles.fileInput}
+                  onChange={e => { handleFile(e.target.files?.[0]); e.target.value = '' }}
+                />
+                {uploading
+                  ? <span className={styles.dropText}>Uploading…</span>
+                  : <span className={styles.dropText}><strong>Choose an image</strong> or drop one here</span>}
+              </div>
+
               <input type="text" value={form.coverImage} onChange={e => f('coverImage', e.target.value)}
-                placeholder="https://…"
-                className={c.input} />
+                placeholder="…or paste an image URL"
+                className={`${c.input} ${styles.urlInput}`} />
             </div>
 
             <div>

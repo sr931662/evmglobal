@@ -124,6 +124,22 @@
 }
 .modalPreview img { width: 100%; height: 11rem; object-fit: cover; display: block; }
 
+/* ── Image upload ────────────────────────────────────────────────────────── */
+.dropZone {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.875rem;
+  background: #fafafa;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.dropZone:hover { border-color: var(--brand); background: #fff; }
+.fileInput { display: none; }
+.dropText { font-size: 0.8125rem; color: #6b7280; }
+.dropText strong { color: var(--brand); font-weight: 800; }
+.urlInput { margin-top: 0.5rem; }
+
 @media (max-width: 640px) {
   .row { flex-wrap: wrap; gap: 0.625rem 0.75rem; }
   .rowBody { flex-basis: 100%; order: 3; }
