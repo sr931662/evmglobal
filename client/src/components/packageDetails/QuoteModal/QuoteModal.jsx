@@ -23,16 +23,14 @@ const EMPTY = {
   travelDate: '',
   adults: '2',
   children: '0',
-  childrenAges: [],
+  childrenAgeFrom: '',
+  childrenAgeTo: '',
   hotelTier: '4★',
   budget: '',
   name: '',
   phone: '',
   email: '',
 }
-
-// '4+' is treated as 4 age fields — enough for the form without an unbounded list.
-const childCount = (value) => (value === '4+' ? 4 : Number(value) || 0)
 
 export default function QuoteModal({ open, onClose, pkg, where }) {
   const [form, setForm]       = useState(EMPTY)
@@ -45,20 +43,6 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
   const place = where || (destinations.length === 1 ? destinations[0] : '')
 
   const f = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
-
-  const setChildrenCount = (value) => {
-    const count = childCount(value)
-    setForm(prev => ({
-      ...prev,
-      children: value,
-      childrenAges: Array.from({ length: count }, (_, i) => prev.childrenAges[i] || ''),
-    }))
-  }
-
-  const setChildAge = (index, age) => setForm(prev => ({
-    ...prev,
-    childrenAges: prev.childrenAges.map((a, i) => (i === index ? age : a)),
-  }))
 
   useEffect(() => {
     if (open) {
@@ -82,8 +66,10 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
   }
 
   const childrenAgesLabel = () => {
-    const ages = form.childrenAges.filter(Boolean)
-    return ages.length ? ` (ages ${ages.join(', ')})` : ''
+    const { childrenAgeFrom: from, childrenAgeTo: to } = form
+    if (from && to) return ` (ages ${from}–${to})`
+    if (from || to) return ` (age ${from || to})`
+    return ''
   }
 
   const leadSummary = () => [
@@ -202,27 +188,33 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
 
                   <div className={styles.field}>
                     <label htmlFor="q-children" className={styles.label}>Children (0–18 yrs)</label>
-                    <select id="q-children" value={form.children} onChange={e => setChildrenCount(e.target.value)} className={styles.input}>
+                    <select id="q-children" value={form.children} onChange={e => f('children', e.target.value)} className={styles.input}>
                       {['0','1','2','3','4+'].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </div>
 
-                  {form.childrenAges.length > 0 && (
+                  {Number(form.children) > 0 && (
                     <div className={`${styles.field} ${styles.full}`}>
-                      <span className={styles.label}>Child&rsquo;s age{form.childrenAges.length > 1 ? 's' : ''}</span>
-                      <div className={styles.ageRow}>
-                        {form.childrenAges.map((age, i) => (
-                          <select
-                            key={i}
-                            aria-label={`Child ${i + 1} age`}
-                            value={age}
-                            onChange={e => setChildAge(i, e.target.value)}
-                            className={styles.input}
-                          >
-                            <option value="">Age</option>
-                            {CHILD_AGES.map(a => <option key={a} value={a}>{a}</option>)}
-                          </select>
-                        ))}
+                      <span className={styles.label}>Children&rsquo;s age group</span>
+                      <div className={styles.ageRangeRow}>
+                        <select
+                          aria-label="Age from"
+                          value={form.childrenAgeFrom}
+                          onChange={e => f('childrenAgeFrom', e.target.value)}
+                          className={styles.input}
+                        >
+                          <option value="">From</option>
+                          {CHILD_AGES.map(a => <option key={a} value={a}>{a}</option>)}
+                        </select>
+                        <select
+                          aria-label="Age to"
+                          value={form.childrenAgeTo}
+                          onChange={e => f('childrenAgeTo', e.target.value)}
+                          className={styles.input}
+                        >
+                          <option value="">To</option>
+                          {CHILD_AGES.map(a => <option key={a} value={a}>{a}</option>)}
+                        </select>
                       </div>
                     </div>
                   )}

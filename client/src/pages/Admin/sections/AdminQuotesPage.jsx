@@ -9,7 +9,7 @@ import {
   DEFAULT_TAXES, TAX_PRESETS,
   computeQuote, quoteMarkdown, hotelGroups, fmt, num, nightsLabel, tripDays,
   openQuotePrintWindow, cityStays, toDateInputValue,
-  clampCount, MAX_ADULTS, MAX_CHILDREN, CHILD_AGE_RANGE, CHILD_AGES, resizeChildrenAges,
+  clampCount, MAX_ADULTS, MAX_CHILDREN, CHILD_AGE_RANGE, CHILD_AGES,
 } from '../../../utils/quote'
 import { handleListKeyDown, toggleLinePrefix } from '../../../utils/markdownEditing'
 import styles from './AdminQuotesPage.module.css'
@@ -69,7 +69,7 @@ const emptyForm = () => ({
   clientName: '', clientEmail: '', clientPhone: '',
   agentName: 'Ease My Vacations Team', validUntil: '', tripTitle: '',
   destinations: [''], destinationStays: [], startDate: '', nights: 5,
-  adults: 2, children: 0, childrenAges: [], perAdult: 0, perChild: 0,
+  adults: 2, children: 0, childrenAgeFrom: '', childrenAgeTo: '', perAdult: 0, perChild: 0,
   tripType: 'International', currency: 'INR',
   taxes: DEFAULT_TAXES.map(t => ({ ...t })),
   taxPercent: 0,
@@ -94,7 +94,8 @@ function quoteToForm(quote) {
     ...quote,
     adults:   calc.adults,
     children: calc.children,
-    childrenAges: resizeChildrenAges(quote.childrenAges, calc.children),
+    childrenAgeFrom: Number.isFinite(quote.childrenAgeFrom) && quote.childrenAgeFrom >= 0 ? String(quote.childrenAgeFrom) : '',
+    childrenAgeTo:   Number.isFinite(quote.childrenAgeTo)   && quote.childrenAgeTo   >= 0 ? String(quote.childrenAgeTo)   : '',
     perAdult: calc.perAdult,
     perChild: calc.perChild,
     destinations: quote.destinations?.length ? quote.destinations : [''],
@@ -280,16 +281,6 @@ function QuoteModal({ quote, onSave, onClose }) {
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
 
-  const setChildrenCount = (val) => {
-    const count = Number(clampCount(val, MAX_CHILDREN))
-    setForm(f => ({ ...f, children: count, childrenAges: resizeChildrenAges(f.childrenAges, count) }))
-  }
-
-  const setChildAge = (index, val) => setForm(f => ({
-    ...f,
-    childrenAges: f.childrenAges.map((a, i) => (i === index ? (val ? Number(val) : -1) : a)),
-  }))
-
   const setNested = (key, idx, field, val) => {
     setForm(f => {
       const arr = [...(f[key] || [])]
@@ -409,7 +400,8 @@ function QuoteModal({ quote, onSave, onClose }) {
         nights:       num(form.nights),
         adults:       num(form.adults),
         children:     num(form.children),
-        childrenAges: (form.childrenAges || []).map(a => (Number.isFinite(a) ? a : -1)),
+        childrenAgeFrom: form.childrenAgeFrom !== '' ? num(form.childrenAgeFrom) : -1,
+        childrenAgeTo:   form.childrenAgeTo   !== '' ? num(form.childrenAgeTo)   : -1,
         perAdult:     num(form.perAdult),
         perChild:     num(form.perChild),
         pax:          num(form.adults) + num(form.children),
@@ -560,7 +552,7 @@ function QuoteModal({ quote, onSave, onClose }) {
                   <Input
                     label={`Children (${CHILD_AGE_RANGE})`} type="number" min="0" max={MAX_CHILDREN}
                     value={form.children}
-                    onChange={e => setChildrenCount(e.target.value)}
+                    onChange={e => set('children', clampCount(e.target.value, MAX_CHILDREN))}
                   />
                   <Select label="Trip Type" value={form.tripType} onChange={e => set('tripType', e.target.value)}>
                     <option>International</option>
@@ -574,24 +566,30 @@ function QuoteModal({ quote, onSave, onClose }) {
                   </Select>
                 </div>
 
-                {form.childrenAges.length > 0 && (
+                {Number(form.children) > 0 && (
                   <div>
                     <label className={styles.fieldLabelFaint}>
-                      Child&rsquo;s age{form.childrenAges.length > 1 ? 's' : ''} <span className={styles.optionalHint}>(optional)</span>
+                      Children&rsquo;s age group <span className={styles.optionalHint}>(optional)</span>
                     </label>
                     <div className={styles.childAgesRow}>
-                      {form.childrenAges.map((age, i) => (
-                        <select
-                          key={i}
-                          aria-label={`Child ${i + 1} age`}
-                          className={`${styles.inp} ${styles.sel}`}
-                          value={age === -1 ? '' : String(age)}
-                          onChange={e => setChildAge(i, e.target.value)}
-                        >
-                          <option value="">Age</option>
-                          {CHILD_AGES.map(a => <option key={a} value={a}>{a}</option>)}
-                        </select>
-                      ))}
+                      <select
+                        aria-label="Age from"
+                        className={`${styles.inp} ${styles.sel}`}
+                        value={form.childrenAgeFrom}
+                        onChange={e => set('childrenAgeFrom', e.target.value)}
+                      >
+                        <option value="">From</option>
+                        {CHILD_AGES.map(a => <option key={a} value={a}>{a}</option>)}
+                      </select>
+                      <select
+                        aria-label="Age to"
+                        className={`${styles.inp} ${styles.sel}`}
+                        value={form.childrenAgeTo}
+                        onChange={e => set('childrenAgeTo', e.target.value)}
+                      >
+                        <option value="">To</option>
+                        {CHILD_AGES.map(a => <option key={a} value={a}>{a}</option>)}
+                      </select>
                     </div>
                   </div>
                 )}

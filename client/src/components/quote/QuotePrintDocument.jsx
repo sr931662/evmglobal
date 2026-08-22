@@ -41,8 +41,11 @@ export default function QuotePrintDocument({ quote }) {
   const departure = formatDate(quote.startDate)
   const validity  = formatDate(quote.validUntil)
 
-  const recordedAges = (quote.childrenAges || []).filter(a => Number.isFinite(a) && a >= 0)
-  const childAgesLabel = recordedAges.length ? `, ages ${recordedAges.join(', ')}` : ''
+  const ageFrom = Number.isFinite(quote.childrenAgeFrom) && quote.childrenAgeFrom >= 0 ? quote.childrenAgeFrom : null
+  const ageTo   = Number.isFinite(quote.childrenAgeTo)   && quote.childrenAgeTo   >= 0 ? quote.childrenAgeTo   : null
+  const childAgesLabel = ageFrom != null && ageTo != null ? `, ages ${ageFrom}–${ageTo}`
+    : ageFrom != null || ageTo != null ? `, age ${ageFrom ?? ageTo}`
+    : ''
 
   const priceRow = (label, meta, amount, key) => (
     <tr key={key} style={{ borderBottom: `1px solid ${BRAND.line}` }}>
