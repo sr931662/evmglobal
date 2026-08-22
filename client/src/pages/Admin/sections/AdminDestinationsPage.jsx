@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../../services/api'
 import { useScrollLock } from '../../../hooks/useScrollLock'
@@ -58,6 +58,9 @@ export default function AdminDestinationsPage() {
   const [form,         setForm]         = useState(empty)
   const [saving,       setSaving]       = useState(false)
   const [deletingId,   setDeletingId]   = useState(null)
+  const [uploading,    setUploading]    = useState(false)
+  const [uploadErr,    setUploadErr]    = useState('')
+  const fileRef = useRef(null)
 
   // The form is long (scores, months, collections…) — lock the page behind
   // it while it's open, same as every other admin modal.
@@ -88,6 +91,7 @@ export default function AdminDestinationsPage() {
   const openCreate = () => {
     setEditId(null)
     setForm(empty)
+    setUploadErr('')
     setShowModal(true)
   }
 
@@ -108,10 +112,11 @@ export default function AdminDestinationsPage() {
       bestMonths:  Array.isArray(dest.bestMonths) ? dest.bestMonths.map(Number) : [],
       collections: Array.isArray(dest.collections) ? dest.collections : [],
     })
+    setUploadErr('')
     setShowModal(true)
   }
 
-  const closeModal = () => { setShowModal(false); setEditId(null); setForm(empty) }
+  const closeModal = () => { setShowModal(false); setEditId(null); setForm(empty); setUploadErr('') }
 
   const handleSave = async () => {
     if (!form.name.trim() || !form.country.trim()) return
@@ -148,6 +153,22 @@ export default function AdminDestinationsPage() {
   }
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  // Pick from disk instead of hunting for a URL. The upload goes to the same
+  // image host the rest of the site already uses.
+  const handleFile = async (file) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setUploadErr('Please choose an image file.'); return }
+    setUploading(true); setUploadErr('')
+    try {
+      const result = await api.uploadImage(file)
+      f('image', result.url)
+    } catch (err) {
+      setUploadErr(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const setScore = (key, value) =>
     setForm(p => ({ ...p, scores: { ...p.scores, [key]: value } }))
@@ -286,7 +307,6 @@ export default function AdminDestinationsPage() {
               {[
                 { label: 'Destination Name', key: 'name',    placeholder: 'e.g. Santorini' },
                 { label: 'Country',          key: 'country', placeholder: 'e.g. Greece' },
-                { label: 'Image URL',        key: 'image',   placeholder: 'https://images.unsplash.com/...' },
               ].map(field => (
                 <div key={field.key}>
                   <label className={c.label}>{field.label}</label>
@@ -299,6 +319,41 @@ export default function AdminDestinationsPage() {
                   />
                 </div>
               ))}
+
+              <div>
+                <label className={c.label}>Destination Image</label>
+
+                {/* Upload from disk, or paste a URL — both end up in the same field. */}
+                <div
+                  className={styles.dropZone}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]) }}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/gif,image/webp"
+                    className={styles.fileInput}
+                    onChange={e => { handleFile(e.target.files?.[0]); e.target.value = '' }}
+                  />
+                  {uploading
+                    ? <span className={styles.dropText}>Uploading…</span>
+                    : <span className={styles.dropText}>
+                        <strong>Choose an image</strong> or drop one here · PNG, JPG, GIF or WebP, up to 5&nbsp;MB
+                      </span>}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="…or paste an image URL"
+                  value={form.image}
+                  onChange={e => f('image', e.target.value)}
+                  className={`${c.input} ${styles.urlInput}`}
+                />
+
+                {uploadErr && <p className={c.formError}>{uploadErr}</p>}
+              </div>
 
               <div>
                 <label className={c.label}>Region</label>

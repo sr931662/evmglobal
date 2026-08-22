@@ -691,7 +691,26 @@ const TABS = ['Basic Info', 'Itinerary', 'Flights', 'Hotels', 'Inclusions & Excl
 function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
   useScrollLock()
   const [tab, setTab] = useState(0)
+  const [uploading, setUploading] = useState(false)
+  const [uploadErr, setUploadErr] = useState('')
+  const fileRef = useRef(null)
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  // Pick from disk instead of hunting for a URL. The upload goes to the same
+  // image host the rest of the site already uses.
+  const handleFile = async (file) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) { setUploadErr('Please choose an image file.'); return }
+    setUploading(true); setUploadErr('')
+    try {
+      const result = await api.uploadImage(file)
+      f('image', result.url)
+    } catch (err) {
+      setUploadErr(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   // Auto-sync itinerary days when nights changes
   const nightsMounted = useRef(false)
@@ -812,7 +831,40 @@ function PackageModal({ editPkg, form, setForm, onSave, onClose, saving }) {
               <Field label="Description" value={form.description} onChange={v => f('description', v)} placeholder="A short description of the package…" type="textarea" />
               <DestinationsPicker selected={form.destinations} onChange={v => f('destinations', v)} />
               <Field label="Highlights (comma-separated)" value={form.highlights} onChange={v => f('highlights', v)} placeholder="e.g. Airport transfers, Luxury hotel" />
-              <Field label="Cover Image URL" value={form.image} onChange={v => f('image', v)} placeholder="https://images.unsplash.com/..." />
+              <div className={s.fieldWrap}>
+                <label className={s.fieldLabel}>Cover Image</label>
+
+                {/* Upload from disk, or paste a URL — both end up in the same field. */}
+                <div
+                  className={s.dropZone}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]) }}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/gif,image/webp"
+                    className={s.fileInput}
+                    onChange={e => { handleFile(e.target.files?.[0]); e.target.value = '' }}
+                  />
+                  {uploading
+                    ? <span className={s.dropText}>Uploading…</span>
+                    : <span className={s.dropText}>
+                        <strong>Choose an image</strong> or drop one here · PNG, JPG, GIF or WebP, up to 5&nbsp;MB
+                      </span>}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="…or paste an image URL"
+                  value={form.image}
+                  onChange={e => f('image', e.target.value)}
+                  className={cx(s.fieldInput, s.urlInput)}
+                />
+
+                {uploadErr && <p className={s.fieldHelp}>{uploadErr}</p>}
+              </div>
               {form.image && (
                 <div className={s.imagePreviewWrap}>
                   <img src={form.image} alt="preview" className={s.imagePreview} onError={e => { e.target.style.display = 'none' }} />

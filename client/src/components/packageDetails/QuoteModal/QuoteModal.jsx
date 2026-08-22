@@ -17,16 +17,22 @@ const BUDGETS = [
   '₹2,00,000+ per person',
 ]
 
+const CHILD_AGES = Array.from({ length: 11 }, (_, i) => String(i + 2)) // 2–12 yrs
+
 const EMPTY = {
   travelDate: '',
   adults: '2',
   children: '0',
+  childrenAges: [],
   hotelTier: '4★',
   budget: '',
   name: '',
   phone: '',
   email: '',
 }
+
+// '4+' is treated as 4 age fields — enough for the form without an unbounded list.
+const childCount = (value) => (value === '4+' ? 4 : Number(value) || 0)
 
 export default function QuoteModal({ open, onClose, pkg, where }) {
   const [form, setForm]       = useState(EMPTY)
@@ -39,6 +45,20 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
   const place = where || (destinations.length === 1 ? destinations[0] : '')
 
   const f = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
+
+  const setChildrenCount = (value) => {
+    const count = childCount(value)
+    setForm(prev => ({
+      ...prev,
+      children: value,
+      childrenAges: Array.from({ length: count }, (_, i) => prev.childrenAges[i] || ''),
+    }))
+  }
+
+  const setChildAge = (index, age) => setForm(prev => ({
+    ...prev,
+    childrenAges: prev.childrenAges.map((a, i) => (i === index ? age : a)),
+  }))
 
   useEffect(() => {
     if (open) {
@@ -61,10 +81,15 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
     if (open) { setSuccess(false); setError('') }
   }
 
+  const childrenAgesLabel = () => {
+    const ages = form.childrenAges.filter(Boolean)
+    return ages.length ? ` (ages ${ages.join(', ')})` : ''
+  }
+
   const leadSummary = () => [
     `Package: ${pkg?.title || '—'}`,
     form.travelDate && `Travel date: ${form.travelDate}`,
-    `Travellers: ${form.adults} adult(s)${Number(form.children) > 0 ? `, ${form.children} child(ren)` : ''}`,
+    `Travellers: ${form.adults} adult(s)${Number(form.children) > 0 ? `, ${form.children} child(ren)${childrenAgesLabel()}` : ''}`,
     `Hotel preference: ${form.hotelTier}`,
     form.budget && `Budget: ${form.budget}`,
   ].filter(Boolean).join('\n')
@@ -82,7 +107,7 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
         ...(form.email.trim() && { email: form.email.trim() }),
         destination: destinations.join(', '),
         travelDate:  form.travelDate,
-        travellers:  `${form.adults} adults, ${form.children} children`,
+        travellers:  `${form.adults} adults, ${form.children} children${childrenAgesLabel()}`,
         howHeard:    'Website',
         message:     `${leadSummary()}\nSource: Package page quote form.`,
         type: 'lead',
@@ -177,10 +202,30 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
 
                   <div className={styles.field}>
                     <label htmlFor="q-children" className={styles.label}>Children (2–12 yrs)</label>
-                    <select id="q-children" value={form.children} onChange={e => f('children', e.target.value)} className={styles.input}>
+                    <select id="q-children" value={form.children} onChange={e => setChildrenCount(e.target.value)} className={styles.input}>
                       {['0','1','2','3','4+'].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </div>
+
+                  {form.childrenAges.length > 0 && (
+                    <div className={`${styles.field} ${styles.full}`}>
+                      <span className={styles.label}>Child&rsquo;s age{form.childrenAges.length > 1 ? 's' : ''}</span>
+                      <div className={styles.ageRow}>
+                        {form.childrenAges.map((age, i) => (
+                          <select
+                            key={i}
+                            aria-label={`Child ${i + 1} age`}
+                            value={age}
+                            onChange={e => setChildAge(i, e.target.value)}
+                            className={styles.input}
+                          >
+                            <option value="">Age</option>
+                            {CHILD_AGES.map(a => <option key={a} value={a}>{a}</option>)}
+                          </select>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className={`${styles.field} ${styles.full}`}>
                     <span className={styles.label}>Hotel preference</span>
