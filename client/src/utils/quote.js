@@ -157,8 +157,8 @@ export function clampCount(value, max) {
 // "Children" always means this age band. A count drives pricing; individual
 // ages are optional and only used for display (hotel/airline booking needs
 // the actual age, the per-child rate doesn't vary by it).
-export const CHILD_AGE_RANGE = '2–12 yrs'
-export const CHILD_AGES = Array.from({ length: 11 }, (_, i) => i + 2) // 2–12
+export const CHILD_AGE_RANGE = '0–18 yrs'
+export const CHILD_AGES = Array.from({ length: 19 }, (_, i) => i) // 0–18
 
 // -1 marks an age slot the agent hasn't filled in yet.
 export function resizeChildrenAges(ages, count) {

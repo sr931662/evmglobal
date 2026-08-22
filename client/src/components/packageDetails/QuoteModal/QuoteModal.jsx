@@ -17,7 +17,7 @@ const BUDGETS = [
   '₹2,00,000+ per person',
 ]
 
-const CHILD_AGES = Array.from({ length: 11 }, (_, i) => String(i + 2)) // 2–12 yrs
+const CHILD_AGES = Array.from({ length: 19 }, (_, i) => String(i)) // 0–18 yrs
 
 const EMPTY = {
   travelDate: '',
@@ -201,7 +201,7 @@ export default function QuoteModal({ open, onClose, pkg, where }) {
                   </div>
 
                   <div className={styles.field}>
-                    <label htmlFor="q-children" className={styles.label}>Children (2–12 yrs)</label>
+                    <label htmlFor="q-children" className={styles.label}>Children (0–18 yrs)</label>
                     <select id="q-children" value={form.children} onChange={e => setChildrenCount(e.target.value)} className={styles.input}>
                       {['0','1','2','3','4+'].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
