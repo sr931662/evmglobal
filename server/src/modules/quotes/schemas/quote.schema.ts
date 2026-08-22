@@ -86,8 +86,10 @@ export const QuoteSchema = new Schema(
     nights:       { type: Number, default: 1 },
     pax:          { type: Number, default: 2 },
     adults:       { type: Number, default: 2 },
-    // "Children" is a fixed age band (2–12 yrs) — a count, not per-child ages.
+    // "Children" is a count within the 2–12 yrs band; individual ages are optional.
     children:     { type: Number, default: 0 },
+    // Per-child age, in the same order as the children count. -1 means "not recorded".
+    childrenAges: { type: [Number], default: [] },
     perAdult:     { type: Number, default: 0 },
     perChild:     { type: Number, default: 0 },
     tripType:     { type: String, default: 'Domestic', enum: ['Domestic', 'International'] },

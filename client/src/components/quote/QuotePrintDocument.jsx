@@ -41,6 +41,9 @@ export default function QuotePrintDocument({ quote }) {
   const departure = formatDate(quote.startDate)
   const validity  = formatDate(quote.validUntil)
 
+  const recordedAges = (quote.childrenAges || []).filter(a => Number.isFinite(a) && a >= 0)
+  const childAgesLabel = recordedAges.length ? `, ages ${recordedAges.join(', ')}` : ''
+
   const priceRow = (label, meta, amount, key) => (
     <tr key={key} style={{ borderBottom: `1px solid ${BRAND.line}` }}>
       <td style={{ ...S.sans, fontSize: 13, padding: '9px 0', verticalAlign: 'top' }}>
@@ -116,7 +119,7 @@ export default function QuotePrintDocument({ quote }) {
             </div>
             <div style={S.cellSm}>
               <strong>Travellers:</strong> {calc.adults} Adult{calc.adults === 1 ? '' : 's'}
-              {calc.children > 0 && ` + ${calc.children} Child${calc.children === 1 ? '' : 'ren'} (${CHILD_AGE_RANGE})`}
+              {calc.children > 0 && ` + ${calc.children} Child${calc.children === 1 ? '' : 'ren'} (${CHILD_AGE_RANGE}${childAgesLabel})`}
             </div>
             {departure && <div style={S.cellSm}><strong>Departure:</strong> {departure}</div>}
           </td>

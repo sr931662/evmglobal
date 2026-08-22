@@ -154,9 +154,17 @@ export function clampCount(value, max) {
 }
 
 // ─── Children ─────────────────────────────────────────────────────────────────
-// "Children" always means this age band — a count is all that's recorded,
-// not an age per child.
+// "Children" always means this age band. A count drives pricing; individual
+// ages are optional and only used for display (hotel/airline booking needs
+// the actual age, the per-child rate doesn't vary by it).
 export const CHILD_AGE_RANGE = '2–12 yrs'
+export const CHILD_AGES = Array.from({ length: 11 }, (_, i) => i + 2) // 2–12
+
+// -1 marks an age slot the agent hasn't filled in yet.
+export function resizeChildrenAges(ages, count) {
+  const current = Array.isArray(ages) ? ages : []
+  return Array.from({ length: count }, (_, i) => (Number.isFinite(current[i]) ? current[i] : -1))
+}
 
 // ─── Taxes ────────────────────────────────────────────────────────────────────
 export const DEFAULT_TAXES = [{ name: 'GST', percent: 5 }]
