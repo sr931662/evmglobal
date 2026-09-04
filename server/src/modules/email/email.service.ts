@@ -1,36 +1,35 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
   private adminEmail = process.env.ADMIN_EMAIL;
   private logger = new Logger('EmailService');
-  private defaultFrom = process.env.MAIL_FROM || 'EMV Global <noreply@easemyvacationsglobal.com>';
+  // Gmail only sends as the authenticated account (or a verified alias of it) —
+  // MAIL_FROM's display name can be anything, but the address must be GMAIL_USER.
+  private defaultFrom = process.env.MAIL_FROM || `EMV Global <${process.env.GMAIL_USER}>`;
 
-  private ses = new SESClient({
-    region: process.env.AWS_SES_REGION || 'ap-south-1',
-    ...(process.env.AWS_ACCESS_KEY_ID && {
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-    }),
+  // App Password, not the account password — generate one at
+  // myaccount.google.com/apppasswords (needs 2-Step Verification enabled first).
+  private transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
   });
 
   async send({ to, subject, html, from = undefined }: { to: string; subject: string; html: string; from?: string }) {
-    const command = new SendEmailCommand({
-      Source: from || this.defaultFrom,
-      Destination: { ToAddresses: [to] },
-      Message: {
-        Subject: { Data: subject, Charset: 'UTF-8' },
-        Body: { Html: { Data: html, Charset: 'UTF-8' } },
-      },
-    });
     try {
-      const result = await this.ses.send(command);
-      this.logger.log(`Email sent to ${to} — MessageId: ${result.MessageId}`);
+      const result = await this.transporter.sendMail({
+        from: from || this.defaultFrom,
+        to,
+        subject,
+        html,
+      });
+      this.logger.log(`Email sent to ${to} — MessageId: ${result.messageId}`);
     } catch (err) {
-      this.logger.error(`SES error for ${to}: ${err.message}`);
+      this.logger.error(`SMTP error for ${to}: ${err.message}`);
       throw err;
     }
   }
